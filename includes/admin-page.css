@@ -1,0 +1,31 @@
+
+.wrap .button.delete {
+	background: #d54e21;
+	border-color: #a83d1a;
+	color: white;
+	-webkit-box-shadow: inset 0 1px 0 #e68260, 0 1px 0 rgba(0, 0, 0, 0.15);
+	box-shadow: inset 0 1px 0 #e68260, 0 1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.wrap .button.delete:hover,
+.wrap .button.delete:focus {
+	background: #be461d;
+	border-color: #923517;
+	color: white;
+	box-shadow: inset 0 1px 0 #e3704a;
+}
+
+.wrap .button.delete:focus {
+	box-shadow: inset 0 1px 0 #e3704a,
+		0 0 0 1px #d54e21,
+		0 0 2px 1px rgba( 30, 140, 190, .8 );
+}
+
+.wrap .button.delete:active {
+	background: #a83d1a;
+	border-color: #923517;
+	color: white;
+	box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.5 ),
+		0 0 0 1px #d54e21,
+		0 0 2px 1px rgba( 30, 140, 190, .8 );
+}
