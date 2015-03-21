@@ -1,23 +1,23 @@
 === Redis Object Cache ===
 Contributors: tillkruess
 Donate link: http://till.kruss.me/donations/
-Tags: redis, predis, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load
+Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load
 Requires at least: 3.3
 Tested up to: 4.2
-Stable tag: 1.0.2
+Stable tag: 1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-A persistent object cache backend powered by Redis and the Predis library for PHP.
+A persistent object cache backend powered by Redis. Supports HHVM's Redis extension, the PCEL Redis Extension and the Predis library for PHP.
 
 
 == Description ==
 
-A persistent object cache backend powered by [Redis](http://redis.io/) and the [Predis](https://github.com/nrk/predis/) library for PHP. The Predis library requires PHP 5.4 or greater.
+A persistent object cache backend powered by Redis. Supports [HHVM's Redis extension](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), the [PCEL Redis Extension](https://github.com/phpredis/phpredis) and the [Predis](https://github.com/nrk/predis/) library for PHP (requires PHP 5.4 or greater).
 
 To adjust the connection parameters or prefixing cache keys, see [Other Notes](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
 
-Forked from Eric Mann's and Erick Hitter's [Redis Object Cache](https://github.com/ericmann/Redis-Object-Cache), which requires the Redis PECL extension.
+Forked from Eric Mann's and Erick Hitter's [Redis Object Cache](https://github.com/ericmann/Redis-Object-Cache).
 
 
 == Installation ==
@@ -36,9 +36,13 @@ By default the object cache drop-in will connect to Redis over TCP at `127.0.0.1
 
 To adjust the connection parameters, define the following constants in your `wp-config.php`.
 
+  * `WP_REDIS_CLIENT` [default: not set]
+
+      Specifies the client used to communicate with Redis. Supports `hhvm`, `pecl` and `predis`.
+
   * `WP_REDIS_SCHEME` [default: `tcp`]
 
-      Specifies the protocol used to communicate with an instance of Redis. Internally the client uses the connection class associated to the specified connection scheme. By default Predis supports `tcp` (TCP/IP), `unix` (UNIX domain sockets) or `http` (HTTP protocol through Webdis).
+      Specifies the protocol used to communicate with an instance of Redis. Internally the client uses the connection class associated to the specified connection scheme. Supports `tcp` (TCP/IP), `unix` (UNIX domain sockets) or `http` (HTTP protocol through Webdis).
 
   * `WP_REDIS_HOST` [default: `127.0.0.1`]
 
@@ -54,11 +58,15 @@ To adjust the connection parameters, define the following constants in your `wp-
 
   * `WP_REDIS_DATABASE` [default: `0`]
 
-      Accepts a numeric value that is used by Predis to automatically select a logical database with the `SELECT` command.
+      Accepts a numeric value that is used to automatically select a logical database with the `SELECT` command.
 
   * `WP_REDIS_PASSWORD` [default: not set]
 
       Accepts a value used to authenticate with a Redis server protected by password with the `AUTH` command.
+
+  * `WP_REDIS_MAXTTL` [default: not set]
+
+      Set maximum time-to-live (in seconds) for cache keys with an expiration time of `0`.
 
 
 == Prefixing Cache Keys ==
@@ -74,6 +82,16 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 
 == Changelog ==
+
+= 1.1 =
+
+  * Added support for HHVM's Redis extension
+  * Added support for PCEL Redis extension
+  * Added `WP_REDIS_CLIENT` constant, to set prefered Redis client
+  * Added `WP_REDIS_MAXTTL` constant, to force expiration of cache keys
+  * Improved `add_or_replace()`, `get()`, `set()` and `delete()` method
+  * Improved admin screen styles
+  * Removed all internationalization/localization from drop-in
 
 = 1.0.2 =
 
@@ -96,6 +114,10 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 
 == Upgrade Notice ==
+
+= 1.1 =
+
+This update includes bug fixes and adds supports for HHVM/PCEL Redis extensions.
 
 = 1.0.2 =
 

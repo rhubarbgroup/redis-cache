@@ -15,28 +15,59 @@
 		</tr>
 
 		<tr valign="top">
-			<th scope="row"><?php _e( 'Connection Parameters', 'redis-cache' ); ?></th>
+			<th scope="row"><?php _e( 'Configuration', 'redis-cache' ); ?></th>
 			<td>
-				<p>
-
-					<?php _e( 'Protocol:', 'redis-cache' ); ?> <code><?php echo strtoupper( esc_html( $this->get_redis_scheme() ) ); ?></code><br />
-
+				<table>
+					<?php if ( ! is_null( $this->get_redis_client_name() ) ) : ?>
+						<tr>
+							<td><?php _e( 'Client:', 'redis-cache' ); ?></td>
+							<td><code><?php echo $this->get_redis_client_name(); ?></code></td>
+						</tr>
+					<?php endif; ?>
+					<tr>
+						<td><?php _e( 'Protocol:', 'redis-cache' ); ?></td>
+						<td><code><?php echo strtoupper( esc_html( $this->get_redis_scheme() ) ); ?></code></td>
+					</tr>
 					<?php if ( strcasecmp( 'tcp', $this->get_redis_scheme() ) === 0 ) : ?>
-						<?php _e( 'Host:', 'redis-cache' ); ?> <code><?php echo esc_html( $this->get_redis_host() ); ?></code><br />
-						<?php _e( 'Port:', 'redis-cache' ); ?> <code><?php echo esc_html( $this->get_redis_port() ); ?></code><br />
-					<?php endif; ?>
+						<tr>
+							<td><?php _e( 'Host:', 'redis-cache' ); ?></td>
+							<td><code><?php echo esc_html( $this->get_redis_host() ); ?></code></td>
+						</tr>
 
+						<tr>
+							<td><?php _e( 'Port:', 'redis-cache' ); ?></td>
+							<td><code><?php echo esc_html( $this->get_redis_port() ); ?></code></td>
+						</tr>
+					<?php endif; ?>
 					<?php if ( strcasecmp( 'unix', $this->get_redis_scheme() ) === 0 ) : ?>
-						<?php _e( 'Path:', 'redis-cache' ); ?> <code><?php echo esc_html( $this->get_redis_path() ); ?></code><br />
+						<tr>
+							<td><?php _e( 'Path:', 'redis-cache' ); ?></td>
+							<td><code><?php echo esc_html( $this->get_redis_path() ); ?></code></td>
+						</tr>
 					<?php endif; ?>
-
-					<?php _e( 'Database:', 'redis-cache' ); ?> <code><?php echo esc_html( $this->get_redis_database() ); ?></code><br />
-
+					<tr>
+						<td><?php _e( 'Database:', 'redis-cache' ); ?></td>
+						<td> <code><?php echo esc_html( $this->get_redis_database() ); ?></code></td>
+					</tr>
 					<?php if ( ! is_null( $this->get_redis_password() ) ) : ?>
-						<?php _e( 'Password:', 'redis-cache' ); ?> <code><?php echo str_repeat( '*', strlen( $this->get_redis_password() ) ); ?></code>
+						<tr>
+							<td><?php _e( 'Password:', 'redis-cache' ); ?></td>
+							<td><code><?php echo str_repeat( '*', strlen( $this->get_redis_password() ) ); ?></code></td>
+						</tr>
 					<?php endif; ?>
-
-				</p>
+					<?php if ( ! empty( $this->get_redis_cachekey_prefix() ) ) : ?>
+						<tr>
+							<td><?php _e( 'Key Prefix:', 'redis-cache' ); ?></td>
+							<td><code><?php echo esc_html( $this->get_redis_cachekey_prefix() ); ?></code></td>
+						</tr>
+					<?php endif; ?>
+					<?php if ( ! is_null( $this->get_redis_maxttl() ) ) : ?>
+						<tr>
+							<td><?php _e( 'Max. TTL:', 'redis-cache' ); ?></td>
+							<td><code><?php echo esc_html( $this->get_redis_maxttl() ); ?></code></td>
+						</tr>
+					<?php endif; ?>
+				</table>
 			</td>
 		</tr>
 

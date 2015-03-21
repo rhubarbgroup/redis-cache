@@ -29,3 +29,7 @@
 		0 0 0 1px #d54e21,
 		0 0 2px 1px rgba( 30, 140, 190, .8 );
 }
+
+.form-table table td {
+	padding: 0 1em 0 0;
+}

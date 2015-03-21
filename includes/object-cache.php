@@ -3,7 +3,7 @@
 Plugin Name: Redis Object Cache
 Plugin URI: http://wordpress.org/plugins/redis-cache/
 Description: A Redis backend for the WordPress Object Cache based on the Predis client library for PHP.
-Version: 1.0.2
+Version: 1.1
 Author: Till Krüss
 Author URI: http://till.kruss.me/
 License: GPLv3
@@ -265,6 +265,13 @@ class WP_Object_Cache {
 	private $cache = array();
 
 	/**
+	 * Name of the used Redis client
+	 *
+	 * @var bool
+	 */
+	public $redis_client = null;
+
+	/**
 	 * List of global groups.
 	 *
 	 * @var array
@@ -311,12 +318,11 @@ class WP_Object_Cache {
 	 *
 	 * Instantiates the Redis class.
 	 *
-	 * @param   null $persistent_id      To create an instance that persists between requests, use persistent_id to specify a unique ID for the instance.
+	 * @param null $persistent_id To create an instance that persists between requests, use persistent_id to specify a unique ID for the instance.
 	 */
 	public function __construct() {
 		global $blog_id, $table_prefix;
 
-		// General Redis settings
 		$redis = array(
 			'scheme' => 'tcp',
 			'host' => '127.0.0.1',
@@ -347,11 +353,19 @@ class WP_Object_Cache {
 			$redis[ 'database' ] = WP_REDIS_DATABASE;
 		}
 
+		$redis_client = defined( 'WP_REDIS_CLIENT' ) ? WP_REDIS_CLIENT : null;
+
+		if ( class_exists( 'Redis' ) && strcasecmp( 'predis', $redis_client ) !== 0 ) {
+			$redis_client = defined( 'HHVM_VERSION' ) ? 'hhvm' : 'pecl';
+		} else {
+			$redis_client = 'predis';
+		}
+
 		try {
 
-			// is HHVM's built-in Redis class available?
-			if ( defined( 'HHVM_VERSION' ) && class_exists( 'Redis' ) ) {
+			if ( strcasecmp( 'hhvm', $redis_client ) === 0 ) {
 
+				$this->redis_client = sprintf( 'HHVM %s Extension', HHVM_VERSION );
 				$this->redis = new Redis();
 
 				// adjust host and port, if the scheme is `unix`
@@ -366,7 +380,30 @@ class WP_Object_Cache {
 
 				$this->redis_connected = true;
 
+			} elseif ( strcasecmp( 'pecl', $redis_client ) === 0 ) {
+
+				$this->redis_client = 'PCEL Extension';
+				$this->redis = new Redis();
+
+				if ( strcasecmp( 'unix', $redis[ 'scheme' ] ) === 0 ) {
+					$this->redis->connect( $redis[ 'path' ] );
+				} else {
+					$this->redis->connect( $redis[ 'host' ], $redis[ 'port' ] );
+				}
+
+				if ( isset( $redis[ 'password' ] ) ) {
+					$this->redis->auth( $redis[ 'password' ] );
+				}
+
+				if ( isset( $redis[ 'database' ] ) ) {
+					$this->redis->select( $redis[ 'database' ] );
+				}
+
+				$this->redis_connected = true;
+
 			} else {
+
+				$this->redis_client = 'Predis';
 
 				// require PHP 5.4 or greater
 				if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
@@ -384,7 +421,9 @@ class WP_Object_Cache {
 
 				$this->redis = new Predis\Client( $redis );
 				$this->redis->connect();
+
 				$this->redis_connected = true;
+				$this->redis_client .= ' v' . Predis\Client::VERSION;
 
 			}
 
@@ -465,39 +504,35 @@ class WP_Object_Cache {
 	 * @param   int    $expiration     The expiration time, defaults to 0.
 	 * @return  bool                   Returns TRUE on success or FALSE on failure.
 	 */
+
 	protected function add_or_replace( $add, $key, $value, $group = 'default', $expiration = 0 ) {
 		$derived_key = $this->build_key( $key, $group );
+		$result = true;
 
-		// If group is a non-Redis group, save to internal cache, not Redis
-		if ( in_array( $group, $this->no_redis_groups ) || ! $this->redis_status() ) {
+		// save if group not excluded and redis is up
+		if ( ! in_array( $group, $this->no_redis_groups ) && $this->redis_status() ) {
+			$exists = $this->redis->exists( $derived_key );
 
-			// Check if conditions are right to continue
-			if (
-				( $add   &&   isset( $this->cache[ $derived_key ] ) ) ||
-				( ! $add && ! isset( $this->cache[ $derived_key ] ) )
-			) {
+			if ( $add === $exists ) {
 				return false;
 			}
 
-			$this->add_to_internal_cache( $derived_key, $value );
+			$expiration = $this->validate_expiration( $expiration );
 
-			return true;
+			if ( $expiration ) {
+				$result = $this->parse_predis_response( $this->redis->setex( $derived_key, $expiration, maybe_serialize( $value ) ) );
+			} else {
+				$result = $this->parse_predis_response( $this->redis->set( $derived_key, maybe_serialize( $value ) ) );
+			}
 		}
 
-		// Check if conditions are right to continue
-		if (
-			( $add   &&   $this->redis->exists( $derived_key ) ) ||
-			( ! $add && ! $this->redis->exists( $derived_key ) )
-		) {
+		$exists = isset( $this->cache[ $derived_key ] );
+		if ( $add === $exists ) {
 			return false;
 		}
 
-		// Save to Redis
-		$expiration = abs( intval( $expiration ) );
-		if ( $expiration ) {
-			$result = $this->parse_predis_response( $this->redis->setex( $derived_key, $expiration, maybe_serialize( $value ) ) );
-		} else {
-			$result = $this->parse_predis_response( $this->redis->set( $derived_key, maybe_serialize( $value ) ) );
+		if ( $result ) {
+			$this->add_to_internal_cache( $derived_key, $value );
 		}
 
 		return $result;
@@ -513,20 +548,15 @@ class WP_Object_Cache {
 	public function delete( $key, $group = 'default' ) {
 		$derived_key = $this->build_key( $key, $group );
 
-		// Remove from no_redis_groups array
-		if ( in_array( $group, $this->no_redis_groups ) || ! $this->redis_status() ) {
-			if ( isset( $this->cache[ $derived_key ] ) ) {
-				unset( $this->cache[ $derived_key ] );
-
-				return true;
-			} else {
-				return false;
-			}
+		$result = false;
+		if ( isset( $this->cache[ $derived_key ] ) ) {
+			unset( $this->cache[ $derived_key ] );
+			$result = true;
 		}
 
-		$result = $this->parse_predis_response( $this->redis->del( $derived_key ) );
-
-		unset( $this->cache[ $derived_key ] );
+		if ( $this->redis_status() && ! in_array( $group, $this->no_redis_groups ) ) {
+			$result = $this->parse_predis_response( $this->redis->del( $derived_key ) );
+		}
 
 		return $result;
 	}
@@ -573,12 +603,12 @@ class WP_Object_Cache {
 		}
 
 		$result = $this->redis->get( $derived_key );
-		if ($result == NULL) {
+		if ($result === NULL) {
 			$this->cache_misses++;
 			return false;
 		} else {
 			$this->cache_hits++;
-			$value = maybe_unserialize($result);
+			$value = maybe_unserialize( $result );
 		}
 
 		$this->add_to_internal_cache( $derived_key, $value );
@@ -661,20 +691,21 @@ class WP_Object_Cache {
 	 */
 	public function set( $key, $value, $group = 'default', $expiration = 0 ) {
 		$derived_key = $this->build_key( $key, $group );
+		$result = true;
 
-		// If group is a non-Redis group, save to internal cache, not Redis
-		if ( in_array( $group, $this->no_redis_groups ) || ! $this->redis_status() ) {
-			$this->add_to_internal_cache( $derived_key, $value );
-
-			return true;
+		// save if group not excluded from redis and redis is up
+		if ( ! in_array( $group, $this->no_redis_groups ) && $this->redis_status() ) {
+			$expiration = $this->validate_expiration($expiration);
+			if ( $expiration ) {
+				$result = $this->parse_predis_response( $this->redis->setex( $derived_key, $expiration, maybe_serialize( $value ) ) );
+			} else {
+				$result = $this->parse_predis_response( $this->redis->set( $derived_key, maybe_serialize( $value ) ) );
+			}
 		}
 
-		// Save to Redis
-		$expiration = abs( intval( $expiration ) );
-		if ( $expiration ) {
-			$result = $this->parse_predis_response( $this->redis->setex( $derived_key, $expiration, maybe_serialize( $value ) ) );
-		} else {
-			$result = $this->parse_predis_response( $this->redis->set( $derived_key, maybe_serialize( $value ) ) );
+		// if the set was successful, or we didn't go to redis
+		if ( $result ) {
+			$this->add_to_internal_cache( $derived_key, $value );
 		}
 
 		return $result;
@@ -746,17 +777,17 @@ class WP_Object_Cache {
 	public function stats() { ?>
 
 		<p>
-			<strong><?php $this->_i18n( '_e', 'Cache Status:' ); ?></strong> <?php echo $this->redis_status() ? $this->_i18n( '__', 'Connected' ) : $this->_i18n( '__', 'Not connected' ); ?><br />
-			<strong><?php $this->_i18n( '_e', 'Cache Hits:' ); ?></strong> <?php echo $this->_i18n( 'number_format_i18n', $this->cache_hits, false ); ?><br />
-			<strong><?php $this->_i18n( '_e', 'Cache Misses:' ); ?></strong> <?php echo $this->_i18n( 'number_format_i18n', $this->cache_misses, false ); ?>
+			<strong>Cache Status:</strong> <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?><br />
+			<strong>Cache Hits:</strong> <?php echo $this->cache_hits; ?><br />
+			<strong>Cache Misses:</strong> <?php echo $this->cache_misses; ?>
 		</p>
 
-		<p><strong><?php $this->_i18n( '_e',  'Caches Retrieved:' ); ?></strong></p>
+		<p><strong>Caches Retrieved:</strong></p>
 
 		<ul>
-			<li><em><?php $this->_i18n( '_e',  'prefix:group:key - size in kilobytes' ); ?></em></li>
+			<li><em>prefix:group:key - size in kilobytes</em></li>
 			<?php foreach ( $this->cache as $group => $cache ) : ?>
-				<li><?php printf( $this->_i18n( '__', '%s - %s %s' ), $this->_esc_html( $group, false ), $this->_i18n( 'number_format_i18n', strlen( serialize( $cache ) ) / 1024, false, 2 ), $this->_i18n( '__', 'kb' ) ); ?></li>
+				<li><?php printf( '%s - %s kb', strip_tags( $group ), number_format( strlen( serialize( $cache ) ) / 1024, 2 ) ); ?></li>
 			<?php endforeach; ?>
 		</ul><?php
 
@@ -896,53 +927,16 @@ class WP_Object_Cache {
 	}
 
 	/**
-	 * Run a value through an i18n WP function if it exists. Otherwise, just rpass through.
+	 * Wrapper to validate the cache keys expiration value
 	 *
-	 * Since this class may run befor the i18n methods are loaded in WP, we'll make sure they
-	 * exist before using them. Most require a text domain, some don't, so the second param allows
-	 * specifiying which type is being called.
-	 *
-	 * @param  string $method The WP method to pass the string through if it exists.
-	 * @param  string $string The string to internationalize.
-	 * @param  bool   $domain Whether or not to pass the text domain to the method as well.
-	 * @param  mixed  $params Any extra param or array of params to send to the method.
-	 * @return string         The maybe internationalaized string.
+	 * @param mixed $expiration Incomming expiration value (whatever it is)
 	 */
-	protected function _i18n( $method, $string, $domain = true, $params = array() ) {
-		// Pass through if the method doesn't exist.
-		if ( ! function_exists( $method ) ) {
-			return $string;
+	protected function validate_expiration( $expiration ) {
+		$expiration = ( is_array( $expiration ) || is_object( $expiration ) ? 0 : abs( intval( $expiration ) ) );
+		if ( $expiration === 0 && defined( 'WP_REDIS_MAXTTL' ) ) {
+			$expiration = intval( WP_REDIS_MAXTTL );
 		}
-		// Allow non-array single extra values
-		if ( ! is_array( $params ) ) {
-			$params = array( $params );
-		}
-		// Add domain param if needed.
-		if ( (bool) $domain ) {
-			array_unshift( $params, 'redis-cache' );
-		}
-		// Add the string
-		array_unshift( $params, $string );
-
-		return call_user_func_array( $method, $params );
-	}
-
-	/**
-	 * Try to escape any HTML from output, if not available, strip tags.
-	 *
-	 * This helper ensures invalid HTML output is escaped with esc_html if possible. If not,
-	 * it will use the native strip_tags instead to simply remove them. This is needed since
-	 * in some circumstances this may be loaded before esc_html is available.
-	 *
-	 * @param  string $string The string to escape or strip.
-	 * @return string        The safe string for output.
-	 */
-	public function _esc_html( $string ) {
-		if ( function_exists( 'esc_html' ) ) {
-			return esc_html( $string );
-		} else {
-			return strip_tags( $string );
-		}
+		return $expiration;
 	}
 
 }
