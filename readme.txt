@@ -13,7 +13,7 @@ A persistent object cache backend powered by Redis. Supports HHVM's Redis extens
 
 == Description ==
 
-A persistent object cache backend powered by Redis. Supports [HHVM's Redis extension](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), the [PCEL Redis Extension](https://github.com/phpredis/phpredis) and the [Predis](https://github.com/nrk/predis/) library for PHP (requires PHP 5.4 or greater).
+A persistent object cache backend powered by Redis. Supports [HHVM's Redis extension](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), the [PCEL Redis Extension](https://github.com/phpredis/phpredis) and the [Predis](https://github.com/nrk/predis/) library for PHP *(Predis requires PHP 5.4 or greater)*.
 
 To adjust the connection parameters or prefixing cache keys, see [Other Notes](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
 
@@ -89,7 +89,7 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
   * Added support for PCEL Redis extension
   * Added `WP_REDIS_CLIENT` constant, to set prefered Redis client
   * Added `WP_REDIS_MAXTTL` constant, to force expiration of cache keys
-  * Improved `add_or_replace()`, `get()`, `set()` and `delete()` method
+  * Improved `add_or_replace()`, `get()`, `set()` and `delete()` methods
   * Improved admin screen styles
   * Removed all internationalization/localization from drop-in
 
