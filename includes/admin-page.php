@@ -55,7 +55,7 @@
 							<td><code><?php echo str_repeat( '*', strlen( $this->get_redis_password() ) ); ?></code></td>
 						</tr>
 					<?php endif; ?>
-					<?php if ( ! empty( $this->get_redis_cachekey_prefix() ) ) : ?>
+					<?php if ( ! is_null( $this->get_redis_cachekey_prefix() ) && trim( $this->get_redis_cachekey_prefix() ) !== '' ) : ?>
 						<tr>
 							<td><?php _e( 'Key Prefix:', 'redis-cache' ); ?></td>
 							<td><code><?php echo esc_html( $this->get_redis_cachekey_prefix() ); ?></code></td>
