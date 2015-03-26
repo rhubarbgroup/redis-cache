@@ -4,7 +4,7 @@ Donate link: http://till.kruss.me/donations/
 Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load
 Requires at least: 3.3
 Tested up to: 4.2
-Stable tag: 1.1
+Stable tag: 1.1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,10 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 == Changelog ==
 
+= 1.1.1 =
+
+  * Call `select()` and optionally `auth()` if HHVM extension is used
+
 = 1.1 =
 
   * Added support for HHVM's Redis extension
@@ -114,6 +118,10 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+
+This update fixes critial bugs with the HHVM extension
 
 = 1.1 =
 
