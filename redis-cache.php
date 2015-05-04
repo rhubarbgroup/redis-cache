@@ -3,7 +3,7 @@
 Plugin Name: Redis Object Cache
 Plugin URI: http://wordpress.org/plugins/redis-cache/
 Description: A Redis backend for the WordPress Object Cache based on the Predis client library for PHP.
-Version: 1.1.1
+Version: 1.2
 Text Domain: redis-cache
 Domain Path: /languages
 Author: Till Krüss
@@ -27,11 +27,38 @@ class RedisObjectCache {
 
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'add_plugin_actions_links' ) );
 
+		// Create network admin menu if using multisite
+		if( is_multisite() ) {
+			$this->screen = 'settings_page_redis-cache';
+			$this->capability = 'manage_network_options';
+			$this->admin_page = 'settings.php?page=redis-cache';
+
+			add_action( 'network_admin_menu', array( $this, 'add_network_admin_menu_page' ) );
+		}
+
+		// Create Tools page if standard WP installation
+		if( ! is_multisite() ) {
+			add_action( 'admin_menu', array( $this, 'add_admin_menu_page' ) );
+		}
+
 		add_action( 'admin_notices', array( $this, 'show_admin_notices' ) );
-		add_action( 'admin_menu', array( $this, 'add_admin_menu_page' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
 		add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
+
+	}
+
+	public function add_network_admin_menu_page() {
+
+		// add Network Admin settings page if using multisite
+		add_submenu_page(
+			'settings.php',
+			__( 'Redis Object Cache', 'redis-cache'),
+			__( 'Redis', 'redis-cache'),
+			$this->capability,
+			'redis-cache',
+			array( $this, 'show_admin_page' )
+		);
 
 	}
 
@@ -60,7 +87,7 @@ class RedisObjectCache {
 				// verify nonce
 				if ( $action === $name && wp_verify_nonce( $_GET[ '_wpnonce' ], $action ) ) {
 
-					$url = wp_nonce_url( admin_url( add_query_arg( 'action', $action, $this->admin_page ) ), $action );
+					$url = wp_nonce_url( network_admin_url( add_query_arg( 'action', $action, $this->admin_page ) ), $action );
 
 					if ( $this->initialize_filesystem( $url ) === false ) {
 						return; // request filesystem credentials
@@ -81,7 +108,7 @@ class RedisObjectCache {
 
 		// add settings link to plugin actions
 		return array_merge(
-			array( '<a href="' . admin_url( $this->admin_page ) . '">Settings</a>' ),
+			array( '<a href="' . network_admin_url( $this->admin_page ) . '">Settings</a>' ),
 			$links
 		);
 
@@ -166,7 +193,7 @@ class RedisObjectCache {
 
 		if ( $this->object_cache_dropin_exists() ) {
 
-			$url = wp_nonce_url( admin_url( add_query_arg( 'action', 'update-dropin', $this->admin_page ) ), 'update-dropin' );
+			$url = wp_nonce_url( network_admin_url( add_query_arg( 'action', 'update-dropin', $this->admin_page ) ), 'update-dropin' );
 
 			if ( $this->validate_object_cache_dropin() ) {
 
@@ -255,7 +282,7 @@ class RedisObjectCache {
 
 			if ( in_array( $action, $this->admin_actions ) ) {
 
-				$url = wp_nonce_url( admin_url( add_query_arg( 'action', $action, $this->admin_page ) ), $action );
+				$url = wp_nonce_url( network_admin_url( add_query_arg( 'action', $action, $this->admin_page ) ), $action );
 
 				if ( $action === 'flush-cache' ) {
 					$message = wp_cache_flush() ? 'cache-flushed' : 'flush-cache-failed';
@@ -287,7 +314,7 @@ class RedisObjectCache {
 
 				// redirect if status `$message` was set
 				if ( isset( $message ) ) {
-					wp_safe_redirect( admin_url( add_query_arg( 'message', $message, $this->admin_page ) ) );
+					wp_safe_redirect( network_admin_url( add_query_arg( 'message', $message, $this->admin_page ) ) );
 					exit;
 				}
 
