@@ -112,7 +112,7 @@ class RedisObjectCache {
 
 	public function get_redis_client_name() {
 		global $wp_object_cache;
-		return $wp_object_cache->redis_client;
+		return isset( $wp_object_cache->redis_client ) ? $wp_object_cache->redis_client : null;
 	}
 
 	public function get_redis_scheme() {
