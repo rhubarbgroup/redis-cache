@@ -85,7 +85,9 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 = 1.2 =
 
-  * Added support for WordPress Multisite installations.
+  * Added Multisite support
+  * Moved admin menu under _Settings_ menu
+  * Fixed PHP notice in `get_redis_client_name()`
 
 = 1.1.1 =
 
