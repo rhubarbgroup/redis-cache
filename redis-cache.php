@@ -16,59 +16,38 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class RedisObjectCache {
 
-	private $screen = 'tools_page_redis-cache';
-	private $capability = 'manage_options';
-	private $admin_page = 'tools.php?page=redis-cache';
-	private $admin_actions = array( 'enable-cache', 'disable-cache', 'flush-cache', 'update-dropin' );
+	private $page;
+	private $screen = 'settings_page_redis-cache';
+	private $actions = array( 'enable-cache', 'disable-cache', 'flush-cache', 'update-dropin' );
 
 	public function __construct() {
 
 		load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
 
-		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'add_plugin_actions_links' ) );
+		$this->page = is_multisite() ? 'settings.php?page=redis-cache' : 'options-general.php?page=redis-cache';
 
-		// Create network admin menu if using multisite
-		if( is_multisite() ) {
-			$this->screen = 'settings_page_redis-cache';
-			$this->capability = 'manage_network_options';
-			$this->admin_page = 'settings.php?page=redis-cache';
-
-			add_action( 'network_admin_menu', array( $this, 'add_network_admin_menu_page' ) );
-		}
-
-		// Create Tools page if standard WP installation
-		if( ! is_multisite() ) {
-			add_action( 'admin_menu', array( $this, 'add_admin_menu_page' ) );
-		}
-
+		add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', array( $this, 'add_admin_menu_page' ) );
 		add_action( 'admin_notices', array( $this, 'show_admin_notices' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
 		add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
 
-	}
-
-	public function add_network_admin_menu_page() {
-
-		// add Network Admin settings page if using multisite
-		add_submenu_page(
-			'settings.php',
-			__( 'Redis Object Cache', 'redis-cache'),
-			__( 'Redis', 'redis-cache'),
-			$this->capability,
-			'redis-cache',
-			array( $this, 'show_admin_page' )
-		);
+		add_filter( sprintf(
+			'%splugin_action_links_%s',
+			is_multisite() ? 'network_admin_' : '',
+			plugin_basename( __FILE__ )
+		), array( $this, 'add_plugin_actions_links' ) );
 
 	}
 
 	public function add_admin_menu_page() {
 
-		// add "Tools" sub-page
-		add_management_page(
+		// add sub-page to "Settings"
+		add_submenu_page(
+			is_multisite() ? 'settings.php' : 'options-general.php',
 			__( 'Redis Object Cache', 'redis-cache'),
 			__( 'Redis', 'redis-cache'),
-			$this->capability,
+			is_multisite() ? 'manage_network_options' : 'manage_options',
 			'redis-cache',
 			array( $this, 'show_admin_page' )
 		);
@@ -82,12 +61,12 @@ class RedisObjectCache {
 
 			$action = $_GET[ 'action' ];
 
-			foreach ( $this->admin_actions as $name ) {
+			foreach ( $this->actions as $name ) {
 
 				// verify nonce
 				if ( $action === $name && wp_verify_nonce( $_GET[ '_wpnonce' ], $action ) ) {
 
-					$url = wp_nonce_url( network_admin_url( add_query_arg( 'action', $action, $this->admin_page ) ), $action );
+					$url = wp_nonce_url( network_admin_url( add_query_arg( 'action', $action, $this->page ) ), $action );
 
 					if ( $this->initialize_filesystem( $url ) === false ) {
 						return; // request filesystem credentials
@@ -108,7 +87,7 @@ class RedisObjectCache {
 
 		// add settings link to plugin actions
 		return array_merge(
-			array( '<a href="' . network_admin_url( $this->admin_page ) . '">Settings</a>' ),
+			array( sprintf( '<a href="%s">Settings</a>', network_admin_url( $this->page ) ) ),
 			$links
 		);
 
@@ -187,13 +166,13 @@ class RedisObjectCache {
 	public function show_admin_notices() {
 
 		// only show admin notices to users with the right capability
-		if ( ! current_user_can( $this->capability ) ) {
+		if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
 			return;
 		}
 
 		if ( $this->object_cache_dropin_exists() ) {
 
-			$url = wp_nonce_url( network_admin_url( add_query_arg( 'action', 'update-dropin', $this->admin_page ) ), 'update-dropin' );
+			$url = wp_nonce_url( network_admin_url( add_query_arg( 'action', 'update-dropin', $this->page ) ), 'update-dropin' );
 
 			if ( $this->validate_object_cache_dropin() ) {
 
@@ -274,15 +253,15 @@ class RedisObjectCache {
 			$action = $_GET[ 'action' ];
 
 			// verify nonce
-			foreach ( $this->admin_actions as $name ) {
+			foreach ( $this->actions as $name ) {
 				if ( $action === $name && ! wp_verify_nonce( $_GET[ '_wpnonce' ], $action ) ) {
 					return;
 				}
 			}
 
-			if ( in_array( $action, $this->admin_actions ) ) {
+			if ( in_array( $action, $this->actions ) ) {
 
-				$url = wp_nonce_url( network_admin_url( add_query_arg( 'action', $action, $this->admin_page ) ), $action );
+				$url = wp_nonce_url( network_admin_url( add_query_arg( 'action', $action, $this->page ) ), $action );
 
 				if ( $action === 'flush-cache' ) {
 					$message = wp_cache_flush() ? 'cache-flushed' : 'flush-cache-failed';
@@ -314,7 +293,7 @@ class RedisObjectCache {
 
 				// redirect if status `$message` was set
 				if ( isset( $message ) ) {
-					wp_safe_redirect( network_admin_url( add_query_arg( 'message', $message, $this->admin_page ) ) );
+					wp_safe_redirect( network_admin_url( add_query_arg( 'message', $message, $this->page ) ) );
 					exit;
 				}
 
