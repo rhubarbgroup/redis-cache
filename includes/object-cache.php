@@ -449,7 +449,7 @@ class WP_Object_Cache {
 		 * multi single WP installs on the same server.
 		 */
 		if ( ! defined( 'WP_CACHE_KEY_SALT' ) ) {
-			define( 'WP_CACHE_KEY_SALT', '' );
+			define( 'WP_CACHE_KEY_SALT', md5(DB_NAME . __FILE__) );
 		}
 
 		// Assign global and blog prefixes for use with keys
