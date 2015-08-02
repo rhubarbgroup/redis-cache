@@ -3,7 +3,7 @@
 
 <div class="wrap">
 
-	<h2><?php _e( 'Redis Object Cache', 'redis-cache' ); ?></h2>
+	<h1><?php _e( 'Redis Object Cache', 'redis-cache' ); ?></h1>
 
 	<?php settings_errors(); ?>
 
