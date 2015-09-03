@@ -1,7 +1,16 @@
 {
-    "name": "tillkruss/redis-cache",
+    "name": "tillkruss/redis-object-cache",
+    "description": "A persistent object cache backend powered by Redis. Supports HHVM's Redis extension, the PCEL Redis Extension and the Predis library for PHP.",
+    "homepage": "https://github.com/tillkruss/Redis-Object-Cache",
     "type": "wordpress-plugin",
+    "license": "GPL-3.0+",
+    "authors": [
+        {
+            "name": "Till Krüss",
+            "homepage": "https://till.kruss.me/"
+        }
+    ],
     "require": {
-        "composer/installers": "~1.0.21"
+        "composer/installers": "~1.0"
     }
 }
