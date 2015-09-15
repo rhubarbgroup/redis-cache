@@ -4,7 +4,7 @@ Donate link: http://till.kruss.me/donations/
 Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load
 Requires at least: 3.3
 Tested up to: 4.3
-Stable tag: 1.2
+Stable tag: 1.2.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,14 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 == Changelog ==
 
+= 1.2.1 =
+
+  * Added `composer.json`
+  * Added deactivation and uninstall hooks to delete `object-cache.php`
+  * Added local serialization functions for better `advanced-cache.php` support
+  * Updated bundled Predis version to `1.0.3`
+  * Updated heading structure to be semantic
+
 = 1.2 =
 
   * Added Multisite support
@@ -125,9 +133,13 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 == Upgrade Notice ==
 
+= 1.2.1 =
+
+This update includes several improvements and compatibility fixes.
+
 = 1.1.1 =
 
-This update fixes critial bugs with the HHVM extension
+This update fixes critical bugs with the HHVM extension
 
 = 1.1 =
 
