@@ -419,11 +419,11 @@ class WP_Object_Cache {
 				}
 
 				// check if bundled Predis library exists
-				if ( ! realpath( dirname( __FILE__ ) . '/plugins/redis-cache/includes/predis.php' ) ) {
+				if ( ! realpath( WP_CONTENT_DIR . '/plugins/redis-cache/includes/predis.php' ) ) {
 					throw new Exception;
 				}
 
-				require_once dirname( __FILE__ ) . '/plugins/redis-cache/includes/predis.php';
+				require_once WP_CONTENT_DIR . '/plugins/redis-cache/includes/predis.php';
 
 				Predis\Autoloader::register();
 
