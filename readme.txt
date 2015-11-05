@@ -26,8 +26,10 @@ For detailed installation instructions, please read the [standard installation p
 
 1. Make sure Redis in installed and running.
 2. Install and activate plugin.
-3. Enable the object cache under _Tools -> Redis_.
+3. Enable the object cache under _Settings -> Redis_.
 4. If necessary, adjust [connection parameters](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
+
+If you server doesn't support the [WordPress Filesystem API](https://codex.wordpress.org/Filesystem_API), you have to manually copy the `object-cache.php` file from the `/plugins/redis-cache/includes/` directory to the `/wp-content/` directory.
 
 
 == Connection Parameters ==
