@@ -5,8 +5,6 @@
 
 	<h1><?php _e( 'Redis Object Cache', 'redis-cache' ); ?></h1>
 
-	<?php settings_errors(); ?>
-
 	<table class="form-table">
 
 		<tr valign="top">
