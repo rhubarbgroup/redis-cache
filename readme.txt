@@ -1,6 +1,6 @@
 === Redis Object Cache ===
 Contributors: tillkruess
-Donate link: http://till.kruss.me/donations/
+Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load
 Requires at least: 3.3
 Tested up to: 4.4
