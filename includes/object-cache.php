@@ -428,8 +428,9 @@ class WP_Object_Cache {
 
 			}
 
-			/* Test the connection before setting connected flag */
-			$this->redis->ping();
+			// Throws exception if Redis is unavailable
+			$this->redis->ping(); 
+
 			$this->redis_connected = true;
 
 		} catch ( Exception $exception ) {
