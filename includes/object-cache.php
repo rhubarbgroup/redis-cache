@@ -374,9 +374,7 @@ class WP_Object_Cache {
 					$redis[ 'port' ] = 0;
 				}
 
-				if ( ! $this->redis->connect( $redis[ 'host' ], $redis[ 'port' ] ) ) {
-					throw new Exception;
-				}
+				$this->redis->connect( $redis[ 'host' ], $redis[ 'port' ] );
 
 				if ( isset( $redis[ 'password' ] ) ) {
 					$this->redis->auth( $redis[ 'password' ] );
@@ -385,8 +383,6 @@ class WP_Object_Cache {
 				if ( isset( $redis[ 'database' ] ) ) {
 					$this->redis->select( $redis[ 'database' ] );
 				}
-
-				$this->redis_connected = true;
 
 			} elseif ( strcasecmp( 'pecl', $redis_client ) === 0 ) {
 
@@ -406,8 +402,6 @@ class WP_Object_Cache {
 				if ( isset( $redis[ 'database' ] ) ) {
 					$this->redis->select( $redis[ 'database' ] );
 				}
-
-				$this->redis_connected = true;
 
 			} else {
 
@@ -430,10 +424,13 @@ class WP_Object_Cache {
 				$this->redis = new Predis\Client( $redis );
 				$this->redis->connect();
 
-				$this->redis_connected = true;
 				$this->redis_client .= ' v' . Predis\Client::VERSION;
 
 			}
+
+			/* Test the connection before setting connected flag */
+			$this->redis->ping();
+			$this->redis_connected = true;
 
 		} catch ( Exception $exception ) {
 
