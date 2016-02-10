@@ -794,12 +794,9 @@ class WP_Object_Cache {
 			<strong>Cache Misses:</strong> <?php echo $this->cache_misses; ?>
 		</p>
 
-		<p><strong>Caches Retrieved:</strong></p>
-
 		<ul>
-			<li><em>prefix:group:key - size in kilobytes</em></li>
 			<?php foreach ( $this->cache as $group => $cache ) : ?>
-				<li><?php printf( '%s - %s kb', strip_tags( $group ), number_format( strlen( serialize( $cache ) ) / 1024, 2 ) ); ?></li>
+				<li><?php printf( '%s - %sk', strip_tags( $group ), number_format( strlen( serialize( $cache ) ) / 1024, 2 ) ); ?></li>
 			<?php endforeach; ?>
 		</ul><?php
 
