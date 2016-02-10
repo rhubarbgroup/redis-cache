@@ -526,9 +526,9 @@ class WP_Object_Cache {
 			$expiration = $this->validate_expiration( $expiration );
 
 			if ( $expiration ) {
-				$result = $this->parse_predis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
+				$result = $this->parse_redis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
 			} else {
-				$result = $this->parse_predis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
+				$result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
 			}
 		}
 
@@ -561,7 +561,7 @@ class WP_Object_Cache {
 		}
 
 		if ( $this->redis_status() && ! in_array( $group, $this->no_redis_groups ) ) {
-			$result = $this->parse_predis_response( $this->redis->del( $derived_key ) );
+			$result = $this->parse_redis_response( $this->redis->del( $derived_key ) );
 		}
 
 		return $result;
@@ -582,7 +582,7 @@ class WP_Object_Cache {
 		$this->cache = array();
 
 		if ( $this->redis_status() ) {
-			$result = $this->parse_predis_response( $this->redis->flushdb() );
+			$result = $this->parse_redis_response( $this->redis->flushdb() );
 		}
 
 		return $result;
@@ -707,9 +707,9 @@ class WP_Object_Cache {
 		if ( ! in_array( $group, $this->no_redis_groups ) && $this->redis_status() ) {
 			$expiration = $this->validate_expiration($expiration);
 			if ( $expiration ) {
-				$result = $this->parse_predis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
+				$result = $this->parse_redis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
 			} else {
-				$result = $this->parse_predis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
+				$result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
 			}
 		}
 
@@ -745,7 +745,7 @@ class WP_Object_Cache {
 		}
 
 		// Save to Redis
-		$result = $this->parse_predis_response( $this->redis->incrBy( $derived_key, $offset ) );
+		$result = $this->parse_redis_response( $this->redis->incrBy( $derived_key, $offset ) );
 
 		$this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
 
@@ -774,7 +774,7 @@ class WP_Object_Cache {
 		}
 
 		// Save to Redis
-		$result = $this->parse_predis_response( $this->redis->decrBy( $derived_key, $offset ) );
+		$result = $this->parse_redis_response( $this->redis->decrBy( $derived_key, $offset ) );
 
 		$this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
 
@@ -845,12 +845,12 @@ class WP_Object_Cache {
 	}
 
 	/**
-	 * Convert the response fro Predis into something meaningful
+	 * Convert Redis responses into something meaningful
 	 *
 	 * @param mixed $response
 	 * @return mixed
 	 */
-	protected function parse_predis_response( $response ) {
+	protected function parse_redis_response( $response ) {
 		if ( is_bool( $response ) ) {
 			return $response;
 		}
