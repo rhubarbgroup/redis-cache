@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load
 Requires at least: 3.3
 Tested up to: 4.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -85,6 +85,15 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 == Changelog ==
 
+= 1.2.2 =
+
+  * Added `redis_object_cache_set` action
+  * Added `redis_object_cache_get` action and filter
+  * Prevented duplicated admin status messages
+  * Load bundled Predis library only if necessary
+  * Load bundled Predis library using `WP_CONTENT_DIR` constant
+  * Updated `stats()` method output to be uniform with WordPress
+
 = 1.2.1 =
 
   * Added `composer.json`
@@ -134,6 +143,10 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 
 == Upgrade Notice ==
+
+= 1.2.2 =
+
+This updated includes several bug fixes and improvements.
 
 = 1.2.1 =
 
