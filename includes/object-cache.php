@@ -412,14 +412,11 @@ class WP_Object_Cache {
 					throw new Exception;
 				}
 
-				// check if bundled Predis library exists
-				if ( ! realpath( WP_CONTENT_DIR . '/plugins/redis-cache/includes/predis.php' ) ) {
-					throw new Exception;
+				// Load bundled Predis library
+				if ( ! class_exists( 'Predis\Client' ) ) {
+					require_once WP_CONTENT_DIR . '/plugins/redis-cache/includes/predis.php';
+					Predis\Autoloader::register();
 				}
-
-				require_once WP_CONTENT_DIR . '/plugins/redis-cache/includes/predis.php';
-
-				Predis\Autoloader::register();
 
 				$this->redis = new Predis\Client( $redis );
 				$this->redis->connect();
