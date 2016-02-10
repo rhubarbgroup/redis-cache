@@ -2,8 +2,8 @@
 /*
 Plugin Name: Redis Object Cache
 Plugin URI: http://wordpress.org/plugins/redis-cache/
-Description: A Redis backend for the WordPress Object Cache based on the Predis client library for PHP.
 Version: 1.2.1
+Description: A persistent object cache backend powered by Redis. Supports HHVM's Redis extension, the PCEL Redis Extension and the Predis library for PHP.
 Text Domain: redis-cache
 Domain Path: /languages
 Author: Till Krüss
