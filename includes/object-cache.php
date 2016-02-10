@@ -246,7 +246,7 @@ class WP_Object_Cache {
 	/**
 	 * Holds the Redis client.
 	 *
-	 * @var Predis\Client
+	 * @var mixed
 	 */
 	private $redis;
 
@@ -368,7 +368,7 @@ class WP_Object_Cache {
 				$this->redis_client = sprintf( 'HHVM %s Extension', HHVM_VERSION );
 				$this->redis = new Redis();
 
-				// adjust host and port, if the scheme is `unix`
+				// Adjust host and port, if the scheme is `unix`
 				if ( strcasecmp( 'unix', $redis[ 'scheme' ] ) === 0 ) {
 					$redis[ 'host' ] = 'unix://' . $redis[ 'path' ];
 					$redis[ 'port' ] = 0;
@@ -407,7 +407,7 @@ class WP_Object_Cache {
 
 				$this->redis_client = 'Predis';
 
-				// require PHP 5.4 or greater
+				// Require PHP 5.4 or greater
 				if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
 					throw new Exception;
 				}
@@ -429,7 +429,7 @@ class WP_Object_Cache {
 			}
 
 			// Throws exception if Redis is unavailable
-			$this->redis->ping(); 
+			$this->redis->ping();
 
 			$this->redis_connected = true;
 
@@ -618,11 +618,11 @@ class WP_Object_Cache {
 		}
 
 		$this->add_to_internal_cache( $derived_key, $value );
-		
+
 		$value = is_object( $value ) ? clone $value : $value;
-		
+
 		do_action( 'redis_object_cache_get', $key, $value, $group );
-		
+
 		return apply_filters( 'redis_object_cache_get', $value, $key, $group );
 	}
 
@@ -717,7 +717,7 @@ class WP_Object_Cache {
 		if ( $result ) {
 			$this->add_to_internal_cache( $derived_key, $value );
 		}
-		
+
 		do_action( 'redis_object_cache_set', $key, $value, $group, $expiration );
 
 		return $result;
