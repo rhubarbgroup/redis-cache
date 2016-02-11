@@ -154,7 +154,7 @@ class RedisObjectCache {
 		global $wp_object_cache;
 
 		if ( ! $this->object_cache_dropin_exists() ) {
-			return __( 'Not installed', 'redis-cache' );
+			return __( 'Not Enabled', 'redis-cache' );
 		}
 
 		if ( $this->validate_object_cache_dropin() ) {
