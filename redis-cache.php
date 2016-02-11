@@ -158,7 +158,7 @@ class RedisObjectCache {
 		}
 
 		if ( $this->validate_object_cache_dropin() ) {
-			return $wp_object_cache->redis_status() ? __( 'Connected', 'redis-cache' ) : __( 'Not connected', 'redis-cache' );
+			return $wp_object_cache->redis_status() ? __( 'Connected', 'redis-cache' ) : __( 'Not Connected', 'redis-cache' );
 		}
 
 		return __( 'Unknown', 'redis-cache' );
