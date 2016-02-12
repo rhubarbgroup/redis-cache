@@ -8,12 +8,12 @@ Stable tag: 1.2.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-A persistent object cache backend powered by Redis. Supports HHVM's Redis extension, the PCEL Redis Extension and the Predis library for PHP.
+A persistent object cache backend powered by Redis. Supports HHVM's Redis extension, the PECL Redis Extension and the Predis library for PHP.
 
 
 == Description ==
 
-A persistent object cache backend powered by Redis. Supports [HHVM's Redis extension](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), the [PCEL Redis Extension](https://github.com/phpredis/phpredis) and the [Predis](https://github.com/nrk/predis/) library for PHP *(Predis requires PHP 5.4 or greater)*.
+A persistent object cache backend powered by Redis. Supports [HHVM's Redis extension](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), the [PECL Redis Extension](https://github.com/phpredis/phpredis) and the [Predis](https://github.com/nrk/predis/) library for PHP *(Predis requires PHP 5.4 or greater)*.
 
 To adjust the connection parameters or prefixing cache keys, see [Other Notes](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
 
@@ -115,7 +115,7 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 = 1.1 =
 
   * Added support for HHVM's Redis extension
-  * Added support for PCEL Redis extension
+  * Added support for PECL Redis extension
   * Added `WP_REDIS_CLIENT` constant, to set prefered Redis client
   * Added `WP_REDIS_MAXTTL` constant, to force expiration of cache keys
   * Improved `add_or_replace()`, `get()`, `set()` and `delete()` methods
@@ -158,7 +158,7 @@ This update fixes critical bugs with the HHVM extension
 
 = 1.1 =
 
-This update includes bug fixes and adds supports for HHVM/PCEL Redis extensions.
+This update includes bug fixes and adds supports for HHVM/PECL Redis extensions.
 
 = 1.0.2 =
 

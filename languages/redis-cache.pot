@@ -148,7 +148,7 @@ msgstr ""
 #. Description of the plugin/theme
 msgid ""
 "A persistent object cache backend powered by Redis. Supports HHVM's Redis "
-"extension, the PCEL Redis Extension and the Predis library for PHP."
+"extension, the PECL Redis Extension and the Predis library for PHP."
 msgstr ""
 
 #. Author of the plugin/theme
