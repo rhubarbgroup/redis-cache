@@ -215,15 +215,13 @@ class RedisObjectCache {
 				$dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
 				$plugin = get_plugin_data( plugin_dir_path( __FILE__ ) . '/includes/object-cache.php' );
 
-				// outdated `object-cache.php` notice
 				if ( version_compare( $dropin[ 'Version' ], $plugin[ 'Version' ], '<' ) ) {
-					$message = sprintf( __( 'The Redis object cache drop-in is outdated. <a href="%s">Update it now</a>.', 'redis-cache' ), $url );
+					$message = sprintf( __( 'The Redis object cache drop-in is outdated. Please <a href="%s">update it now</a>.', 'redis-cache' ), $url );
 				}
 
 			} else {
 
-				// show foreign `object-cache.php` notice
-				$message = sprintf( __( 'Another object cache drop-in is already active. To use Redis, <a href="%s">please replace it now</a>.', 'redis-cache' ), $url );
+				$message = sprintf( __( 'Another object cache drop-in was found. To use Redis, <a href="%s">please replace it now</a>.', 'redis-cache' ), $url );
 
 			}
 
