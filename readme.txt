@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load
 Requires at least: 3.3
 Tested up to: 4.4
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -85,6 +85,10 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 == Changelog ==
 
+= 1.2.3 =
+
+  * UI improvements
+
 = 1.2.2 =
 
   * Added `redis_object_cache_set` action
@@ -143,6 +147,10 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 
 == Upgrade Notice ==
+
+= 1.2.3 =
+
+This updated includes several UI improvements.
 
 = 1.2.2 =
 
