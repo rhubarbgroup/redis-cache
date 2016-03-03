@@ -365,7 +365,7 @@ class WP_Object_Cache {
 
 			if ( strcasecmp( 'hhvm', $redis_client ) === 0 ) {
 
-				$this->redis_client = sprintf( 'HHVM %s Extension', HHVM_VERSION );
+				$this->redis_client = sprintf( 'HHVM Extension (v%s)', HHVM_VERSION );
 				$this->redis = new Redis();
 
 				// Adjust host and port, if the scheme is `unix`
@@ -386,7 +386,7 @@ class WP_Object_Cache {
 
 			} elseif ( strcasecmp( 'pecl', $redis_client ) === 0 ) {
 
-				$this->redis_client = 'PECL Extension';
+				$this->redis_client = sprintf( 'PECL Extension (v%s)', phpversion('redis') );
 				$this->redis = new Redis();
 
 				if ( strcasecmp( 'unix', $redis[ 'scheme' ] ) === 0 ) {
@@ -421,7 +421,7 @@ class WP_Object_Cache {
 				$this->redis = new Predis\Client( $redis );
 				$this->redis->connect();
 
-				$this->redis_client .= ' v' . Predis\Client::VERSION;
+				$this->redis_client .= sprintf( ' (v%s)', Predis\Client::VERSION );
 
 			}
 
