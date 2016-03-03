@@ -109,7 +109,20 @@ class RedisObjectCache {
 	}
 
 	public function validate_object_cache_dropin() {
-		return $this->object_cache_dropin_exists() && method_exists( $GLOBALS[ 'wp_object_cache' ], 'redis_status' );
+
+		if ( ! $this->object_cache_dropin_exists() ) {
+			return false;
+		}
+
+		$dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
+		$plugin = get_plugin_data( plugin_dir_path( __FILE__ ) . '/includes/object-cache.php' );
+
+		if ( strcmp( $dropin[ 'PluginURI' ], $plugin[ 'PluginURI' ] ) !== 0 ) {
+			return false;
+		}
+
+		return true;
+
 	}
 
 	public function get_redis_client_name() {
@@ -149,13 +162,23 @@ class RedisObjectCache {
 		return defined( 'WP_REDIS_MAXTTL' ) ? WP_REDIS_MAXTTL : null;
 	}
 
+	public function get_dropin_status() {
+
+		if ( ! $this->object_cache_dropin_exists() ) {
+			return __( 'Disabled', 'redis-cache' );
+		}
+
+		if ( ! $this->validate_object_cache_dropin() ) {
+			return __( 'Unknown', 'redis-cache' );
+		}
+
+		return __( 'Enabled', 'redis-cache' );
+
+	}
+
 	public function get_redis_status() {
 
 		global $wp_object_cache;
-
-		if ( ! $this->object_cache_dropin_exists() ) {
-			return __( 'Not Enabled', 'redis-cache' );
-		}
 
 		if ( $this->validate_object_cache_dropin() ) {
 			return $wp_object_cache->redis_status() ? __( 'Connected', 'redis-cache' ) : __( 'Not Connected', 'redis-cache' );
