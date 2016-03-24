@@ -3,7 +3,7 @@ Contributors: tillkruess
 Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load
 Requires at least: 3.3
-Tested up to: 4.4
+Tested up to: 4.5
 Stable tag: 1.2.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
