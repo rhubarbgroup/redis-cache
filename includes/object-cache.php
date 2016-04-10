@@ -596,7 +596,7 @@ class WP_Object_Cache {
 	 *
 	 * @param   string        $key        The key under which to store the value.
 	 * @param   string        $group      The group value appended to the $key.
-	 * @param   string        $force      Optional. Unused. Whether to force a refetch rather than relying on the local
+	 * @param   string        $force      Optional. Whether to force a refetch rather than relying on the local
 	 *                                    cache. Default false.
 	 * @param   bool          &$found     Optional. Whether the key was found in the cache. Disambiguates a return of
 	 *                                    false, a storable value. Passed by reference. Default null.
@@ -605,20 +605,24 @@ class WP_Object_Cache {
 	public function get( $key, $group = 'default', $force = false, &$found = null ) {
 		$derived_key = $this->build_key( $key, $group );
 
-		if ( isset( $this->cache[ $derived_key ] ) ) {
+		if ( isset( $this->cache[ $derived_key ] ) && ! $force ) {
 			$found = true;
 			$this->cache_hits++;
+
 			return is_object( $this->cache[ $derived_key ] ) ? clone $this->cache[ $derived_key ] : $this->cache[ $derived_key ];
 		} elseif ( in_array( $group, $this->no_redis_groups ) || ! $this->redis_status() ) {
 			$found = false;
 			$this->cache_misses++;
+
 			return false;
 		}
 
 		$result = $this->redis->get( $derived_key );
+
 		if ($result === NULL) {
 			$found = false;
 			$this->cache_misses++;
+
 			return false;
 		} else {
 			$found = true;
