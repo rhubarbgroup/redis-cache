@@ -100,14 +100,18 @@ function wp_cache_flush( $delay = 0 ) {
  *
  * @param string      $key        The key under which to store the value.
  * @param string      $group      The group value appended to the $key.
+ * @param bool        $force      Optional. Whether to force an update of the local cache from the persistent
+ *                                cache. Default false.
+ * @param bool        &$found     Optional. Whether the key was found in the cache. Disambiguates a return of false,
+ *                                a storable value. Passed by reference. Default null.
  *
  * @global WP_Object_Cache $wp_object_cache
  *
  * @return bool|mixed             Cached object value.
  */
-function wp_cache_get( $key, $group = '' ) {
+function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
 	global $wp_object_cache;
-	return $wp_object_cache->get( $key, $group );
+	return $wp_object_cache->get( $key, $group, $force, $found );
 }
 
 /**
@@ -592,24 +596,32 @@ class WP_Object_Cache {
 	 *
 	 * @param   string        $key        The key under which to store the value.
 	 * @param   string        $group      The group value appended to the $key.
+	 * @param   string        $force      Optional. Unused. Whether to force a refetch rather than relying on the local
+	 *                                    cache. Default false.
+	 * @param   bool          &$found     Optional. Whether the key was found in the cache. Disambiguates a return of
+	 *                                    false, a storable value. Passed by reference. Default null.
 	 * @return  bool|mixed                Cached object value.
 	 */
-	public function get( $key, $group = 'default' ) {
+	public function get( $key, $group = 'default', $force = false, &$found = null ) {
 		$derived_key = $this->build_key( $key, $group );
 
 		if ( isset( $this->cache[ $derived_key ] ) ) {
+			$found = true;
 			$this->cache_hits++;
 			return is_object( $this->cache[ $derived_key ] ) ? clone $this->cache[ $derived_key ] : $this->cache[ $derived_key ];
 		} elseif ( in_array( $group, $this->no_redis_groups ) || ! $this->redis_status() ) {
+			$found = false;
 			$this->cache_misses++;
 			return false;
 		}
 
 		$result = $this->redis->get( $derived_key );
 		if ($result === NULL) {
+			$found = false;
 			$this->cache_misses++;
 			return false;
 		} else {
+			$found = true;
 			$this->cache_hits++;
 			$value = $this->maybe_unserialize( $result );
 		}
@@ -618,9 +630,9 @@ class WP_Object_Cache {
 
 		$value = is_object( $value ) ? clone $value : $value;
 
-		do_action( 'redis_object_cache_get', $key, $value, $group );
+		do_action( 'redis_object_cache_get', $key, $value, $group, $force, $found );
 
-		return apply_filters( 'redis_object_cache_get', $value, $key, $group );
+		return apply_filters( 'redis_object_cache_get', $value, $key, $group, $force, $found );
 	}
 
 	/**
