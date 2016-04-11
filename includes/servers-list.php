@@ -90,7 +90,10 @@ class Servers_List extends WP_List_Table {
 
     protected function get_servers() {
 
-        $server = array('alias' => 'Master');
+        $server = array(
+            'alias' => 'Master',
+            'scheme' => 'tcp',
+        );
 
         foreach ( [ 'scheme', 'host', 'port', 'path', 'password', 'database' ] as $setting ) {
             $constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
@@ -111,20 +114,6 @@ class Servers_List extends WP_List_Table {
         if ( ! isset( $servers ) ) {
             $servers = array( $server );
         }
-
-        $servers = [
-            'tcp://10.0.0.1?alias=first-node',
-            [
-                'scheme' => 'tcp',
-                'host'   => '10.0.0.1',
-                'port'   => 6379,
-            ],
-            [
-                'scheme' => 'tcp',
-                'host'   => '10.0.0.2',
-                'port'   => 6379,
-            ],
-        ];
 
         return array_map(function($parameters) {
             return is_string($parameters) ? Predis\Connection\Parameters::parse($parameters) : $parameters;

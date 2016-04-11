@@ -15,10 +15,9 @@
 
 .wrap .button.delete:hover,
 .wrap .button.delete:focus {
-	background: #be461d;
+	background: #c7491f;
 	border-color: #923517;
 	color: white;
-	box-shadow: inset 0 1px 0 #e3704a;
 }
 
 .wrap .button.delete:focus {

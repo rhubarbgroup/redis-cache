@@ -5,7 +5,7 @@
 
 	<h1><?php _e( 'Redis Object Cache', 'redis-cache' ); ?></h1>
 
-	<h2 class="title"><?php _e( 'Status', 'redis-cache' ); ?></h2>
+	<h2 class="title"><?php _e( 'Overview', 'redis-cache' ); ?></h2>
 
 	<table class="form-table">
 
