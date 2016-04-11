@@ -3,7 +3,7 @@
 Plugin Name: Redis Object Cache
 Plugin URI: http://wordpress.org/plugins/redis-cache/
 Description: A persistent object cache backend powered by Redis. Supports HHVM's Redis extension, the PECL Redis Extension and the Predis library for PHP.
-Version: 1.2.3
+Version: 1.3
 Text Domain: redis-cache
 Domain Path: /languages
 Author: Till Krüss
@@ -85,6 +85,16 @@ class RedisObjectCache {
 
 	}
 
+	public function show_servers_list() {
+
+		require_once plugin_dir_path( __FILE__ ) . '/includes/servers-list.php';
+
+		$table = new Servers_List;
+		$table->prepare_items();
+		$table->display();
+
+	}
+
 	public function add_plugin_actions_links( $links ) {
 
 		// add settings link to plugin actions
@@ -125,6 +135,38 @@ class RedisObjectCache {
 
 	}
 
+	public function get_status() {
+
+		if ( ! $this->object_cache_dropin_exists() ) {
+			return __( 'Disabled', 'redis-cache' );
+		}
+
+		if ( $this->validate_object_cache_dropin() ) {
+			if ( $this->get_redis_status() ) {
+				return __( 'Connected', 'redis-cache' );
+			}
+
+			if ( $this->get_redis_status() === false ) {
+				return __( 'Not Connected', 'redis-cache' );
+			}
+		}
+
+		return __( 'Unknown', 'redis-cache' );
+
+	}
+
+	public function get_redis_status() {
+
+		global $wp_object_cache;
+
+		if ( $this->validate_object_cache_dropin() ) {
+			return $wp_object_cache->redis_status();
+		}
+
+		return;
+
+	}
+
 	public function get_redis_client_name() {
 
 		global $wp_object_cache;
@@ -141,62 +183,12 @@ class RedisObjectCache {
 
 	}
 
-	public function get_redis_scheme() {
-		return defined( 'WP_REDIS_SCHEME' ) ? WP_REDIS_SCHEME : 'tcp';
-	}
-
-	public function get_redis_host() {
-		return defined( 'WP_REDIS_HOST' ) ? WP_REDIS_HOST : '127.0.0.1';
-	}
-
-	public function get_redis_port() {
-		return defined( 'WP_REDIS_PORT' ) ? WP_REDIS_PORT : 6379;
-	}
-
-	public function get_redis_path() {
-		return defined( 'WP_REDIS_PATH' ) ? WP_REDIS_PATH : null;
-	}
-
-	public function get_redis_database() {
-		return defined( 'WP_REDIS_DATABASE' ) ? WP_REDIS_DATABASE : 0;
-	}
-
-	public function get_redis_password() {
-		return defined( 'WP_REDIS_PASSWORD' ) ? WP_REDIS_PASSWORD : null;
-	}
-
 	public function get_redis_cachekey_prefix() {
 		return defined( 'WP_CACHE_KEY_SALT' ) ? WP_CACHE_KEY_SALT : null;
 	}
 
 	public function get_redis_maxttl() {
 		return defined( 'WP_REDIS_MAXTTL' ) ? WP_REDIS_MAXTTL : null;
-	}
-
-	public function get_dropin_status() {
-
-		if ( ! $this->object_cache_dropin_exists() ) {
-			return __( 'Disabled', 'redis-cache' );
-		}
-
-		if ( ! $this->validate_object_cache_dropin() ) {
-			return __( 'Unknown', 'redis-cache' );
-		}
-
-		return __( 'Enabled', 'redis-cache' );
-
-	}
-
-	public function get_redis_status() {
-
-		global $wp_object_cache;
-
-		if ( $this->validate_object_cache_dropin() ) {
-			return $wp_object_cache->redis_status() ? __( 'Connected', 'redis-cache' ) : __( 'Not Connected', 'redis-cache' );
-		}
-
-		return __( 'Unknown', 'redis-cache' );
-
 	}
 
 	public function show_admin_notices() {

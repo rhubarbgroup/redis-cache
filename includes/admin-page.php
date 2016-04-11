@@ -10,62 +10,14 @@
 	<table class="form-table">
 
 		<tr>
-			<th><?php _e( 'Dropin', 'redis-cache' ); ?></th>
-			<td><code><?php echo $this->get_dropin_status(); ?></code></td>
+			<th><?php _e( 'Status:', 'redis-cache' ); ?></th>
+			<td><code><?php echo $this->get_status(); ?></code></td>
 		</tr>
-
-		<?php if ( $this->validate_object_cache_dropin() ) : ?>
-			<tr>
-				<th><?php _e( 'Redis', 'redis-cache' ); ?></th>
-				<td><code><?php echo $this->get_redis_status(); ?></code></td>
-			</tr>
-		<?php endif; ?>
-
-	</table>
-
-	<h2 class="title"><?php _e( 'Configuration', 'redis-cache' ); ?></h2>
-
-	<table class="form-table">
 
 		<?php if ( ! is_null( $this->get_redis_client_name() ) ) : ?>
 			<tr>
 				<th><?php _e( 'Client:', 'redis-cache' ); ?></th>
 				<td><code><?php echo esc_html( $this->get_redis_client_name() ); ?></code></td>
-			</tr>
-		<?php endif; ?>
-
-		<tr>
-			<th><?php _e( 'Protocol:', 'redis-cache' ); ?></th>
-			<td><code><?php echo strtoupper( esc_html( $this->get_redis_scheme() ) ); ?></code></td>
-		</tr>
-
-		<?php if ( strcasecmp( 'tcp', $this->get_redis_scheme() ) === 0 ) : ?>
-			<tr>
-				<th><?php _e( 'Host:', 'redis-cache' ); ?></th>
-				<td><code><?php echo esc_html( $this->get_redis_host() ); ?></code></td>
-			</tr>
-			<tr>
-				<th><?php _e( 'Port:', 'redis-cache' ); ?></th>
-				<td><code><?php echo esc_html( $this->get_redis_port() ); ?></code></td>
-			</tr>
-		<?php endif; ?>
-
-		<?php if ( strcasecmp( 'unix', $this->get_redis_scheme() ) === 0 ) : ?>
-			<tr>
-				<th><?php _e( 'Path:', 'redis-cache' ); ?></th>
-				<td><code><?php echo esc_html( $this->get_redis_path() ); ?></code></td>
-			</tr>
-		<?php endif; ?>
-
-		<tr>
-			<th><?php _e( 'Database:', 'redis-cache' ); ?></th>
-			<td><code><?php echo esc_html( $this->get_redis_database() ); ?></code></td>
-		</tr>
-
-		<?php if ( ! is_null( $this->get_redis_password() ) ) : ?>
-			<tr>
-				<th><?php _e( 'Password:', 'redis-cache' ); ?></th>
-				<td><code><?php echo str_repeat( '*', strlen( $this->get_redis_password() ) ); ?></code></td>
 			</tr>
 		<?php endif; ?>
 
@@ -87,9 +39,8 @@
 
 	<p class="submit">
 
-		<?php if ( strcasecmp( 'connected', $this->get_redis_status() ) === 0 ) : ?>
-			<a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'flush-cache', $this->page ) ), 'flush-cache' ); ?>" class="button button-primary button-large"><?php _e( 'Flush Cache', 'redis-cache' ); ?></a>
-			&nbsp;
+		<?php if ( $this->get_redis_status() ) : ?>
+			<a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'flush-cache', $this->page ) ), 'flush-cache' ); ?>" class="button button-primary button-large"><?php _e( 'Flush Cache', 'redis-cache' ); ?></a> &nbsp;
 		<?php endif; ?>
 
 		<?php if ( ! $this->object_cache_dropin_exists() ) : ?>
@@ -99,5 +50,9 @@
 		<?php endif; ?>
 
 	</p>
+
+	<h2 class="title"><?php _e( 'Servers', 'redis-cache' ); ?></h2>
+
+	<?php $this->show_servers_list(); ?>
 
 </div>
