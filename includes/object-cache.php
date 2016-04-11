@@ -159,7 +159,7 @@ function wp_cache_incr( $key, $offset = 1, $group = '' ) {
  */
 function wp_cache_init() {
 	global $wp_object_cache;
-	$wp_object_cache = new WP_Object_Cache();
+	$wp_object_cache = new WP_Object_Cache;
 }
 
 /**
@@ -327,87 +327,83 @@ class WP_Object_Cache {
 	public function __construct() {
 		global $blog_id, $table_prefix;
 
-		$redis = array(
+		$parameters = array(
 			'scheme' => 'tcp',
 			'host' => '127.0.0.1',
 			'port' => 6379
 		);
 
 		if ( defined( 'WP_REDIS_SCHEME' ) ) {
-			$redis[ 'scheme' ] = WP_REDIS_SCHEME;
+			$parameters[ 'scheme' ] = WP_REDIS_SCHEME;
 		}
 
 		if ( defined( 'WP_REDIS_HOST' ) ) {
-			$redis[ 'host' ] = WP_REDIS_HOST;
+			$parameters[ 'host' ] = WP_REDIS_HOST;
 		}
 
 		if ( defined( 'WP_REDIS_PORT' ) ) {
-			$redis[ 'port' ] = WP_REDIS_PORT;
+			$parameters[ 'port' ] = WP_REDIS_PORT;
 		}
 
 		if ( defined( 'WP_REDIS_PATH' ) ) {
-			$redis[ 'path' ] = WP_REDIS_PATH;
+			$parameters[ 'path' ] = WP_REDIS_PATH;
 		}
 
 		if ( defined( 'WP_REDIS_PASSWORD' ) ) {
-			$redis[ 'password' ] = WP_REDIS_PASSWORD;
+			$parameters[ 'password' ] = WP_REDIS_PASSWORD;
 		}
 
 		if ( defined( 'WP_REDIS_DATABASE' ) ) {
-			$redis[ 'database' ] = WP_REDIS_DATABASE;
+			$parameters[ 'database' ] = WP_REDIS_DATABASE;
 		}
 
-		$redis_client = defined( 'WP_REDIS_CLIENT' ) ? WP_REDIS_CLIENT : null;
+		$client = defined( 'WP_REDIS_CLIENT' ) ? WP_REDIS_CLIENT : null;
 
-		if ( class_exists( 'Redis' ) && strcasecmp( 'predis', $redis_client ) !== 0 ) {
-			$redis_client = defined( 'HHVM_VERSION' ) ? 'hhvm' : 'pecl';
+		if ( class_exists( 'Redis' ) && strcasecmp( 'predis', $client ) !== 0 ) {
+			$client = defined( 'HHVM_VERSION' ) ? 'hhvm' : 'pecl';
 		} else {
-			$redis_client = 'predis';
+			$client = 'predis';
 		}
 
 		try {
 
-			if ( strcasecmp( 'hhvm', $redis_client ) === 0 ) {
+			if ( strcasecmp( 'hhvm', $client ) === 0 ) {
 
 				$this->redis_client = sprintf( 'HHVM Extension (v%s)', HHVM_VERSION );
 				$this->redis = new Redis();
 
 				// Adjust host and port, if the scheme is `unix`
-				if ( strcasecmp( 'unix', $redis[ 'scheme' ] ) === 0 ) {
-					$redis[ 'host' ] = 'unix://' . $redis[ 'path' ];
-					$redis[ 'port' ] = 0;
+				if ( strcasecmp( 'unix', $parameters[ 'scheme' ] ) === 0 ) {
+					$parameters[ 'host' ] = 'unix://' . $parameters[ 'path' ];
+					$parameters[ 'port' ] = 0;
 				}
 
-				$this->redis->connect( $redis[ 'host' ], $redis[ 'port' ] );
+				$this->redis->connect( $parameters[ 'host' ], $parameters[ 'port' ] );
+			}
 
-				if ( isset( $redis[ 'password' ] ) ) {
-					$this->redis->auth( $redis[ 'password' ] );
-				}
-
-				if ( isset( $redis[ 'database' ] ) ) {
-					$this->redis->select( $redis[ 'database' ] );
-				}
-
-			} elseif ( strcasecmp( 'pecl', $redis_client ) === 0 ) {
+			if ( strcasecmp( 'pecl', $client ) === 0 ) {
 
 				$this->redis_client = sprintf( 'PECL Extension (v%s)', phpversion('redis') );
 				$this->redis = new Redis();
 
-				if ( strcasecmp( 'unix', $redis[ 'scheme' ] ) === 0 ) {
-					$this->redis->connect( $redis[ 'path' ] );
+				if ( strcasecmp( 'unix', $parameters[ 'scheme' ] ) === 0 ) {
+					$this->redis->connect( $parameters[ 'path' ] );
 				} else {
-					$this->redis->connect( $redis[ 'host' ], $redis[ 'port' ] );
+					$this->redis->connect( $parameters[ 'host' ], $parameters[ 'port' ] );
+				}
+			}
+
+			if ( strcasecmp( 'pecl', $client ) === 0 || strcasecmp( 'hhvm', $client ) === 0 ) {
+				if ( isset( $parameters[ 'password' ] ) ) {
+					$this->redis->auth( $parameters[ 'password' ] );
 				}
 
-				if ( isset( $redis[ 'password' ] ) ) {
-					$this->redis->auth( $redis[ 'password' ] );
+				if ( isset( $parameters[ 'database' ] ) ) {
+					$this->redis->select( $parameters[ 'database' ] );
 				}
+			}
 
-				if ( isset( $redis[ 'database' ] ) ) {
-					$this->redis->select( $redis[ 'database' ] );
-				}
-
-			} else {
+			if ( strcasecmp( 'predis', $client ) === 0 ) {
 
 				$this->redis_client = 'Predis';
 
