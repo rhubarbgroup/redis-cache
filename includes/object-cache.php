@@ -418,7 +418,19 @@ class WP_Object_Cache {
 					Predis\Autoloader::register();
 				}
 
-				$this->redis = new Predis\Client( $redis );
+				$options = array();
+
+				if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+					$parameters = WP_REDIS_CLUSTER;
+					$options[ 'cluster' ] = 'redis';
+				}
+
+				if ( defined( 'WP_REDIS_SERVERS' ) ) {
+					$parameters = WP_REDIS_SERVERS;
+					$options[ 'replication' ] = true;
+				}
+
+				$this->redis = new Predis\Client( $parameters, $options );
 				$this->redis->connect();
 
 				$this->redis_client .= sprintf( ' (v%s)', Predis\Client::VERSION );
