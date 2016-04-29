@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3
+
+* New admin interface
+* Added support for `wp_cache_get()`'s `$force` and `$found` parameter
+* Added support for clustering and replication with Predis
+
+
 ## 1.2.3
 
 * UI improvements

@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load
 Requires at least: 3.3
 Tested up to: 4.5
-Stable tag: 1.2.3
+Stable tag: 1.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -85,6 +85,12 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 == Changelog ==
 
+= 1.3 =
+
+  * New admin interface
+  * Added support for `wp_cache_get()`'s `$force` and `$found` parameter
+  * Added support for clustering and replication with Predis
+
 = 1.2.3 =
 
   * UI improvements
@@ -147,6 +153,10 @@ Users with setups where multiple installs share a common `wp-config.php` or `$ta
 
 
 == Upgrade Notice ==
+
+= 1.3 =
+
+This update includes a new admin interface and support for clustering and replication with Predis.
 
 = 1.2.3 =
 
