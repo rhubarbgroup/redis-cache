@@ -36,7 +36,7 @@ If you server doesn't support the [WordPress Filesystem API](https://codex.wordp
 
 By default the object cache drop-in will connect to Redis over TCP at `127.0.0.1:6379` and select database `0`.
 
-To adjust the connection parameters, define the following constants in your `wp-config.php`.
+To adjust the connection parameters, define any of following constants in your `wp-config.php` file.
 
   * `WP_REDIS_CLIENT` [default: not set]
 
@@ -69,6 +69,8 @@ To adjust the connection parameters, define the following constants in your `wp-
 
 == Configuration Parameters ==
 
+To adjust the configuration, define any of the following constants in your `wp-config.php` file.
+
   * `WP_CACHE_KEY_SALT` [default: not set]
 
     Set the prefix for all cache keys. Useful in setups where multiple installs share a common `wp-config.php` or `$table_prefix`, to guarantee uniqueness of cache keys.
@@ -84,7 +86,7 @@ To use Replication and Clustering, make sure your server is running PHP7, your s
 
 For replication, use the `WP_REDIS_SERVERS` constant and for clustering the `WP_REDIS_CLUSTER` constant. You can use a named array or an URI string to specify the parameters.
 
-### Master-Slave Replication
+__Master-Slave Replication Example:__
 
     define( 'WP_REDIS_SERVERS', [
         'tcp://127.0.0.1:6379?database=15&alias=master',
@@ -92,7 +94,7 @@ For replication, use the `WP_REDIS_SERVERS` constant and for clustering the `WP_
     ] );
 
 
-### Clustering via Client-side Sharding
+__Clustering via Client-side Sharding Example:__
 
     define( 'WP_REDIS_CLUSTER', [
         'tcp://127.0.0.1:6379?database=15&alias=node-01',
