@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1
+
+* Fixed connection issue
+
+
 ## 1.3
 
 * New admin interface
