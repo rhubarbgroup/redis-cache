@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Redis Object Cache package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Redis Object Cache 1.2.3\n"
+"Project-Id-Version: Redis Object Cache 1.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/redis-cache\n"
-"POT-Creation-Date: 2016-03-03 06:43:56+00:00\n"
+"POT-Creation-Date: 2016-04-29 01:44:38+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,141 +12,125 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#. #-#-#-#-#  plugin.pot (Redis Object Cache 1.2.3)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (Redis Object Cache 1.3)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 #: includes/admin-page.php:6 redis-cache.php:50
 msgid "Redis Object Cache"
 msgstr ""
 
 #: includes/admin-page.php:8
-msgid "Status"
+msgid "Overview"
 msgstr ""
 
 #: includes/admin-page.php:13
-msgid "Dropin"
+msgid "Status:"
 msgstr ""
 
-#: includes/admin-page.php:19 redis-cache.php:51
-msgid "Redis"
-msgstr ""
-
-#: includes/admin-page.php:26
-msgid "Configuration"
-msgstr ""
-
-#: includes/admin-page.php:32
+#: includes/admin-page.php:19
 msgid "Client:"
 msgstr ""
 
-#: includes/admin-page.php:38
-msgid "Protocol:"
-msgstr ""
-
-#: includes/admin-page.php:44
-msgid "Host:"
-msgstr ""
-
-#: includes/admin-page.php:48
-msgid "Port:"
-msgstr ""
-
-#: includes/admin-page.php:55
-msgid "Path:"
-msgstr ""
-
-#: includes/admin-page.php:61
-msgid "Database:"
-msgstr ""
-
-#: includes/admin-page.php:67
-msgid "Password:"
-msgstr ""
-
-#: includes/admin-page.php:74
+#: includes/admin-page.php:26
 msgid "Key Prefix:"
 msgstr ""
 
-#: includes/admin-page.php:81
+#: includes/admin-page.php:33
 msgid "Max. TTL:"
 msgstr ""
 
-#: includes/admin-page.php:91
+#: includes/admin-page.php:43
 msgid "Flush Cache"
 msgstr ""
 
-#: includes/admin-page.php:96
+#: includes/admin-page.php:47
 msgid "Enable Object Cache"
 msgstr ""
 
-#: includes/admin-page.php:98
+#: includes/admin-page.php:49
 msgid "Disable Object Cache"
 msgstr ""
 
-#: redis-cache.php:179
+#: includes/admin-page.php:54 includes/servers-list.php:9
+msgid "Servers"
+msgstr ""
+
+#: includes/servers-list.php:8
+msgid "Server"
+msgstr ""
+
+#: includes/servers-list.php:78
+msgid "Yes"
+msgstr ""
+
+#: includes/servers-list.php:78
+msgid "No"
+msgstr ""
+
+#: redis-cache.php:51
+msgid "Redis"
+msgstr ""
+
+#: redis-cache.php:141
 msgid "Disabled"
 msgstr ""
 
-#: redis-cache.php:183 redis-cache.php:198
-msgid "Unknown"
-msgstr ""
-
-#: redis-cache.php:186
-msgid "Enabled"
-msgstr ""
-
-#: redis-cache.php:195
+#: redis-cache.php:146
 msgid "Connected"
 msgstr ""
 
-#: redis-cache.php:195
+#: redis-cache.php:150
 msgid "Not Connected"
 msgstr ""
 
-#: redis-cache.php:219
+#: redis-cache.php:154
+msgid "Unknown"
+msgstr ""
+
+#: redis-cache.php:211
 msgid ""
 "The Redis object cache drop-in is outdated. Please <a href=\"%s\">update it "
 "now</a>."
 msgstr ""
 
-#: redis-cache.php:224
+#: redis-cache.php:216
 msgid ""
 "Another object cache drop-in was found. To use Redis, <a href=\"%s\">please "
 "replace it now</a>."
 msgstr ""
 
-#: redis-cache.php:240
+#: redis-cache.php:232
 msgid "This plugin requires PHP 5.4 or greater."
 msgstr ""
 
-#: redis-cache.php:249
+#: redis-cache.php:241
 msgid "Object Cache enabled."
 msgstr ""
 
-#: redis-cache.php:252
+#: redis-cache.php:244
 msgid "Object Cache could not be enabled."
 msgstr ""
 
-#: redis-cache.php:255
+#: redis-cache.php:247
 msgid "Object Cache disabled."
 msgstr ""
 
-#: redis-cache.php:258
+#: redis-cache.php:250
 msgid "Object Cache could not be disabled."
 msgstr ""
 
-#: redis-cache.php:261
+#: redis-cache.php:253
 msgid "Object Cache flushed."
 msgstr ""
 
-#: redis-cache.php:264
+#: redis-cache.php:256
 msgid "Object Cache could not be flushed."
 msgstr ""
 
-#: redis-cache.php:267
+#: redis-cache.php:259
 msgid "Drop-in updated."
 msgstr ""
 
-#: redis-cache.php:270
+#: redis-cache.php:262
 msgid "Drop-in could not be updated."
 msgstr ""
 
@@ -156,8 +140,8 @@ msgstr ""
 
 #. Description of the plugin/theme
 msgid ""
-"A persistent object cache backend powered by Redis. Supports HHVM's Redis "
-"extension, the PECL Redis Extension and the Predis library for PHP."
+"A persistent object cache backend powered by Redis. Supports Predis, "
+"PhpRedis, HHVM, replication and clustering."
 msgstr ""
 
 #. Author of the plugin/theme
