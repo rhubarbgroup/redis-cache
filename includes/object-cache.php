@@ -1,4 +1,4 @@
-®<?php
+<?php
 /*
 Plugin Name: Redis Object Cache
 Plugin URI: http://wordpress.org/plugins/redis-cache/
