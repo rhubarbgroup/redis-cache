@@ -625,9 +625,15 @@ class WP_Object_Cache {
 
 		$value = is_object( $value ) ? clone $value : $value;
 
-		do_action( 'redis_object_cache_get', $key, $value, $group, $force, $found );
+		if ( function_exists( 'do_action' ) ) {
+			do_action( 'redis_object_cache_get', $key, $value, $group, $force, $found );
+		}
 
-		return apply_filters( 'redis_object_cache_get', $value, $key, $group, $force, $found );
+		if ( function_exists( 'apply_filters' ) ) {
+			return apply_filters( 'redis_object_cache_get', $value, $key, $group, $force, $found );
+		} else {
+			return $value;
+		}
 	}
 
 	/**
@@ -722,7 +728,9 @@ class WP_Object_Cache {
 			$this->add_to_internal_cache( $derived_key, $value );
 		}
 
-		do_action( 'redis_object_cache_set', $key, $value, $group, $expiration );
+		if ( function_exists( 'do_action' ) ) {
+			do_action( 'redis_object_cache_set', $key, $value, $group, $expiration );
+		}
 
 		return $result;
 	}
