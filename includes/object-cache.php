@@ -610,7 +610,7 @@ class WP_Object_Cache {
 
 		$result = $this->redis->get( $derived_key );
 
-		if ($result === NULL) {
+		if ($result === null || $result === false) {
 			$found = false;
 			$this->cache_misses++;
 
