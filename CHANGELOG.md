@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.2
+
+* Make sure `$result` is not `false` in `WP_Object_Cache::get()`
+
+
 ## 1.3.1
 
 * Fixed connection issue

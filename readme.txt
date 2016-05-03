@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load, replication, clustering
 Requires at least: 3.3
 Tested up to: 4.5
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -109,6 +109,10 @@ __Clustering via Client-side Sharding Example:__
 
 == Changelog ==
 
+= 1.3.2 =
+
+  * Make sure `$result` is not `false` in `WP_Object_Cache::get()`
+
 = 1.3.1 =
 
   * Fixed connection issue
@@ -181,6 +185,10 @@ __Clustering via Client-side Sharding Example:__
 
 
 == Upgrade Notice ==
+
+= 1.3.2 =
+
+This update includes a critical fix for PhpRedis.
 
 = 1.3.1 =
 
