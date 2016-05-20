@@ -333,7 +333,7 @@ class WP_Object_Cache {
 			'port' => 6379
 		);
 
-		foreach ( [ 'scheme', 'host', 'port', 'path', 'password', 'database' ] as $setting ) {
+		foreach ( array( 'scheme', 'host', 'port', 'path', 'password', 'database' ) as $setting ) {
 			$constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
 			if ( defined( $constant ) ) {
 				$parameters[ $setting ] = constant( $constant );
