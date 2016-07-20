@@ -94,6 +94,20 @@ function wp_cache_flush( $delay = 0 ) {
 }
 
 /**
+ * Invalidate all items in the branch.
+ *
+ * @param int $branch  The name of the branch will be deleted.
+ *
+ * @global WP_Object_Cache $wp_object_cache
+ *
+ * @return bool             Returns TRUE on success or FALSE on failure.
+ */
+function wp_cache_delete_branch( $branch ) {
+	global $wp_object_cache;
+	return $wp_object_cache->delete_branch( $branch );
+}
+
+/**
  * Retrieve object from cache.
  *
  * Gets an object from cache based on $key and $group.
@@ -491,6 +505,69 @@ class WP_Object_Cache {
 	}
 
 	/**
+	 * Delete branch in the cache.
+	 *
+	 * Delete an entire branch in the cache.
+	 *
+	 * @param   string $branch         The branch to delete.
+	 * @return  bool                   Returns TRUE on success or FALSE on failure.
+	 */
+	public function delete_branch( $branch ) {
+		$cache_key = $branch.':default:_cache_list';
+		$result = true;
+		if ( $this->redis_status() ) {
+			$cache_list = $this->redis->get( $cache_key );
+			$cache_list = $this->maybe_unserialize( $cache_list );
+			if ( gettype( $cache_list ) !== 'array' ) {
+				$result = false;
+			} else {
+				foreach ( $cache_list as $derived_key ) {
+					$this->redis->del( $derived_key );
+				}
+				$this->redis->del( $cache_key );
+			}
+		} else {
+			$result = false;
+		}
+		return $result;
+	}
+
+	/**
+	 * Record cache key list.
+	 *
+	 * When a key is added, record it in a cache list under the branch.
+	 *
+	 * @param   string $key            The key under which to store the value.
+	 * @param   string $group          The group value appended to the $key.
+	 * @return  bool                   Returns TRUE on success or FALSE on failure.
+	 */
+	public function record_cache( $key, $group = 'default' ) {
+		if ( empty( $group ) ) {
+			$group = 'default';
+		}
+		// skip global group cache
+		if ( false !== array_search( $group, $this->global_groups ) ) {
+			return true;
+		}
+		$derived_key = $this->build_key( $key, $group );
+		$cache_key = $this->build_key( '_cache_list', 'default' );
+		$result = true;
+		if ( $this->redis_status() ) {
+			$cache_list = $this->redis->get( $cache_key );
+			$cache_list = $this->maybe_unserialize( $cache_list );
+			if ( gettype( $cache_list ) !== 'array' ) {
+				$result = $this->parse_redis_response( $this->redis->set( $cache_key, $this->maybe_serialize( array( $derived_key ) ) ) );
+			} else if ( !in_array( $derived_key, $cache_list ) ) {
+				array_push( $cache_list, $derived_key );
+				$result = $this->parse_redis_response( $this->redis->set( $cache_key, $this->maybe_serialize( $cache_list ) ) );
+			}
+		} else {
+			$result = false;
+		}
+		return $result;
+	}
+
+	/**
 	 * Add or replace a value in the cache.
 	 *
 	 * Add does not set the value if the key exists; replace does not replace if the value doesn't exist.
@@ -509,6 +586,10 @@ class WP_Object_Cache {
 
 		// save if group not excluded and redis is up
 		if ( ! in_array( $group, $this->no_redis_groups ) && $this->redis_status() ) {
+			if ( $add && !$this->record_cache( $key, $group ) ) {
+				return false;
+			}
+
 			$exists = $this->redis->exists( $derived_key );
 
 			if ( $add === $exists ) {
@@ -717,6 +798,10 @@ class WP_Object_Cache {
 
 		// save if group not excluded from redis and redis is up
 		if ( ! in_array( $group, $this->no_redis_groups ) && $this->redis_status() ) {
+			if ( !$this->record_cache( $key, $group ) ) {
+				return false;
+			}
+
 			$expiration = $this->validate_expiration($expiration);
 			if ( $expiration ) {
 				$result = $this->parse_redis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
