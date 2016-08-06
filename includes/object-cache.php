@@ -459,6 +459,15 @@ class WP_Object_Cache {
 	}
 
 	/**
+	 * Returns the Redis instance.
+	 *
+	 * @return mixed
+	 */
+	public function redis_instance() {
+		return $this->redis;
+	}
+
+	/**
 	 * Adds a value to cache.
 	 *
 	 * If the specified key already exists, the value is not stored and the function
