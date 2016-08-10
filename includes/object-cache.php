@@ -397,7 +397,7 @@ class WP_Object_Cache {
 
 				// Load bundled Predis library
 				if ( ! class_exists( 'Predis\Client' ) ) {
-					require_once WP_CONTENT_DIR . '/plugins/redis-cache/includes/predis.php';
+					require_once WP_PLUGIN_DIR . '/redis-cache/includes/predis.php';
 					Predis\Autoloader::register();
 				}
 
