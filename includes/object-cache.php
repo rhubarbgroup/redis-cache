@@ -287,7 +287,7 @@ class WP_Object_Cache {
 	 *
 	 * @var array
 	 */
-	public $no_redis_groups = array( 'comment', 'counts' );
+	public $ignored_groups = array( 'comment', 'counts' );
 
 	/**
 	 * Prefix used for global groups.
@@ -338,6 +338,14 @@ class WP_Object_Cache {
 			if ( defined( $constant ) ) {
 				$parameters[ $setting ] = constant( $constant );
 			}
+		}
+
+		if ( defined( 'WP_REDIS_GLOBAL_GROUPS' ) && is_array( WP_REDIS_GLOBAL_GROUPS ) ) {
+			$this->global_groups = WP_REDIS_GLOBAL_GROUPS;
+		}
+
+		if ( defined( 'WP_REDIS_IGNORED_GROUPS' ) && is_array( WP_REDIS_IGNORED_GROUPS ) ) {
+			$this->ignored_groups = WP_REDIS_IGNORED_GROUPS;
 		}
 
 		$client = defined( 'WP_REDIS_CLIENT' ) ? WP_REDIS_CLIENT : null;
@@ -428,7 +436,7 @@ class WP_Object_Cache {
 		} catch ( Exception $exception ) {
 
 			// When Redis is unavailable, fall back to the internal back by forcing all groups to be "no redis" groups
-			$this->no_redis_groups = array_unique( array_merge( $this->no_redis_groups, $this->global_groups ) );
+			$this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $this->global_groups ) );
 
 			$this->redis_connected = false;
 
@@ -517,7 +525,7 @@ class WP_Object_Cache {
 		$result = true;
 
 		// save if group not excluded and redis is up
-		if ( ! in_array( $group, $this->no_redis_groups ) && $this->redis_status() ) {
+		if ( ! in_array( $group, $this->ignored_groups ) && $this->redis_status() ) {
 			$exists = $this->redis->exists( $derived_key );
 
 			if ( $add === $exists ) {
@@ -561,7 +569,7 @@ class WP_Object_Cache {
 			$result = true;
 		}
 
-		if ( $this->redis_status() && ! in_array( $group, $this->no_redis_groups ) ) {
+		if ( $this->redis_status() && ! in_array( $group, $this->ignored_groups ) ) {
 			$result = $this->parse_redis_response( $this->redis->del( $derived_key ) );
 		}
 
@@ -612,7 +620,7 @@ class WP_Object_Cache {
 			$this->cache_hits++;
 
 			return is_object( $this->cache[ $derived_key ] ) ? clone $this->cache[ $derived_key ] : $this->cache[ $derived_key ];
-		} elseif ( in_array( $group, $this->no_redis_groups ) || ! $this->redis_status() ) {
+		} elseif ( in_array( $group, $this->ignored_groups ) || ! $this->redis_status() ) {
 			$found = false;
 			$this->cache_misses++;
 
@@ -669,7 +677,7 @@ class WP_Object_Cache {
 		$cache = array();
 
 		foreach ( $groups as $group => $keys ) {
-			if ( in_array( $group, $this->no_redis_groups ) || ! $this->redis_status() ) {
+			if ( in_array( $group, $this->ignored_groups ) || ! $this->redis_status() ) {
 				foreach ( $keys as $key ) {
 					$cache[ $this->build_key( $key, $group ) ] = $this->get( $key, $group );
 				}
@@ -725,7 +733,7 @@ class WP_Object_Cache {
 		$result = true;
 
 		// save if group not excluded from redis and redis is up
-		if ( ! in_array( $group, $this->no_redis_groups ) && $this->redis_status() ) {
+		if ( ! in_array( $group, $this->ignored_groups ) && $this->redis_status() ) {
 			$expiration = $this->validate_expiration($expiration);
 			if ( $expiration ) {
 				$result = $this->parse_redis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
@@ -759,7 +767,7 @@ class WP_Object_Cache {
 		$offset = (int) $offset;
 
 		// If group is a non-Redis group, save to internal cache, not Redis
-		if ( in_array( $group, $this->no_redis_groups ) || ! $this->redis_status() ) {
+		if ( in_array( $group, $this->ignored_groups ) || ! $this->redis_status() ) {
 			$value = $this->get_from_internal_cache( $derived_key, $group );
 			$value += $offset;
 			$this->add_to_internal_cache( $derived_key, $value );
@@ -800,7 +808,7 @@ class WP_Object_Cache {
 		$offset = (int) $offset;
 
 		// If group is a non-Redis group, save to internal cache, not Redis
-		if ( in_array( $group, $this->no_redis_groups ) || ! $this->redis_status() ) {
+		if ( in_array( $group, $this->ignored_groups ) || ! $this->redis_status() ) {
 			$value = $this->get_from_internal_cache( $derived_key, $group );
 			$value -= $offset;
 			$this->add_to_internal_cache( $derived_key, $value );
@@ -955,7 +963,7 @@ class WP_Object_Cache {
 		if ( $this->redis_status() ) {
 			$this->global_groups = array_unique( array_merge( $this->global_groups, $groups ) );
 		} else {
-			$this->no_redis_groups = array_unique( array_merge( $this->no_redis_groups, $groups ) );
+			$this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
 		}
 	}
 
@@ -967,7 +975,7 @@ class WP_Object_Cache {
 	public function add_non_persistent_groups( $groups ) {
 		$groups = (array) $groups;
 
-		$this->no_redis_groups = array_unique( array_merge( $this->no_redis_groups, $groups ) );
+		$this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
 	}
 
 	/**
