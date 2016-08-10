@@ -776,6 +776,18 @@ class WP_Object_Cache {
 	}
 
 	/**
+	 * Alias of `increment()`.
+	 *
+	 * @param  string $key
+	 * @param  int    $offset
+	 * @param  string $group
+	 * @return bool
+	 */
+	public function incr( $key, $offset = 1, $group = 'default' ) {
+		return $this->increment( $key, $offset, $group );
+	}
+
+	/**
 	 * Decrement a Redis counter by the amount specified
 	 *
 	 * @param  string $key
