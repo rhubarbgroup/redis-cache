@@ -18,7 +18,7 @@ class RedisObjectCache {
 
 	private $page;
 	private $screen = 'settings_page_redis-cache';
-	private $actions = array( 'enable-cache', 'disable-cache', 'flush-cache', 'update-dropin' );
+	private $actions = array( 'enable-cache', 'disable-cache', 'flush-cache', 'update-dropin', 'flush-site-cache' );
 
 	public function __construct() {
 
@@ -33,12 +33,42 @@ class RedisObjectCache {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
 		add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
+		if ( is_multisite() ) {
+			add_filter( 'manage_sites_action_links', array( $this, 'add_redis_action' ), null, 2 );
+			add_action( 'network_admin_notices', array( $this, 'network_admin_notices' ) );
+		}
 
 		add_filter( sprintf(
 			'%splugin_action_links_%s',
 			is_multisite() ? 'network_admin_' : '',
 			plugin_basename( __FILE__ )
 		), array( $this, 'add_plugin_actions_links' ) );
+
+	}
+
+	public function add_redis_action( $actions, $blog_id ) {
+
+		// add "Flush Cache" action to each site list row
+		$actions[ 'flush' ] = '<a href="' . wp_nonce_url( network_admin_url( add_query_arg( array( 'action' => 'flush-site-cache', 'blog_id' => $blog_id ), $this->page ) ), 'flush-site-cache' ) . '">Flush Cache</a>';
+		return $actions;
+
+	}
+
+	public function network_admin_notices() {
+
+		if ( !isset( $_GET[ 'flush' ] ) ) {
+			return false;
+		} else {
+			if ( $_GET[ 'flush' ] === 'success' ) {
+				echo '<div class="notice-success notice is-dismissible"><p>Flush succeed!</p></div>';
+			} else if ( $_GET[ 'flush' ] === 'error' ) {
+				echo '<div class="notice-error  notice is-dismissible"><p>Flush failed! There is an error or nothing to flush.</p></div>';
+			} else if ( $_GET[ 'flush' ] === 'down' ) {
+				echo '<div class="notice-error  notice is-dismissible"><p>Flush failed! Redis server is down or Object Cache is disabled.</p></div>';
+			}
+
+			$_SERVER[ 'REQUEST_URI' ] = remove_query_arg( 'flush', $_SERVER[ 'REQUEST_URI' ] );
+		}
 
 	}
 
@@ -286,6 +316,22 @@ class RedisObjectCache {
 			}
 
 			if ( in_array( $action, $this->actions ) ) {
+
+				if ( $action === 'flush-site-cache' && isset( $_GET[ 'blog_id' ] ) ) {
+
+					if ( !$this->validate_object_cache_dropin() ) {
+						wp_safe_redirect( network_admin_url( add_query_arg( 'flush', 'down', 'sites.php' ) ) );
+						exit;
+					}
+
+					if ( wp_cache_delete_branch( $_GET[ 'blog_id' ] ) ) {
+						wp_safe_redirect( network_admin_url( add_query_arg( 'flush', 'success', 'sites.php' ) ) );
+					} else {
+						wp_safe_redirect( network_admin_url( add_query_arg( 'flush', 'error', 'sites.php' ) ) );
+					}
+					exit;
+
+				}
 
 				$url = wp_nonce_url( network_admin_url( add_query_arg( 'action', $action, $this->page ) ), $action );
 
