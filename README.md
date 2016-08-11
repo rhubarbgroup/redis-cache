@@ -63,6 +63,14 @@ To adjust the configuration, define any of the following constants in your `wp-c
 * `WP_REDIS_MAXTTL` (default: _not set_)
 
   Set maximum time-to-live (in seconds) for cache keys with an expiration time of `0`.
+  
+* `WP_REDIS_GLOBAL_GROUPS` (default: `array( 'users', 'userlogins', 'usermeta', 'site-options', 'site-lookup', 'blog-lookup', 'blog-details', 'rss' )`)
+
+  Set the list of cache group which is belong to global groups.
+  
+* `WP_REDIS_IGNORED_GROUPS` (default: `array( 'comment', 'counts' )`)
+
+  Set cache group that will be not saved into redis. The cache group will not persist accross request. 
 
 ## Replication & Clustering
 
