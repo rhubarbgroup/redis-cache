@@ -79,12 +79,22 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
     Set maximum time-to-live (in seconds) for cache keys with an expiration time of `0`.
 
+  * `WP_REDIS_GLOBAL_GROUPS` (default: `['users', 'userlogins', 'usermeta', 'site-options', 'site-lookup', 'blog-lookup', 'blog-details', 'rss']`)
+
+    Set the list of network-wide cache groups that should not be prefixed with the blog-id _(Multisite only)_.
+
+  * `WP_REDIS_IGNORED_GROUPS` (default: `['comment', 'counts']`)
+
+    Set the cache groups that should not be cached in Redis.
+
 
 == Replication & Clustering ==
 
 To use Replication and Clustering, make sure your server is running PHP7, your setup is using Predis to connect to Redis and you consulted the [Predis documentation](https://github.com/nrk/predis).
 
-For replication, use the `WP_REDIS_SERVERS` constant and for clustering the `WP_REDIS_CLUSTER` constant. You can use a named array or an URI string to specify the parameters.
+For replication use the `WP_REDIS_SERVERS` constant and for clustering the `WP_REDIS_CLUSTER` constant. You can use a named array or an URI string to specify the parameters.
+
+For authentication use the `WP_REDIS_PASSWORD` constant.
 
 __Master-Slave Replication Example:__
 
