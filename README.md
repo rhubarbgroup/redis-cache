@@ -1,6 +1,6 @@
 # Redis Object Cache for WordPress
 
-A persistent object cache backend powered by Redis. Supports [HHVM's Redis extension](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), the [PECL Redis Extension](https://github.com/phpredis/phpredis) and the [Predis](https://github.com/nrk/predis/) library for PHP.
+A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/nrk/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [HHVM](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), replication and clustering.
 
 Forked from Eric Mann's and Erick Hitter's [Redis Object Cache](https://github.com/ericmann/Redis-Object-Cache).
 

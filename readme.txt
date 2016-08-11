@@ -8,12 +8,12 @@ Stable tag: 1.3.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, HHVM, replication and clustering.
+A persistent object cache backend powered by Redis. Supports Predis, PhpRedis (PECL), HHVM, replication and clustering.
 
 
 == Description ==
 
-A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/nrk/predis/), [HHVM's Redis extension](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis) and the [PECL Redis Extension](https://github.com/phpredis/phpredis).
+A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/nrk/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [HHVM](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), replication and clustering.
 
 To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [Other Notes](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
 
