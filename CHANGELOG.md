@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+* Updated Predis to `v1.1.1`
+* Added `redis_instance()` method
+* Added `incr()` method alias for Batcache compatibility
+* Added `WP_REDIS_GLOBAL_GROUPS` and `WP_REDIS_IGNORED_GROUPS` constant
+* Added `redis_object_cache_delete` action
+* Changed `WP_CONTENT_DIR` to `WP_PLUGIN_DIR`
+* Set password when using a cluster or replication
+* Use old array syntax, just in case
+
+
 ## 1.3.2
 
 * Make sure `$result` is not `false` in `WP_Object_Cache::get()`
