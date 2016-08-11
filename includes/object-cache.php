@@ -421,6 +421,10 @@ class WP_Object_Cache {
 					$options[ 'replication' ] = true;
 				}
 
+				if ( ( defined( 'WP_REDIS_SERVERS' ) || defined( 'WP_REDIS_CLUSTER' ) ) && defined( 'WP_REDIS_PASSWORD' ) ) {
+					$options[ 'parameters' ][ 'password' ] = WP_REDIS_PASSWORD;
+				}
+
 				$this->redis = new Predis\Client( $parameters, $options );
 				$this->redis->connect();
 
