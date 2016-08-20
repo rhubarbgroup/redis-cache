@@ -114,7 +114,9 @@ __Clustering via Client-side Sharding Example:__
 
 == Screenshots ==
 
-1. Plugin settings page.
+1. Plugin settings, connected to a single Redis server.
+
+2. Plugin settings, not connected to a Redis cluster.
 
 
 == Changelog ==
