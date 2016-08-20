@@ -836,7 +836,8 @@ class WP_Object_Cache {
 	public function stats() { ?>
 
 		<p>
-			<strong>Cache Status:</strong> <?php echo $this->redis_status() ? 'Connected' : 'Not Connected'; ?><br />
+			<strong>Redis Status:</strong> <?php echo $this->redis_status() ? 'Connected' : 'Not Connected'; ?><br />
+			<strong>Redis Client:</strong> <?php echo $this->redis_client; ?><br />
 			<strong>Cache Hits:</strong> <?php echo $this->cache_hits; ?><br />
 			<strong>Cache Misses:</strong> <?php echo $this->cache_misses; ?>
 		</p>
