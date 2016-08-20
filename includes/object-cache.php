@@ -670,7 +670,6 @@ class WP_Object_Cache {
 	 * Mirrors the Memcached Object Cache plugin's argument and return-value formats
 	 *
 	 * @param   array                           $groups  Array of groups and keys to retrieve
-	 * @uses    this::filter_redis_get_multi()
 	 * @return  bool|mixed                               Array of cached values, keys in the format $group:$key. Non-existent keys null.
 	 */
 	public function get_multi( $groups ) {
