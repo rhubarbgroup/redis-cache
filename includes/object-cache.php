@@ -248,18 +248,18 @@ function wp_cache_add_non_persistent_groups( $groups ) {
 class WP_Object_Cache {
 
 	/**
-	 * Holds the Redis client.
+	 * The Redis client.
 	 *
 	 * @var mixed
 	 */
-	private $redis;
+	public $redis;
 
 	/**
 	 * Track if Redis is available
 	 *
 	 * @var bool
 	 */
-	private $redis_connected = false;
+	public $redis_connected = false;
 
 	/**
 	 * Holds the non-Redis objects.
