@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load, replication, clustering
 Requires at least: 3.3
 Tested up to: 4.6
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -121,6 +121,19 @@ __Clustering via Client-side Sharding Example:__
 
 == Changelog ==
 
+= 1.3.3 =
+
+  * Updated Predis to `v1.1.1`
+  * Added `redis_instance()` method
+  * Added `incr()` method alias for Batcache compatibility
+  * Added `WP_REDIS_GLOBAL_GROUPS` and `WP_REDIS_IGNORED_GROUPS` constant
+  * Added `redis_object_cache_delete` action
+  * Use `WP_PLUGIN_DIR` with `WP_CONTENT_DIR` as fallback
+  * Set password when using a cluster or replication
+  * Show Redis client in `stats()`
+  * Change visibility of `$cache` to public
+  * Use old array syntax, just in case
+
 = 1.3.2 =
 
   * Make sure `$result` is not `false` in `WP_Object_Cache::get()`
@@ -197,6 +210,10 @@ __Clustering via Client-side Sharding Example:__
 
 
 == Upgrade Notice ==
+
+= 1.3.3 =
+
+This update contains several improvements.
 
 = 1.3.2 =
 

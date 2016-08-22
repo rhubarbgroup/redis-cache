@@ -1,14 +1,16 @@
 # Changelog
 
-## [Unreleased]
+## 1.3.3
 
 * Updated Predis to `v1.1.1`
 * Added `redis_instance()` method
 * Added `incr()` method alias for Batcache compatibility
 * Added `WP_REDIS_GLOBAL_GROUPS` and `WP_REDIS_IGNORED_GROUPS` constant
 * Added `redis_object_cache_delete` action
-* Changed `WP_CONTENT_DIR` to `WP_PLUGIN_DIR`
+* Use `WP_PLUGIN_DIR` with `WP_CONTENT_DIR` as fallback
 * Set password when using a cluster or replication
+* Show Redis client in `stats()`
+* Change visibility of `$cache` to public
 * Use old array syntax, just in case
 
 
