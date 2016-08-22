@@ -266,7 +266,7 @@ class WP_Object_Cache {
 	 *
 	 * @var array
 	 */
-	private $cache = array();
+	public $cache = array();
 
 	/**
 	 * Name of the used Redis client
