@@ -252,14 +252,14 @@ class WP_Object_Cache {
 	 *
 	 * @var mixed
 	 */
-	public $redis;
+	private $redis;
 
 	/**
 	 * Track if Redis is available
 	 *
 	 * @var bool
 	 */
-	public $redis_connected = false;
+	private $redis_connected = false;
 
 	/**
 	 * Holds the non-Redis objects.
