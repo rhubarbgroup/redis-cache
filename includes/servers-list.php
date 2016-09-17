@@ -32,11 +32,10 @@ class Servers_List extends WP_List_Table {
 
         array_walk_recursive( $this->items, function ( $value, $key ) use ( &$hidden ) {
             if ( $key == 'scheme' ) {
-                if ( strcasecmp( 'tcp', $value ) === 0 ) {
-                    $hidden = array_diff( $hidden, array( 'host', 'port' ) );
-                }
                 if ( strcasecmp( 'unix', $value ) === 0 ) {
                     $hidden = array_diff( $hidden, array( 'path' ) );
+                } else {
+                    $hidden = array_diff( $hidden, array( 'host', 'port' ) );
                 }
             }
         } );
