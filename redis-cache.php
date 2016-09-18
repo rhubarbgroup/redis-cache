@@ -24,7 +24,8 @@ class RedisObjectCache {
 
 		load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
 
-		register_deactivation_hook(__FILE__, array( $this, 'on_deactivation' ) );
+		register_activation_hook( __FILE__, array( $this, 'flush_cache_if_connected' ) );
+		register_deactivation_hook( __FILE__, array( $this, 'on_deactivation' ) );
 
 		$this->page = is_multisite() ? 'settings.php?page=redis-cache' : 'options-general.php?page=redis-cache';
 
@@ -135,6 +136,14 @@ class RedisObjectCache {
 
 	}
 
+	public function flush_cache_if_connected() {
+
+		if ( $this->validate_object_cache_dropin() ) {
+			wp_cache_flush();
+		}
+
+	}
+
 	public function get_status() {
 
 		if ( ! $this->object_cache_dropin_exists() ) {
@@ -238,6 +247,7 @@ class RedisObjectCache {
 			switch ( $_GET[ 'message' ] ) {
 
 				case 'cache-enabled':
+					$this->flush_cache_if_connected();
 					$message = __( 'Object Cache enabled.', 'redis-cache' );
 					break;
 				case 'enable-cache-failed':
@@ -256,6 +266,7 @@ class RedisObjectCache {
 					$error = __( 'Object Cache could not be flushed.', 'redis-cache' );
 					break;
 				case 'dropin-updated':
+					$this->flush_cache_if_connected();
 					$message = __( 'Drop-in updated.', 'redis-cache' );
 					break;
 				case 'update-dropin-failed':
@@ -304,6 +315,7 @@ class RedisObjectCache {
 							break;
 
 						case 'disable-cache':
+							$this->flush_cache_if_connected();
 							$result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
 							$message = $result ? 'cache-disabled' : 'disable-cache-failed';
 							break;
