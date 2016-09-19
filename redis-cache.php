@@ -12,7 +12,13 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 */
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once dirname( __FILE__ ) . '/includes/wp-cli-commands.php';
+}
 
 class RedisObjectCache {
 
@@ -385,4 +391,4 @@ class RedisObjectCache {
 
 }
 
-new RedisObjectCache;
+$GLOBALS[ 'redisObjectCache' ] = new RedisObjectCache;
