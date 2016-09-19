@@ -5,7 +5,7 @@ WP_CLI::add_command( 'redis', 'RedisObjectCache_CLI_Commands' );
 class RedisObjectCache_CLI_Commands extends WP_CLI_Command {
 
 	/**
-	 * Show the Redis object cache status.
+	 * Show the Redis object cache status and (when possible) client.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -42,6 +42,9 @@ class RedisObjectCache_CLI_Commands extends WP_CLI_Command {
 	/**
 	 * Enables the Redis object cache.
 	 *
+	 * Default behavior is to create the object cache drop-in,
+	 * unless an unknown object cache drop-in is present.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp redis enable
@@ -76,7 +79,10 @@ class RedisObjectCache_CLI_Commands extends WP_CLI_Command {
 	}
 
 	/**
-	 * Disabled the Redis object cache.
+	 * Disables the Redis object cache.
+	 *
+	 * Default behavior is to delete the object cache drop-in,
+	 * unless an unknown object cache drop-in is present.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -116,7 +122,9 @@ class RedisObjectCache_CLI_Commands extends WP_CLI_Command {
 	}
 
 	/**
-	 * Updates the Redis object cache dropin.
+	 * Updates the Redis object cache drop-in.
+	 *
+	 * Default behavior is to overwrite any existing object cache drop-in.
 	 *
 	 * ## EXAMPLES
 	 *

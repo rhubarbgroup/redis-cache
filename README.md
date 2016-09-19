@@ -98,3 +98,29 @@ define( 'WP_REDIS_CLUSTER', [
     'tcp://127.0.0.2:6379?database=15&alias=node-02',
 ] );
 ```
+
+### WP-CLI Commands
+
+To use the WP-CLI commands, make sure the plugin is activated:
+
+```
+wp plugin activate redis-cache
+```
+
+The following commands are supported:
+
+* `wp redis status`
+
+  Show the Redis object cache status and (when possible) client.
+
+* `wp redis enable`
+
+  Enables the Redis object cache. Default behavior is to create the object cache drop-in, unless an unknown object cache drop-in is present.
+
+* `wp redis disable`
+
+  Disables the Redis object cache. Default behavior is to delete the object cache drop-in, unless an unknown object cache drop-in is present.
+
+* `wp redis update-dropin`
+
+  Updates the Redis object cache drop-in. Default behavior is to overwrite any existing object cache drop-in.
