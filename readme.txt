@@ -24,7 +24,7 @@ Forked from Eric Mann's and Erick Hitter's [Redis Object Cache](https://github.c
 
 For detailed installation instructions, please read the [standard installation procedure for WordPress plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 
-1. Make sure Redis in installed and running.
+1. Make sure [Redis in installed and running](http://redis.io/topics/quickstart).
 2. Install and activate plugin.
 3. Enable the object cache under _Settings -> Redis_.
 4. If necessary, adjust [connection parameters](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
