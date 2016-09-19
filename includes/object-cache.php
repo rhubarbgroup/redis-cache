@@ -287,7 +287,7 @@ class WP_Object_Cache {
 	 *
 	 * @var array
 	 */
-	public $ignored_groups = array( 'comment', 'counts' );
+	public $ignored_groups = array( 'counts', 'plugins' );
 
 	/**
 	 * Prefix used for global groups.

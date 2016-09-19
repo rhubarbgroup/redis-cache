@@ -68,7 +68,7 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
   Set the list of network-wide cache groups that should not be prefixed with the blog-id _(Multisite only)_.
 
-* `WP_REDIS_IGNORED_GROUPS` (default: `['comment', 'counts']`)
+* `WP_REDIS_IGNORED_GROUPS` (default: `['counts', 'plugins']`)
 
   Set the cache groups that should not be cached in Redis.
 
