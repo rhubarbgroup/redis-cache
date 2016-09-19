@@ -29,7 +29,7 @@ To adjust the connection parameters, define any of following constants in your `
 
 * `WP_REDIS_SCHEME` (default: `tcp`)
 
-  Specifies the protocol used to communicate with an instance of Redis. Internally the client uses the connection class associated to the specified connection scheme. Supports `tcp` (TCP/IP), `unix` (UNIX domain sockets) or `http` (HTTP protocol through Webdis).
+  Specifies the protocol used to communicate with an instance of Redis. Internally the client uses the connection class associated to the specified connection scheme. Supports `tcp` (TCP/IP), `unix` (UNIX domain sockets), `tls` (transport layer security) or `http` (HTTP protocol through Webdis).
 
 * `WP_REDIS_HOST` (default: `127.0.0.1`)
 
