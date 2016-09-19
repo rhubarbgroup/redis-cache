@@ -183,7 +183,7 @@ __Clustering via Client-side Sharding Example:__
 
   * Added support for HHVM's Redis extension
   * Added support for PECL Redis extension
-  * Added `WP_REDIS_CLIENT` constant, to set prefered Redis client
+  * Added `WP_REDIS_CLIENT` constant, to set preferred Redis client
   * Added `WP_REDIS_MAXTTL` constant, to force expiration of cache keys
   * Improved `add_or_replace()`, `get()`, `set()` and `delete()` methods
   * Improved admin screen styles
