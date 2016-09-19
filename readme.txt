@@ -79,7 +79,7 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
     Set maximum time-to-live (in seconds) for cache keys with an expiration time of `0`.
 
-  * `WP_REDIS_GLOBAL_GROUPS` (default: `['users', 'userlogins', 'usermeta', 'site-options', 'site-lookup', 'blog-lookup', 'blog-details', 'rss']`)
+  * `WP_REDIS_GLOBAL_GROUPS` (default: `['blog-details', 'blog-id-cache', 'blog-lookup', 'global-posts', 'networks', 'rss', 'sites', 'site-details', 'site-lookup', 'site-options', 'site-transient', 'users', 'useremail', 'userlogins', 'usermeta', 'user_meta', 'userslugs']`)
 
     Set the list of network-wide cache groups that should not be prefixed with the blog-id _(Multisite only)_.
 

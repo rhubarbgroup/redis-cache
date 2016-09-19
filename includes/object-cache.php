@@ -280,7 +280,25 @@ class WP_Object_Cache {
 	 *
 	 * @var array
 	 */
-	public $global_groups = array( 'users', 'userlogins', 'usermeta', 'site-options', 'site-lookup', 'blog-lookup', 'blog-details', 'rss' );
+	public $global_groups = array(
+		'blog-details',
+		'blog-id-cache',
+		'blog-lookup',
+		'global-posts',
+		'networks',
+		'rss',
+		'sites',
+		'site-details',
+		'site-lookup',
+		'site-options',
+		'site-transient',
+		'users',
+		'useremail',
+		'userlogins',
+		'usermeta',
+		'user_meta',
+		'userslugs',
+	);
 
 	/**
 	 * List of groups not saved to Redis.
