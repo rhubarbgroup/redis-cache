@@ -222,7 +222,7 @@ class RedisObjectCache {
 
 			} else {
 
-				$message = sprintf( __( 'Another object cache drop-in was found. To use Redis, <a href="%s">please replace it now</a>.', 'redis-cache' ), $url );
+				$message = sprintf( __( 'An unknown object cache drop-in was found. To use Redis, <a href="%s">please replace it now</a>.', 'redis-cache' ), $url );
 
 			}
 
@@ -267,10 +267,10 @@ class RedisObjectCache {
 					break;
 				case 'dropin-updated':
 					$this->flush_cache_if_connected();
-					$message = __( 'Drop-in updated.', 'redis-cache' );
+					$message = __( 'Updated object cache drop-in and enabled Redis object cache.', 'redis-cache' );
 					break;
 				case 'update-dropin-failed':
-					$error = __( 'Drop-in could not be updated.', 'redis-cache' );
+					$error = __( 'Object cache drop-in could not be updated.', 'redis-cache' );
 					break;
 
 			}
