@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load, replication, clustering
 Requires at least: 3.3
 Tested up to: 4.6
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -145,6 +145,13 @@ The following commands are supported:
 
 
 == Changelog ==
+
+= 1.3.4 =
+
+  * Added WP-CLI support
+  * Show host and port unless scheme is unix
+  * Updated default global and ignored groups
+  * Do a cache flush when activating, deactivating and uninstalling
 
 = 1.3.3 =
 
