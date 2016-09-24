@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.4
+
+* Added WP-CLI support
+* Show host and port unless scheme is unix
+* Updated default global and ignored groups
+* Do a cache flush when activating, deactivating and uninstalling
+
+
 ## 1.3.3
 
 * Updated Predis to `v1.1.1`
