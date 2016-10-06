@@ -9,19 +9,19 @@ Forked from Eric Mann's and Erick Hitter's [Redis Object Cache](https://github.c
 
 For detailed installation instructions, please read the [standard installation procedure for WordPress plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 
-1. Make sure [Redis in installed and running](http://redis.io/topics/quickstart).
+1. Make sure [Redis is installed and running](http://redis.io/topics/quickstart).
 2. Install and activate plugin.
 3. Enable the object cache under _Settings -> Redis_.
 4. If necessary, adjust [connection parameters](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
 
-If you server doesn't support the [WordPress Filesystem API](https://codex.wordpress.org/Filesystem_API), you have to manually copy the `object-cache.php` file from the `/plugins/redis-cache/includes/` directory to the `/wp-content/` directory.
+If your server doesn't support the [WordPress Filesystem API](https://codex.wordpress.org/Filesystem_API), you have to manually copy the `object-cache.php` file from the `/plugins/redis-cache/includes/` directory to the `/wp-content/` directory.
 
 
 ## Connection Parameters
 
 By default the object cache drop-in will connect to Redis over TCP at `127.0.0.1:6379` and select database `0`.
 
-To adjust the connection parameters, define any of following constants in your `wp-config.php` file.
+To adjust the connection parameters, define any of the following constants in your `wp-config.php` file.
 
 * `WP_REDIS_CLIENT` (default: _not set_)
 
@@ -56,7 +56,7 @@ To adjust the connection parameters, define any of following constants in your `
 
 To adjust the configuration, define any of the following constants in your `wp-config.php` file.
 
-* `WP_CACHE_KEY_SALT` [default: not set]
+* `WP_CACHE_KEY_SALT` (default: not set)
 
   Set the prefix for all cache keys. Useful in setups where multiple installs share a common `wp-config.php` or `$table_prefix`, to guarantee uniqueness of cache keys.
 
