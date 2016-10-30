@@ -4,17 +4,14 @@ A persistent object cache backend powered by Redis. Supports [Predis](https://gi
 
 Forked from Eric Mann's and Erick Hitter's [Redis Object Cache](https://github.com/ericmann/Redis-Object-Cache).
 
+And forked again from Till Krüss's [Redis Cache](https://github.com/tillkruss/redis-cache).
 
+We wanted to have only the `object-cache.php` dropin file and nothing else.
 ## Installation
 
-For detailed installation instructions, please read the [standard installation procedure for WordPress plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
-
-1. Make sure [Redis is installed and running](http://redis.io/topics/quickstart).
-2. Install and activate plugin.
-3. Enable the object cache under _Settings -> Redis_.
-4. If necessary, adjust [connection parameters](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
-
-If your server doesn't support the [WordPress Filesystem API](https://codex.wordpress.org/Filesystem_API), you have to manually copy the `object-cache.php` file from the `/plugins/redis-cache/includes/` directory to the `/wp-content/` directory.
+```
+$ composer require devgeniem/wp-redis-object-cache-dropin
+```
 
 
 ## Connection Parameters
@@ -98,29 +95,3 @@ define( 'WP_REDIS_CLUSTER', [
     'tcp://127.0.0.2:6379?database=15&alias=node-02',
 ] );
 ```
-
-### WP-CLI Commands
-
-To use the WP-CLI commands, make sure the plugin is activated:
-
-```
-wp plugin activate redis-cache
-```
-
-The following commands are supported:
-
-* `wp redis status`
-
-  Show the Redis object cache status and (when possible) client.
-
-* `wp redis enable`
-
-  Enables the Redis object cache. Default behavior is to create the object cache drop-in, unless an unknown object cache drop-in is present.
-
-* `wp redis disable`
-
-  Disables the Redis object cache. Default behavior is to delete the object cache drop-in, unless an unknown object cache drop-in is present.
-
-* `wp redis update-dropin`
-
-  Updates the Redis object cache drop-in. Default behavior is to overwrite any existing object cache drop-in.
