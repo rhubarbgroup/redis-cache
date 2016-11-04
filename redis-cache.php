@@ -308,16 +308,19 @@ class RedisObjectCache {
 
 						case 'enable-cache':
 							$result = $wp_filesystem->copy( plugin_dir_path( __FILE__ ) . '/includes/object-cache.php', WP_CONTENT_DIR . '/object-cache.php', true );
+							do_action( 'redis_object_cache_enable', $result );
 							$message = $result ? 'cache-enabled' : 'enable-cache-failed';
 							break;
 
 						case 'disable-cache':
 							$result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
+							do_action( 'redis_object_cache_disable', $result );
 							$message = $result ? 'cache-disabled' : 'disable-cache-failed';
 							break;
 
 						case 'update-dropin':
 							$result = $wp_filesystem->copy( plugin_dir_path( __FILE__ ) . '/includes/object-cache.php', WP_CONTENT_DIR . '/object-cache.php', true );
+							do_action( 'redis_object_cache_update_dropin', $result );
 							$message = $result ? 'dropin-updated' : 'update-dropin-failed';
 							break;
 
