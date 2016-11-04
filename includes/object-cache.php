@@ -636,6 +636,10 @@ class WP_Object_Cache {
 
 		if ( $this->redis_status() ) {
 			$result = $this->parse_redis_response( $this->redis->flushdb() );
+
+            if ( function_exists( 'do_action' ) ) {
+                do_action( 'redis_object_cache_flush', $result, $delay );
+            }
 		}
 
 		return $result;
