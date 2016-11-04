@@ -6,7 +6,10 @@ global $wp_filesystem;
 
 ob_start();
 
-if ( file_exists( WP_CONTENT_DIR . '/object-cache.php' ) && method_exists( $GLOBALS[ 'wp_object_cache' ], 'redis_status' ) ) {
+if (
+	file_exists( WP_CONTENT_DIR . '/object-cache.php' ) &&
+	method_exists( $GLOBALS[ 'wp_object_cache' ], 'redis_status' )
+) {
 
 	wp_cache_flush();
 
