@@ -611,7 +611,9 @@ class WP_Object_Cache {
 			$result = $this->parse_redis_response( $this->redis->del( $derived_key ) );
 		}
 
-		do_action('redis_object_cache_delete', $key, $group);
+		if ( function_exists( 'do_action' ) ) {
+			do_action( 'redis_object_cache_delete', $key, $group );
+		}
 
 		return $result;
 	}
