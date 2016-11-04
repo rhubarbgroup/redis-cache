@@ -32,6 +32,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || WP_REDIS_DISABLED === false ) :
  */
 function wp_cache_add( $key, $value, $group = '', $expiration = 0 ) {
 	global $wp_object_cache;
+
 	return $wp_object_cache->add( $key, $value, $group, $expiration );
 }
 
@@ -62,6 +63,7 @@ function wp_cache_close() {
  */
 function wp_cache_decr( $key, $offset = 1, $group = '' ) {
 	global $wp_object_cache;
+
 	return $wp_object_cache->decrement( $key, $offset, $group );
 }
 
@@ -78,6 +80,7 @@ function wp_cache_decr( $key, $offset = 1, $group = '' ) {
  */
 function wp_cache_delete( $key, $group = '', $time = 0 ) {
 	global $wp_object_cache;
+
 	return $wp_object_cache->delete( $key, $group, $time );
 }
 
@@ -92,6 +95,7 @@ function wp_cache_delete( $key, $group = '', $time = 0 ) {
  */
 function wp_cache_flush( $delay = 0 ) {
 	global $wp_object_cache;
+
 	return $wp_object_cache->flush( $delay );
 }
 
@@ -113,6 +117,7 @@ function wp_cache_flush( $delay = 0 ) {
  */
 function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
 	global $wp_object_cache;
+
 	return $wp_object_cache->get( $key, $group, $force, $found );
 }
 
@@ -133,6 +138,7 @@ function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
  */
 function wp_cache_get_multi( $groups ) {
 	global $wp_object_cache;
+
 	return $wp_object_cache->get_multi( $groups );
 }
 
@@ -149,6 +155,7 @@ function wp_cache_get_multi( $groups ) {
  */
 function wp_cache_incr( $key, $offset = 1, $group = '' ) {
 	global $wp_object_cache;
+
 	return $wp_object_cache->increment( $key, $offset, $group );
 }
 
@@ -161,6 +168,7 @@ function wp_cache_incr( $key, $offset = 1, $group = '' ) {
  */
 function wp_cache_init() {
 	global $wp_object_cache;
+
 	$wp_object_cache = new WP_Object_Cache;
 }
 
@@ -181,6 +189,7 @@ function wp_cache_init() {
  */
 function wp_cache_replace( $key, $value, $group = '', $expiration = 0 ) {
 	global $wp_object_cache;
+
 	return $wp_object_cache->replace( $key, $value, $group, $expiration );
 }
 
@@ -200,6 +209,7 @@ function wp_cache_replace( $key, $value, $group = '', $expiration = 0 ) {
  */
 function wp_cache_set( $key, $value, $group = '', $expiration = 0 ) {
 	global $wp_object_cache;
+
 	return $wp_object_cache->set( $key, $value, $group, $expiration );
 }
 
@@ -216,6 +226,7 @@ function wp_cache_set( $key, $value, $group = '', $expiration = 0 ) {
  */
 function wp_cache_switch_to_blog( $_blog_id ) {
 	global $wp_object_cache;
+
 	return $wp_object_cache->switch_to_blog( $_blog_id );
 }
 
@@ -230,6 +241,7 @@ function wp_cache_switch_to_blog( $_blog_id ) {
  */
 function wp_cache_add_global_groups( $groups ) {
 	global $wp_object_cache;
+
 	$wp_object_cache->add_global_groups( $groups );
 }
 
@@ -244,6 +256,7 @@ function wp_cache_add_global_groups( $groups ) {
  */
 function wp_cache_add_non_persistent_groups( $groups ) {
 	global $wp_object_cache;
+
 	$wp_object_cache->add_non_persistent_groups( $groups );
 }
 
@@ -394,7 +407,7 @@ class WP_Object_Cache {
 
 			if ( strcasecmp( 'pecl', $client ) === 0 ) {
 
-				$this->redis_client = sprintf( 'PECL Extension (v%s)', phpversion('redis') );
+				$this->redis_client = sprintf( 'PECL Extension (v%s)', phpversion( 'redis' ) );
 				$this->redis = new Redis();
 
 				if ( strcasecmp( 'unix', $parameters[ 'scheme' ] ) === 0 ) {
@@ -544,10 +557,9 @@ class WP_Object_Cache {
 	 * @param   int    $expiration     The expiration time, defaults to 0.
 	 * @return  bool                   Returns TRUE on success or FALSE on failure.
 	 */
-
 	protected function add_or_replace( $add, $key, $value, $group = 'default', $expiration = 0 ) {
+        $result = true;
 		$derived_key = $this->build_key( $key, $group );
-		$result = true;
 
 		// save if group not excluded and redis is up
 		if ( ! in_array( $group, $this->ignored_groups ) && $this->redis_status() ) {
@@ -567,6 +579,7 @@ class WP_Object_Cache {
 		}
 
 		$exists = isset( $this->cache[ $derived_key ] );
+
 		if ( $add === $exists ) {
 			return false;
 		}
@@ -586,9 +599,9 @@ class WP_Object_Cache {
 	 * @return  bool               Returns TRUE on success or FALSE on failure.
 	 */
 	public function delete( $key, $group = 'default' ) {
+        $result = false;
 		$derived_key = $this->build_key( $key, $group );
 
-		$result = false;
 		if ( isset( $this->cache[ $derived_key ] ) ) {
 			unset( $this->cache[ $derived_key ] );
 			$result = true;
@@ -611,10 +624,12 @@ class WP_Object_Cache {
 	 */
 	public function flush( $delay = 0 ) {
 		$delay = abs( intval( $delay ) );
+
 		if ( $delay ) {
 			sleep( $delay );
 		}
 
+        $result = false;
 		$this->cache = array();
 
 		if ( $this->redis_status() ) {
@@ -654,7 +669,7 @@ class WP_Object_Cache {
 
 		$result = $this->redis->get( $derived_key );
 
-		if ($result === null || $result === false) {
+		if ( $result === null || $result === false ) {
 			$found = false;
 			$this->cache_misses++;
 
@@ -675,9 +690,9 @@ class WP_Object_Cache {
 
 		if ( function_exists( 'apply_filters' ) ) {
 			return apply_filters( 'redis_object_cache_get', $value, $key, $group, $force, $found );
-		} else {
-			return $value;
 		}
+
+        return $value;
 	}
 
 	/**
@@ -708,6 +723,7 @@ class WP_Object_Cache {
 			} else {
 				// Reformat arguments as expected by Redis
 				$derived_keys = array();
+
 				foreach ( $keys as $key ) {
 					$derived_keys[] = $this->build_key( $key, $group );
 				}
@@ -753,12 +769,13 @@ class WP_Object_Cache {
 	 * @return  bool               Returns TRUE on success or FALSE on failure.
 	 */
 	public function set( $key, $value, $group = 'default', $expiration = 0 ) {
+        $result = true;
 		$derived_key = $this->build_key( $key, $group );
-		$result = true;
 
 		// save if group not excluded from redis and redis is up
 		if ( ! in_array( $group, $this->ignored_groups ) && $this->redis_status() ) {
-			$expiration = $this->validate_expiration($expiration);
+			$expiration = $this->validate_expiration( $expiration );
+
 			if ( $expiration ) {
 				$result = $this->parse_redis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
 			} else {
@@ -886,13 +903,13 @@ class WP_Object_Cache {
 			$group = 'default';
 		}
 
-		if ( false !== array_search( $group, $this->global_groups ) ) {
+		if ( array_search( $group, $this->global_groups ) !== false) {
 			$prefix = $this->global_prefix;
 		} else {
 			$prefix = $this->blog_prefix;
 		}
 
-		return preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT . "$prefix$group:$key" );
+		return preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT . "{$prefix}{$group}:{$key}" );
 	}
 
 	/**
@@ -928,7 +945,7 @@ class WP_Object_Cache {
 		}
 
 		if ( is_object( $response ) && method_exists( $response, 'getPayload' ) ) {
-			return 'OK' === $response->getPayload();
+			return $response->getPayload() === 'OK';
 		}
 
 		return false;
@@ -974,6 +991,7 @@ class WP_Object_Cache {
 		}
 
 		$this->blog_prefix = $_blog_id . ':';
+
 		return true;
 	}
 
@@ -1010,9 +1028,11 @@ class WP_Object_Cache {
 	 */
 	protected function validate_expiration( $expiration ) {
 		$expiration = ( is_array( $expiration ) || is_object( $expiration ) ? 0 : abs( intval( $expiration ) ) );
-		if ( $expiration === 0 && defined( 'WP_REDIS_MAXTTL' ) ) {
+
+        if ( $expiration === 0 && defined( 'WP_REDIS_MAXTTL' ) ) {
 			$expiration = intval( WP_REDIS_MAXTTL );
 		}
+
 		return $expiration;
 	}
 
@@ -1023,8 +1043,11 @@ class WP_Object_Cache {
 	 * @return mixed Unserialized data can be any type.
 	 */
 	protected function maybe_unserialize( $original ) {
-		if ( $this->is_serialized( $original ) ) // don't attempt to unserialize data that wasn't serialized going in
-			return @unserialize( $original );
+        // don't attempt to unserialize data that wasn't serialized going in
+		if ( $this->is_serialized( $original ) ) {
+            return @unserialize( $original );
+        }
+
 		return $original;
 	}
 
@@ -1034,11 +1057,13 @@ class WP_Object_Cache {
 	 * @return mixed A scalar data
 	 */
 	protected function maybe_serialize( $data ) {
-		if ( is_array( $data ) || is_object( $data ) )
-			return serialize( $data );
+		if ( is_array( $data ) || is_object( $data ) ) {
+            return serialize( $data );
+        }
 
-		if ( $this->is_serialized( $data, false ) )
-			return serialize( $data );
+		if ( $this->is_serialized( $data, false ) ) {
+            return serialize( $data );
+        }
 
 		return $data;
 	}
@@ -1054,41 +1079,53 @@ class WP_Object_Cache {
 	 * @return bool False if not serialized and true if it was.
 	 */
 	protected function is_serialized( $data, $strict = true ) {
-
 		// if it isn't a string, it isn't serialized.
 		if ( ! is_string( $data ) ) {
 			return false;
 		}
+
 		$data = trim( $data );
+
 	 	if ( 'N;' == $data ) {
 			return true;
 		}
+
 		if ( strlen( $data ) < 4 ) {
 			return false;
 		}
+
 		if ( ':' !== $data[1] ) {
 			return false;
 		}
+
 		if ( $strict ) {
 			$lastc = substr( $data, -1 );
+
 			if ( ';' !== $lastc && '}' !== $lastc ) {
 				return false;
 			}
 		} else {
 			$semicolon = strpos( $data, ';' );
-			$brace     = strpos( $data, '}' );
+			$brace = strpos( $data, '}' );
+
 			// Either ; or } must exist.
-			if ( false === $semicolon && false === $brace )
-				return false;
+			if ( false === $semicolon && false === $brace ) {
+                return false;
+            }
+
 			// But neither must be in the first X characters.
-			if ( false !== $semicolon && $semicolon < 3 )
-				return false;
-			if ( false !== $brace && $brace < 4 )
-				return false;
+			if ( false !== $semicolon && $semicolon < 3 ) {
+                return false;
+            }
+
+			if ( false !== $brace && $brace < 4 ) {
+                return false;
+            }
 		}
 		$token = $data[0];
+
 		switch ( $token ) {
-			case 's' :
+			case 's':
 				if ( $strict ) {
 					if ( '"' !== substr( $data, -2, 1 ) ) {
 						return false;
@@ -1097,15 +1134,17 @@ class WP_Object_Cache {
 					return false;
 				}
 				// or else fall through
-			case 'a' :
-			case 'O' :
+			case 'a':
+			case 'O':
 				return (bool) preg_match( "/^{$token}:[0-9]+:/s", $data );
-			case 'b' :
-			case 'i' :
-			case 'd' :
+			case 'b':
+			case 'i':
+			case 'd':
 				$end = $strict ? '$' : '';
+
 				return (bool) preg_match( "/^{$token}:[0-9.E-]+;$end/", $data );
 		}
+
 		return false;
 	}
 
