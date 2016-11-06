@@ -169,7 +169,9 @@ function wp_cache_incr( $key, $offset = 1, $group = '' ) {
 function wp_cache_init() {
 	global $wp_object_cache;
 
-	$wp_object_cache = new WP_Object_Cache;
+	if ( ! ( $wp_object_cache instanceof WP_Object_Cache ) ) {
+		$wp_object_cache = new WP_Object_Cache;
+	}
 }
 
 /**
