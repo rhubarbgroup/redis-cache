@@ -1,6 +1,8 @@
 <?php
 
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) exit;
+if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+    exit;
+}
 
 global $wp_filesystem;
 
@@ -8,7 +10,8 @@ ob_start();
 
 if (
 	file_exists( WP_CONTENT_DIR . '/object-cache.php' ) &&
-	method_exists( $GLOBALS[ 'wp_object_cache' ], 'redis_status' )
+    ( $object_cache = file_get_contents( WP_CONTENT_DIR . '/object-cache.php' ) ) &&
+    strpos( $object_cache, 'http://wordpress.org/plugins/redis-cache/' ) !== false
 ) {
 
 	wp_cache_flush();
