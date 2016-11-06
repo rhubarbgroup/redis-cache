@@ -1,6 +1,6 @@
 {
     "name": "tillkruss/redis-cache",
-    "description": "A persistent object cache backend for WordPress powered by Redis. Supports Predis, PhpRedis, HHVM, replication and clustering.",
+    "description": "A persistent page and object cache backend powered by Redis. Supports Predis, PhpRedis, HHVM, replication, clustering and WP-CLI.",
     "homepage": "https://github.com/tillkruss/redis-cache",
     "type": "wordpress-plugin",
     "license": "GPL-3.0+",
