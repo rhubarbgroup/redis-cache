@@ -18,7 +18,8 @@
     },
     "autoload-dev": {
         "files": [
-            "includes/object-cache.php"
+            "includes/object-cache.php",
+            "includes/advanced-cache.php"
         ]
     }
 }
