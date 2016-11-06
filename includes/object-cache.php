@@ -807,7 +807,7 @@ class WP_Object_Cache {
 	 * @param  string $key
 	 * @param  int    $offset
 	 * @param  string $group
-	 * @return bool
+	 * @return int|bool
 	 */
 	public function increment( $key, $offset = 1, $group = 'default' ) {
 		$derived_key = $this->build_key( $key, $group );
@@ -819,7 +819,7 @@ class WP_Object_Cache {
 			$value += $offset;
 			$this->add_to_internal_cache( $derived_key, $value );
 
-			return true;
+			return $value;
 		}
 
 		// Save to Redis
@@ -848,7 +848,7 @@ class WP_Object_Cache {
 	 * @param  string $key
 	 * @param  int    $offset
 	 * @param  string $group
-	 * @return bool
+	 * @return int|bool
 	 */
 	public function decrement( $key, $offset = 1, $group = 'default' ) {
 		$derived_key = $this->build_key( $key, $group );
@@ -860,7 +860,7 @@ class WP_Object_Cache {
 			$value -= $offset;
 			$this->add_to_internal_cache( $derived_key, $value );
 
-			return true;
+			return $value;
 		}
 
 		// Save to Redis
@@ -947,7 +947,7 @@ class WP_Object_Cache {
 		}
 
 		if ( is_numeric( $response ) ) {
-			return (bool) $response;
+			return $response;
 		}
 
 		if ( is_object( $response ) && method_exists( $response, 'getPayload' ) ) {
