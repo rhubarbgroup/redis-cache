@@ -567,7 +567,7 @@ class WP_Object_Cache {
 		if ( ! in_array( $group, $this->ignored_groups ) && $this->redis_status() ) {
 			$exists = $this->redis->exists( $derived_key );
 
-			if ( $add === $exists ) {
+			if ( $add == $exists ) {
 				return false;
 			}
 
@@ -582,7 +582,7 @@ class WP_Object_Cache {
 
 		$exists = isset( $this->cache[ $derived_key ] );
 
-		if ( $add === $exists ) {
+		if ( $add == $exists ) {
 			return false;
 		}
 
