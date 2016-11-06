@@ -493,7 +493,7 @@ class WP_Object_Cache {
 		// Assign global and blog prefixes for use with keys
 		if ( function_exists( 'is_multisite' ) ) {
 			$this->global_prefix = ( is_multisite() || defined( 'CUSTOM_USER_TABLE' ) && defined( 'CUSTOM_USER_META_TABLE' ) ) ? '' : $table_prefix;
-			$this->blog_prefix = ( is_multisite() ? $blog_id : $table_prefix ) . ':';
+			$this->blog_prefix = ( is_multisite() ? $blog_id : $table_prefix );
 		}
 	}
 
@@ -917,7 +917,7 @@ class WP_Object_Cache {
 			$prefix = $this->blog_prefix;
 		}
 
-		return preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT . "{$prefix}{$group}:{$key}" );
+		return preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT . "{$prefix}:{$group}:{$key}" );
 	}
 
 	/**
@@ -998,7 +998,7 @@ class WP_Object_Cache {
 			return false;
 		}
 
-		$this->blog_prefix = $_blog_id . ':';
+		$this->blog_prefix = $_blog_id;
 
 		return true;
 	}
