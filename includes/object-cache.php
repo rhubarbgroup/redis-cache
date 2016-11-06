@@ -696,8 +696,10 @@ class WP_Object_Cache {
 			do_action( 'redis_object_cache_get', $key, $value, $group, $force, $found );
 		}
 
-		if ( function_exists( 'apply_filters' ) ) {
-			return apply_filters( 'redis_object_cache_get', $value, $key, $group, $force, $found );
+		if ( function_exists( 'apply_filters' ) && function_exists( 'has_filter' ) ) {
+			if ( has_filter( 'redis_object_cache_get' ) ) {
+				return apply_filters( 'redis_object_cache_get', $value, $key, $group, $force, $found );
+			}
 		}
 
         return $value;
