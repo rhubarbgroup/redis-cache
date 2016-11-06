@@ -898,10 +898,7 @@ class WP_Object_Cache {
 	}
 
 	/**
-	 * Builds a key for the cached object using the blog_id, key, and group values.
-	 *
-	 * @author  Ryan Boren   This function is inspired by the original WP Memcached Object cache.
-	 * @link    http://wordpress.org/extend/plugins/memcached/
+	 * Builds a key for the cached object using the prefix, group and key.
 	 *
 	 * @param   string $key        The key under which to store the value.
 	 * @param   string $group      The group value appended to the $key.
@@ -913,13 +910,13 @@ class WP_Object_Cache {
 			$group = 'default';
 		}
 
-		if ( array_search( $group, $this->global_groups ) !== false) {
+		if ( in_array( $group, $this->global_groups ) ) {
 			$prefix = $this->global_prefix;
 		} else {
 			$prefix = $this->blog_prefix;
 		}
 
-		return preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT . "{$prefix}:{$group}:{$key}" );
+		return WP_CACHE_KEY_SALT . "{$prefix}:{$group}:{$key}";
 	}
 
 	/**
