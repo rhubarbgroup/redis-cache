@@ -44,7 +44,6 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
     $info[ 'WP_REDIS_PASSWORD' ] = json_encode( empty( WP_REDIS_PASSWORD ) ? null : str_repeat( '*', strlen( WP_REDIS_PASSWORD ) ) );
 }
 
-
 if ( $this->validate_object_cache_dropin() ) {
     $info[ __( 'Drop-in', 'redis-cache' ) ] = __( 'Valid', 'redis-cache' );
     $info[ __( 'Global Prefix', 'redis-cache' ) ] = json_encode( $GLOBALS[ 'wp_object_cache' ]->global_prefix );
