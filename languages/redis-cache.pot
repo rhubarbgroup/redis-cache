@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redis Object Cache 1.3.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/redis-cache\n"
-"POT-Creation-Date: 2016-09-21 22:54:28+00:00\n"
+"POT-Creation-Date: 2016-11-07 02:08:32+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -54,16 +54,76 @@ msgstr ""
 msgid "Servers"
 msgstr ""
 
-#: includes/servers-list.php:8
-msgid "Server"
+#: includes/admin-page.php:60
+msgid "Diagnostics"
 msgstr ""
 
-#: includes/servers-list.php:77
+#: includes/admin-page.php:66
+msgid "Show Diagnostics"
+msgstr ""
+
+#: includes/diagnostics.php:13
+msgid "Multisite"
+msgstr ""
+
+#: includes/diagnostics.php:13 includes/servers-list.php:77
 msgid "Yes"
 msgstr ""
 
-#: includes/servers-list.php:77
+#: includes/diagnostics.php:13 includes/servers-list.php:77
 msgid "No"
+msgstr ""
+
+#: includes/diagnostics.php:15 redis-cache.php:59
+msgid "Redis"
+msgstr ""
+
+#: includes/diagnostics.php:15 includes/diagnostics.php:16
+msgid "Not Found"
+msgstr ""
+
+#: includes/diagnostics.php:16
+msgid "Predis"
+msgstr ""
+
+#: includes/diagnostics.php:18
+msgid "Status"
+msgstr ""
+
+#: includes/diagnostics.php:19
+msgid "Client"
+msgstr ""
+
+#: includes/diagnostics.php:48 includes/diagnostics.php:54
+msgid "Drop-in"
+msgstr ""
+
+#: includes/diagnostics.php:48
+msgid "Valid"
+msgstr ""
+
+#: includes/diagnostics.php:49
+msgid "Global Prefix"
+msgstr ""
+
+#: includes/diagnostics.php:50
+msgid "Blog Prefix"
+msgstr ""
+
+#: includes/diagnostics.php:51
+msgid "Global Groups"
+msgstr ""
+
+#: includes/diagnostics.php:52
+msgid "Ignored Groups"
+msgstr ""
+
+#: includes/diagnostics.php:54
+msgid "Invalid"
+msgstr ""
+
+#: includes/servers-list.php:8
+msgid "Server"
 msgstr ""
 
 #: includes/wp-cli-commands.php:23 redis-cache.php:149
@@ -114,10 +174,6 @@ msgstr ""
 
 #: includes/wp-cli-commands.php:144
 msgid "Object Cache drop-in could not be updated."
-msgstr ""
-
-#: redis-cache.php:59
-msgid "Redis"
 msgstr ""
 
 #: redis-cache.php:162
