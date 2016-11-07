@@ -56,7 +56,7 @@ To adjust the connection parameters, define any of the following constants in yo
 
 To adjust the configuration, define any of the following constants in your `wp-config.php` file.
 
-* `WP_CACHE_KEY_SALT` (default: not set)
+* `WP_CACHE_KEY_SALT` (default: _not set_)
 
   Set the prefix for all cache keys. Useful in setups where multiple installs share a common `wp-config.php` or `$table_prefix`, to guarantee uniqueness of cache keys.
 
