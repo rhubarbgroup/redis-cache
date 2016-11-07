@@ -87,6 +87,10 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
     Set the cache groups that should not be cached in Redis.
 
+  * `WP_REDIS_DISABLED` (default: _not set_)
+
+    Set to `true` to disable the object cache at runtime.
+
 
 == Replication & Clustering ==
 
