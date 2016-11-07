@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.3.5
+
+* Added basic diagnostics to admin interface
+* Added `WP_REDIS_DISABLED` constant to disable cache at runtime
+* Prevent "Invalid plugin header" error
+* Return integer from `increment()` and `decrement()` methods
+* Prevent object cache from being instantiated more than once
+* Always separate cache key `prefix` and `group` by semicolon
+* Improved performance of `build_key()`
+* Only apply `redis_object_cache_get` filter if callbacks have been registered
+* Fixed `add_or_replace()` to only set cache key if it doesn't exist
+* Added `redis_object_cache_flush` action
+* Added `redis_object_cache_enable` action
+* Added `redis_object_cache_disable` action
+* Added `redis_object_cache_update_dropin` action
+
+
 ## 1.3.4
 
 * Added WP-CLI support
