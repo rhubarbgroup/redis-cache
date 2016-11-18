@@ -98,8 +98,8 @@ class Servers_List extends WP_List_Table {
             $constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
 
             if ( defined( $constant ) ) {
-    			$server[ $setting ] = constant( $constant );
-    		}
+                $server[ $setting ] = constant( $constant );
+            }
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
