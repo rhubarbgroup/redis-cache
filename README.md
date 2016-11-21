@@ -62,7 +62,7 @@ To adjust the configuration, define any of the following constants in your `wp-c
   
 * `WP_REDIS_FLUSH_ONLY_KEY_SALT` (default: _not set_)
 
-If set to true AND `WP_CACHE_KEY_SALT` is also defined and non-empty, then flushing the cache will do a lua-scripted, wildcard flush on the redis database which will only delete keys that include `WP_CACHE_KEY_SALT`. If not defined or set to false, `flush` will flush the entire redis database.
+  If set to true _and_ `WP_CACHE_KEY_SALT` is also defined and non-empty, then flushing the cache will do a lua-scripted, wildcard flush on the redis database which will only delete keys that include `WP_CACHE_KEY_SALT`. If not defined or set to false, `flush` will flush the entire redis database.
 
 * `WP_REDIS_MAXTTL` (default: _not set_)
 
