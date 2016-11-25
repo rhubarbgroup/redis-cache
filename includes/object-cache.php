@@ -355,11 +355,9 @@ class WP_Object_Cache {
     /**
      * Instantiate the Redis class.
      *
-     * Instantiates the Redis class.
-     *
-     * @param null $persistent_id To create an instance that persists between requests, use persistent_id to specify a unique ID for the instance.
+     * @param bool $fail_gracefully
      */
-    public function __construct() {
+    public function __construct( $fail_gracefully = true ) {
         global $blog_id, $table_prefix;
 
         $parameters = array(
@@ -480,7 +478,9 @@ class WP_Object_Cache {
 
             $this->redis_connected = false;
 
-        }
+            if ( ! $fail_gracefully ) {
+                throw $exception;
+            }
 
         }
 
