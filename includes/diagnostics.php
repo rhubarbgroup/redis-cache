@@ -10,6 +10,14 @@ $info[ 'Client' ] = $this->get_redis_client_name();
 
 $info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
 
+if ( $dropin ) {
+	try {
+		$cache = new WP_Object_Cache( false );
+		$info[ 'Ping' ] = $cache->redis_instance()->ping();
+	} catch ( Exception $exception ) {
+		$info[ 'Connection Exception' ] = sprintf( '%s (%s)', $exception->getMessage(), get_class( $exception ) );
+	}
+}
 
 $info[ 'Redis Extension' ] = class_exists( 'Redis' ) ? phpversion( 'redis' ) : 'Not Found';
 $info[ 'Predis Client' ] = class_exists( 'Predis\Client' ) ? Predis\Client::VERSION : 'Not Found';
