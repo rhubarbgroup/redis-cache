@@ -482,12 +482,6 @@ class WP_Object_Cache {
 
         }
 
-        /**
-         * This approach is borrowed from Sivel and Boren. Use the salt for easy cache invalidation and for
-         * multi single WP installs on the same server.
-         */
-        if ( ! defined( 'WP_CACHE_KEY_SALT' ) ) {
-            define( 'WP_CACHE_KEY_SALT', '' );
         }
 
         // Assign global and blog prefixes for use with keys
@@ -910,13 +904,10 @@ class WP_Object_Cache {
             $group = 'default';
         }
 
-        if ( in_array( $group, $this->global_groups ) ) {
-            $prefix = $this->global_prefix;
-        } else {
-            $prefix = $this->blog_prefix;
-        }
+        $salt = defined( 'WP_CACHE_KEY_SALT' ) ? trim( WP_CACHE_KEY_SALT ) : '';
+        $prefix = in_array( $group, $this->global_groups ) ? $this->global_prefix : $this->blog_prefix;
 
-        return WP_CACHE_KEY_SALT . "{$prefix}:{$group}:{$key}";
+        return "{$salt}{$prefix}:{$group}:{$key}";
     }
 
     /**
