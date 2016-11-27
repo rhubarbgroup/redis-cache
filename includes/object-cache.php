@@ -644,7 +644,10 @@ class WP_Object_Cache {
                     return i
                 ";
 
-                $result = $this->parse_redis_response( $this->redis->eval( $script, null ) );
+                $result = $this->parse_redis_response( $this->redis->eval(
+                    $script,
+                    $this->redis instanceof Predis\Client ? 0 : []
+                ) );
             } else {
                 $result = $this->parse_redis_response( $this->redis->flushdb() );
             }
