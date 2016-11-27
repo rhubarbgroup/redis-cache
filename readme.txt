@@ -75,6 +75,10 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
     Set the prefix for all cache keys. Useful in setups where multiple installs share a common `wp-config.php` or `$table_prefix`, to guarantee uniqueness of cache keys.
 
+  * `WP_REDIS_SELECTIVE_FLUSH` (default: _not set_)
+
+    If set to `true`, flushing the cache will only delete keys that are prefixed with `WP_CACHE_KEY_SALT` (instead of emptying the entire Redis database). The selective flush is an atomic `O(n)` operation.
+
   * `WP_REDIS_MAXTTL` (default: _not set_)
 
     Set maximum time-to-live (in seconds) for cache keys with an expiration time of `0`.

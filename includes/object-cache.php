@@ -3,7 +3,7 @@
 Plugin Name: Redis Object Cache Drop-In
 Plugin URI: http://wordpress.org/plugins/redis-cache/
 Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, HHVM, replication, clustering and WP-CLI.
-Version: 1.3.5.1
+Version: 1.3.5
 Author: Till Krüss
 Author URI: https://till.im/
 License: GPLv3
@@ -631,13 +631,20 @@ class WP_Object_Cache {
         $this->cache = array();
 
         if ( $this->redis_status() ) {
+            $salt = defined( 'WP_CACHE_KEY_SALT' ) ? trim( WP_CACHE_KEY_SALT ) : null;
+            $selective = defined( 'WP_REDIS_SELECTIVE_FLUSH' ) ? WP_REDIS_SELECTIVE_FLUSH : null;
 
-            if ( defined( 'WP_CACHE_KEY_SALT' ) &&
-                 defined ( 'WP_REDIS_FLUSH_ONLY_KEY_SALT' ) &&
-                 WP_CACHE_KEY_SALT != '' &&
-                 WP_REDIS_FLUSH_ONLY_KEY_SALT == true ) {
-                $pattern = WP_CACHE_KEY_SALT . '*';
-                $result = $this->parse_redis_response( $this->redis->eval("local i=0 for _,k in ipairs(redis.call('keys', ARGV[1])) do redis.call('del', k) i=i+1 end return i", ["$pattern"], 0) );
+            if ( $salt && $selective ) {
+                $script = "
+                    local i = 0
+                    for _,k in ipairs(redis.call('keys', '{$salt}*')) do
+                        redis.call('del', k)
+                        i = i + 1
+                    end
+                    return i
+                ";
+
+                $result = $this->parse_redis_response( $this->redis->eval( $script, null ) );
             } else {
                 $result = $this->parse_redis_response( $this->redis->flushdb() );
             }
