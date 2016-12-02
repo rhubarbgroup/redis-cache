@@ -246,22 +246,22 @@ class RedisObjectCache {
             switch ( $_GET[ 'message' ] ) {
 
                 case 'cache-enabled':
-                    $message = __( 'Object Cache enabled.', 'redis-cache' );
+                    $message = __( 'Object cache enabled.', 'redis-cache' );
                     break;
                 case 'enable-cache-failed':
-                    $error = __( 'Object Cache could not be enabled.', 'redis-cache' );
+                    $error = __( 'Object cache could not be enabled.', 'redis-cache' );
                     break;
                 case 'cache-disabled':
-                    $message = __( 'Object Cache disabled.', 'redis-cache' );
+                    $message = __( 'Object cache disabled.', 'redis-cache' );
                     break;
                 case 'disable-cache-failed':
-                    $error = __( 'Object Cache could not be disabled.', 'redis-cache' );
+                    $error = __( 'Object cache could not be disabled.', 'redis-cache' );
                     break;
                 case 'cache-flushed':
-                    $message = __( 'Object Cache flushed.', 'redis-cache' );
+                    $message = __( 'Object cache flushed.', 'redis-cache' );
                     break;
                 case 'flush-cache-failed':
-                    $error = __( 'Object Cache could not be flushed.', 'redis-cache' );
+                    $error = __( 'Object cache could not be flushed.', 'redis-cache' );
                     break;
                 case 'dropin-updated':
                     $message = __( 'Updated object cache drop-in and enabled Redis object cache.', 'redis-cache' );
