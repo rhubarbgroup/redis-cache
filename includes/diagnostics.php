@@ -2,7 +2,7 @@
 
 global $wp_object_cache;
 
-$info = array();
+$info = $plugins = $dropins = array();
 $dropin = $this->validate_object_cache_dropin();
 
 $info[ 'Status' ] = $this->get_status();
@@ -68,6 +68,34 @@ if ( $dropin ) {
     $info[ 'Ignored Groups' ] = json_encode( $wp_object_cache->ignored_groups );
 }
 
-foreach ($info as $name => $value) {
+foreach ( $info as $name => $value ) {
     echo "{$name}: {$value}\r\n";
+}
+
+foreach ( get_dropins() as $file => $details ) {
+	$dropins[ $file ] = sprintf(
+		' - %s v%s by %s',
+		$details[ 'Name' ],
+		$details[ 'Version' ],
+		$details[ 'Author' ]
+	);
+}
+
+if ( ! empty( $dropins ) ) {
+	echo "Dropins: \r\n", implode( "\r\n", $dropins ), "\r\n";
+}
+
+foreach ( get_plugins() as $file => $details ) {
+	$plugins[] = sprintf(
+		' - %s v%s by %s (%s%s)',
+		$details[ 'Name' ],
+		$details[ 'Version' ],
+		$details[ 'Author' ],
+		is_plugin_active( $file ) ? 'Active' : 'Inactive',
+		is_multisite() ? ( is_plugin_active_for_network( $file ) ? ' network-wide' : '' ) : ''
+	);
+}
+
+if ( ! empty( $plugins ) ) {
+	echo "Plugins: \r\n", implode( "\r\n", $plugins ), "\r\n";
 }
