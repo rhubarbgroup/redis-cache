@@ -1,7 +1,7 @@
 === Redis Object Cache ===
 Contributors: tillkruess
 Donate link: https://www.paypal.me/tillkruss
-Tags: redis, predis, hhvm, pecl, caching, cache, object cache, wp object cache, server, performance, optimize, speed, load, replication, clustering
+Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, performance, replication, clustering
 Requires at least: 3.3
 Tested up to: 4.7
 Stable tag: 1.3.5
