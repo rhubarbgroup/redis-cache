@@ -95,3 +95,8 @@ define( 'WP_REDIS_CLUSTER', [
     'tcp://127.0.0.2:6379?database=15&alias=node-02',
 ] );
 ```
+
+## Maintainers
+[@onnimonni](https://github.com/onnimonni)
+
+[@villepietarinen](https://github.com/villepietarinen)
