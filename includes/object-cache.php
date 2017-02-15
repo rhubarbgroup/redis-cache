@@ -455,6 +455,12 @@ class WP_Object_Cache {
                     $options[ 'replication' ] = true;
                 }
 
+                if ( defined( 'WP_REDIS_SENTINEL' ) ) {
+                    $parameters = WP_REDIS_SERVERS;
+                    $options[ 'replication' ] = 'sentinel';
+                    $options[ 'service' ] = WP_REDIS_SENTINEL;
+                }                
+
                 if ( ( defined( 'WP_REDIS_SERVERS' ) || defined( 'WP_REDIS_CLUSTER' ) ) && defined( 'WP_REDIS_PASSWORD' ) ) {
                     $options[ 'parameters' ][ 'password' ] = WP_REDIS_PASSWORD;
                 }
