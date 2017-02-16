@@ -417,7 +417,7 @@ class WP_Object_Cache {
                 } else {
                     $this->redis = new Redis();
 
-                if ( strcasecmp( 'unix', $parameters[ 'scheme' ] ) === 0 ) {
+                    if ( strcasecmp( 'unix', $parameters[ 'scheme' ] ) === 0 ) {
                         $this->redis->connect( $parameters[ 'path' ] );
                     } else {
                         $this->redis->connect( $parameters[ 'host' ], $parameters[ 'port' ] );
