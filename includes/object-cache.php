@@ -408,12 +408,20 @@ class WP_Object_Cache {
             if ( strcasecmp( 'pecl', $client ) === 0 ) {
 
                 $this->redis_client = sprintf( 'PECL Extension (v%s)', phpversion( 'redis' ) );
-                $this->redis = new Redis();
+
+                if ( defined( 'WP_REDIS_CLUSTER' ) && (defined('PHP_VERSION') && version_compare(PHP_VERSION, '7.0.0') >= 0)  ) {
+                    $parameters = WP_REDIS_CLUSTER;
+                    $this->redis = new RedisArray($parameters);
+
+                    $this->redis->connect();
+                } else {
+                    $this->redis = new Redis();
 
                 if ( strcasecmp( 'unix', $parameters[ 'scheme' ] ) === 0 ) {
-                    $this->redis->connect( $parameters[ 'path' ] );
-                } else {
-                    $this->redis->connect( $parameters[ 'host' ], $parameters[ 'port' ] );
+                        $this->redis->connect( $parameters[ 'path' ] );
+                    } else {
+                        $this->redis->connect( $parameters[ 'host' ], $parameters[ 'port' ] );
+                    }
                 }
             }
 
