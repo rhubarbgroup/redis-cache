@@ -83,9 +83,9 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
 ## Replication & Clustering
 
-To use Replication, Sharing or Clustering, make sure your server is running PHP7 or higher (HHVM is not supported) and you consulted the [Predis](https://github.com/nrk/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
+To use Replication, Sharding or Clustering, make sure your server is running PHP7 or higher (HHVM is not supported) and you consulted the [Predis](https://github.com/nrk/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
 
-For replication use the `WP_REDIS_SERVERS` constant, for sharing the `WP_REDIS_SHARDS` constant and for clustering the `WP_REDIS_CLUSTER` constant.
+For replication use the `WP_REDIS_SERVERS` constant, for sharding the `WP_REDIS_SHARDS` constant and for clustering the `WP_REDIS_CLUSTER` constant.
 
 For authentication use the `WP_REDIS_PASSWORD` constant.
 
@@ -98,7 +98,7 @@ define( 'WP_REDIS_SERVERS', [
 ] );
 ```
 
-### Sharing
+### Sharding
 
 ```php
 define( 'WP_REDIS_SHARDS', [
