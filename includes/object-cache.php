@@ -407,7 +407,7 @@ class WP_Object_Cache {
 
             if ( strcasecmp( 'pecl', $client ) === 0 ) {
 
-                $this->redis_client = sprintf( 'PECL Extension (v%s)', phpversion( 'redis' ) );
+                $this->redis_client = sprintf( 'PhpRedis (v%s)', phpversion( 'redis' ) );
 
                 if ( defined( 'WP_REDIS_SHARDS' ) ) {
                     $this->redis = new RedisArray( array_values( WP_REDIS_CLUSTER ) );
