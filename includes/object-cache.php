@@ -409,11 +409,10 @@ class WP_Object_Cache {
 
                 $this->redis_client = sprintf( 'PECL Extension (v%s)', phpversion( 'redis' ) );
 
-                if ( defined( 'WP_REDIS_CLUSTER' ) && (defined('PHP_VERSION') && version_compare(PHP_VERSION, '7.0.0') >= 0)  ) {
-                    $parameters = WP_REDIS_CLUSTER;
-                    $this->redis = new RedisArray($parameters);
-
-                    $this->redis->connect();
+                if ( defined( 'WP_REDIS_SHARDS' ) ) {
+                    $this->redis = new RedisArray( array_values( WP_REDIS_CLUSTER ) );
+                } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
+                    $this->redis = new RedisCluster( null, array_values( WP_REDIS_CLUSTER ) );
                 } else {
                     $this->redis = new Redis();
 
@@ -453,18 +452,20 @@ class WP_Object_Cache {
 
                 $options = array();
 
-                if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+                if ( defined( 'WP_REDIS_SERVERS' ) ) {
+                    $parameters = WP_REDIS_SERVERS;
+                    $options[ 'replication' ] = true;
+                } elseif ( defined( 'WP_REDIS_SHARDS' ) ) {
+                    $parameters = WP_REDIS_SHARDS;
+                } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
                     $parameters = WP_REDIS_CLUSTER;
                     $options[ 'cluster' ] = 'redis';
                 }
 
-                if ( defined( 'WP_REDIS_SERVERS' ) ) {
-                    $parameters = WP_REDIS_SERVERS;
-                    $options[ 'replication' ] = true;
-                }
-
-                if ( ( defined( 'WP_REDIS_SERVERS' ) || defined( 'WP_REDIS_CLUSTER' ) ) && defined( 'WP_REDIS_PASSWORD' ) ) {
-                    $options[ 'parameters' ][ 'password' ] = WP_REDIS_PASSWORD;
+                foreach ( array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant ) {
+                    if ( defined( 'WP_REDIS_PASSWORD' ) && defined( $constant ) ) {
+                        $options[ 'parameters' ][ 'password' ] = WP_REDIS_PASSWORD;
+                    }
                 }
 
                 $this->redis = new Predis\Client( $parameters, $options );
