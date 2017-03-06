@@ -98,6 +98,17 @@ define( 'WP_REDIS_SERVERS', [
 ] );
 ```
 
+### Replication (Redis Sentinel)
+
+```php
+define( 'WP_REDIS_SENTINEL', 'mymaster' );
+define( 'WP_REDIS_SERVERS', [
+    'tcp://127.0.0.1:5380',
+    'tcp://127.0.0.2:5381',
+    'tcp://127.0.0.3:5382',
+] );
+```
+
 ### Sharding
 
 ```php
