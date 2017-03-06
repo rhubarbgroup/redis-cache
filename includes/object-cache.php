@@ -33,6 +33,8 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
 function wp_cache_add( $key, $value, $group = '', $expiration = 0 ) {
     global $wp_object_cache;
 
+    $expiration = ( $expiration > 0 && defined( 'WP_REDIS_MAXTTL' ) ) ? intval( WP_REDIS_MAXTTL ) : $expiration;
+
     return $wp_object_cache->add( $key, $value, $group, $expiration );
 }
 
@@ -191,6 +193,8 @@ function wp_cache_init() {
  */
 function wp_cache_replace( $key, $value, $group = '', $expiration = 0 ) {
     global $wp_object_cache;
+
+    $expiration = ( $expiration > 0 && defined( 'WP_REDIS_MAXTTL' ) ) ? intval( WP_REDIS_MAXTTL ) : $expiration;
 
     return $wp_object_cache->replace( $key, $value, $group, $expiration );
 }
