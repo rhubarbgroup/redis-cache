@@ -33,8 +33,6 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
 function wp_cache_add( $key, $value, $group = '', $expiration = 0 ) {
     global $wp_object_cache;
 
-    $expiration = ( $expiration > 0 && defined( 'WP_REDIS_MAXTTL' ) ) ? intval( WP_REDIS_MAXTTL ) : $expiration;
-
     return $wp_object_cache->add( $key, $value, $group, $expiration );
 }
 
@@ -193,8 +191,6 @@ function wp_cache_init() {
  */
 function wp_cache_replace( $key, $value, $group = '', $expiration = 0 ) {
     global $wp_object_cache;
-
-    $expiration = ( $expiration > 0 && defined( 'WP_REDIS_MAXTTL' ) ) ? intval( WP_REDIS_MAXTTL ) : $expiration;
 
     return $wp_object_cache->replace( $key, $value, $group, $expiration );
 }
@@ -1057,10 +1053,14 @@ class WP_Object_Cache {
      * @param mixed $expiration Incomming expiration value (whatever it is)
      */
     protected function validate_expiration( $expiration ) {
-        $expiration = ( is_array( $expiration ) || is_object( $expiration ) ? 0 : abs( intval( $expiration ) ) );
+        $expiration = is_int( $expiration ) || ctype_digit( $expiration ) ? (int) $expiration : 0;
 
-        if ( $expiration === 0 && defined( 'WP_REDIS_MAXTTL' ) ) {
-            $expiration = intval( WP_REDIS_MAXTTL );
+        if ( defined( 'WP_REDIS_MAXTTL' ) ) {
+            $max = (int) WP_REDIS_MAXTTL;
+
+            if ( $expiration === 0 || $expiration > $max ) {
+                $expiration = $max;
+            }
         }
 
         return $expiration;
