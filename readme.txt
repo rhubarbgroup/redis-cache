@@ -98,21 +98,37 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
 == Replication & Clustering ==
 
-To use Replication and Clustering, make sure your server is running PHP7, your setup is using Predis to connect to Redis and you consulted the [Predis documentation](https://github.com/nrk/predis).
+To use Replication, Sharding or Clustering, make sure your server is running PHP7 or higher (HHVM is not supported) and you consulted the [Predis](https://github.com/nrk/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
 
-For replication use the `WP_REDIS_SERVERS` constant and for clustering the `WP_REDIS_CLUSTER` constant. You can use a named array or an URI string to specify the parameters.
+For replication use the `WP_REDIS_SERVERS` constant, for sharding the `WP_REDIS_SHARDS` constant and for clustering the `WP_REDIS_CLUSTER` constant.
 
 For authentication use the `WP_REDIS_PASSWORD` constant.
 
-__Master-Slave Replication Example:__
+__Replication (Master-Slave):__
 
     define( 'WP_REDIS_SERVERS', [
-        'tcp://127.0.0.1:6379?database=15&alias=master',
-        'tcp://127.0.0.2:6379?database=15&alias=slave-01',
+        'tcp://127.0.0.1:6379?database=5&alias=master',
+        'tcp://127.0.0.2:6379?database=5&alias=slave-01',
     ] );
 
+__Replication (Redis Sentinel):__
 
-__Clustering via Client-side Sharding Example:__
+    define( 'WP_REDIS_SENTINEL', 'mymaster' );
+    define( 'WP_REDIS_SERVERS', [
+        'tcp://127.0.0.1:5380',
+        'tcp://127.0.0.2:5381',
+        'tcp://127.0.0.3:5382',
+    ] );
+
+__Sharding:__
+
+    define( 'WP_REDIS_SHARDS', [
+        'tcp://127.0.0.1:6379?database=10&alias=shard-01',
+        'tcp://127.0.0.2:6379?database=10&alias=shard-02',
+        'tcp://127.0.0.3:6379?database=10&alias=shard-03',
+    ] );
+
+__Clustering (Redis 3.0+):__
 
     define( 'WP_REDIS_CLUSTER', [
         'tcp://127.0.0.1:6379?database=15&alias=node-01',
