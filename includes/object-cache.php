@@ -85,7 +85,8 @@ function wp_cache_delete( $key, $group = '', $time = 0 ) {
 }
 
 /**
- * Invalidate all items in the cache.
+ * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
+ * only keys prefixed with the `WP_CACHE_KEY_SALT` are flushed.
  *
  * @param int $delay  Number of seconds to wait before invalidating the items.
  *
@@ -628,7 +629,8 @@ class WP_Object_Cache {
     }
 
     /**
-     * Invalidate all items in the cache.
+     * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
+     * only keys prefixed with the `WP_CACHE_KEY_SALT` are flushed.
      *
      * @param   int $delay      Number of seconds to wait before invalidating the items.
      * @return  bool            Returns TRUE on success or FALSE on failure.
@@ -666,7 +668,7 @@ class WP_Object_Cache {
             }
 
             if ( function_exists( 'do_action' ) ) {
-                do_action( 'redis_object_cache_flush', $result, $delay );
+                do_action( 'redis_object_cache_flush', $result, $delay, $selective, $salt );
             }
         }
 
