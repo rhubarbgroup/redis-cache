@@ -110,6 +110,10 @@ class Servers_List extends WP_List_Table {
             $servers = WP_REDIS_SERVERS;
         }
 
+        if ( defined( 'WP_REDIS_SENTINELS' ) && defined( 'WP_REDIS_SENTINELS' ) ) {
+            $servers = WP_REDIS_SENTINELS;
+        }
+
         if ( ! isset( $servers ) ) {
             $servers = array( $server );
         }
