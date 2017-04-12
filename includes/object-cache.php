@@ -462,8 +462,11 @@ class WP_Object_Cache {
                     $parameters = WP_REDIS_CLUSTER;
                     $options[ 'cluster' ] = 'redis';
                 } elseif ( defined( 'WP_REDIS_SENTINEL' ) ) {
-                    $parameters = WP_REDIS_SERVERS;
-                    $options[ 'replication' ] = true;
+                    if ( !defined( 'WP_REDIS_SENTINELS' ) ) {
+                       throw new Exception;
+                    }
+                    $parameters = WP_REDIS_SENTINELS;
+                    $options[ 'replication' ] = 'sentinel';
                     $options[ 'service' ] = WP_REDIS_SENTINEL;
                 }
 

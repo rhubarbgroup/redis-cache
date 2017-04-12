@@ -51,6 +51,8 @@ $constants = array(
     'WP_REDIS_GLOBAL_GROUPS',
     'WP_REDIS_IGNORED_GROUPS',
     'WP_CACHE_KEY_SALT',
+    'WP_REDIS_SENTINEL',
+    'WP_REDIS_SENTINELS',
 );
 
 foreach ( $constants as $constant ) {
