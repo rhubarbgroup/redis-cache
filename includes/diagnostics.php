@@ -47,12 +47,12 @@ $constants = array(
     'WP_REDIS_DATABASE',
     'WP_REDIS_SERVERS',
     'WP_REDIS_CLUSTER',
-    'WP_REDIS_MAXTTL',
-    'WP_REDIS_GLOBAL_GROUPS',
-    'WP_REDIS_IGNORED_GROUPS',
-    'WP_CACHE_KEY_SALT',
+    'WP_REDIS_SHARDS',
     'WP_REDIS_SENTINEL',
-    'WP_REDIS_SENTINELS',
+    'WP_REDIS_MAXTTL',
+    'WP_CACHE_KEY_SALT',
+	'WP_REDIS_GLOBAL_GROUPS',
+	'WP_REDIS_IGNORED_GROUPS',
 );
 
 foreach ( $constants as $constant ) {

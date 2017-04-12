@@ -115,10 +115,10 @@ __Replication (Redis Sentinel):__
 
     define( 'WP_REDIS_CLIENT', 'predis' );
     define( 'WP_REDIS_SENTINEL', 'mymaster' );
-    define( 'WP_REDIS_SENTINELS', [
-        'tcp://127.0.0.1:26379',
-        'tcp://127.0.0.2:26380',
-        'tcp://127.0.0.3:26381',
+    define( 'WP_REDIS_SERVERS', [
+        'tcp://127.0.0.1:5380',
+        'tcp://127.0.0.2:5381',
+        'tcp://127.0.0.3:5382',
     ] );
 
 __Sharding:__
