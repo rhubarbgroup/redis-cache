@@ -369,447 +369,6 @@ class ServerEval extends Command
 }
 
 /**
- * @link http://redis.io/commands/rename
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyRename extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'RENAME';
-    }
-}
-
-/**
- * @link http://redis.io/commands/ttl
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyTimeToLive extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'TTL';
-    }
-}
-
-/**
- * @link http://redis.io/commands/blpop
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListPopFirstBlocking extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'BLPOP';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (count($arguments) === 2 && is_array($arguments[0])) {
-            list($arguments, $timeout) = $arguments;
-            array_push($arguments, $timeout);
-        }
-
-        return $arguments;
-    }
-}
-
-/**
- * @link http://redis.io/commands/rpush
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListPushTail extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'RPUSH';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        return self::normalizeVariadic($arguments);
-    }
-}
-
-/**
- * @link http://redis.io/commands/subscribe
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class PubSubSubscribe extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SUBSCRIBE';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        return self::normalizeArguments($arguments);
-    }
-}
-
-/**
- * @link http://redis.io/commands/unsubscribe
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class PubSubUnsubscribe extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'UNSUBSCRIBE';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        return self::normalizeArguments($arguments);
-    }
-}
-
-/**
- * @link http://redis.io/commands/evalsha
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ServerEvalSHA extends ServerEval
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'EVALSHA';
-    }
-
-    /**
-     * Returns the SHA1 hash of the body of the script.
-     *
-     * @return string SHA1 hash.
-     */
-    public function getScriptHash()
-    {
-        return $this->getArgument(0);
-    }
-}
-
-/**
- * @link http://redis.io/commands/expire
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyExpire extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'EXPIRE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/info
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ServerInfo extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'INFO';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function parseResponse($data)
-    {
-        $info = array();
-        $infoLines = preg_split('/\r?\n/', $data);
-
-        foreach ($infoLines as $row) {
-            if (strpos($row, ':') === false) {
-                continue;
-            }
-
-            list($k, $v) = $this->parseRow($row);
-            $info[$k] = $v;
-        }
-
-        return $info;
-    }
-
-    /**
-     * Parses a single row of the response and returns the key-value pair.
-     *
-     * @param string $row Single row of the response.
-     *
-     * @return array
-     */
-    protected function parseRow($row)
-    {
-        list($k, $v) = explode(':', $row, 2);
-
-        if (preg_match('/^db\d+$/', $k)) {
-            $v = $this->parseDatabaseStats($v);
-        }
-
-        return array($k, $v);
-    }
-
-    /**
-     * Extracts the statistics of each logical DB from the string buffer.
-     *
-     * @param string $str Response buffer.
-     *
-     * @return array
-     */
-    protected function parseDatabaseStats($str)
-    {
-        $db = array();
-
-        foreach (explode(',', $str) as $dbvar) {
-            list($dbvk, $dbvv) = explode('=', $dbvar);
-            $db[trim($dbvk)] = $dbvv;
-        }
-
-        return $db;
-    }
-
-    /**
-     * Parses the response and extracts the allocation statistics.
-     *
-     * @param string $str Response buffer.
-     *
-     * @return array
-     */
-    protected function parseAllocationStats($str)
-    {
-        $stats = array();
-
-        foreach (explode(',', $str) as $kv) {
-            @list($size, $objects, $extra) = explode('=', $kv);
-
-            // hack to prevent incorrect values when parsing the >=256 key
-            if (isset($extra)) {
-                $size = ">=$objects";
-                $objects = $extra;
-            }
-
-            $stats[$size] = $objects;
-        }
-
-        return $stats;
-    }
-}
-
-/**
- * @link http://redis.io/commands/setex
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringSetExpire extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SETEX';
-    }
-}
-
-/**
- * @link http://redis.io/commands/mset
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringSetMultiple extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'MSET';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (count($arguments) === 1 && is_array($arguments[0])) {
-            $flattenedKVs = array();
-            $args = $arguments[0];
-
-            foreach ($args as $k => $v) {
-                $flattenedKVs[] = $k;
-                $flattenedKVs[] = $v;
-            }
-
-            return $flattenedKVs;
-        }
-
-        return $arguments;
-    }
-}
-
-/**
- * @link http://redis.io/commands/zrangebylex
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetRangeByLex extends ZSetRange
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZRANGEBYLEX';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function prepareOptions($options)
-    {
-        $opts = array_change_key_case($options, CASE_UPPER);
-        $finalizedOpts = array();
-
-        if (isset($opts['LIMIT']) && is_array($opts['LIMIT'])) {
-            $limit = array_change_key_case($opts['LIMIT'], CASE_UPPER);
-
-            $finalizedOpts[] = 'LIMIT';
-            $finalizedOpts[] = isset($limit['OFFSET']) ? $limit['OFFSET'] : $limit[0];
-            $finalizedOpts[] = isset($limit['COUNT']) ? $limit['COUNT'] : $limit[1];
-        }
-
-        return $finalizedOpts;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function withScores()
-    {
-        return false;
-    }
-}
-
-/**
- * @link http://redis.io/commands/zrangebyscore
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetRangeByScore extends ZSetRange
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZRANGEBYSCORE';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function prepareOptions($options)
-    {
-        $opts = array_change_key_case($options, CASE_UPPER);
-        $finalizedOpts = array();
-
-        if (isset($opts['LIMIT']) && is_array($opts['LIMIT'])) {
-            $limit = array_change_key_case($opts['LIMIT'], CASE_UPPER);
-
-            $finalizedOpts[] = 'LIMIT';
-            $finalizedOpts[] = isset($limit['OFFSET']) ? $limit['OFFSET'] : $limit[0];
-            $finalizedOpts[] = isset($limit['COUNT']) ? $limit['COUNT'] : $limit[1];
-        }
-
-        return array_merge($finalizedOpts, parent::prepareOptions($options));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function withScores()
-    {
-        $arguments = $this->getArguments();
-
-        for ($i = 3; $i < count($arguments); ++$i) {
-            switch (strtoupper($arguments[$i])) {
-                case 'WITHSCORES':
-                    return true;
-
-                case 'LIMIT':
-                    $i += 2;
-                    break;
-            }
-        }
-
-        return false;
-    }
-}
-
-/**
- * @link http://redis.io/commands/expireat
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyExpireAt extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'EXPIREAT';
-    }
-}
-
-/**
  * @link http://redis.io/commands/zunionstore
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
@@ -935,208 +494,61 @@ class GeospatialGeoRadius extends Command
 }
 
 /**
- * @link http://redis.io/commands/hlen
+ * @link http://redis.io/commands/zrangebylex
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class HashLength extends Command
+class ZSetRangeByLex extends ZSetRange
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'HLEN';
-    }
-}
-
-/**
- * @link http://redis.io/commands/decr
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringDecrement extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'DECR';
-    }
-}
-
-/**
- * @link http://redis.io/commands/append
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringAppend extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'APPEND';
-    }
-}
-
-/**
- * @link http://redis.io/commands/bitcount
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringBitCount extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'BITCOUNT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/bitfield
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringBitField extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'BITFIELD';
-    }
-}
-
-/**
- * @link http://redis.io/commands/bitop
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringBitOp extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'BITOP';
+        return 'ZRANGEBYLEX';
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function filterArguments(array $arguments)
+    protected function prepareOptions($options)
     {
-        if (count($arguments) === 3 && is_array($arguments[2])) {
-            list($operation, $destination) = $arguments;
-            $arguments = $arguments[2];
-            array_unshift($arguments, $operation, $destination);
+        $opts = array_change_key_case($options, CASE_UPPER);
+        $finalizedOpts = array();
+
+        if (isset($opts['LIMIT']) && is_array($opts['LIMIT'])) {
+            $limit = array_change_key_case($opts['LIMIT'], CASE_UPPER);
+
+            $finalizedOpts[] = 'LIMIT';
+            $finalizedOpts[] = isset($limit['OFFSET']) ? $limit['OFFSET'] : $limit[0];
+            $finalizedOpts[] = isset($limit['COUNT']) ? $limit['COUNT'] : $limit[1];
         }
 
-        return $arguments;
+        return $finalizedOpts;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function withScores()
+    {
+        return false;
     }
 }
 
 /**
- * @link http://redis.io/commands/bitpos
+ * @link http://redis.io/commands/subscribe
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class StringBitPos extends Command
+class PubSubSubscribe extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'BITPOS';
-    }
-}
-
-/**
- * @link http://redis.io/commands/decrby
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringDecrementBy extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'DECRBY';
-    }
-}
-
-/**
- * @link http://redis.io/commands/sunion
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class SetUnion extends SetIntersection
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SUNION';
-    }
-}
-
-/**
- * @link http://redis.io/commands/get
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringGet extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'GET';
-    }
-}
-
-/**
- * @link http://redis.io/commands/getbit
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringGetBit extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'GETBIT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/mget
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringGetMultiple extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'MGET';
+        return 'SUBSCRIBE';
     }
 
     /**
@@ -1149,82 +561,336 @@ class StringGetMultiple extends Command
 }
 
 /**
- * @link http://redis.io/commands/getrange
+ * @link http://redis.io/commands/info
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class StringGetRange extends Command
+class ServerInfo extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'GETRANGE';
+        return 'INFO';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function parseResponse($data)
+    {
+        $info = array();
+        $infoLines = preg_split('/\r?\n/', $data);
+
+        foreach ($infoLines as $row) {
+            if (strpos($row, ':') === false) {
+                continue;
+            }
+
+            list($k, $v) = $this->parseRow($row);
+            $info[$k] = $v;
+        }
+
+        return $info;
+    }
+
+    /**
+     * Parses a single row of the response and returns the key-value pair.
+     *
+     * @param string $row Single row of the response.
+     *
+     * @return array
+     */
+    protected function parseRow($row)
+    {
+        list($k, $v) = explode(':', $row, 2);
+
+        if (preg_match('/^db\d+$/', $k)) {
+            $v = $this->parseDatabaseStats($v);
+        }
+
+        return array($k, $v);
+    }
+
+    /**
+     * Extracts the statistics of each logical DB from the string buffer.
+     *
+     * @param string $str Response buffer.
+     *
+     * @return array
+     */
+    protected function parseDatabaseStats($str)
+    {
+        $db = array();
+
+        foreach (explode(',', $str) as $dbvar) {
+            list($dbvk, $dbvv) = explode('=', $dbvar);
+            $db[trim($dbvk)] = $dbvv;
+        }
+
+        return $db;
+    }
+
+    /**
+     * Parses the response and extracts the allocation statistics.
+     *
+     * @param string $str Response buffer.
+     *
+     * @return array
+     */
+    protected function parseAllocationStats($str)
+    {
+        $stats = array();
+
+        foreach (explode(',', $str) as $kv) {
+            @list($size, $objects, $extra) = explode('=', $kv);
+
+            // hack to prevent incorrect values when parsing the >=256 key
+            if (isset($extra)) {
+                $size = ">=$objects";
+                $objects = $extra;
+            }
+
+            $stats[$size] = $objects;
+        }
+
+        return $stats;
     }
 }
 
 /**
- * @link http://redis.io/commands/getset
+ * @link http://redis.io/commands/expireat
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class StringGetSet extends Command
+class KeyExpireAt extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'GETSET';
+        return 'EXPIREAT';
     }
 }
 
 /**
- * @link http://redis.io/commands/incr
+ * @link http://redis.io/commands/unsubscribe
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class StringIncrement extends Command
+class PubSubUnsubscribe extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'INCR';
+        return 'UNSUBSCRIBE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        return self::normalizeArguments($arguments);
     }
 }
 
 /**
- * @link http://redis.io/commands/sunionstore
+ * @link http://redis.io/commands/evalsha
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class SetUnionStore extends SetIntersectionStore
+class ServerEvalSHA extends ServerEval
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SUNIONSTORE';
+        return 'EVALSHA';
+    }
+
+    /**
+     * Returns the SHA1 hash of the body of the script.
+     *
+     * @return string SHA1 hash.
+     */
+    public function getScriptHash()
+    {
+        return $this->getArgument(0);
     }
 }
 
 /**
- * @link http://redis.io/commands/srem
+ * @link http://redis.io/commands/ttl
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class SetRemove extends Command
+class KeyTimeToLive extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SREM';
+        return 'TTL';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/setex
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringSetExpire extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SETEX';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/mset
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringSetMultiple extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'MSET';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (count($arguments) === 1 && is_array($arguments[0])) {
+            $flattenedKVs = array();
+            $args = $arguments[0];
+
+            foreach ($args as $k => $v) {
+                $flattenedKVs[] = $k;
+                $flattenedKVs[] = $v;
+            }
+
+            return $flattenedKVs;
+        }
+
+        return $arguments;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zrangebyscore
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetRangeByScore extends ZSetRange
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZRANGEBYSCORE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function prepareOptions($options)
+    {
+        $opts = array_change_key_case($options, CASE_UPPER);
+        $finalizedOpts = array();
+
+        if (isset($opts['LIMIT']) && is_array($opts['LIMIT'])) {
+            $limit = array_change_key_case($opts['LIMIT'], CASE_UPPER);
+
+            $finalizedOpts[] = 'LIMIT';
+            $finalizedOpts[] = isset($limit['OFFSET']) ? $limit['OFFSET'] : $limit[0];
+            $finalizedOpts[] = isset($limit['COUNT']) ? $limit['COUNT'] : $limit[1];
+        }
+
+        return array_merge($finalizedOpts, parent::prepareOptions($options));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function withScores()
+    {
+        $arguments = $this->getArguments();
+
+        for ($i = 3; $i < count($arguments); ++$i) {
+            switch (strtoupper($arguments[$i])) {
+                case 'WITHSCORES':
+                    return true;
+
+                case 'LIMIT':
+                    $i += 2;
+                    break;
+            }
+        }
+
+        return false;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/blpop
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListPopFirstBlocking extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'BLPOP';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (count($arguments) === 2 && is_array($arguments[0])) {
+            list($arguments, $timeout) = $arguments;
+            array_push($arguments, $timeout);
+        }
+
+        return $arguments;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/rpush
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListPushTail extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'RPUSH';
     }
 
     /**
@@ -1237,155 +903,50 @@ class SetRemove extends Command
 }
 
 /**
- * @link http://redis.io/commands/sscan
+ * @link http://redis.io/commands/rename
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class SetScan extends Command
+class KeyRename extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SSCAN';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (count($arguments) === 3 && is_array($arguments[2])) {
-            $options = $this->prepareOptions(array_pop($arguments));
-            $arguments = array_merge($arguments, $options);
-        }
-
-        return $arguments;
-    }
-
-    /**
-     * Returns a list of options and modifiers compatible with Redis.
-     *
-     * @param array $options List of options.
-     *
-     * @return array
-     */
-    protected function prepareOptions($options)
-    {
-        $options = array_change_key_case($options, CASE_UPPER);
-        $normalized = array();
-
-        if (!empty($options['MATCH'])) {
-            $normalized[] = 'MATCH';
-            $normalized[] = $options['MATCH'];
-        }
-
-        if (!empty($options['COUNT'])) {
-            $normalized[] = 'COUNT';
-            $normalized[] = $options['COUNT'];
-        }
-
-        return $normalized;
+        return 'RENAME';
     }
 }
 
 /**
- * @link http://redis.io/commands/sdiffstore
+ * @link http://redis.io/commands/expire
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class SetDifferenceStore extends SetIntersectionStore
+class KeyExpire extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SDIFFSTORE';
+        return 'EXPIRE';
     }
 }
 
 /**
- * @link http://redis.io/commands/slaveof
+ * @link http://redis.io/commands/move
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ServerSlaveOf extends Command
+class KeyMove extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SLAVEOF';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (count($arguments) === 0 || $arguments[0] === 'NO ONE') {
-            return array('NO', 'ONE');
-        }
-
-        return $arguments;
-    }
-}
-
-/**
- * @link http://redis.io/commands/slowlog
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ServerSlowlog extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SLOWLOG';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function parseResponse($data)
-    {
-        if (is_array($data)) {
-            $log = array();
-
-            foreach ($data as $index => $entry) {
-                $log[$index] = array(
-                    'id' => $entry[0],
-                    'timestamp' => $entry[1],
-                    'duration' => $entry[2],
-                    'command' => $entry[3],
-                );
-            }
-
-            return $log;
-        }
-
-        return $data;
-    }
-}
-
-/**
- * @link http://redis.io/commands/time
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ServerTime extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'TIME';
+        return 'MOVE';
     }
 }
 
@@ -1414,192 +975,34 @@ class SetAdd extends Command
 }
 
 /**
- * @link http://redis.io/commands/scard
+ * @link http://redis.io/commands/append
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class SetCardinality extends Command
+class StringAppend extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SCARD';
+        return 'APPEND';
     }
 }
 
 /**
- * @link http://redis.io/commands/sdiff
+ * @link http://redis.io/commands/lindex
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class SetDifference extends SetIntersection
+class ListIndex extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SDIFF';
-    }
-}
-
-/**
- * @link http://redis.io/commands/geodist
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class GeospatialGeoDist extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'GEODIST';
-    }
-}
-
-/**
- * @link http://redis.io/commands/incrbyfloat
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringIncrementByFloat extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'INCRBYFLOAT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/geoadd
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class GeospatialGeoAdd extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'GEOADD';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (count($arguments) === 2 && is_array($arguments[1])) {
-            foreach (array_pop($arguments) as $item) {
-                $arguments = array_merge($arguments, $item);
-            }
-        }
-
-        return $arguments;
-    }
-}
-
-/**
- * @link http://redis.io/commands/sismember
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class SetIsMember extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SISMEMBER';
-    }
-}
-
-/**
- * @link http://redis.io/commands/smembers
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class SetMembers extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SMEMBERS';
-    }
-}
-
-/**
- * @link http://redis.io/commands/smove
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class SetMove extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SMOVE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/spop
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class SetPop extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SPOP';
-    }
-}
-
-/**
- * @link http://redis.io/commands/srandmember
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class SetRandomMember extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SRANDMEMBER';
-    }
-}
-
-/**
- * @link http://redis.io/commands/incrby
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringIncrementBy extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'INCRBY';
+        return 'LINDEX';
     }
 }
 
@@ -1620,88 +1023,34 @@ class StringPreciseSetExpire extends StringSetExpire
 }
 
 /**
- * @link http://redis.io/topics/sentinel
+ * @link http://redis.io/commands/save
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ServerSentinel extends Command
+class ServerSave extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SENTINEL';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function parseResponse($data)
-    {
-        switch (strtolower($this->getArgument(0))) {
-            case 'masters':
-            case 'slaves':
-                return self::processMastersOrSlaves($data);
-
-            default:
-                return $data;
-        }
-    }
-
-    /**
-     * Returns a processed response to SENTINEL MASTERS or SENTINEL SLAVES.
-     *
-     * @param array $servers List of Redis servers.
-     *
-     * @return array
-     */
-    protected static function processMastersOrSlaves(array $servers)
-    {
-        foreach ($servers as $idx => $node) {
-            $processed = array();
-            $count = count($node);
-
-            for ($i = 0; $i < $count; ++$i) {
-                $processed[$node[$i]] = $node[++$i];
-            }
-
-            $servers[$idx] = $processed;
-        }
-
-        return $servers;
+        return 'SAVE';
     }
 }
 
 /**
- * @link http://redis.io/commands/zremrangebyrank
+ * @link http://redis.io/commands/llen
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ZSetRemoveRangeByRank extends Command
+class ListLength extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'ZREMRANGEBYRANK';
-    }
-}
-
-/**
- * @link http://redis.io/commands/ping
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ConnectionPing extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'PING';
+        return 'LLEN';
     }
 }
 
@@ -1718,547 +1067,6 @@ class ConnectionEcho extends Command
     public function getId()
     {
         return 'ECHO';
-    }
-}
-
-/**
- * @link http://redis.io/commands/auth
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ConnectionAuth extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'AUTH';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zrank
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetRank extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZRANK';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zrem
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetRemove extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZREM';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        return self::normalizeVariadic($arguments);
-    }
-}
-
-/**
- * @link http://redis.io/commands/zremrangebylex
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetRemoveRangeByLex extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZREMRANGEBYLEX';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zremrangebyscore
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetRemoveRangeByScore extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZREMRANGEBYSCORE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zinterstore
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetIntersectionStore extends ZSetUnionStore
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZINTERSTORE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zrevrange
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetReverseRange extends ZSetRange
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZREVRANGE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zrevrangebylex
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetReverseRangeByLex extends ZSetRangeByLex
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZREVRANGEBYLEX';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zrevrangebyscore
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetReverseRangeByScore extends ZSetRangeByScore
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZREVRANGEBYSCORE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zrevrank
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetReverseRank extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZREVRANK';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zscan
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetScan extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZSCAN';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (count($arguments) === 3 && is_array($arguments[2])) {
-            $options = $this->prepareOptions(array_pop($arguments));
-            $arguments = array_merge($arguments, $options);
-        }
-
-        return $arguments;
-    }
-
-    /**
-     * Returns a list of options and modifiers compatible with Redis.
-     *
-     * @param array $options List of options.
-     *
-     * @return array
-     */
-    protected function prepareOptions($options)
-    {
-        $options = array_change_key_case($options, CASE_UPPER);
-        $normalized = array();
-
-        if (!empty($options['MATCH'])) {
-            $normalized[] = 'MATCH';
-            $normalized[] = $options['MATCH'];
-        }
-
-        if (!empty($options['COUNT'])) {
-            $normalized[] = 'COUNT';
-            $normalized[] = $options['COUNT'];
-        }
-
-        return $normalized;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function parseResponse($data)
-    {
-        if (is_array($data)) {
-            $members = $data[1];
-            $result = array();
-
-            for ($i = 0; $i < count($members); ++$i) {
-                $result[$members[$i]] = (float) $members[++$i];
-            }
-
-            $data[1] = $result;
-        }
-
-        return $data;
-    }
-}
-
-/**
- * @link http://redis.io/commands/zscore
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetScore extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZSCORE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zlexcount
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetLexCount extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZLEXCOUNT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zincrby
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetIncrementBy extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZINCRBY';
-    }
-}
-
-/**
- * @link http://redis.io/commands/set
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringSet extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SET';
-    }
-}
-
-/**
- * @link http://redis.io/commands/strlen
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringStrlen extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'STRLEN';
-    }
-}
-
-/**
- * @link http://redis.io/commands/setbit
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringSetBit extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SETBIT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/select
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ConnectionSelect extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SELECT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/quit
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ConnectionQuit extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'QUIT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/msetnx
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringSetMultiplePreserve extends StringSetMultiple
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'MSETNX';
-    }
-}
-
-/**
- * @link http://redis.io/commands/setnx
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringSetPreserve extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SETNX';
-    }
-}
-
-/**
- * @link http://redis.io/commands/setrange
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringSetRange extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SETRANGE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/substr
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StringSubstr extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SUBSTR';
-    }
-}
-
-/**
- * @link http://redis.io/commands/zcount
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ZSetCount extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'ZCOUNT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/discard
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class TransactionDiscard extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'DISCARD';
-    }
-}
-
-/**
- * @link http://redis.io/commands/exec
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class TransactionExec extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'EXEC';
-    }
-}
-
-/**
- * @link http://redis.io/commands/multi
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class TransactionMulti extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'MULTI';
-    }
-}
-
-/**
- * @link http://redis.io/commands/unwatch
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class TransactionUnwatch extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'UNWATCH';
-    }
-}
-
-/**
- * @link http://redis.io/commands/watch
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class TransactionWatch extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'WATCH';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (isset($arguments[0]) && is_array($arguments[0])) {
-            return $arguments[0];
-        }
-
-        return $arguments;
     }
 }
 
@@ -2294,6 +1102,666 @@ class ZSetAdd extends Command
 }
 
 /**
+ * @link http://redis.io/commands/rpop
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListPopLast extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'RPOP';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/del
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyDelete extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'DEL';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        return self::normalizeArguments($arguments);
+    }
+}
+
+/**
+ * @link http://redis.io/commands/renamenx
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyRenamePreserve extends KeyRename
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'RENAMENX';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/flushall
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerFlushAll extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'FLUSHALL';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/randomkey
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyRandom extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'RANDOMKEY';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function parseResponse($data)
+    {
+        return $data !== '' ? $data : null;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/incrby
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringIncrementBy extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'INCRBY';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hget
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashGet extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HGET';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zlexcount
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetLexCount extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZLEXCOUNT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/migrate
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyMigrate extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'MIGRATE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (is_array(end($arguments))) {
+            foreach (array_pop($arguments) as $modifier => $value) {
+                $modifier = strtoupper($modifier);
+
+                if ($modifier === 'COPY' && $value == true) {
+                    $arguments[] = $modifier;
+                }
+
+                if ($modifier === 'REPLACE' && $value == true) {
+                    $arguments[] = $modifier;
+                }
+            }
+        }
+
+        return $arguments;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/select
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ConnectionSelect extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SELECT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/smembers
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class SetMembers extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SMEMBERS';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/bitcount
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringBitCount extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'BITCOUNT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hincrbyfloat
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashIncrementByFloat extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HINCRBYFLOAT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/getrange
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringGetRange extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'GETRANGE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/brpop
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListPopLastBlocking extends ListPopFirstBlocking
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'BRPOP';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/getbit
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringGetBit extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'GETBIT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/lastsave
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerLastSave extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'LASTSAVE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/setbit
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringSetBit extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SETBIT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/bgrewriteaof
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerBackgroundRewriteAOF extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'BGREWRITEAOF';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function parseResponse($data)
+    {
+        return $data == 'Background append only file rewriting started';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/set
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringSet extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SET';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/info
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerInfoV26x extends ServerInfo
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function parseResponse($data)
+    {
+        if ($data === '') {
+            return array();
+        }
+
+        $info = array();
+
+        $current = null;
+        $infoLines = preg_split('/\r?\n/', $data);
+
+        if (isset($infoLines[0]) && $infoLines[0][0] !== '#') {
+            return parent::parseResponse($data);
+        }
+
+        foreach ($infoLines as $row) {
+            if ($row === '') {
+                continue;
+            }
+
+            if (preg_match('/^# (\w+)$/', $row, $matches)) {
+                $info[$matches[1]] = array();
+                $current = &$info[$matches[1]];
+                continue;
+            }
+
+            list($k, $v) = $this->parseRow($row);
+            $current[$k] = $v;
+        }
+
+        return $info;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/lrem
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListRemove extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'LREM';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/pfmerge
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HyperLogLogMerge extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'PFMERGE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        return self::normalizeArguments($arguments);
+    }
+}
+
+/**
+ * @link http://redis.io/commands/quit
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ConnectionQuit extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'QUIT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/bitop
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringBitOp extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'BITOP';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (count($arguments) === 3 && is_array($arguments[2])) {
+            list($operation, $destination) = $arguments;
+            $arguments = $arguments[2];
+            array_unshift($arguments, $operation, $destination);
+        }
+
+        return $arguments;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/lpop
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListPopFirst extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'LPOP';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/watch
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class TransactionWatch extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'WATCH';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (isset($arguments[0]) && is_array($arguments[0])) {
+            return $arguments[0];
+        }
+
+        return $arguments;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/auth
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ConnectionAuth extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'AUTH';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/sismember
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class SetIsMember extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SISMEMBER';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hstrlen
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashStringLength extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HSTRLEN';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/monitor
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerMonitor extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'MONITOR';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/pfcount
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HyperLogLogCount extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'PFCOUNT';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        return self::normalizeArguments($arguments);
+    }
+}
+
+/**
+ * @link http://redis.io/commands/georadiusbymember
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class GeospatialGeoRadiusByMember extends GeospatialGeoRadius
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'GEORADIUSBYMEMBER';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/lpushx
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListPushHeadX extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'LPUSHX';
+    }
+}
+
+/**
  * @link http://redis.io/commands/zcard
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
@@ -2310,34 +1778,344 @@ class ZSetCardinality extends Command
 }
 
 /**
- * @link http://redis.io/commands/shutdown
+ * @link http://redis.io/commands/hmget
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ServerShutdown extends Command
+class HashGetMultiple extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SHUTDOWN';
+        return 'HMGET';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        return self::normalizeVariadic($arguments);
     }
 }
 
 /**
- * @link http://redis.io/commands/script
+ * @link http://redis.io/commands/sunion
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ServerScript extends Command
+class SetUnion extends SetIntersection
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SCRIPT';
+        return 'SUNION';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zrevrank
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetReverseRank extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZREVRANK';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/slaveof
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerSlaveOf extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SLAVEOF';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (count($arguments) === 0 || $arguments[0] === 'NO ONE') {
+            return array('NO', 'ONE');
+        }
+
+        return $arguments;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/incrbyfloat
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringIncrementByFloat extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'INCRBYFLOAT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/type
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyType extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'TYPE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hvals
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashValues extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HVALS';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/unwatch
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class TransactionUnwatch extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'UNWATCH';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/sunionstore
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class SetUnionStore extends SetIntersectionStore
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SUNIONSTORE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/setrange
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringSetRange extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SETRANGE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/geopos
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class GeospatialGeoPos extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'GEOPOS';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (count($arguments) === 2 && is_array($arguments[1])) {
+            $members = array_pop($arguments);
+            $arguments = array_merge($arguments, $members);
+        }
+
+        return $arguments;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/rpushx
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListPushTailX extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'RPUSHX';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/dump
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyDump extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'DUMP';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/keys
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyKeys extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'KEYS';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/setnx
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringSetPreserve extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SETNX';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/config-set
+ * @link http://redis.io/commands/config-get
+ * @link http://redis.io/commands/config-resetstat
+ * @link http://redis.io/commands/config-rewrite
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerConfig extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'CONFIG';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function parseResponse($data)
+    {
+        if (is_array($data)) {
+            $result = array();
+
+            for ($i = 0; $i < count($data); ++$i) {
+                $result[$data[$i]] = $data[++$i];
+            }
+
+            return $result;
+        }
+
+        return $data;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/punsubscribe
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class PubSubUnsubscribeByPattern extends PubSubUnsubscribe
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'PUNSUBSCRIBE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zrank
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetRank extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZRANK';
     }
 }
 
@@ -2415,18 +2193,34 @@ class HashScan extends Command
 }
 
 /**
- * @link http://redis.io/commands/scan
+ * @link http://redis.io/commands/multi
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class KeyScan extends Command
+class TransactionMulti extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SCAN';
+        return 'MULTI';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/sscan
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class SetScan extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SSCAN';
     }
 
     /**
@@ -2434,7 +2228,7 @@ class KeyScan extends Command
      */
     protected function filterArguments(array $arguments)
     {
-        if (count($arguments) === 2 && is_array($arguments[1])) {
+        if (count($arguments) === 3 && is_array($arguments[2])) {
             $options = $this->prepareOptions(array_pop($arguments));
             $arguments = array_merge($arguments, $options);
         }
@@ -2469,864 +2263,6 @@ class KeyScan extends Command
 }
 
 /**
- * @link http://redis.io/commands/pexpireat
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyPreciseExpireAt extends KeyExpireAt
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'PEXPIREAT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/pttl
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyPreciseTimeToLive extends KeyTimeToLive
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'PTTL';
-    }
-}
-
-/**
- * @link http://redis.io/commands/randomkey
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyRandom extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'RANDOMKEY';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function parseResponse($data)
-    {
-        return $data !== '' ? $data : null;
-    }
-}
-
-/**
- * @link http://redis.io/commands/hincrby
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashIncrementBy extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HINCRBY';
-    }
-}
-
-/**
- * @link http://redis.io/commands/renamenx
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyRenamePreserve extends KeyRename
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'RENAMENX';
-    }
-}
-
-/**
- * @link http://redis.io/commands/restore
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyRestore extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'RESTORE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/sort
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeySort extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SORT';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (count($arguments) === 1) {
-            return $arguments;
-        }
-
-        $query = array($arguments[0]);
-        $sortParams = array_change_key_case($arguments[1], CASE_UPPER);
-
-        if (isset($sortParams['BY'])) {
-            $query[] = 'BY';
-            $query[] = $sortParams['BY'];
-        }
-
-        if (isset($sortParams['GET'])) {
-            $getargs = $sortParams['GET'];
-
-            if (is_array($getargs)) {
-                foreach ($getargs as $getarg) {
-                    $query[] = 'GET';
-                    $query[] = $getarg;
-                }
-            } else {
-                $query[] = 'GET';
-                $query[] = $getargs;
-            }
-        }
-
-        if (isset($sortParams['LIMIT']) &&
-            is_array($sortParams['LIMIT']) &&
-            count($sortParams['LIMIT']) == 2) {
-            $query[] = 'LIMIT';
-            $query[] = $sortParams['LIMIT'][0];
-            $query[] = $sortParams['LIMIT'][1];
-        }
-
-        if (isset($sortParams['SORT'])) {
-            $query[] = strtoupper($sortParams['SORT']);
-        }
-
-        if (isset($sortParams['ALPHA']) && $sortParams['ALPHA'] == true) {
-            $query[] = 'ALPHA';
-        }
-
-        if (isset($sortParams['STORE'])) {
-            $query[] = 'STORE';
-            $query[] = $sortParams['STORE'];
-        }
-
-        return $query;
-    }
-}
-
-/**
- * @link http://redis.io/commands/persist
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyPersist extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'PERSIST';
-    }
-}
-
-/**
- * @link http://redis.io/commands/hmget
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashGetMultiple extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HMGET';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        return self::normalizeVariadic($arguments);
-    }
-}
-
-/**
- * @link http://redis.io/commands/type
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyType extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'TYPE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/lindex
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListIndex extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'LINDEX';
-    }
-}
-
-/**
- * @link http://redis.io/commands/linsert
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListInsert extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'LINSERT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/llen
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListLength extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'LLEN';
-    }
-}
-
-/**
- * @link http://redis.io/commands/lpop
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListPopFirst extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'LPOP';
-    }
-}
-
-/**
- * @link http://redis.io/commands/pexpire
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyPreciseExpire extends KeyExpire
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'PEXPIRE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/move
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyMove extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'MOVE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/rpop
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListPopLast extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'RPOP';
-    }
-}
-
-/**
- * @link http://redis.io/commands/pfcount
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HyperLogLogCount extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'PFCOUNT';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        return self::normalizeArguments($arguments);
-    }
-}
-
-/**
- * @link http://redis.io/commands/hset
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashSet extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HSET';
-    }
-}
-
-/**
- * @link http://redis.io/commands/hmset
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashSetMultiple extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HMSET';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (count($arguments) === 2 && is_array($arguments[1])) {
-            $flattenedKVs = array($arguments[0]);
-            $args = $arguments[1];
-
-            foreach ($args as $k => $v) {
-                $flattenedKVs[] = $k;
-                $flattenedKVs[] = $v;
-            }
-
-            return $flattenedKVs;
-        }
-
-        return $arguments;
-    }
-}
-
-/**
- * @link http://redis.io/commands/hsetnx
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashSetPreserve extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HSETNX';
-    }
-}
-
-/**
- * @link http://redis.io/commands/hstrlen
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashStringLength extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HSTRLEN';
-    }
-}
-
-/**
- * @link http://redis.io/commands/hvals
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashValues extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HVALS';
-    }
-}
-
-/**
- * @link http://redis.io/commands/pfadd
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HyperLogLogAdd extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'PFADD';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        return self::normalizeVariadic($arguments);
-    }
-}
-
-/**
- * @link http://redis.io/commands/pfmerge
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HyperLogLogMerge extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'PFMERGE';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        return self::normalizeArguments($arguments);
-    }
-}
-
-/**
- * @link http://redis.io/commands/migrate
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyMigrate extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'MIGRATE';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (is_array(end($arguments))) {
-            foreach (array_pop($arguments) as $modifier => $value) {
-                $modifier = strtoupper($modifier);
-
-                if ($modifier === 'COPY' && $value == true) {
-                    $arguments[] = $modifier;
-                }
-
-                if ($modifier === 'REPLACE' && $value == true) {
-                    $arguments[] = $modifier;
-                }
-            }
-        }
-
-        return $arguments;
-    }
-}
-
-/**
- * @link http://redis.io/commands/del
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyDelete extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'DEL';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        return self::normalizeArguments($arguments);
-    }
-}
-
-/**
- * @link http://redis.io/commands/dump
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyDump extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'DUMP';
-    }
-}
-
-/**
- * @link http://redis.io/commands/exists
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyExists extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'EXISTS';
-    }
-}
-
-/**
- * @link http://redis.io/commands/hkeys
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashKeys extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HKEYS';
-    }
-}
-
-/**
- * @link http://redis.io/commands/hincrbyfloat
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashIncrementByFloat extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HINCRBYFLOAT';
-    }
-}
-
-/**
- * @link http://redis.io/commands/keys
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class KeyKeys extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'KEYS';
-    }
-}
-
-/**
- * @link http://redis.io/commands/hgetall
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashGetAll extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HGETALL';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function parseResponse($data)
-    {
-        $result = array();
-
-        for ($i = 0; $i < count($data); ++$i) {
-            $result[$data[$i]] = $data[++$i];
-        }
-
-        return $result;
-    }
-}
-
-/**
- * @link http://redis.io/commands/brpop
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListPopLastBlocking extends ListPopFirstBlocking
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'BRPOP';
-    }
-}
-
-/**
- * @link http://redis.io/commands/save
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ServerSave extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'SAVE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/geopos
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class GeospatialGeoPos extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'GEOPOS';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function filterArguments(array $arguments)
-    {
-        if (count($arguments) === 2 && is_array($arguments[1])) {
-            $members = array_pop($arguments);
-            $arguments = array_merge($arguments, $members);
-        }
-
-        return $arguments;
-    }
-}
-
-/**
- * @link http://redis.io/commands/bgrewriteaof
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ServerBackgroundRewriteAOF extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'BGREWRITEAOF';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function parseResponse($data)
-    {
-        return $data == 'Background append only file rewriting started';
-    }
-}
-
-/**
- * @link http://redis.io/commands/bgsave
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ServerBackgroundSave extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'BGSAVE';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function parseResponse($data)
-    {
-        return $data === 'Background saving started' ? true : $data;
-    }
-}
-
-/**
- * @link http://redis.io/commands/client-list
- * @link http://redis.io/commands/client-kill
- * @link http://redis.io/commands/client-getname
- * @link http://redis.io/commands/client-setname
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ServerClient extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'CLIENT';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function parseResponse($data)
-    {
-        $args = array_change_key_case($this->getArguments(), CASE_UPPER);
-
-        switch (strtoupper($args[0])) {
-            case 'LIST':
-                return $this->parseClientList($data);
-            case 'KILL':
-            case 'GETNAME':
-            case 'SETNAME':
-            default:
-                return $data;
-        }
-    }
-
-    /**
-     * Parses the response to CLIENT LIST and returns a structured list.
-     *
-     * @param string $data Response buffer.
-     *
-     * @return array
-     */
-    protected function parseClientList($data)
-    {
-        $clients = array();
-
-        foreach (explode("\n", $data, -1) as $clientData) {
-            $client = array();
-
-            foreach (explode(' ', $clientData) as $kv) {
-                @list($k, $v) = explode('=', $kv);
-                $client[$k] = $v;
-            }
-
-            $clients[] = $client;
-        }
-
-        return $clients;
-    }
-}
-
-/**
  * @link http://redis.io/commands/command
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
@@ -3343,21 +2279,56 @@ class ServerCommand extends Command
 }
 
 /**
- * @link http://redis.io/commands/config-set
- * @link http://redis.io/commands/config-get
- * @link http://redis.io/commands/config-resetstat
- * @link http://redis.io/commands/config-rewrite
+ * @link http://redis.io/commands/zscan
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ServerConfig extends Command
+class ZSetScan extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'CONFIG';
+        return 'ZSCAN';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (count($arguments) === 3 && is_array($arguments[2])) {
+            $options = $this->prepareOptions(array_pop($arguments));
+            $arguments = array_merge($arguments, $options);
+        }
+
+        return $arguments;
+    }
+
+    /**
+     * Returns a list of options and modifiers compatible with Redis.
+     *
+     * @param array $options List of options.
+     *
+     * @return array
+     */
+    protected function prepareOptions($options)
+    {
+        $options = array_change_key_case($options, CASE_UPPER);
+        $normalized = array();
+
+        if (!empty($options['MATCH'])) {
+            $normalized[] = 'MATCH';
+            $normalized[] = $options['MATCH'];
+        }
+
+        if (!empty($options['COUNT'])) {
+            $normalized[] = 'COUNT';
+            $normalized[] = $options['COUNT'];
+        }
+
+        return $normalized;
     }
 
     /**
@@ -3366,48 +2337,17 @@ class ServerConfig extends Command
     public function parseResponse($data)
     {
         if (is_array($data)) {
+            $members = $data[1];
             $result = array();
 
-            for ($i = 0; $i < count($data); ++$i) {
-                $result[$data[$i]] = $data[++$i];
+            for ($i = 0; $i < count($members); ++$i) {
+                $result[$members[$i]] = (float) $members[++$i];
             }
 
-            return $result;
+            $data[1] = $result;
         }
 
         return $data;
-    }
-}
-
-/**
- * @link http://redis.io/commands/georadiusbymember
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class GeospatialGeoRadiusByMember extends GeospatialGeoRadius
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'GEORADIUSBYMEMBER';
-    }
-}
-
-/**
- * @link http://redis.io/commands/flushall
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ServerFlushAll extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'FLUSHALL';
     }
 }
 
@@ -3531,6 +2471,116 @@ class RawCommand implements CommandInterface
 }
 
 /**
+ * @link http://redis.io/commands/decrby
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringDecrementBy extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'DECRBY';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/substr
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringSubstr extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SUBSTR';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hdel
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashDelete extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HDEL';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        return self::normalizeVariadic($arguments);
+    }
+}
+
+/**
+ * @link http://redis.io/topics/sentinel
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerSentinel extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SENTINEL';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function parseResponse($data)
+    {
+        switch (strtolower($this->getArgument(0))) {
+            case 'masters':
+            case 'slaves':
+                return self::processMastersOrSlaves($data);
+
+            default:
+                return $data;
+        }
+    }
+
+    /**
+     * Returns a processed response to SENTINEL MASTERS or SENTINEL SLAVES.
+     *
+     * @param array $servers List of Redis servers.
+     *
+     * @return array
+     */
+    protected static function processMastersOrSlaves(array $servers)
+    {
+        foreach ($servers as $idx => $node) {
+            $processed = array();
+            $count = count($node);
+
+            for ($i = 0; $i < $count; ++$i) {
+                $processed[$node[$i]] = $node[++$i];
+            }
+
+            $servers[$idx] = $processed;
+        }
+
+        return $servers;
+    }
+}
+
+/**
  * @link http://redis.io/commands/flushdb
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
@@ -3543,6 +2593,626 @@ class ServerFlushDatabase extends Command
     public function getId()
     {
         return 'FLUSHDB';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/pexpireat
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyPreciseExpireAt extends KeyExpireAt
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'PEXPIREAT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/publish
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class PubSubPublish extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'PUBLISH';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/psubscribe
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class PubSubSubscribeByPattern extends PubSubSubscribe
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'PSUBSCRIBE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/script
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerScript extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SCRIPT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/ltrim
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListTrim extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'LTRIM';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/rpoplpush
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListPopLastPushHead extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'RPOPLPUSH';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zremrangebylex
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetRemoveRangeByLex extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZREMRANGEBYLEX';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zrevrange
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetReverseRange extends ZSetRange
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZREVRANGE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/srandmember
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class SetRandomMember extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SRANDMEMBER';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hsetnx
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashSetPreserve extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HSETNX';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/exec
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class TransactionExec extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'EXEC';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/msetnx
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringSetMultiplePreserve extends StringSetMultiple
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'MSETNX';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/pexpire
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyPreciseExpire extends KeyExpire
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'PEXPIRE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/dbsize
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerDatabaseSize extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'DBSIZE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/sort
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeySort extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SORT';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (count($arguments) === 1) {
+            return $arguments;
+        }
+
+        $query = array($arguments[0]);
+        $sortParams = array_change_key_case($arguments[1], CASE_UPPER);
+
+        if (isset($sortParams['BY'])) {
+            $query[] = 'BY';
+            $query[] = $sortParams['BY'];
+        }
+
+        if (isset($sortParams['GET'])) {
+            $getargs = $sortParams['GET'];
+
+            if (is_array($getargs)) {
+                foreach ($getargs as $getarg) {
+                    $query[] = 'GET';
+                    $query[] = $getarg;
+                }
+            } else {
+                $query[] = 'GET';
+                $query[] = $getargs;
+            }
+        }
+
+        if (isset($sortParams['LIMIT']) &&
+            is_array($sortParams['LIMIT']) &&
+            count($sortParams['LIMIT']) == 2) {
+            $query[] = 'LIMIT';
+            $query[] = $sortParams['LIMIT'][0];
+            $query[] = $sortParams['LIMIT'][1];
+        }
+
+        if (isset($sortParams['SORT'])) {
+            $query[] = strtoupper($sortParams['SORT']);
+        }
+
+        if (isset($sortParams['ALPHA']) && $sortParams['ALPHA'] == true) {
+            $query[] = 'ALPHA';
+        }
+
+        if (isset($sortParams['STORE'])) {
+            $query[] = 'STORE';
+            $query[] = $sortParams['STORE'];
+        }
+
+        return $query;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hkeys
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashKeys extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HKEYS';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hincrby
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashIncrementBy extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HINCRBY';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zremrangebyscore
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetRemoveRangeByScore extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZREMRANGEBYSCORE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/scard
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class SetCardinality extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SCARD';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hset
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashSet extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HSET';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/persist
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyPersist extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'PERSIST';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/spop
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class SetPop extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SPOP';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zincrby
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetIncrementBy extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZINCRBY';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/brpoplpush
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListPopLastPushHeadBlocking extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'BRPOPLPUSH';
+    }
+}
+
+/**
+ * Defines a command whose keys can be prefixed.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+interface PrefixableCommandInterface extends CommandInterface
+{
+    /**
+     * Prefixes all the keys found in the arguments of the command.
+     *
+     * @param string $prefix String used to prefix the keys.
+     */
+    public function prefixKeys($prefix);
+}
+
+/**
+ * @link http://redis.io/commands/zremrangebyrank
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetRemoveRangeByRank extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZREMRANGEBYRANK';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zrevrangebyscore
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetReverseRangeByScore extends ZSetRangeByScore
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZREVRANGEBYSCORE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/strlen
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringStrlen extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'STRLEN';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/scan
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyScan extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SCAN';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (count($arguments) === 2 && is_array($arguments[1])) {
+            $options = $this->prepareOptions(array_pop($arguments));
+            $arguments = array_merge($arguments, $options);
+        }
+
+        return $arguments;
+    }
+
+    /**
+     * Returns a list of options and modifiers compatible with Redis.
+     *
+     * @param array $options List of options.
+     *
+     * @return array
+     */
+    protected function prepareOptions($options)
+    {
+        $options = array_change_key_case($options, CASE_UPPER);
+        $normalized = array();
+
+        if (!empty($options['MATCH'])) {
+            $normalized[] = 'MATCH';
+            $normalized[] = $options['MATCH'];
+        }
+
+        if (!empty($options['COUNT'])) {
+            $normalized[] = 'COUNT';
+            $normalized[] = $options['COUNT'];
+        }
+
+        return $normalized;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/object
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerObject extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'OBJECT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/incr
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringIncrement extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'INCR';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/restore
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyRestore extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'RESTORE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zcount
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetCount extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZCOUNT';
     }
 }
 
@@ -3576,94 +3246,412 @@ class GeospatialGeoHash extends Command
 }
 
 /**
- * @link http://redis.io/commands/info
+ * @link http://redis.io/commands/srem
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ServerInfoV26x extends ServerInfo
+class SetRemove extends Command
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SREM';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        return self::normalizeVariadic($arguments);
+    }
+}
+
+/**
+ * @link http://redis.io/commands/time
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerTime extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'TIME';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/ping
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ConnectionPing extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'PING';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/shutdown
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerShutdown extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SHUTDOWN';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/pttl
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyPreciseTimeToLive extends KeyTimeToLive
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'PTTL';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/getset
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringGetSet extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'GETSET';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/sdiffstore
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class SetDifferenceStore extends SetIntersectionStore
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'SDIFFSTORE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zinterstore
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetIntersectionStore extends ZSetUnionStore
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZINTERSTORE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/lrange
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListRange extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'LRANGE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/bitpos
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringBitPos extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'BITPOS';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/decr
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringDecrement extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'DECR';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/get
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringGet extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'GET';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/discard
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class TransactionDiscard extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'DISCARD';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hmset
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashSetMultiple extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HMSET';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (count($arguments) === 2 && is_array($arguments[1])) {
+            $flattenedKVs = array($arguments[0]);
+            $args = $arguments[1];
+
+            foreach ($args as $k => $v) {
+                $flattenedKVs[] = $k;
+                $flattenedKVs[] = $v;
+            }
+
+            return $flattenedKVs;
+        }
+
+        return $arguments;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/zscore
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ZSetScore extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'ZSCORE';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/bgsave
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerBackgroundSave extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'BGSAVE';
+    }
+
     /**
      * {@inheritdoc}
      */
     public function parseResponse($data)
     {
-        if ($data === '') {
-            return array();
-        }
-
-        $info = array();
-
-        $current = null;
-        $infoLines = preg_split('/\r?\n/', $data);
-
-        if (isset($infoLines[0]) && $infoLines[0][0] !== '#') {
-            return parent::parseResponse($data);
-        }
-
-        foreach ($infoLines as $row) {
-            if ($row === '') {
-                continue;
-            }
-
-            if (preg_match('/^# (\w+)$/', $row, $matches)) {
-                $info[$matches[1]] = array();
-                $current = &$info[$matches[1]];
-                continue;
-            }
-
-            list($k, $v) = $this->parseRow($row);
-            $current[$k] = $v;
-        }
-
-        return $info;
+        return $data === 'Background saving started' ? true : $data;
     }
 }
 
 /**
- * @link http://redis.io/commands/lastsave
+ * @link http://redis.io/commands/smove
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ServerLastSave extends Command
+class SetMove extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'LASTSAVE';
+        return 'SMOVE';
     }
 }
 
 /**
- * @link http://redis.io/commands/monitor
+ * @link http://redis.io/commands/bitfield
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ServerMonitor extends Command
+class StringBitField extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'MONITOR';
+        return 'BITFIELD';
     }
 }
 
 /**
- * @link http://redis.io/commands/object
+ * @link http://redis.io/commands/pfadd
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ServerObject extends Command
+class HyperLogLogAdd extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'OBJECT';
+        return 'PFADD';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        return self::normalizeVariadic($arguments);
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hexists
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashExists extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HEXISTS';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/linsert
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ListInsert extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'LINSERT';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hgetall
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashGetAll extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HGETALL';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function parseResponse($data)
+    {
+        $result = array();
+
+        for ($i = 0; $i < count($data); ++$i) {
+            $result[$data[$i]] = $data[++$i];
+        }
+
+        return $result;
     }
 }
 
@@ -3733,178 +3721,18 @@ abstract class ScriptCommand extends ServerEvalSHA
 }
 
 /**
- * @link http://redis.io/commands/punsubscribe
+ * @link http://redis.io/commands/zrem
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class PubSubUnsubscribeByPattern extends PubSubUnsubscribe
+class ZSetRemove extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'PUNSUBSCRIBE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/rpoplpush
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListPopLastPushHead extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'RPOPLPUSH';
-    }
-}
-
-/**
- * @link http://redis.io/commands/lrem
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListRemove extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'LREM';
-    }
-}
-
-/**
- * @link http://redis.io/commands/brpoplpush
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListPopLastPushHeadBlocking extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'BRPOPLPUSH';
-    }
-}
-
-/**
- * @link http://redis.io/commands/lpush
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListPushHead extends ListPushTail
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'LPUSH';
-    }
-}
-
-/**
- * @link http://redis.io/commands/lpushx
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListPushHeadX extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'LPUSHX';
-    }
-}
-
-/**
- * @link http://redis.io/commands/hget
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashGet extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HGET';
-    }
-}
-
-/**
- * @link http://redis.io/commands/rpushx
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListPushTailX extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'RPUSHX';
-    }
-}
-
-/**
- * @link http://redis.io/commands/lrange
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListRange extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'LRANGE';
-    }
-}
-
-/**
- * @link http://redis.io/commands/lset
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ListSet extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'LSET';
-    }
-}
-
-/**
- * @link http://redis.io/commands/hdel
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class HashDelete extends Command
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return 'HDEL';
+        return 'ZREM';
     }
 
     /**
@@ -3917,49 +3745,165 @@ class HashDelete extends Command
 }
 
 /**
- * @link http://redis.io/commands/ltrim
+ * @link http://redis.io/commands/slowlog
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ListTrim extends Command
+class ServerSlowlog extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'LTRIM';
+        return 'SLOWLOG';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function parseResponse($data)
+    {
+        if (is_array($data)) {
+            $log = array();
+
+            foreach ($data as $index => $entry) {
+                $log[$index] = array(
+                    'id' => $entry[0],
+                    'timestamp' => $entry[1],
+                    'duration' => $entry[2],
+                    'command' => $entry[3],
+                );
+            }
+
+            return $log;
+        }
+
+        return $data;
     }
 }
 
 /**
- * Defines a command whose keys can be prefixed.
+ * @link http://redis.io/commands/zrevrangebylex
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-interface PrefixableCommandInterface extends CommandInterface
-{
-    /**
-     * Prefixes all the keys found in the arguments of the command.
-     *
-     * @param string $prefix String used to prefix the keys.
-     */
-    public function prefixKeys($prefix);
-}
-
-/**
- * @link http://redis.io/commands/publish
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class PubSubPublish extends Command
+class ZSetReverseRangeByLex extends ZSetRangeByLex
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'PUBLISH';
+        return 'ZREVRANGEBYLEX';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/hlen
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class HashLength extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'HLEN';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/geoadd
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class GeospatialGeoAdd extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'GEOADD';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        if (count($arguments) === 2 && is_array($arguments[1])) {
+            foreach (array_pop($arguments) as $item) {
+                $arguments = array_merge($arguments, $item);
+            }
+        }
+
+        return $arguments;
+    }
+}
+
+/**
+ * @link http://redis.io/commands/client-list
+ * @link http://redis.io/commands/client-kill
+ * @link http://redis.io/commands/client-getname
+ * @link http://redis.io/commands/client-setname
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerClient extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'CLIENT';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function parseResponse($data)
+    {
+        $args = array_change_key_case($this->getArguments(), CASE_UPPER);
+
+        switch (strtoupper($args[0])) {
+            case 'LIST':
+                return $this->parseClientList($data);
+            case 'KILL':
+            case 'GETNAME':
+            case 'SETNAME':
+            default:
+                return $data;
+        }
+    }
+
+    /**
+     * Parses the response to CLIENT LIST and returns a structured list.
+     *
+     * @param string $data Response buffer.
+     *
+     * @return array
+     */
+    protected function parseClientList($data)
+    {
+        $clients = array();
+
+        foreach (explode("\n", $data, -1) as $clientData) {
+            $client = array();
+
+            foreach (explode(' ', $clientData) as $kv) {
+                @list($k, $v) = explode('=', $kv);
+                $client[$k] = $v;
+            }
+
+            $clients[] = $client;
+        }
+
+        return $clients;
     }
 }
 
@@ -4013,50 +3957,106 @@ class PubSubPubsub extends Command
 }
 
 /**
- * @link http://redis.io/commands/hexists
+ * @link http://redis.io/commands/lset
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class HashExists extends Command
+class ListSet extends Command
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'HEXISTS';
+        return 'LSET';
     }
 }
 
 /**
- * @link http://redis.io/commands/psubscribe
+ * @link http://redis.io/commands/lpush
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class PubSubSubscribeByPattern extends PubSubSubscribe
+class ListPushHead extends ListPushTail
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'PSUBSCRIBE';
+        return 'LPUSH';
     }
 }
 
 /**
- * @link http://redis.io/commands/dbsize
+ * @link http://redis.io/commands/sdiff
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class ServerDatabaseSize extends Command
+class SetDifference extends SetIntersection
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'DBSIZE';
+        return 'SDIFF';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/geodist
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class GeospatialGeoDist extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'GEODIST';
+    }
+}
+
+/**
+ * @link http://redis.io/commands/mget
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StringGetMultiple extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'MGET';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function filterArguments(array $arguments)
+    {
+        return self::normalizeArguments($arguments);
+    }
+}
+
+/**
+ * @link http://redis.io/commands/exists
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class KeyExists extends Command
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return 'EXISTS';
     }
 }
 
@@ -4065,15 +4065,15 @@ class ServerDatabaseSize extends Command
 namespace Predis\Connection;
 
 use Predis\Command\CommandInterface;
+use Predis\Response\Error as ErrorResponse;
+use Predis\Response\ErrorInterface as ErrorResponseInterface;
+use Predis\Response\Status as StatusResponse;
+use Predis\Command\RawCommand;
+use Predis\NotSupportedException;
 use Predis\CommunicationException;
 use Predis\Protocol\ProtocolException;
 use Predis\Protocol\ProtocolProcessorInterface;
 use Predis\Protocol\Text\ProtocolProcessor as TextProtocolProcessor;
-use Predis\Command\RawCommand;
-use Predis\NotSupportedException;
-use Predis\Response\Error as ErrorResponse;
-use Predis\Response\ErrorInterface as ErrorResponseInterface;
-use Predis\Response\Status as StatusResponse;
 
 /**
  * Defines a connection object used to communicate with one or multiple
@@ -4804,43 +4804,6 @@ class StreamConnection extends AbstractConnection
 }
 
 /**
- * Defines a connection to communicate with a single Redis server that leverages
- * an external protocol processor to handle pluggable protocol handlers.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-interface CompositeConnectionInterface extends NodeConnectionInterface
-{
-    /**
-     * Returns the protocol processor used by the connection.
-     */
-    public function getProtocol();
-
-    /**
-     * Writes the buffer containing over the connection.
-     *
-     * @param string $buffer String buffer to be sent over the connection.
-     */
-    public function writeBuffer($buffer);
-
-    /**
-     * Reads the given number of bytes from the connection.
-     *
-     * @param int $length Number of bytes to read from the connection.
-     *
-     * @return string
-     */
-    public function readBuffer($length);
-
-    /**
-     * Reads a line from the connection.
-     *
-     * @param string
-     */
-    public function readLine();
-}
-
-/**
  * Interface for classes providing a factory of connections to Redis nodes.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
@@ -4878,6 +4841,43 @@ interface FactoryInterface
      * @param array                        $parameters List of parameters for each connection.
      */
     public function aggregate(AggregateConnectionInterface $aggregate, array $parameters);
+}
+
+/**
+ * Defines a connection to communicate with a single Redis server that leverages
+ * an external protocol processor to handle pluggable protocol handlers.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+interface CompositeConnectionInterface extends NodeConnectionInterface
+{
+    /**
+     * Returns the protocol processor used by the connection.
+     */
+    public function getProtocol();
+
+    /**
+     * Writes the buffer containing over the connection.
+     *
+     * @param string $buffer String buffer to be sent over the connection.
+     */
+    public function writeBuffer($buffer);
+
+    /**
+     * Reads the given number of bytes from the connection.
+     *
+     * @param int $length Number of bytes to read from the connection.
+     *
+     * @return string
+     */
+    public function readBuffer($length);
+
+    /**
+     * Reads a line from the connection.
+     *
+     * @param string
+     */
+    public function readLine();
 }
 
 /**
@@ -4928,124 +4928,6 @@ interface ParametersInterface
      * @return array
      */
     public function toArray();
-}
-
-/**
- * Connection abstraction to Redis servers based on PHP's stream that uses an
- * external protocol processor defining the protocol used for the communication.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class CompositeStreamConnection extends StreamConnection implements CompositeConnectionInterface
-{
-    protected $protocol;
-
-    /**
-     * @param ParametersInterface        $parameters Initialization parameters for the connection.
-     * @param ProtocolProcessorInterface $protocol   Protocol processor.
-     */
-    public function __construct(
-        ParametersInterface $parameters,
-        ProtocolProcessorInterface $protocol = null
-    ) {
-        $this->parameters = $this->assertParameters($parameters);
-        $this->protocol = $protocol ?: new TextProtocolProcessor();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getProtocol()
-    {
-        return $this->protocol;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function writeBuffer($buffer)
-    {
-        $this->write($buffer);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function readBuffer($length)
-    {
-        if ($length <= 0) {
-            throw new \InvalidArgumentException('Length parameter must be greater than 0.');
-        }
-
-        $value = '';
-        $socket = $this->getResource();
-
-        do {
-            $chunk = fread($socket, $length);
-
-            if ($chunk === false || $chunk === '') {
-                $this->onConnectionError('Error while reading bytes from the server.');
-            }
-
-            $value .= $chunk;
-        } while (($length -= strlen($chunk)) > 0);
-
-        return $value;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function readLine()
-    {
-        $value = '';
-        $socket = $this->getResource();
-
-        do {
-            $chunk = fgets($socket);
-
-            if ($chunk === false || $chunk === '') {
-                $this->onConnectionError('Error while reading line from the server.');
-            }
-
-            $value .= $chunk;
-        } while (substr($value, -2) !== "\r\n");
-
-        return substr($value, 0, -2);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function writeRequest(CommandInterface $command)
-    {
-        $this->protocol->write($this, $command);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function read()
-    {
-        return $this->protocol->read($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __sleep()
-    {
-        return array_merge(parent::__sleep(), array('protocol'));
-    }
-}
-
-/**
- * Exception class that identifies connection-related errors.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ConnectionException extends CommunicationException
-{
 }
 
 /**
@@ -5219,170 +5101,6 @@ class Factory implements FactoryInterface
                 new RawCommand(array('SELECT', $parameters->database))
             );
         }
-    }
-}
-
-/**
- * Container for connection parameters used to initialize connections to Redis.
- *
- * {@inheritdoc}
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class Parameters implements ParametersInterface
-{
-    private $parameters;
-
-    private static $defaults = array(
-        'scheme' => 'tcp',
-        'host' => '127.0.0.1',
-        'port' => 6379,
-    );
-
-    /**
-     * @param array $parameters Named array of connection parameters.
-     */
-    public function __construct(array $parameters = array())
-    {
-        $this->parameters = $this->filter($parameters) + $this->getDefaults();
-    }
-
-    /**
-     * Returns some default parameters with their values.
-     *
-     * @return array
-     */
-    protected function getDefaults()
-    {
-        return self::$defaults;
-    }
-
-    /**
-     * Creates a new instance by supplying the initial parameters either in the
-     * form of an URI string or a named array.
-     *
-     * @param array|string $parameters Set of connection parameters.
-     *
-     * @return Parameters
-     */
-    public static function create($parameters)
-    {
-        if (is_string($parameters)) {
-            $parameters = static::parse($parameters);
-        }
-
-        return new static($parameters ?: array());
-    }
-
-    /**
-     * Parses an URI string returning an array of connection parameters.
-     *
-     * When using the "redis" and "rediss" schemes the URI is parsed according
-     * to the rules defined by the provisional registration documents approved
-     * by IANA. If the URI has a password in its "user-information" part or a
-     * database number in the "path" part these values override the values of
-     * "password" and "database" if they are present in the "query" part.
-     *
-     * @link http://www.iana.org/assignments/uri-schemes/prov/redis
-     * @link http://www.iana.org/assignments/uri-schemes/prov/rediss
-     *
-     * @param string $uri URI string.
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @return array
-     */
-    public static function parse($uri)
-    {
-        if (stripos($uri, 'unix://') === 0) {
-            // parse_url() can parse unix:/path/to/sock so we do not need the
-            // unix:///path/to/sock hack, we will support it anyway until 2.0.
-            $uri = str_ireplace('unix://', 'unix:', $uri);
-        }
-
-        if (!$parsed = parse_url($uri)) {
-            throw new \InvalidArgumentException("Invalid parameters URI: $uri");
-        }
-
-        if (
-            isset($parsed['host'])
-            && false !== strpos($parsed['host'], '[')
-            && false !== strpos($parsed['host'], ']')
-        ) {
-            $parsed['host'] = substr($parsed['host'], 1, -1);
-        }
-
-        if (isset($parsed['query'])) {
-            parse_str($parsed['query'], $queryarray);
-            unset($parsed['query']);
-
-            $parsed = array_merge($parsed, $queryarray);
-        }
-
-        if (stripos($uri, 'redis') === 0) {
-            if (isset($parsed['pass'])) {
-                $parsed['password'] = $parsed['pass'];
-                unset($parsed['pass']);
-            }
-
-            if (isset($parsed['path']) && preg_match('/^\/(\d+)(\/.*)?/', $parsed['path'], $path)) {
-                $parsed['database'] = $path[1];
-
-                if (isset($path[2])) {
-                    $parsed['path'] = $path[2];
-                } else {
-                    unset($parsed['path']);
-                }
-            }
-        }
-
-        return $parsed;
-    }
-
-    /**
-     * Validates and converts each value of the connection parameters array.
-     *
-     * @param array $parameters Connection parameters.
-     *
-     * @return array
-     */
-    protected function filter(array $parameters)
-    {
-        return $parameters ?: array();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __get($parameter)
-    {
-        if (isset($this->parameters[$parameter])) {
-            return $this->parameters[$parameter];
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __isset($parameter)
-    {
-        return isset($this->parameters[$parameter]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function toArray()
-    {
-        return $this->parameters;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __sleep()
-    {
-        return array('parameters');
     }
 }
 
@@ -6008,6 +5726,288 @@ class PhpiredisStreamConnection extends StreamConnection
 }
 
 /**
+ * Exception class that identifies connection-related errors.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ConnectionException extends CommunicationException
+{
+}
+
+/**
+ * Connection abstraction to Redis servers based on PHP's stream that uses an
+ * external protocol processor defining the protocol used for the communication.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class CompositeStreamConnection extends StreamConnection implements CompositeConnectionInterface
+{
+    protected $protocol;
+
+    /**
+     * @param ParametersInterface        $parameters Initialization parameters for the connection.
+     * @param ProtocolProcessorInterface $protocol   Protocol processor.
+     */
+    public function __construct(
+        ParametersInterface $parameters,
+        ProtocolProcessorInterface $protocol = null
+    ) {
+        $this->parameters = $this->assertParameters($parameters);
+        $this->protocol = $protocol ?: new TextProtocolProcessor();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getProtocol()
+    {
+        return $this->protocol;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function writeBuffer($buffer)
+    {
+        $this->write($buffer);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function readBuffer($length)
+    {
+        if ($length <= 0) {
+            throw new \InvalidArgumentException('Length parameter must be greater than 0.');
+        }
+
+        $value = '';
+        $socket = $this->getResource();
+
+        do {
+            $chunk = fread($socket, $length);
+
+            if ($chunk === false || $chunk === '') {
+                $this->onConnectionError('Error while reading bytes from the server.');
+            }
+
+            $value .= $chunk;
+        } while (($length -= strlen($chunk)) > 0);
+
+        return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function readLine()
+    {
+        $value = '';
+        $socket = $this->getResource();
+
+        do {
+            $chunk = fgets($socket);
+
+            if ($chunk === false || $chunk === '') {
+                $this->onConnectionError('Error while reading line from the server.');
+            }
+
+            $value .= $chunk;
+        } while (substr($value, -2) !== "\r\n");
+
+        return substr($value, 0, -2);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function writeRequest(CommandInterface $command)
+    {
+        $this->protocol->write($this, $command);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function read()
+    {
+        return $this->protocol->read($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __sleep()
+    {
+        return array_merge(parent::__sleep(), array('protocol'));
+    }
+}
+
+/**
+ * Container for connection parameters used to initialize connections to Redis.
+ *
+ * {@inheritdoc}
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class Parameters implements ParametersInterface
+{
+    private $parameters;
+
+    private static $defaults = array(
+        'scheme' => 'tcp',
+        'host' => '127.0.0.1',
+        'port' => 6379,
+    );
+
+    /**
+     * @param array $parameters Named array of connection parameters.
+     */
+    public function __construct(array $parameters = array())
+    {
+        $this->parameters = $this->filter($parameters) + $this->getDefaults();
+    }
+
+    /**
+     * Returns some default parameters with their values.
+     *
+     * @return array
+     */
+    protected function getDefaults()
+    {
+        return self::$defaults;
+    }
+
+    /**
+     * Creates a new instance by supplying the initial parameters either in the
+     * form of an URI string or a named array.
+     *
+     * @param array|string $parameters Set of connection parameters.
+     *
+     * @return Parameters
+     */
+    public static function create($parameters)
+    {
+        if (is_string($parameters)) {
+            $parameters = static::parse($parameters);
+        }
+
+        return new static($parameters ?: array());
+    }
+
+    /**
+     * Parses an URI string returning an array of connection parameters.
+     *
+     * When using the "redis" and "rediss" schemes the URI is parsed according
+     * to the rules defined by the provisional registration documents approved
+     * by IANA. If the URI has a password in its "user-information" part or a
+     * database number in the "path" part these values override the values of
+     * "password" and "database" if they are present in the "query" part.
+     *
+     * @link http://www.iana.org/assignments/uri-schemes/prov/redis
+     * @link http://www.iana.org/assignments/uri-schemes/prov/rediss
+     *
+     * @param string $uri URI string.
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array
+     */
+    public static function parse($uri)
+    {
+        if (stripos($uri, 'unix://') === 0) {
+            // parse_url() can parse unix:/path/to/sock so we do not need the
+            // unix:///path/to/sock hack, we will support it anyway until 2.0.
+            $uri = str_ireplace('unix://', 'unix:', $uri);
+        }
+
+        if (!$parsed = parse_url($uri)) {
+            throw new \InvalidArgumentException("Invalid parameters URI: $uri");
+        }
+
+        if (
+            isset($parsed['host'])
+            && false !== strpos($parsed['host'], '[')
+            && false !== strpos($parsed['host'], ']')
+        ) {
+            $parsed['host'] = substr($parsed['host'], 1, -1);
+        }
+
+        if (isset($parsed['query'])) {
+            parse_str($parsed['query'], $queryarray);
+            unset($parsed['query']);
+
+            $parsed = array_merge($parsed, $queryarray);
+        }
+
+        if (stripos($uri, 'redis') === 0) {
+            if (isset($parsed['pass'])) {
+                $parsed['password'] = $parsed['pass'];
+                unset($parsed['pass']);
+            }
+
+            if (isset($parsed['path']) && preg_match('/^\/(\d+)(\/.*)?/', $parsed['path'], $path)) {
+                $parsed['database'] = $path[1];
+
+                if (isset($path[2])) {
+                    $parsed['path'] = $path[2];
+                } else {
+                    unset($parsed['path']);
+                }
+            }
+        }
+
+        return $parsed;
+    }
+
+    /**
+     * Validates and converts each value of the connection parameters array.
+     *
+     * @param array $parameters Connection parameters.
+     *
+     * @return array
+     */
+    protected function filter(array $parameters)
+    {
+        return $parameters ?: array();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __get($parameter)
+    {
+        if (isset($this->parameters[$parameter])) {
+            return $this->parameters[$parameter];
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __isset($parameter)
+    {
+        return isset($this->parameters[$parameter]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toArray()
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __sleep()
+    {
+        return array('parameters');
+    }
+}
+
+/**
  * This class implements a Predis connection that actually talks with Webdis
  * instead of connecting directly to Redis. It relies on the cURL extension to
  * communicate with the web server and the phpiredis extension to parse the
@@ -6360,8 +6360,8 @@ class WebdisConnection implements NodeConnectionInterface
 namespace Predis\Profile;
 
 use Predis\ClientException;
-use Predis\Command\CommandInterface;
 use Predis\Command\Processor\ProcessorInterface;
+use Predis\Command\CommandInterface;
 
 /**
  * A profile defines all the features and commands supported by certain versions
@@ -7083,18 +7083,18 @@ class RedisVersion200 extends RedisProfile
 }
 
 /**
- * Server profile for Redis 2.2.
+ * Server profile for Redis 3.0.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class RedisVersion220 extends RedisProfile
+class RedisVersion300 extends RedisProfile
 {
     /**
      * {@inheritdoc}
      */
     public function getVersion()
     {
-        return '2.2';
+        return '3.0';
     }
 
     /**
@@ -7118,6 +7118,8 @@ class RedisVersion220 extends RedisProfile
             'TTL' => 'Predis\Command\KeyTimeToLive',
             'MOVE' => 'Predis\Command\KeyMove',
             'SORT' => 'Predis\Command\KeySort',
+            'DUMP' => 'Predis\Command\KeyDump',
+            'RESTORE' => 'Predis\Command\KeyRestore',
 
             /* commands operating on string values */
             'SET' => 'Predis\Command\StringSet',
@@ -7180,197 +7182,7 @@ class RedisVersion220 extends RedisProfile
             'QUIT' => 'Predis\Command\ConnectionQuit',
 
             /* remote server control commands */
-            'INFO' => 'Predis\Command\ServerInfo',
-            'SLAVEOF' => 'Predis\Command\ServerSlaveOf',
-            'MONITOR' => 'Predis\Command\ServerMonitor',
-            'DBSIZE' => 'Predis\Command\ServerDatabaseSize',
-            'FLUSHDB' => 'Predis\Command\ServerFlushDatabase',
-            'FLUSHALL' => 'Predis\Command\ServerFlushAll',
-            'SAVE' => 'Predis\Command\ServerSave',
-            'BGSAVE' => 'Predis\Command\ServerBackgroundSave',
-            'LASTSAVE' => 'Predis\Command\ServerLastSave',
-            'SHUTDOWN' => 'Predis\Command\ServerShutdown',
-            'BGREWRITEAOF' => 'Predis\Command\ServerBackgroundRewriteAOF',
-
-            /* ---------------- Redis 2.0 ---------------- */
-
-            /* commands operating on string values */
-            'SETEX' => 'Predis\Command\StringSetExpire',
-            'APPEND' => 'Predis\Command\StringAppend',
-            'SUBSTR' => 'Predis\Command\StringSubstr',
-
-            /* commands operating on lists */
-            'BLPOP' => 'Predis\Command\ListPopFirstBlocking',
-            'BRPOP' => 'Predis\Command\ListPopLastBlocking',
-
-            /* commands operating on sorted sets */
-            'ZUNIONSTORE' => 'Predis\Command\ZSetUnionStore',
-            'ZINTERSTORE' => 'Predis\Command\ZSetIntersectionStore',
-            'ZCOUNT' => 'Predis\Command\ZSetCount',
-            'ZRANK' => 'Predis\Command\ZSetRank',
-            'ZREVRANK' => 'Predis\Command\ZSetReverseRank',
-            'ZREMRANGEBYRANK' => 'Predis\Command\ZSetRemoveRangeByRank',
-
-            /* commands operating on hashes */
-            'HSET' => 'Predis\Command\HashSet',
-            'HSETNX' => 'Predis\Command\HashSetPreserve',
-            'HMSET' => 'Predis\Command\HashSetMultiple',
-            'HINCRBY' => 'Predis\Command\HashIncrementBy',
-            'HGET' => 'Predis\Command\HashGet',
-            'HMGET' => 'Predis\Command\HashGetMultiple',
-            'HDEL' => 'Predis\Command\HashDelete',
-            'HEXISTS' => 'Predis\Command\HashExists',
-            'HLEN' => 'Predis\Command\HashLength',
-            'HKEYS' => 'Predis\Command\HashKeys',
-            'HVALS' => 'Predis\Command\HashValues',
-            'HGETALL' => 'Predis\Command\HashGetAll',
-
-            /* transactions */
-            'MULTI' => 'Predis\Command\TransactionMulti',
-            'EXEC' => 'Predis\Command\TransactionExec',
-            'DISCARD' => 'Predis\Command\TransactionDiscard',
-
-            /* publish - subscribe */
-            'SUBSCRIBE' => 'Predis\Command\PubSubSubscribe',
-            'UNSUBSCRIBE' => 'Predis\Command\PubSubUnsubscribe',
-            'PSUBSCRIBE' => 'Predis\Command\PubSubSubscribeByPattern',
-            'PUNSUBSCRIBE' => 'Predis\Command\PubSubUnsubscribeByPattern',
-            'PUBLISH' => 'Predis\Command\PubSubPublish',
-
-            /* remote server control commands */
-            'CONFIG' => 'Predis\Command\ServerConfig',
-
-            /* ---------------- Redis 2.2 ---------------- */
-
-            /* commands operating on the key space */
-            'PERSIST' => 'Predis\Command\KeyPersist',
-
-            /* commands operating on string values */
-            'STRLEN' => 'Predis\Command\StringStrlen',
-            'SETRANGE' => 'Predis\Command\StringSetRange',
-            'GETRANGE' => 'Predis\Command\StringGetRange',
-            'SETBIT' => 'Predis\Command\StringSetBit',
-            'GETBIT' => 'Predis\Command\StringGetBit',
-
-            /* commands operating on lists */
-            'RPUSHX' => 'Predis\Command\ListPushTailX',
-            'LPUSHX' => 'Predis\Command\ListPushHeadX',
-            'LINSERT' => 'Predis\Command\ListInsert',
-            'BRPOPLPUSH' => 'Predis\Command\ListPopLastPushHeadBlocking',
-
-            /* commands operating on sorted sets */
-            'ZREVRANGEBYSCORE' => 'Predis\Command\ZSetReverseRangeByScore',
-
-            /* transactions */
-            'WATCH' => 'Predis\Command\TransactionWatch',
-            'UNWATCH' => 'Predis\Command\TransactionUnwatch',
-
-            /* remote server control commands */
-            'OBJECT' => 'Predis\Command\ServerObject',
-            'SLOWLOG' => 'Predis\Command\ServerSlowlog',
-        );
-    }
-}
-
-/**
- * Server profile for Redis 2.4.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class RedisVersion240 extends RedisProfile
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function getVersion()
-    {
-        return '2.4';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSupportedCommands()
-    {
-        return array(
-            /* ---------------- Redis 1.2 ---------------- */
-
-            /* commands operating on the key space */
-            'EXISTS' => 'Predis\Command\KeyExists',
-            'DEL' => 'Predis\Command\KeyDelete',
-            'TYPE' => 'Predis\Command\KeyType',
-            'KEYS' => 'Predis\Command\KeyKeys',
-            'RANDOMKEY' => 'Predis\Command\KeyRandom',
-            'RENAME' => 'Predis\Command\KeyRename',
-            'RENAMENX' => 'Predis\Command\KeyRenamePreserve',
-            'EXPIRE' => 'Predis\Command\KeyExpire',
-            'EXPIREAT' => 'Predis\Command\KeyExpireAt',
-            'TTL' => 'Predis\Command\KeyTimeToLive',
-            'MOVE' => 'Predis\Command\KeyMove',
-            'SORT' => 'Predis\Command\KeySort',
-
-            /* commands operating on string values */
-            'SET' => 'Predis\Command\StringSet',
-            'SETNX' => 'Predis\Command\StringSetPreserve',
-            'MSET' => 'Predis\Command\StringSetMultiple',
-            'MSETNX' => 'Predis\Command\StringSetMultiplePreserve',
-            'GET' => 'Predis\Command\StringGet',
-            'MGET' => 'Predis\Command\StringGetMultiple',
-            'GETSET' => 'Predis\Command\StringGetSet',
-            'INCR' => 'Predis\Command\StringIncrement',
-            'INCRBY' => 'Predis\Command\StringIncrementBy',
-            'DECR' => 'Predis\Command\StringDecrement',
-            'DECRBY' => 'Predis\Command\StringDecrementBy',
-
-            /* commands operating on lists */
-            'RPUSH' => 'Predis\Command\ListPushTail',
-            'LPUSH' => 'Predis\Command\ListPushHead',
-            'LLEN' => 'Predis\Command\ListLength',
-            'LRANGE' => 'Predis\Command\ListRange',
-            'LTRIM' => 'Predis\Command\ListTrim',
-            'LINDEX' => 'Predis\Command\ListIndex',
-            'LSET' => 'Predis\Command\ListSet',
-            'LREM' => 'Predis\Command\ListRemove',
-            'LPOP' => 'Predis\Command\ListPopFirst',
-            'RPOP' => 'Predis\Command\ListPopLast',
-            'RPOPLPUSH' => 'Predis\Command\ListPopLastPushHead',
-
-            /* commands operating on sets */
-            'SADD' => 'Predis\Command\SetAdd',
-            'SREM' => 'Predis\Command\SetRemove',
-            'SPOP' => 'Predis\Command\SetPop',
-            'SMOVE' => 'Predis\Command\SetMove',
-            'SCARD' => 'Predis\Command\SetCardinality',
-            'SISMEMBER' => 'Predis\Command\SetIsMember',
-            'SINTER' => 'Predis\Command\SetIntersection',
-            'SINTERSTORE' => 'Predis\Command\SetIntersectionStore',
-            'SUNION' => 'Predis\Command\SetUnion',
-            'SUNIONSTORE' => 'Predis\Command\SetUnionStore',
-            'SDIFF' => 'Predis\Command\SetDifference',
-            'SDIFFSTORE' => 'Predis\Command\SetDifferenceStore',
-            'SMEMBERS' => 'Predis\Command\SetMembers',
-            'SRANDMEMBER' => 'Predis\Command\SetRandomMember',
-
-            /* commands operating on sorted sets */
-            'ZADD' => 'Predis\Command\ZSetAdd',
-            'ZINCRBY' => 'Predis\Command\ZSetIncrementBy',
-            'ZREM' => 'Predis\Command\ZSetRemove',
-            'ZRANGE' => 'Predis\Command\ZSetRange',
-            'ZREVRANGE' => 'Predis\Command\ZSetReverseRange',
-            'ZRANGEBYSCORE' => 'Predis\Command\ZSetRangeByScore',
-            'ZCARD' => 'Predis\Command\ZSetCardinality',
-            'ZSCORE' => 'Predis\Command\ZSetScore',
-            'ZREMRANGEBYSCORE' => 'Predis\Command\ZSetRemoveRangeByScore',
-
-            /* connection related commands */
-            'PING' => 'Predis\Command\ConnectionPing',
-            'AUTH' => 'Predis\Command\ConnectionAuth',
-            'SELECT' => 'Predis\Command\ConnectionSelect',
-            'ECHO' => 'Predis\Command\ConnectionEcho',
-            'QUIT' => 'Predis\Command\ConnectionQuit',
-
-            /* remote server control commands */
-            'INFO' => 'Predis\Command\ServerInfo',
+            'INFO' => 'Predis\Command\ServerInfoV26x',
             'SLAVEOF' => 'Predis\Command\ServerSlaveOf',
             'MONITOR' => 'Predis\Command\ServerMonitor',
             'DBSIZE' => 'Predis\Command\ServerDatabaseSize',
@@ -7463,6 +7275,67 @@ class RedisVersion240 extends RedisProfile
 
             /* remote server control commands */
             'CLIENT' => 'Predis\Command\ServerClient',
+
+            /* ---------------- Redis 2.6 ---------------- */
+
+            /* commands operating on the key space */
+            'PTTL' => 'Predis\Command\KeyPreciseTimeToLive',
+            'PEXPIRE' => 'Predis\Command\KeyPreciseExpire',
+            'PEXPIREAT' => 'Predis\Command\KeyPreciseExpireAt',
+            'MIGRATE' => 'Predis\Command\KeyMigrate',
+
+            /* commands operating on string values */
+            'PSETEX' => 'Predis\Command\StringPreciseSetExpire',
+            'INCRBYFLOAT' => 'Predis\Command\StringIncrementByFloat',
+            'BITOP' => 'Predis\Command\StringBitOp',
+            'BITCOUNT' => 'Predis\Command\StringBitCount',
+
+            /* commands operating on hashes */
+            'HINCRBYFLOAT' => 'Predis\Command\HashIncrementByFloat',
+
+            /* scripting */
+            'EVAL' => 'Predis\Command\ServerEval',
+            'EVALSHA' => 'Predis\Command\ServerEvalSHA',
+            'SCRIPT' => 'Predis\Command\ServerScript',
+
+            /* remote server control commands */
+            'TIME' => 'Predis\Command\ServerTime',
+            'SENTINEL' => 'Predis\Command\ServerSentinel',
+
+            /* ---------------- Redis 2.8 ---------------- */
+
+            /* commands operating on the key space */
+            'SCAN' => 'Predis\Command\KeyScan',
+
+            /* commands operating on string values */
+            'BITPOS' => 'Predis\Command\StringBitPos',
+
+            /* commands operating on sets */
+            'SSCAN' => 'Predis\Command\SetScan',
+
+            /* commands operating on sorted sets */
+            'ZSCAN' => 'Predis\Command\ZSetScan',
+            'ZLEXCOUNT' => 'Predis\Command\ZSetLexCount',
+            'ZRANGEBYLEX' => 'Predis\Command\ZSetRangeByLex',
+            'ZREMRANGEBYLEX' => 'Predis\Command\ZSetRemoveRangeByLex',
+            'ZREVRANGEBYLEX' => 'Predis\Command\ZSetReverseRangeByLex',
+
+            /* commands operating on hashes */
+            'HSCAN' => 'Predis\Command\HashScan',
+
+            /* publish - subscribe */
+            'PUBSUB' => 'Predis\Command\PubSubPubsub',
+
+            /* commands operating on HyperLogLog */
+            'PFADD' => 'Predis\Command\HyperLogLogAdd',
+            'PFCOUNT' => 'Predis\Command\HyperLogLogCount',
+            'PFMERGE' => 'Predis\Command\HyperLogLogMerge',
+
+            /* remote server control commands */
+            'COMMAND' => 'Predis\Command\ServerCommand',
+
+            /* ---------------- Redis 3.0 ---------------- */
+
         );
     }
 }
@@ -7686,6 +7559,201 @@ class RedisVersion260 extends RedisProfile
             /* remote server control commands */
             'TIME' => 'Predis\Command\ServerTime',
             'SENTINEL' => 'Predis\Command\ServerSentinel',
+        );
+    }
+}
+
+/**
+ * Server profile for Redis 2.4.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class RedisVersion240 extends RedisProfile
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function getVersion()
+    {
+        return '2.4';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSupportedCommands()
+    {
+        return array(
+            /* ---------------- Redis 1.2 ---------------- */
+
+            /* commands operating on the key space */
+            'EXISTS' => 'Predis\Command\KeyExists',
+            'DEL' => 'Predis\Command\KeyDelete',
+            'TYPE' => 'Predis\Command\KeyType',
+            'KEYS' => 'Predis\Command\KeyKeys',
+            'RANDOMKEY' => 'Predis\Command\KeyRandom',
+            'RENAME' => 'Predis\Command\KeyRename',
+            'RENAMENX' => 'Predis\Command\KeyRenamePreserve',
+            'EXPIRE' => 'Predis\Command\KeyExpire',
+            'EXPIREAT' => 'Predis\Command\KeyExpireAt',
+            'TTL' => 'Predis\Command\KeyTimeToLive',
+            'MOVE' => 'Predis\Command\KeyMove',
+            'SORT' => 'Predis\Command\KeySort',
+
+            /* commands operating on string values */
+            'SET' => 'Predis\Command\StringSet',
+            'SETNX' => 'Predis\Command\StringSetPreserve',
+            'MSET' => 'Predis\Command\StringSetMultiple',
+            'MSETNX' => 'Predis\Command\StringSetMultiplePreserve',
+            'GET' => 'Predis\Command\StringGet',
+            'MGET' => 'Predis\Command\StringGetMultiple',
+            'GETSET' => 'Predis\Command\StringGetSet',
+            'INCR' => 'Predis\Command\StringIncrement',
+            'INCRBY' => 'Predis\Command\StringIncrementBy',
+            'DECR' => 'Predis\Command\StringDecrement',
+            'DECRBY' => 'Predis\Command\StringDecrementBy',
+
+            /* commands operating on lists */
+            'RPUSH' => 'Predis\Command\ListPushTail',
+            'LPUSH' => 'Predis\Command\ListPushHead',
+            'LLEN' => 'Predis\Command\ListLength',
+            'LRANGE' => 'Predis\Command\ListRange',
+            'LTRIM' => 'Predis\Command\ListTrim',
+            'LINDEX' => 'Predis\Command\ListIndex',
+            'LSET' => 'Predis\Command\ListSet',
+            'LREM' => 'Predis\Command\ListRemove',
+            'LPOP' => 'Predis\Command\ListPopFirst',
+            'RPOP' => 'Predis\Command\ListPopLast',
+            'RPOPLPUSH' => 'Predis\Command\ListPopLastPushHead',
+
+            /* commands operating on sets */
+            'SADD' => 'Predis\Command\SetAdd',
+            'SREM' => 'Predis\Command\SetRemove',
+            'SPOP' => 'Predis\Command\SetPop',
+            'SMOVE' => 'Predis\Command\SetMove',
+            'SCARD' => 'Predis\Command\SetCardinality',
+            'SISMEMBER' => 'Predis\Command\SetIsMember',
+            'SINTER' => 'Predis\Command\SetIntersection',
+            'SINTERSTORE' => 'Predis\Command\SetIntersectionStore',
+            'SUNION' => 'Predis\Command\SetUnion',
+            'SUNIONSTORE' => 'Predis\Command\SetUnionStore',
+            'SDIFF' => 'Predis\Command\SetDifference',
+            'SDIFFSTORE' => 'Predis\Command\SetDifferenceStore',
+            'SMEMBERS' => 'Predis\Command\SetMembers',
+            'SRANDMEMBER' => 'Predis\Command\SetRandomMember',
+
+            /* commands operating on sorted sets */
+            'ZADD' => 'Predis\Command\ZSetAdd',
+            'ZINCRBY' => 'Predis\Command\ZSetIncrementBy',
+            'ZREM' => 'Predis\Command\ZSetRemove',
+            'ZRANGE' => 'Predis\Command\ZSetRange',
+            'ZREVRANGE' => 'Predis\Command\ZSetReverseRange',
+            'ZRANGEBYSCORE' => 'Predis\Command\ZSetRangeByScore',
+            'ZCARD' => 'Predis\Command\ZSetCardinality',
+            'ZSCORE' => 'Predis\Command\ZSetScore',
+            'ZREMRANGEBYSCORE' => 'Predis\Command\ZSetRemoveRangeByScore',
+
+            /* connection related commands */
+            'PING' => 'Predis\Command\ConnectionPing',
+            'AUTH' => 'Predis\Command\ConnectionAuth',
+            'SELECT' => 'Predis\Command\ConnectionSelect',
+            'ECHO' => 'Predis\Command\ConnectionEcho',
+            'QUIT' => 'Predis\Command\ConnectionQuit',
+
+            /* remote server control commands */
+            'INFO' => 'Predis\Command\ServerInfo',
+            'SLAVEOF' => 'Predis\Command\ServerSlaveOf',
+            'MONITOR' => 'Predis\Command\ServerMonitor',
+            'DBSIZE' => 'Predis\Command\ServerDatabaseSize',
+            'FLUSHDB' => 'Predis\Command\ServerFlushDatabase',
+            'FLUSHALL' => 'Predis\Command\ServerFlushAll',
+            'SAVE' => 'Predis\Command\ServerSave',
+            'BGSAVE' => 'Predis\Command\ServerBackgroundSave',
+            'LASTSAVE' => 'Predis\Command\ServerLastSave',
+            'SHUTDOWN' => 'Predis\Command\ServerShutdown',
+            'BGREWRITEAOF' => 'Predis\Command\ServerBackgroundRewriteAOF',
+
+            /* ---------------- Redis 2.0 ---------------- */
+
+            /* commands operating on string values */
+            'SETEX' => 'Predis\Command\StringSetExpire',
+            'APPEND' => 'Predis\Command\StringAppend',
+            'SUBSTR' => 'Predis\Command\StringSubstr',
+
+            /* commands operating on lists */
+            'BLPOP' => 'Predis\Command\ListPopFirstBlocking',
+            'BRPOP' => 'Predis\Command\ListPopLastBlocking',
+
+            /* commands operating on sorted sets */
+            'ZUNIONSTORE' => 'Predis\Command\ZSetUnionStore',
+            'ZINTERSTORE' => 'Predis\Command\ZSetIntersectionStore',
+            'ZCOUNT' => 'Predis\Command\ZSetCount',
+            'ZRANK' => 'Predis\Command\ZSetRank',
+            'ZREVRANK' => 'Predis\Command\ZSetReverseRank',
+            'ZREMRANGEBYRANK' => 'Predis\Command\ZSetRemoveRangeByRank',
+
+            /* commands operating on hashes */
+            'HSET' => 'Predis\Command\HashSet',
+            'HSETNX' => 'Predis\Command\HashSetPreserve',
+            'HMSET' => 'Predis\Command\HashSetMultiple',
+            'HINCRBY' => 'Predis\Command\HashIncrementBy',
+            'HGET' => 'Predis\Command\HashGet',
+            'HMGET' => 'Predis\Command\HashGetMultiple',
+            'HDEL' => 'Predis\Command\HashDelete',
+            'HEXISTS' => 'Predis\Command\HashExists',
+            'HLEN' => 'Predis\Command\HashLength',
+            'HKEYS' => 'Predis\Command\HashKeys',
+            'HVALS' => 'Predis\Command\HashValues',
+            'HGETALL' => 'Predis\Command\HashGetAll',
+
+            /* transactions */
+            'MULTI' => 'Predis\Command\TransactionMulti',
+            'EXEC' => 'Predis\Command\TransactionExec',
+            'DISCARD' => 'Predis\Command\TransactionDiscard',
+
+            /* publish - subscribe */
+            'SUBSCRIBE' => 'Predis\Command\PubSubSubscribe',
+            'UNSUBSCRIBE' => 'Predis\Command\PubSubUnsubscribe',
+            'PSUBSCRIBE' => 'Predis\Command\PubSubSubscribeByPattern',
+            'PUNSUBSCRIBE' => 'Predis\Command\PubSubUnsubscribeByPattern',
+            'PUBLISH' => 'Predis\Command\PubSubPublish',
+
+            /* remote server control commands */
+            'CONFIG' => 'Predis\Command\ServerConfig',
+
+            /* ---------------- Redis 2.2 ---------------- */
+
+            /* commands operating on the key space */
+            'PERSIST' => 'Predis\Command\KeyPersist',
+
+            /* commands operating on string values */
+            'STRLEN' => 'Predis\Command\StringStrlen',
+            'SETRANGE' => 'Predis\Command\StringSetRange',
+            'GETRANGE' => 'Predis\Command\StringGetRange',
+            'SETBIT' => 'Predis\Command\StringSetBit',
+            'GETBIT' => 'Predis\Command\StringGetBit',
+
+            /* commands operating on lists */
+            'RPUSHX' => 'Predis\Command\ListPushTailX',
+            'LPUSHX' => 'Predis\Command\ListPushHeadX',
+            'LINSERT' => 'Predis\Command\ListInsert',
+            'BRPOPLPUSH' => 'Predis\Command\ListPopLastPushHeadBlocking',
+
+            /* commands operating on sorted sets */
+            'ZREVRANGEBYSCORE' => 'Predis\Command\ZSetReverseRangeByScore',
+
+            /* transactions */
+            'WATCH' => 'Predis\Command\TransactionWatch',
+            'UNWATCH' => 'Predis\Command\TransactionUnwatch',
+
+            /* remote server control commands */
+            'OBJECT' => 'Predis\Command\ServerObject',
+            'SLOWLOG' => 'Predis\Command\ServerSlowlog',
+
+            /* ---------------- Redis 2.4 ---------------- */
+
+            /* remote server control commands */
+            'CLIENT' => 'Predis\Command\ServerClient',
         );
     }
 }
@@ -7946,18 +8014,18 @@ class RedisVersion280 extends RedisProfile
 }
 
 /**
- * Server profile for Redis 3.0.
+ * Server profile for Redis 2.2.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class RedisVersion300 extends RedisProfile
+class RedisVersion220 extends RedisProfile
 {
     /**
      * {@inheritdoc}
      */
     public function getVersion()
     {
-        return '3.0';
+        return '2.2';
     }
 
     /**
@@ -7981,8 +8049,6 @@ class RedisVersion300 extends RedisProfile
             'TTL' => 'Predis\Command\KeyTimeToLive',
             'MOVE' => 'Predis\Command\KeyMove',
             'SORT' => 'Predis\Command\KeySort',
-            'DUMP' => 'Predis\Command\KeyDump',
-            'RESTORE' => 'Predis\Command\KeyRestore',
 
             /* commands operating on string values */
             'SET' => 'Predis\Command\StringSet',
@@ -8045,7 +8111,7 @@ class RedisVersion300 extends RedisProfile
             'QUIT' => 'Predis\Command\ConnectionQuit',
 
             /* remote server control commands */
-            'INFO' => 'Predis\Command\ServerInfoV26x',
+            'INFO' => 'Predis\Command\ServerInfo',
             'SLAVEOF' => 'Predis\Command\ServerSlaveOf',
             'MONITOR' => 'Predis\Command\ServerMonitor',
             'DBSIZE' => 'Predis\Command\ServerDatabaseSize',
@@ -8133,72 +8199,6 @@ class RedisVersion300 extends RedisProfile
             /* remote server control commands */
             'OBJECT' => 'Predis\Command\ServerObject',
             'SLOWLOG' => 'Predis\Command\ServerSlowlog',
-
-            /* ---------------- Redis 2.4 ---------------- */
-
-            /* remote server control commands */
-            'CLIENT' => 'Predis\Command\ServerClient',
-
-            /* ---------------- Redis 2.6 ---------------- */
-
-            /* commands operating on the key space */
-            'PTTL' => 'Predis\Command\KeyPreciseTimeToLive',
-            'PEXPIRE' => 'Predis\Command\KeyPreciseExpire',
-            'PEXPIREAT' => 'Predis\Command\KeyPreciseExpireAt',
-            'MIGRATE' => 'Predis\Command\KeyMigrate',
-
-            /* commands operating on string values */
-            'PSETEX' => 'Predis\Command\StringPreciseSetExpire',
-            'INCRBYFLOAT' => 'Predis\Command\StringIncrementByFloat',
-            'BITOP' => 'Predis\Command\StringBitOp',
-            'BITCOUNT' => 'Predis\Command\StringBitCount',
-
-            /* commands operating on hashes */
-            'HINCRBYFLOAT' => 'Predis\Command\HashIncrementByFloat',
-
-            /* scripting */
-            'EVAL' => 'Predis\Command\ServerEval',
-            'EVALSHA' => 'Predis\Command\ServerEvalSHA',
-            'SCRIPT' => 'Predis\Command\ServerScript',
-
-            /* remote server control commands */
-            'TIME' => 'Predis\Command\ServerTime',
-            'SENTINEL' => 'Predis\Command\ServerSentinel',
-
-            /* ---------------- Redis 2.8 ---------------- */
-
-            /* commands operating on the key space */
-            'SCAN' => 'Predis\Command\KeyScan',
-
-            /* commands operating on string values */
-            'BITPOS' => 'Predis\Command\StringBitPos',
-
-            /* commands operating on sets */
-            'SSCAN' => 'Predis\Command\SetScan',
-
-            /* commands operating on sorted sets */
-            'ZSCAN' => 'Predis\Command\ZSetScan',
-            'ZLEXCOUNT' => 'Predis\Command\ZSetLexCount',
-            'ZRANGEBYLEX' => 'Predis\Command\ZSetRangeByLex',
-            'ZREMRANGEBYLEX' => 'Predis\Command\ZSetRemoveRangeByLex',
-            'ZREVRANGEBYLEX' => 'Predis\Command\ZSetReverseRangeByLex',
-
-            /* commands operating on hashes */
-            'HSCAN' => 'Predis\Command\HashScan',
-
-            /* publish - subscribe */
-            'PUBSUB' => 'Predis\Command\PubSubPubsub',
-
-            /* commands operating on HyperLogLog */
-            'PFADD' => 'Predis\Command\HyperLogLogAdd',
-            'PFCOUNT' => 'Predis\Command\HyperLogLogCount',
-            'PFMERGE' => 'Predis\Command\HyperLogLogMerge',
-
-            /* remote server control commands */
-            'COMMAND' => 'Predis\Command\ServerCommand',
-
-            /* ---------------- Redis 3.0 ---------------- */
-
         );
     }
 }
@@ -8208,12 +8208,14 @@ class RedisVersion300 extends RedisProfile
 namespace Predis;
 
 use Predis\Command\CommandInterface;
+use Predis\Configuration\OptionsInterface;
+use Predis\Connection\ConnectionInterface;
+use Predis\Profile\ProfileInterface;
+use Predis\Connection\NodeConnectionInterface;
 use Predis\Command\RawCommand;
 use Predis\Command\ScriptCommand;
 use Predis\Configuration\Options;
-use Predis\Configuration\OptionsInterface;
 use Predis\Connection\AggregateConnectionInterface;
-use Predis\Connection\ConnectionInterface;
 use Predis\Connection\ParametersInterface;
 use Predis\Monitor\Consumer as MonitorConsumer;
 use Predis\Pipeline\Pipeline;
@@ -8222,8 +8224,6 @@ use Predis\Response\ErrorInterface as ErrorResponseInterface;
 use Predis\Response\ResponseInterface;
 use Predis\Response\ServerException;
 use Predis\Transaction\MultiExec as MultiExecTransaction;
-use Predis\Profile\ProfileInterface;
-use Predis\Connection\NodeConnectionInterface;
 
 /**
  * Base exception class for Predis-related errors.
@@ -8713,6 +8713,16 @@ interface ClientInterface
      * @return mixed
      */
     public function __call($method, $arguments);
+}
+
+/**
+ * Exception class thrown when trying to use features not supported by certain
+ * classes or abstractions of Predis.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class NotSupportedException extends PredisException
+{
 }
 
 /**
@@ -9284,33 +9294,23 @@ class Client implements ClientInterface, \IteratorAggregate
     }
 }
 
-/**
- * Exception class thrown when trying to use features not supported by certain
- * classes or abstractions of Predis.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class NotSupportedException extends PredisException
-{
-}
-
 /* --------------------------------------------------------------------------- */
 
 namespace Predis\Configuration;
 
+use Predis\Command\Processor\KeyPrefixProcessor;
+use Predis\Command\Processor\ProcessorInterface;
+use Predis\Profile\Factory;
+use Predis\Profile\ProfileInterface;
+use Predis\Profile\RedisProfile;
 use Predis\Connection\Aggregate\ClusterInterface;
 use Predis\Connection\Aggregate\PredisCluster;
 use Predis\Connection\Aggregate\RedisCluster;
-use Predis\Connection\Factory;
-use Predis\Connection\FactoryInterface;
-use Predis\Command\Processor\KeyPrefixProcessor;
-use Predis\Command\Processor\ProcessorInterface;
-use Predis\Profile\Factory as Predis_Factory;
-use Predis\Profile\ProfileInterface;
-use Predis\Profile\RedisProfile;
 use Predis\Connection\Aggregate\MasterSlaveReplication;
 use Predis\Connection\Aggregate\ReplicationInterface;
 use Predis\Connection\Aggregate\SentinelReplication;
+use Predis\Connection\Factory as Predis_Factory;
+use Predis\Connection\FactoryInterface;
 
 /**
  * Defines an handler used by Predis\Configuration\Options to filter, validate
@@ -9393,6 +9393,113 @@ interface OptionsInterface
 }
 
 /**
+ * Configures a command processor that apply the specified prefix string to a
+ * series of Redis commands considered prefixable.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class PrefixOption implements OptionInterface
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function filter(OptionsInterface $options, $value)
+    {
+        if ($value instanceof ProcessorInterface) {
+            return $value;
+        }
+
+        return new KeyPrefixProcessor($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefault(OptionsInterface $options)
+    {
+        // NOOP
+    }
+}
+
+/**
+ * Configures whether consumers (such as the client) should throw exceptions on
+ * Redis errors (-ERR responses) or just return instances of error responses.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ExceptionsOption implements OptionInterface
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function filter(OptionsInterface $options, $value)
+    {
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefault(OptionsInterface $options)
+    {
+        return true;
+    }
+}
+
+/**
+ * Configures the server profile to be used by the client to create command
+ * instances depending on the specified version of the Redis server.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ProfileOption implements OptionInterface
+{
+    /**
+     * Sets the commands processors that need to be applied to the profile.
+     *
+     * @param OptionsInterface $options Client options.
+     * @param ProfileInterface $profile Server profile.
+     */
+    protected function setProcessors(OptionsInterface $options, ProfileInterface $profile)
+    {
+        if (isset($options->prefix) && $profile instanceof RedisProfile) {
+            // NOTE: directly using __get('prefix') is actually a workaround for
+            // HHVM 2.3.0. It's correct and respects the options interface, it's
+            // just ugly. We will remove this hack when HHVM will fix re-entrant
+            // calls to __get() once and for all.
+
+            $profile->setProcessor($options->__get('prefix'));
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function filter(OptionsInterface $options, $value)
+    {
+        if (is_string($value)) {
+            $value = Factory::get($value);
+            $this->setProcessors($options, $value);
+        } elseif (!$value instanceof ProfileInterface) {
+            throw new \InvalidArgumentException('Invalid value for the profile option.');
+        }
+
+        return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefault(OptionsInterface $options)
+    {
+        $profile = Factory::getDefault();
+        $this->setProcessors($options, $profile);
+
+        return $profile;
+    }
+}
+
+/**
  * Configures an aggregate connection used for clustering
  * multiple Redis nodes using various implementations with
  * different algorithms or strategies.
@@ -9449,76 +9556,6 @@ class ClusterOption implements OptionInterface
     public function getDefault(OptionsInterface $options)
     {
         return new PredisCluster();
-    }
-}
-
-/**
- * Configures a connection factory used by the client to create new connection
- * instances for single Redis nodes.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ConnectionFactoryOption implements OptionInterface
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function filter(OptionsInterface $options, $value)
-    {
-        if ($value instanceof FactoryInterface) {
-            return $value;
-        } elseif (is_array($value)) {
-            $factory = $this->getDefault($options);
-
-            foreach ($value as $scheme => $initializer) {
-                $factory->define($scheme, $initializer);
-            }
-
-            return $factory;
-        } else {
-            throw new \InvalidArgumentException(
-                'Invalid value provided for the connections option.'
-            );
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefault(OptionsInterface $options)
-    {
-        $factory = new Factory();
-
-        if ($options->defined('parameters')) {
-            $factory->setDefaultParameters($options->parameters);
-        }
-
-        return $factory;
-    }
-}
-
-/**
- * Configures whether consumers (such as the client) should throw exceptions on
- * Redis errors (-ERR responses) or just return instances of error responses.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ExceptionsOption implements OptionInterface
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function filter(OptionsInterface $options, $value)
-    {
-        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefault(OptionsInterface $options)
-    {
-        return true;
     }
 }
 
@@ -9633,88 +9670,6 @@ class Options implements OptionsInterface
 }
 
 /**
- * Configures a command processor that apply the specified prefix string to a
- * series of Redis commands considered prefixable.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class PrefixOption implements OptionInterface
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function filter(OptionsInterface $options, $value)
-    {
-        if ($value instanceof ProcessorInterface) {
-            return $value;
-        }
-
-        return new KeyPrefixProcessor($value);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefault(OptionsInterface $options)
-    {
-        // NOOP
-    }
-}
-
-/**
- * Configures the server profile to be used by the client to create command
- * instances depending on the specified version of the Redis server.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ProfileOption implements OptionInterface
-{
-    /**
-     * Sets the commands processors that need to be applied to the profile.
-     *
-     * @param OptionsInterface $options Client options.
-     * @param ProfileInterface $profile Server profile.
-     */
-    protected function setProcessors(OptionsInterface $options, ProfileInterface $profile)
-    {
-        if (isset($options->prefix) && $profile instanceof RedisProfile) {
-            // NOTE: directly using __get('prefix') is actually a workaround for
-            // HHVM 2.3.0. It's correct and respects the options interface, it's
-            // just ugly. We will remove this hack when HHVM will fix re-entrant
-            // calls to __get() once and for all.
-
-            $profile->setProcessor($options->__get('prefix'));
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function filter(OptionsInterface $options, $value)
-    {
-        if (is_string($value)) {
-            $value = Predis_Factory::get($value);
-            $this->setProcessors($options, $value);
-        } elseif (!$value instanceof ProfileInterface) {
-            throw new \InvalidArgumentException('Invalid value for the profile option.');
-        }
-
-        return $value;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefault(OptionsInterface $options)
-    {
-        $profile = Predis_Factory::getDefault();
-        $this->setProcessors($options, $profile);
-
-        return $profile;
-    }
-}
-
-/**
  * Configures an aggregate connection used for master/slave replication among
  * multiple Redis nodes.
  *
@@ -9773,6 +9728,51 @@ class ReplicationOption implements OptionInterface
     }
 }
 
+/**
+ * Configures a connection factory used by the client to create new connection
+ * instances for single Redis nodes.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ConnectionPredis_FactoryOption implements OptionInterface
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function filter(OptionsInterface $options, $value)
+    {
+        if ($value instanceof Predis_FactoryInterface) {
+            return $value;
+        } elseif (is_array($value)) {
+            $factory = $this->getDefault($options);
+
+            foreach ($value as $scheme => $initializer) {
+                $factory->define($scheme, $initializer);
+            }
+
+            return $factory;
+        } else {
+            throw new \InvalidArgumentException(
+                'Invalid value provided for the connections option.'
+            );
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefault(OptionsInterface $options)
+    {
+        $factory = new Predis_Factory();
+
+        if ($options->defined('parameters')) {
+            $factory->setDefaultParameters($options->parameters);
+        }
+
+        return $factory;
+    }
+}
+
 /* --------------------------------------------------------------------------- */
 
 namespace Predis\Response;
@@ -9809,6 +9809,36 @@ interface ErrorInterface extends ResponseInterface
      * @return string
      */
     public function getErrorType();
+}
+
+/**
+ * Exception class that identifies server-side Redis errors.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ServerException extends PredisException implements ErrorInterface
+{
+    /**
+     * Gets the type of the error returned by Redis.
+     *
+     * @return string
+     */
+    public function getErrorType()
+    {
+        list($errorType) = explode(' ', $this->getMessage(), 2);
+
+        return $errorType;
+    }
+
+    /**
+     * Converts the exception to an instance of Predis\Response\Error.
+     *
+     * @return Error
+     */
+    public function toErrorResponse()
+    {
+        return new Error($this->getMessage());
+    }
 }
 
 /**
@@ -9855,36 +9885,6 @@ class Error implements ErrorInterface
     public function __toString()
     {
         return $this->getMessage();
-    }
-}
-
-/**
- * Exception class that identifies server-side Redis errors.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ServerException extends PredisException implements ErrorInterface
-{
-    /**
-     * Gets the type of the error returned by Redis.
-     *
-     * @return string
-     */
-    public function getErrorType()
-    {
-        list($errorType) = explode(' ', $this->getMessage(), 2);
-
-        return $errorType;
-    }
-
-    /**
-     * Converts the exception to an instance of Predis\Response\Error.
-     *
-     * @return Error
-     */
-    public function toErrorResponse()
-    {
-        return new Error($this->getMessage());
     }
 }
 
@@ -9962,9 +9962,9 @@ namespace Predis\Protocol\Text\Handler;
 use Predis\CommunicationException;
 use Predis\Connection\CompositeConnectionInterface;
 use Predis\Protocol\ProtocolException;
-use Predis\Response\Error;
 use Predis\Response\Status;
 use Predis\Response\Iterator\MultiBulk as MultiBulkIterator;
+use Predis\Response\Error;
 
 /**
  * Defines a pluggable handler used to parse a particular type of response.
@@ -9983,6 +9983,56 @@ interface ResponseHandlerInterface
      * @return mixed
      */
     public function handle(CompositeConnectionInterface $connection, $payload);
+}
+
+/**
+ * Handler for the integer response type in the standard Redis wire protocol.
+ * It translates the payload an integer or NULL.
+ *
+ * @link http://redis.io/topics/protocol
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class IntegerResponse implements ResponseHandlerInterface
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function handle(CompositeConnectionInterface $connection, $payload)
+    {
+        if (is_numeric($payload)) {
+            $integer = (int) $payload;
+            return $integer == $payload ? $integer : $payload;
+        }
+
+        if ($payload !== 'nil') {
+            CommunicationException::handle(new ProtocolException(
+                $connection, "Cannot parse '$payload' as a valid numeric response."
+            ));
+        }
+
+        return;
+    }
+}
+
+/**
+ * Handler for the status response type in the standard Redis wire protocol. It
+ * translates certain classes of status response to PHP objects or just returns
+ * the payload as a string.
+ *
+ * @link http://redis.io/topics/protocol
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class StatusResponse implements ResponseHandlerInterface
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function handle(CompositeConnectionInterface $connection, $payload)
+    {
+        return Status::get($payload);
+    }
 }
 
 /**
@@ -10019,55 +10069,6 @@ class BulkResponse implements ResponseHandlerInterface
         CommunicationException::handle(new ProtocolException(
             $connection, "Value '$payload' is not a valid length for a bulk response."
         ));
-
-        return;
-    }
-}
-
-/**
- * Handler for the error response type in the standard Redis wire protocol.
- * It translates the payload to a complex response object for Predis.
- *
- * @link http://redis.io/topics/protocol
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ErrorResponse implements ResponseHandlerInterface
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function handle(CompositeConnectionInterface $connection, $payload)
-    {
-        return new Error($payload);
-    }
-}
-
-/**
- * Handler for the integer response type in the standard Redis wire protocol.
- * It translates the payload an integer or NULL.
- *
- * @link http://redis.io/topics/protocol
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class IntegerResponse implements ResponseHandlerInterface
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function handle(CompositeConnectionInterface $connection, $payload)
-    {
-        if (is_numeric($payload)) {
-            $integer = (int) $payload;
-            return $integer == $payload ? $integer : $payload;
-        }
-
-        if ($payload !== 'nil') {
-            CommunicationException::handle(new ProtocolException(
-                $connection, "Cannot parse '$payload' as a valid numeric response."
-            ));
-        }
 
         return;
     }
@@ -10126,26 +10127,6 @@ class MultiBulkResponse implements ResponseHandlerInterface
 }
 
 /**
- * Handler for the status response type in the standard Redis wire protocol. It
- * translates certain classes of status response to PHP objects or just returns
- * the payload as a string.
- *
- * @link http://redis.io/topics/protocol
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class StatusResponse implements ResponseHandlerInterface
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function handle(CompositeConnectionInterface $connection, $payload)
-    {
-        return Status::get($payload);
-    }
-}
-
-/**
  * Handler for the multibulk response type in the standard Redis wire protocol.
  * It returns multibulk responses as iterators that can stream bulk elements.
  *
@@ -10175,501 +10156,22 @@ class StreamableMultiBulkResponse implements ResponseHandlerInterface
     }
 }
 
-/* --------------------------------------------------------------------------- */
-
-namespace Predis\Collection\Iterator;
-
-use Predis\ClientInterface;
-use Predis\NotSupportedException;
-
 /**
- * Provides the base implementation for a fully-rewindable PHP iterator that can
- * incrementally iterate over cursor-based collections stored on Redis using the
- * commands in the `SCAN` family.
+ * Handler for the error response type in the standard Redis wire protocol.
+ * It translates the payload to a complex response object for Predis.
  *
- * Given their incremental nature with multiple fetches, these kind of iterators
- * offer limited guarantees about the returned elements because the collection
- * can change several times during the iteration process.
- *
- * @see http://redis.io/commands/scan
+ * @link http://redis.io/topics/protocol
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-abstract class CursorBasedIterator implements \Iterator
-{
-    protected $client;
-    protected $match;
-    protected $count;
-
-    protected $valid;
-    protected $fetchmore;
-    protected $elements;
-    protected $cursor;
-    protected $position;
-    protected $current;
-
-    /**
-     * @param ClientInterface $client Client connected to Redis.
-     * @param string          $match  Pattern to match during the server-side iteration.
-     * @param int             $count  Hint used by Redis to compute the number of results per iteration.
-     */
-    public function __construct(ClientInterface $client, $match = null, $count = null)
-    {
-        $this->client = $client;
-        $this->match = $match;
-        $this->count = $count;
-
-        $this->reset();
-    }
-
-    /**
-     * Ensures that the client supports the specified Redis command required to
-     * fetch elements from the server to perform the iteration.
-     *
-     * @param ClientInterface $client    Client connected to Redis.
-     * @param string          $commandID Command ID.
-     *
-     * @throws NotSupportedException
-     */
-    protected function requiredCommand(ClientInterface $client, $commandID)
-    {
-        if (!$client->getProfile()->supportsCommand($commandID)) {
-            throw new NotSupportedException("The current profile does not support '$commandID'.");
-        }
-    }
-
-    /**
-     * Resets the inner state of the iterator.
-     */
-    protected function reset()
-    {
-        $this->valid = true;
-        $this->fetchmore = true;
-        $this->elements = array();
-        $this->cursor = 0;
-        $this->position = -1;
-        $this->current = null;
-    }
-
-    /**
-     * Returns an array of options for the `SCAN` command.
-     *
-     * @return array
-     */
-    protected function getScanOptions()
-    {
-        $options = array();
-
-        if (strlen($this->match) > 0) {
-            $options['MATCH'] = $this->match;
-        }
-
-        if ($this->count > 0) {
-            $options['COUNT'] = $this->count;
-        }
-
-        return $options;
-    }
-
-    /**
-     * Fetches a new set of elements from the remote collection, effectively
-     * advancing the iteration process.
-     *
-     * @return array
-     */
-    abstract protected function executeCommand();
-
-    /**
-     * Populates the local buffer of elements fetched from the server during
-     * the iteration.
-     */
-    protected function fetch()
-    {
-        list($cursor, $elements) = $this->executeCommand();
-
-        if (!$cursor) {
-            $this->fetchmore = false;
-        }
-
-        $this->cursor = $cursor;
-        $this->elements = $elements;
-    }
-
-    /**
-     * Extracts next values for key() and current().
-     */
-    protected function extractNext()
-    {
-        ++$this->position;
-        $this->current = array_shift($this->elements);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function rewind()
-    {
-        $this->reset();
-        $this->next();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function current()
-    {
-        return $this->current;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function key()
-    {
-        return $this->position;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function next()
-    {
-        tryFetch: {
-            if (!$this->elements && $this->fetchmore) {
-                $this->fetch();
-            }
-
-            if ($this->elements) {
-                $this->extractNext();
-            } elseif ($this->cursor) {
-                goto tryFetch;
-            } else {
-                $this->valid = false;
-            }
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function valid()
-    {
-        return $this->valid;
-    }
-}
-
-/**
- * Abstracts the iteration of fields and values of an hash by leveraging the
- * HSCAN command (Redis >= 2.8) wrapped in a fully-rewindable PHP iterator.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- *
- * @link http://redis.io/commands/scan
- */
-class HashKey extends CursorBasedIterator
-{
-    protected $key;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(ClientInterface $client, $key, $match = null, $count = null)
-    {
-        $this->requiredCommand($client, 'HSCAN');
-
-        parent::__construct($client, $match, $count);
-
-        $this->key = $key;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function executeCommand()
-    {
-        return $this->client->hscan($this->key, $this->cursor, $this->getScanOptions());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function extractNext()
-    {
-        if ($kv = each($this->elements)) {
-            $this->position = $kv[0];
-            $this->current = $kv[1];
-
-            unset($this->elements[$this->position]);
-        }
-    }
-}
-
-/**
- * Abstracts the iteration of the keyspace on a Redis instance by leveraging the
- * SCAN command (Redis >= 2.8) wrapped in a fully-rewindable PHP iterator.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- *
- * @link http://redis.io/commands/scan
- */
-class Keyspace extends CursorBasedIterator
+class ErrorResponse implements ResponseHandlerInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function __construct(ClientInterface $client, $match = null, $count = null)
+    public function handle(CompositeConnectionInterface $connection, $payload)
     {
-        $this->requiredCommand($client, 'SCAN');
-
-        parent::__construct($client, $match, $count);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function executeCommand()
-    {
-        return $this->client->scan($this->cursor, $this->getScanOptions());
-    }
-}
-
-/**
- * Abstracts the iteration of items stored in a list by leveraging the LRANGE
- * command wrapped in a fully-rewindable PHP iterator.
- *
- * This iterator tries to emulate the behaviour of cursor-based iterators based
- * on the SCAN-family of commands introduced in Redis <= 2.8, meaning that due
- * to its incremental nature with multiple fetches it can only offer limited
- * guarantees on the returned elements because the collection can change several
- * times (trimmed, deleted, overwritten) during the iteration process.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- *
- * @link http://redis.io/commands/lrange
- */
-class ListKey implements \Iterator
-{
-    protected $client;
-    protected $count;
-    protected $key;
-
-    protected $valid;
-    protected $fetchmore;
-    protected $elements;
-    protected $position;
-    protected $current;
-
-    /**
-     * @param ClientInterface $client Client connected to Redis.
-     * @param string          $key    Redis list key.
-     * @param int             $count  Number of items retrieved on each fetch operation.
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function __construct(ClientInterface $client, $key, $count = 10)
-    {
-        $this->requiredCommand($client, 'LRANGE');
-
-        if ((false === $count = filter_var($count, FILTER_VALIDATE_INT)) || $count < 0) {
-            throw new \InvalidArgumentException('The $count argument must be a positive integer.');
-        }
-
-        $this->client = $client;
-        $this->key = $key;
-        $this->count = $count;
-
-        $this->reset();
-    }
-
-    /**
-     * Ensures that the client instance supports the specified Redis command
-     * required to fetch elements from the server to perform the iteration.
-     *
-     * @param ClientInterface $client    Client connected to Redis.
-     * @param string          $commandID Command ID.
-     *
-     * @throws NotSupportedException
-     */
-    protected function requiredCommand(ClientInterface $client, $commandID)
-    {
-        if (!$client->getProfile()->supportsCommand($commandID)) {
-            throw new NotSupportedException("The current profile does not support '$commandID'.");
-        }
-    }
-
-    /**
-     * Resets the inner state of the iterator.
-     */
-    protected function reset()
-    {
-        $this->valid = true;
-        $this->fetchmore = true;
-        $this->elements = array();
-        $this->position = -1;
-        $this->current = null;
-    }
-
-    /**
-     * Fetches a new set of elements from the remote collection, effectively
-     * advancing the iteration process.
-     *
-     * @return array
-     */
-    protected function executeCommand()
-    {
-        return $this->client->lrange($this->key, $this->position + 1, $this->position + $this->count);
-    }
-
-    /**
-     * Populates the local buffer of elements fetched from the server during the
-     * iteration.
-     */
-    protected function fetch()
-    {
-        $elements = $this->executeCommand();
-
-        if (count($elements) < $this->count) {
-            $this->fetchmore = false;
-        }
-
-        $this->elements = $elements;
-    }
-
-    /**
-     * Extracts next values for key() and current().
-     */
-    protected function extractNext()
-    {
-        ++$this->position;
-        $this->current = array_shift($this->elements);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function rewind()
-    {
-        $this->reset();
-        $this->next();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function current()
-    {
-        return $this->current;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function key()
-    {
-        return $this->position;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function next()
-    {
-        if (!$this->elements && $this->fetchmore) {
-            $this->fetch();
-        }
-
-        if ($this->elements) {
-            $this->extractNext();
-        } else {
-            $this->valid = false;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function valid()
-    {
-        return $this->valid;
-    }
-}
-
-/**
- * Abstracts the iteration of members stored in a set by leveraging the SSCAN
- * command (Redis >= 2.8) wrapped in a fully-rewindable PHP iterator.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- *
- * @link http://redis.io/commands/scan
- */
-class SetKey extends CursorBasedIterator
-{
-    protected $key;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(ClientInterface $client, $key, $match = null, $count = null)
-    {
-        $this->requiredCommand($client, 'SSCAN');
-
-        parent::__construct($client, $match, $count);
-
-        $this->key = $key;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function executeCommand()
-    {
-        return $this->client->sscan($this->key, $this->cursor, $this->getScanOptions());
-    }
-}
-
-/**
- * Abstracts the iteration of members stored in a sorted set by leveraging the
- * ZSCAN command (Redis >= 2.8) wrapped in a fully-rewindable PHP iterator.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- *
- * @link http://redis.io/commands/scan
- */
-class SortedSetKey extends CursorBasedIterator
-{
-    protected $key;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(ClientInterface $client, $key, $match = null, $count = null)
-    {
-        $this->requiredCommand($client, 'ZSCAN');
-
-        parent::__construct($client, $match, $count);
-
-        $this->key = $key;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function executeCommand()
-    {
-        return $this->client->zscan($this->key, $this->cursor, $this->getScanOptions());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function extractNext()
-    {
-        if ($kv = each($this->elements)) {
-            $this->position = $kv[0];
-            $this->current = $kv[1];
-
-            unset($this->elements[$this->position]);
-        }
+        return new Error($payload);
     }
 }
 
@@ -10678,33 +10180,23 @@ class SortedSetKey extends CursorBasedIterator
 namespace Predis\Connection\Aggregate;
 
 use Predis\Connection\AggregateConnectionInterface;
+use Predis\Connection\NodeConnectionInterface;
 use Predis\ClientException;
 use Predis\Command\CommandInterface;
 use Predis\Command\RawCommand;
 use Predis\Connection\ConnectionException;
 use Predis\Connection\FactoryInterface;
-use Predis\Connection\NodeConnectionInterface;
 use Predis\Replication\MissingMasterException;
 use Predis\Replication\ReplicationStrategy;
 use Predis\Response\ErrorInterface as ResponseErrorInterface;
 use Predis\Cluster\PredisStrategy;
 use Predis\Cluster\StrategyInterface;
 use Predis\NotSupportedException;
-use Predis\Cluster\RedisStrategy as RedisClusterStrategy;
 use Predis\CommunicationException;
 use Predis\Connection\Parameters;
 use Predis\Replication\RoleException;
 use Predis\Response\ServerException;
-
-/**
- * Defines a cluster of Redis servers formed by aggregating multiple connection
- * instances to single Redis nodes.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-interface ClusterInterface extends AggregateConnectionInterface
-{
-}
+use Predis\Cluster\RedisStrategy as RedisClusterStrategy;
 
 /**
  * Defines a group of Redis nodes in a master / slave replication setup.
@@ -10741,6 +10233,16 @@ interface ReplicationInterface extends AggregateConnectionInterface
      * @return NodeConnectionInterface
      */
     public function getSlaves();
+}
+
+/**
+ * Defines a cluster of Redis servers formed by aggregating multiple connection
+ * instances to single Redis nodes.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+interface ClusterInterface extends AggregateConnectionInterface
+{
 }
 
 /**
@@ -11448,656 +10950,6 @@ class PredisCluster implements ClusterInterface, \IteratorAggregate, \Countable
 }
 
 /**
- * Abstraction for a Redis-backed cluster of nodes (Redis >= 3.0.0).
- *
- * This connection backend offers smart support for redis-cluster by handling
- * automatic slots map (re)generation upon -MOVED or -ASK responses returned by
- * Redis when redirecting a client to a different node.
- *
- * The cluster can be pre-initialized using only a subset of the actual nodes in
- * the cluster, Predis will do the rest by adjusting the slots map and creating
- * the missing underlying connection instances on the fly.
- *
- * It is possible to pre-associate connections to a slots range with the "slots"
- * parameter in the form "$first-$last". This can greatly reduce runtime node
- * guessing and redirections.
- *
- * It is also possible to ask for the full and updated slots map directly to one
- * of the nodes and optionally enable such a behaviour upon -MOVED redirections.
- * Asking for the cluster configuration to Redis is actually done by issuing a
- * CLUSTER SLOTS command to a random node in the pool.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class RedisCluster implements ClusterInterface, \IteratorAggregate, \Countable
-{
-    private $useClusterSlots = true;
-    private $pool = array();
-    private $slots = array();
-    private $slotsMap;
-    private $strategy;
-    private $connections;
-    private $retryLimit = 5;
-
-    /**
-     * @param FactoryInterface  $connections Optional connection factory.
-     * @param StrategyInterface $strategy    Optional cluster strategy.
-     */
-    public function __construct(
-        FactoryInterface $connections,
-        StrategyInterface $strategy = null
-    ) {
-        $this->connections = $connections;
-        $this->strategy = $strategy ?: new RedisClusterStrategy();
-    }
-
-    /**
-     * Sets the maximum number of retries for commands upon server failure.
-     *
-     * -1 = unlimited retry attempts
-     *  0 = no retry attempts (fails immediatly)
-     *  n = fail only after n retry attempts
-     *
-     * @param int $retry Number of retry attempts.
-     */
-    public function setRetryLimit($retry)
-    {
-        $this->retryLimit = (int) $retry;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isConnected()
-    {
-        foreach ($this->pool as $connection) {
-            if ($connection->isConnected()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function connect()
-    {
-        if ($connection = $this->getRandomConnection()) {
-            $connection->connect();
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function disconnect()
-    {
-        foreach ($this->pool as $connection) {
-            $connection->disconnect();
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function add(NodeConnectionInterface $connection)
-    {
-        $this->pool[(string) $connection] = $connection;
-        unset($this->slotsMap);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function remove(NodeConnectionInterface $connection)
-    {
-        if (false !== $id = array_search($connection, $this->pool, true)) {
-            unset(
-                $this->pool[$id],
-                $this->slotsMap
-            );
-
-            $this->slots = array_diff($this->slots, array($connection));
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Removes a connection instance by using its identifier.
-     *
-     * @param string $connectionID Connection identifier.
-     *
-     * @return bool True if the connection was in the pool.
-     */
-    public function removeById($connectionID)
-    {
-        if (isset($this->pool[$connectionID])) {
-            unset(
-                $this->pool[$connectionID],
-                $this->slotsMap
-            );
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Generates the current slots map by guessing the cluster configuration out
-     * of the connection parameters of the connections in the pool.
-     *
-     * Generation is based on the same algorithm used by Redis to generate the
-     * cluster, so it is most effective when all of the connections supplied on
-     * initialization have the "slots" parameter properly set accordingly to the
-     * current cluster configuration.
-     *
-     * @return array
-     */
-    public function buildSlotsMap()
-    {
-        $this->slotsMap = array();
-
-        foreach ($this->pool as $connectionID => $connection) {
-            $parameters = $connection->getParameters();
-
-            if (!isset($parameters->slots)) {
-                continue;
-            }
-
-            foreach (explode(',', $parameters->slots) as $slotRange) {
-                $slots = explode('-', $slotRange, 2);
-
-                if (!isset($slots[1])) {
-                    $slots[1] = $slots[0];
-                }
-
-                $this->setSlots($slots[0], $slots[1], $connectionID);
-            }
-        }
-
-        return $this->slotsMap;
-    }
-
-    /**
-     * Queries the specified node of the cluster to fetch the updated slots map.
-     *
-     * When the connection fails, this method tries to execute the same command
-     * on a different connection picked at random from the pool of known nodes,
-     * up until the retry limit is reached.
-     *
-     * @param NodeConnectionInterface $connection Connection to a node of the cluster.
-     *
-     * @return mixed
-     */
-    private function queryClusterNodeForSlotsMap(NodeConnectionInterface $connection)
-    {
-        $retries = 0;
-        $command = RawCommand::create('CLUSTER', 'SLOTS');
-
-        RETRY_COMMAND: {
-            try {
-                $response = $connection->executeCommand($command);
-            } catch (ConnectionException $exception) {
-                $connection = $exception->getConnection();
-                $connection->disconnect();
-
-                $this->remove($connection);
-
-                if ($retries === $this->retryLimit) {
-                    throw $exception;
-                }
-
-                if (!$connection = $this->getRandomConnection()) {
-                    throw new ClientException('No connections left in the pool for `CLUSTER SLOTS`');
-                }
-
-                ++$retries;
-                goto RETRY_COMMAND;
-            }
-        }
-
-        return $response;
-    }
-
-    /**
-     * Generates an updated slots map fetching the cluster configuration using
-     * the CLUSTER SLOTS command against the specified node or a random one from
-     * the pool.
-     *
-     * @param NodeConnectionInterface $connection Optional connection instance.
-     *
-     * @return array
-     */
-    public function askSlotsMap(NodeConnectionInterface $connection = null)
-    {
-        if (!$connection && !$connection = $this->getRandomConnection()) {
-            return array();
-        }
-
-        $this->resetSlotsMap();
-
-        $response = $this->queryClusterNodeForSlotsMap($connection);
-
-        foreach ($response as $slots) {
-            // We only support master servers for now, so we ignore subsequent
-            // elements in the $slots array identifying slaves.
-            list($start, $end, $master) = $slots;
-
-            if ($master[0] === '') {
-                $this->setSlots($start, $end, (string) $connection);
-            } else {
-                $this->setSlots($start, $end, "{$master[0]}:{$master[1]}");
-            }
-        }
-
-        return $this->slotsMap;
-    }
-
-    /**
-     * Resets the slots map cache.
-     */
-    public function resetSlotsMap()
-    {
-        $this->slotsMap = array();
-    }
-
-    /**
-     * Returns the current slots map for the cluster.
-     *
-     * The order of the returned $slot => $server dictionary is not guaranteed.
-     *
-     * @return array
-     */
-    public function getSlotsMap()
-    {
-        if (!isset($this->slotsMap)) {
-            $this->slotsMap = array();
-        }
-
-        return $this->slotsMap;
-    }
-
-    /**
-     * Pre-associates a connection to a slots range to avoid runtime guessing.
-     *
-     * @param int                            $first      Initial slot of the range.
-     * @param int                            $last       Last slot of the range.
-     * @param NodeConnectionInterface|string $connection ID or connection instance.
-     *
-     * @throws \OutOfBoundsException
-     */
-    public function setSlots($first, $last, $connection)
-    {
-        if ($first < 0x0000 || $first > 0x3FFF ||
-            $last < 0x0000 || $last > 0x3FFF ||
-            $last < $first
-        ) {
-            throw new \OutOfBoundsException(
-                "Invalid slot range for $connection: [$first-$last]."
-            );
-        }
-
-        $slots = array_fill($first, $last - $first + 1, (string) $connection);
-        $this->slotsMap = $this->getSlotsMap() + $slots;
-    }
-
-    /**
-     * Guesses the correct node associated to a given slot using a precalculated
-     * slots map, falling back to the same logic used by Redis to initialize a
-     * cluster (best-effort).
-     *
-     * @param int $slot Slot index.
-     *
-     * @return string Connection ID.
-     */
-    protected function guessNode($slot)
-    {
-        if (!$this->pool) {
-            throw new ClientException('No connections available in the pool');
-        }
-
-        if (!isset($this->slotsMap)) {
-            $this->buildSlotsMap();
-        }
-
-        if (isset($this->slotsMap[$slot])) {
-            return $this->slotsMap[$slot];
-        }
-
-        $count = count($this->pool);
-        $index = min((int) ($slot / (int) (16384 / $count)), $count - 1);
-        $nodes = array_keys($this->pool);
-
-        return $nodes[$index];
-    }
-
-    /**
-     * Creates a new connection instance from the given connection ID.
-     *
-     * @param string $connectionID Identifier for the connection.
-     *
-     * @return NodeConnectionInterface
-     */
-    protected function createConnection($connectionID)
-    {
-        $separator = strrpos($connectionID, ':');
-
-        return $this->connections->create(array(
-            'host' => substr($connectionID, 0, $separator),
-            'port' => substr($connectionID, $separator + 1),
-        ));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConnection(CommandInterface $command)
-    {
-        $slot = $this->strategy->getSlot($command);
-
-        if (!isset($slot)) {
-            throw new NotSupportedException(
-                "Cannot use '{$command->getId()}' with redis-cluster."
-            );
-        }
-
-        if (isset($this->slots[$slot])) {
-            return $this->slots[$slot];
-        } else {
-            return $this->getConnectionBySlot($slot);
-        }
-    }
-
-    /**
-     * Returns the connection currently associated to a given slot.
-     *
-     * @param int $slot Slot index.
-     *
-     * @throws \OutOfBoundsException
-     *
-     * @return NodeConnectionInterface
-     */
-    public function getConnectionBySlot($slot)
-    {
-        if ($slot < 0x0000 || $slot > 0x3FFF) {
-            throw new \OutOfBoundsException("Invalid slot [$slot].");
-        }
-
-        if (isset($this->slots[$slot])) {
-            return $this->slots[$slot];
-        }
-
-        $connectionID = $this->guessNode($slot);
-
-        if (!$connection = $this->getConnectionById($connectionID)) {
-            $connection = $this->createConnection($connectionID);
-            $this->pool[$connectionID] = $connection;
-        }
-
-        return $this->slots[$slot] = $connection;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConnectionById($connectionID)
-    {
-        if (isset($this->pool[$connectionID])) {
-            return $this->pool[$connectionID];
-        }
-    }
-
-    /**
-     * Returns a random connection from the pool.
-     *
-     * @return NodeConnectionInterface|null
-     */
-    protected function getRandomConnection()
-    {
-        if ($this->pool) {
-            return $this->pool[array_rand($this->pool)];
-        }
-    }
-
-    /**
-     * Permanently associates the connection instance to a new slot.
-     * The connection is added to the connections pool if not yet included.
-     *
-     * @param NodeConnectionInterface $connection Connection instance.
-     * @param int                     $slot       Target slot index.
-     */
-    protected function move(NodeConnectionInterface $connection, $slot)
-    {
-        $this->pool[(string) $connection] = $connection;
-        $this->slots[(int) $slot] = $connection;
-    }
-
-    /**
-     * Handles -ERR responses returned by Redis.
-     *
-     * @param CommandInterface       $command Command that generated the -ERR response.
-     * @param ErrorResponseInterface $error   Redis error response object.
-     *
-     * @return mixed
-     */
-    protected function onErrorResponse(CommandInterface $command, ErrorResponseInterface $error)
-    {
-        $details = explode(' ', $error->getMessage(), 2);
-
-        switch ($details[0]) {
-            case 'MOVED':
-                return $this->onMovedResponse($command, $details[1]);
-
-            case 'ASK':
-                return $this->onAskResponse($command, $details[1]);
-
-            default:
-                return $error;
-        }
-    }
-
-    /**
-     * Handles -MOVED responses by executing again the command against the node
-     * indicated by the Redis response.
-     *
-     * @param CommandInterface $command Command that generated the -MOVED response.
-     * @param string           $details Parameters of the -MOVED response.
-     *
-     * @return mixed
-     */
-    protected function onMovedResponse(CommandInterface $command, $details)
-    {
-        list($slot, $connectionID) = explode(' ', $details, 2);
-
-        if (!$connection = $this->getConnectionById($connectionID)) {
-            $connection = $this->createConnection($connectionID);
-        }
-
-        if ($this->useClusterSlots) {
-            $this->askSlotsMap($connection);
-        }
-
-        $this->move($connection, $slot);
-        $response = $this->executeCommand($command);
-
-        return $response;
-    }
-
-    /**
-     * Handles -ASK responses by executing again the command against the node
-     * indicated by the Redis response.
-     *
-     * @param CommandInterface $command Command that generated the -ASK response.
-     * @param string           $details Parameters of the -ASK response.
-     *
-     * @return mixed
-     */
-    protected function onAskResponse(CommandInterface $command, $details)
-    {
-        list($slot, $connectionID) = explode(' ', $details, 2);
-
-        if (!$connection = $this->getConnectionById($connectionID)) {
-            $connection = $this->createConnection($connectionID);
-        }
-
-        $connection->executeCommand(RawCommand::create('ASKING'));
-        $response = $connection->executeCommand($command);
-
-        return $response;
-    }
-
-    /**
-     * Ensures that a command is executed one more time on connection failure.
-     *
-     * The connection to the node that generated the error is evicted from the
-     * pool before trying to fetch an updated slots map from another node. If
-     * the new slots map points to an unreachable server the client gives up and
-     * throws the exception as the nodes participating in the cluster may still
-     * have to agree that something changed in the configuration of the cluster.
-     *
-     * @param CommandInterface $command Command instance.
-     * @param string           $method  Actual method.
-     *
-     * @return mixed
-     */
-    private function retryCommandOnFailure(CommandInterface $command, $method)
-    {
-        $failure = false;
-
-        RETRY_COMMAND: {
-            try {
-                $response = $this->getConnection($command)->$method($command);
-            } catch (ConnectionException $exception) {
-                $connection = $exception->getConnection();
-                $connection->disconnect();
-
-                $this->remove($connection);
-
-                if ($failure) {
-                    throw $exception;
-                } elseif ($this->useClusterSlots) {
-                    $this->askSlotsMap();
-                }
-
-                $failure = true;
-
-                goto RETRY_COMMAND;
-            }
-        }
-
-        return $response;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function writeRequest(CommandInterface $command)
-    {
-        $this->retryCommandOnFailure($command, __FUNCTION__);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function readResponse(CommandInterface $command)
-    {
-        return $this->retryCommandOnFailure($command, __FUNCTION__);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function executeCommand(CommandInterface $command)
-    {
-        $response = $this->retryCommandOnFailure($command, __FUNCTION__);
-
-        if ($response instanceof ErrorResponseInterface) {
-            return $this->onErrorResponse($command, $response);
-        }
-
-        return $response;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function count()
-    {
-        return count($this->pool);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getIterator()
-    {
-        if ($this->useClusterSlots) {
-            $slotsmap = $this->getSlotsMap() ?: $this->askSlotsMap();
-        } else {
-            $slotsmap = $this->getSlotsMap() ?: $this->buildSlotsMap();
-        }
-
-        $connections = array();
-
-        foreach (array_unique($slotsmap) as $node) {
-            if (!$connection = $this->getConnectionById($node)) {
-                $this->add($connection = $this->createConnection($node));
-            }
-
-            $connections[] = $connection;
-        }
-
-        return new \ArrayIterator($connections);
-    }
-
-    /**
-     * Returns the underlying command hash strategy used to hash commands by
-     * using keys found in their arguments.
-     *
-     * @return StrategyInterface
-     */
-    public function getClusterStrategy()
-    {
-        return $this->strategy;
-    }
-
-    /**
-     * Returns the underlying connection factory used to create new connection
-     * instances to Redis nodes indicated by redis-cluster.
-     *
-     * @return FactoryInterface
-     */
-    public function getConnectionFactory()
-    {
-        return $this->connections;
-    }
-
-    /**
-     * Enables automatic fetching of the current slots map from one of the nodes
-     * using the CLUSTER SLOTS command. This option is enabled by default as
-     * asking the current slots map to Redis upon -MOVED responses may reduce
-     * overhead by eliminating the trial-and-error nature of the node guessing
-     * procedure, mostly when targeting many keys that would end up in a lot of
-     * redirections.
-     *
-     * The slots map can still be manually fetched using the askSlotsMap()
-     * method whether or not this option is enabled.
-     *
-     * @param bool $value Enable or disable the use of CLUSTER SLOTS.
-     */
-    public function useClusterSlots($value)
-    {
-        $this->useClusterSlots = (bool) $value;
-    }
-}
-
-/**
  * @author Daniele Alessandri <suppakilla@gmail.com>
  * @author Ville Mattila <ville@eventio.fi>
  */
@@ -12793,17 +11645,1165 @@ class SentinelReplication implements ReplicationInterface
     }
 }
 
+/**
+ * Abstraction for a Redis-backed cluster of nodes (Redis >= 3.0.0).
+ *
+ * This connection backend offers smart support for redis-cluster by handling
+ * automatic slots map (re)generation upon -MOVED or -ASK responses returned by
+ * Redis when redirecting a client to a different node.
+ *
+ * The cluster can be pre-initialized using only a subset of the actual nodes in
+ * the cluster, Predis will do the rest by adjusting the slots map and creating
+ * the missing underlying connection instances on the fly.
+ *
+ * It is possible to pre-associate connections to a slots range with the "slots"
+ * parameter in the form "$first-$last". This can greatly reduce runtime node
+ * guessing and redirections.
+ *
+ * It is also possible to ask for the full and updated slots map directly to one
+ * of the nodes and optionally enable such a behaviour upon -MOVED redirections.
+ * Asking for the cluster configuration to Redis is actually done by issuing a
+ * CLUSTER SLOTS command to a random node in the pool.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class RedisCluster implements ClusterInterface, \IteratorAggregate, \Countable
+{
+    private $useClusterSlots = true;
+    private $pool = array();
+    private $slots = array();
+    private $slotsMap;
+    private $strategy;
+    private $connections;
+    private $retryLimit = 5;
+
+    /**
+     * @param FactoryInterface  $connections Optional connection factory.
+     * @param StrategyInterface $strategy    Optional cluster strategy.
+     */
+    public function __construct(
+        FactoryInterface $connections,
+        StrategyInterface $strategy = null
+    ) {
+        $this->connections = $connections;
+        $this->strategy = $strategy ?: new RedisClusterStrategy();
+    }
+
+    /**
+     * Sets the maximum number of retries for commands upon server failure.
+     *
+     * -1 = unlimited retry attempts
+     *  0 = no retry attempts (fails immediatly)
+     *  n = fail only after n retry attempts
+     *
+     * @param int $retry Number of retry attempts.
+     */
+    public function setRetryLimit($retry)
+    {
+        $this->retryLimit = (int) $retry;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isConnected()
+    {
+        foreach ($this->pool as $connection) {
+            if ($connection->isConnected()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function connect()
+    {
+        if ($connection = $this->getRandomConnection()) {
+            $connection->connect();
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function disconnect()
+    {
+        foreach ($this->pool as $connection) {
+            $connection->disconnect();
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function add(NodeConnectionInterface $connection)
+    {
+        $this->pool[(string) $connection] = $connection;
+        unset($this->slotsMap);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function remove(NodeConnectionInterface $connection)
+    {
+        if (false !== $id = array_search($connection, $this->pool, true)) {
+            unset(
+                $this->pool[$id],
+                $this->slotsMap
+            );
+
+            $this->slots = array_diff($this->slots, array($connection));
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Removes a connection instance by using its identifier.
+     *
+     * @param string $connectionID Connection identifier.
+     *
+     * @return bool True if the connection was in the pool.
+     */
+    public function removeById($connectionID)
+    {
+        if (isset($this->pool[$connectionID])) {
+            unset(
+                $this->pool[$connectionID],
+                $this->slotsMap
+            );
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Generates the current slots map by guessing the cluster configuration out
+     * of the connection parameters of the connections in the pool.
+     *
+     * Generation is based on the same algorithm used by Redis to generate the
+     * cluster, so it is most effective when all of the connections supplied on
+     * initialization have the "slots" parameter properly set accordingly to the
+     * current cluster configuration.
+     *
+     * @return array
+     */
+    public function buildSlotsMap()
+    {
+        $this->slotsMap = array();
+
+        foreach ($this->pool as $connectionID => $connection) {
+            $parameters = $connection->getParameters();
+
+            if (!isset($parameters->slots)) {
+                continue;
+            }
+
+            foreach (explode(',', $parameters->slots) as $slotRange) {
+                $slots = explode('-', $slotRange, 2);
+
+                if (!isset($slots[1])) {
+                    $slots[1] = $slots[0];
+                }
+
+                $this->setSlots($slots[0], $slots[1], $connectionID);
+            }
+        }
+
+        return $this->slotsMap;
+    }
+
+    /**
+     * Queries the specified node of the cluster to fetch the updated slots map.
+     *
+     * When the connection fails, this method tries to execute the same command
+     * on a different connection picked at random from the pool of known nodes,
+     * up until the retry limit is reached.
+     *
+     * @param NodeConnectionInterface $connection Connection to a node of the cluster.
+     *
+     * @return mixed
+     */
+    private function queryClusterNodeForSlotsMap(NodeConnectionInterface $connection)
+    {
+        $retries = 0;
+        $command = RawCommand::create('CLUSTER', 'SLOTS');
+
+        RETRY_COMMAND: {
+            try {
+                $response = $connection->executeCommand($command);
+            } catch (ConnectionException $exception) {
+                $connection = $exception->getConnection();
+                $connection->disconnect();
+
+                $this->remove($connection);
+
+                if ($retries === $this->retryLimit) {
+                    throw $exception;
+                }
+
+                if (!$connection = $this->getRandomConnection()) {
+                    throw new ClientException('No connections left in the pool for `CLUSTER SLOTS`');
+                }
+
+                ++$retries;
+                goto RETRY_COMMAND;
+            }
+        }
+
+        return $response;
+    }
+
+    /**
+     * Generates an updated slots map fetching the cluster configuration using
+     * the CLUSTER SLOTS command against the specified node or a random one from
+     * the pool.
+     *
+     * @param NodeConnectionInterface $connection Optional connection instance.
+     *
+     * @return array
+     */
+    public function askSlotsMap(NodeConnectionInterface $connection = null)
+    {
+        if (!$connection && !$connection = $this->getRandomConnection()) {
+            return array();
+        }
+
+        $this->resetSlotsMap();
+
+        $response = $this->queryClusterNodeForSlotsMap($connection);
+
+        foreach ($response as $slots) {
+            // We only support master servers for now, so we ignore subsequent
+            // elements in the $slots array identifying slaves.
+            list($start, $end, $master) = $slots;
+
+            if ($master[0] === '') {
+                $this->setSlots($start, $end, (string) $connection);
+            } else {
+                $this->setSlots($start, $end, "{$master[0]}:{$master[1]}");
+            }
+        }
+
+        return $this->slotsMap;
+    }
+
+    /**
+     * Resets the slots map cache.
+     */
+    public function resetSlotsMap()
+    {
+        $this->slotsMap = array();
+    }
+
+    /**
+     * Returns the current slots map for the cluster.
+     *
+     * The order of the returned $slot => $server dictionary is not guaranteed.
+     *
+     * @return array
+     */
+    public function getSlotsMap()
+    {
+        if (!isset($this->slotsMap)) {
+            $this->slotsMap = array();
+        }
+
+        return $this->slotsMap;
+    }
+
+    /**
+     * Pre-associates a connection to a slots range to avoid runtime guessing.
+     *
+     * @param int                            $first      Initial slot of the range.
+     * @param int                            $last       Last slot of the range.
+     * @param NodeConnectionInterface|string $connection ID or connection instance.
+     *
+     * @throws \OutOfBoundsException
+     */
+    public function setSlots($first, $last, $connection)
+    {
+        if ($first < 0x0000 || $first > 0x3FFF ||
+            $last < 0x0000 || $last > 0x3FFF ||
+            $last < $first
+        ) {
+            throw new \OutOfBoundsException(
+                "Invalid slot range for $connection: [$first-$last]."
+            );
+        }
+
+        $slots = array_fill($first, $last - $first + 1, (string) $connection);
+        $this->slotsMap = $this->getSlotsMap() + $slots;
+    }
+
+    /**
+     * Guesses the correct node associated to a given slot using a precalculated
+     * slots map, falling back to the same logic used by Redis to initialize a
+     * cluster (best-effort).
+     *
+     * @param int $slot Slot index.
+     *
+     * @return string Connection ID.
+     */
+    protected function guessNode($slot)
+    {
+        if (!$this->pool) {
+            throw new ClientException('No connections available in the pool');
+        }
+
+        if (!isset($this->slotsMap)) {
+            $this->buildSlotsMap();
+        }
+
+        if (isset($this->slotsMap[$slot])) {
+            return $this->slotsMap[$slot];
+        }
+
+        $count = count($this->pool);
+        $index = min((int) ($slot / (int) (16384 / $count)), $count - 1);
+        $nodes = array_keys($this->pool);
+
+        return $nodes[$index];
+    }
+
+    /**
+     * Creates a new connection instance from the given connection ID.
+     *
+     * @param string $connectionID Identifier for the connection.
+     *
+     * @return NodeConnectionInterface
+     */
+    protected function createConnection($connectionID)
+    {
+        $separator = strrpos($connectionID, ':');
+
+        return $this->connections->create(array(
+            'host' => substr($connectionID, 0, $separator),
+            'port' => substr($connectionID, $separator + 1),
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConnection(CommandInterface $command)
+    {
+        $slot = $this->strategy->getSlot($command);
+
+        if (!isset($slot)) {
+            throw new NotSupportedException(
+                "Cannot use '{$command->getId()}' with redis-cluster."
+            );
+        }
+
+        if (isset($this->slots[$slot])) {
+            return $this->slots[$slot];
+        } else {
+            return $this->getConnectionBySlot($slot);
+        }
+    }
+
+    /**
+     * Returns the connection currently associated to a given slot.
+     *
+     * @param int $slot Slot index.
+     *
+     * @throws \OutOfBoundsException
+     *
+     * @return NodeConnectionInterface
+     */
+    public function getConnectionBySlot($slot)
+    {
+        if ($slot < 0x0000 || $slot > 0x3FFF) {
+            throw new \OutOfBoundsException("Invalid slot [$slot].");
+        }
+
+        if (isset($this->slots[$slot])) {
+            return $this->slots[$slot];
+        }
+
+        $connectionID = $this->guessNode($slot);
+
+        if (!$connection = $this->getConnectionById($connectionID)) {
+            $connection = $this->createConnection($connectionID);
+            $this->pool[$connectionID] = $connection;
+        }
+
+        return $this->slots[$slot] = $connection;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConnectionById($connectionID)
+    {
+        if (isset($this->pool[$connectionID])) {
+            return $this->pool[$connectionID];
+        }
+    }
+
+    /**
+     * Returns a random connection from the pool.
+     *
+     * @return NodeConnectionInterface|null
+     */
+    protected function getRandomConnection()
+    {
+        if ($this->pool) {
+            return $this->pool[array_rand($this->pool)];
+        }
+    }
+
+    /**
+     * Permanently associates the connection instance to a new slot.
+     * The connection is added to the connections pool if not yet included.
+     *
+     * @param NodeConnectionInterface $connection Connection instance.
+     * @param int                     $slot       Target slot index.
+     */
+    protected function move(NodeConnectionInterface $connection, $slot)
+    {
+        $this->pool[(string) $connection] = $connection;
+        $this->slots[(int) $slot] = $connection;
+    }
+
+    /**
+     * Handles -ERR responses returned by Redis.
+     *
+     * @param CommandInterface       $command Command that generated the -ERR response.
+     * @param ErrorResponseInterface $error   Redis error response object.
+     *
+     * @return mixed
+     */
+    protected function onErrorResponse(CommandInterface $command, ErrorResponseInterface $error)
+    {
+        $details = explode(' ', $error->getMessage(), 2);
+
+        switch ($details[0]) {
+            case 'MOVED':
+                return $this->onMovedResponse($command, $details[1]);
+
+            case 'ASK':
+                return $this->onAskResponse($command, $details[1]);
+
+            default:
+                return $error;
+        }
+    }
+
+    /**
+     * Handles -MOVED responses by executing again the command against the node
+     * indicated by the Redis response.
+     *
+     * @param CommandInterface $command Command that generated the -MOVED response.
+     * @param string           $details Parameters of the -MOVED response.
+     *
+     * @return mixed
+     */
+    protected function onMovedResponse(CommandInterface $command, $details)
+    {
+        list($slot, $connectionID) = explode(' ', $details, 2);
+
+        if (!$connection = $this->getConnectionById($connectionID)) {
+            $connection = $this->createConnection($connectionID);
+        }
+
+        if ($this->useClusterSlots) {
+            $this->askSlotsMap($connection);
+        }
+
+        $this->move($connection, $slot);
+        $response = $this->executeCommand($command);
+
+        return $response;
+    }
+
+    /**
+     * Handles -ASK responses by executing again the command against the node
+     * indicated by the Redis response.
+     *
+     * @param CommandInterface $command Command that generated the -ASK response.
+     * @param string           $details Parameters of the -ASK response.
+     *
+     * @return mixed
+     */
+    protected function onAskResponse(CommandInterface $command, $details)
+    {
+        list($slot, $connectionID) = explode(' ', $details, 2);
+
+        if (!$connection = $this->getConnectionById($connectionID)) {
+            $connection = $this->createConnection($connectionID);
+        }
+
+        $connection->executeCommand(RawCommand::create('ASKING'));
+        $response = $connection->executeCommand($command);
+
+        return $response;
+    }
+
+    /**
+     * Ensures that a command is executed one more time on connection failure.
+     *
+     * The connection to the node that generated the error is evicted from the
+     * pool before trying to fetch an updated slots map from another node. If
+     * the new slots map points to an unreachable server the client gives up and
+     * throws the exception as the nodes participating in the cluster may still
+     * have to agree that something changed in the configuration of the cluster.
+     *
+     * @param CommandInterface $command Command instance.
+     * @param string           $method  Actual method.
+     *
+     * @return mixed
+     */
+    private function retryCommandOnFailure(CommandInterface $command, $method)
+    {
+        $failure = false;
+
+        RETRY_COMMAND: {
+            try {
+                $response = $this->getConnection($command)->$method($command);
+            } catch (ConnectionException $exception) {
+                $connection = $exception->getConnection();
+                $connection->disconnect();
+
+                $this->remove($connection);
+
+                if ($failure) {
+                    throw $exception;
+                } elseif ($this->useClusterSlots) {
+                    $this->askSlotsMap();
+                }
+
+                $failure = true;
+
+                goto RETRY_COMMAND;
+            }
+        }
+
+        return $response;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function writeRequest(CommandInterface $command)
+    {
+        $this->retryCommandOnFailure($command, __FUNCTION__);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function readResponse(CommandInterface $command)
+    {
+        return $this->retryCommandOnFailure($command, __FUNCTION__);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executeCommand(CommandInterface $command)
+    {
+        $response = $this->retryCommandOnFailure($command, __FUNCTION__);
+
+        if ($response instanceof ErrorResponseInterface) {
+            return $this->onErrorResponse($command, $response);
+        }
+
+        return $response;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return count($this->pool);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        if ($this->useClusterSlots) {
+            $slotsmap = $this->getSlotsMap() ?: $this->askSlotsMap();
+        } else {
+            $slotsmap = $this->getSlotsMap() ?: $this->buildSlotsMap();
+        }
+
+        $connections = array();
+
+        foreach (array_unique($slotsmap) as $node) {
+            if (!$connection = $this->getConnectionById($node)) {
+                $this->add($connection = $this->createConnection($node));
+            }
+
+            $connections[] = $connection;
+        }
+
+        return new \ArrayIterator($connections);
+    }
+
+    /**
+     * Returns the underlying command hash strategy used to hash commands by
+     * using keys found in their arguments.
+     *
+     * @return StrategyInterface
+     */
+    public function getClusterStrategy()
+    {
+        return $this->strategy;
+    }
+
+    /**
+     * Returns the underlying connection factory used to create new connection
+     * instances to Redis nodes indicated by redis-cluster.
+     *
+     * @return FactoryInterface
+     */
+    public function getConnectionFactory()
+    {
+        return $this->connections;
+    }
+
+    /**
+     * Enables automatic fetching of the current slots map from one of the nodes
+     * using the CLUSTER SLOTS command. This option is enabled by default as
+     * asking the current slots map to Redis upon -MOVED responses may reduce
+     * overhead by eliminating the trial-and-error nature of the node guessing
+     * procedure, mostly when targeting many keys that would end up in a lot of
+     * redirections.
+     *
+     * The slots map can still be manually fetched using the askSlotsMap()
+     * method whether or not this option is enabled.
+     *
+     * @param bool $value Enable or disable the use of CLUSTER SLOTS.
+     */
+    public function useClusterSlots($value)
+    {
+        $this->useClusterSlots = (bool) $value;
+    }
+}
+
+/* --------------------------------------------------------------------------- */
+
+namespace Predis\Collection\Iterator;
+
+use Predis\ClientInterface;
+use Predis\NotSupportedException;
+
+/**
+ * Provides the base implementation for a fully-rewindable PHP iterator that can
+ * incrementally iterate over cursor-based collections stored on Redis using the
+ * commands in the `SCAN` family.
+ *
+ * Given their incremental nature with multiple fetches, these kind of iterators
+ * offer limited guarantees about the returned elements because the collection
+ * can change several times during the iteration process.
+ *
+ * @see http://redis.io/commands/scan
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+abstract class CursorBasedIterator implements \Iterator
+{
+    protected $client;
+    protected $match;
+    protected $count;
+
+    protected $valid;
+    protected $fetchmore;
+    protected $elements;
+    protected $cursor;
+    protected $position;
+    protected $current;
+
+    /**
+     * @param ClientInterface $client Client connected to Redis.
+     * @param string          $match  Pattern to match during the server-side iteration.
+     * @param int             $count  Hint used by Redis to compute the number of results per iteration.
+     */
+    public function __construct(ClientInterface $client, $match = null, $count = null)
+    {
+        $this->client = $client;
+        $this->match = $match;
+        $this->count = $count;
+
+        $this->reset();
+    }
+
+    /**
+     * Ensures that the client supports the specified Redis command required to
+     * fetch elements from the server to perform the iteration.
+     *
+     * @param ClientInterface $client    Client connected to Redis.
+     * @param string          $commandID Command ID.
+     *
+     * @throws NotSupportedException
+     */
+    protected function requiredCommand(ClientInterface $client, $commandID)
+    {
+        if (!$client->getProfile()->supportsCommand($commandID)) {
+            throw new NotSupportedException("The current profile does not support '$commandID'.");
+        }
+    }
+
+    /**
+     * Resets the inner state of the iterator.
+     */
+    protected function reset()
+    {
+        $this->valid = true;
+        $this->fetchmore = true;
+        $this->elements = array();
+        $this->cursor = 0;
+        $this->position = -1;
+        $this->current = null;
+    }
+
+    /**
+     * Returns an array of options for the `SCAN` command.
+     *
+     * @return array
+     */
+    protected function getScanOptions()
+    {
+        $options = array();
+
+        if (strlen($this->match) > 0) {
+            $options['MATCH'] = $this->match;
+        }
+
+        if ($this->count > 0) {
+            $options['COUNT'] = $this->count;
+        }
+
+        return $options;
+    }
+
+    /**
+     * Fetches a new set of elements from the remote collection, effectively
+     * advancing the iteration process.
+     *
+     * @return array
+     */
+    abstract protected function executeCommand();
+
+    /**
+     * Populates the local buffer of elements fetched from the server during
+     * the iteration.
+     */
+    protected function fetch()
+    {
+        list($cursor, $elements) = $this->executeCommand();
+
+        if (!$cursor) {
+            $this->fetchmore = false;
+        }
+
+        $this->cursor = $cursor;
+        $this->elements = $elements;
+    }
+
+    /**
+     * Extracts next values for key() and current().
+     */
+    protected function extractNext()
+    {
+        ++$this->position;
+        $this->current = array_shift($this->elements);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rewind()
+    {
+        $this->reset();
+        $this->next();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function current()
+    {
+        return $this->current;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function key()
+    {
+        return $this->position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function next()
+    {
+        tryFetch: {
+            if (!$this->elements && $this->fetchmore) {
+                $this->fetch();
+            }
+
+            if ($this->elements) {
+                $this->extractNext();
+            } elseif ($this->cursor) {
+                goto tryFetch;
+            } else {
+                $this->valid = false;
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function valid()
+    {
+        return $this->valid;
+    }
+}
+
+/**
+ * Abstracts the iteration of members stored in a sorted set by leveraging the
+ * ZSCAN command (Redis >= 2.8) wrapped in a fully-rewindable PHP iterator.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ *
+ * @link http://redis.io/commands/scan
+ */
+class SortedSetKey extends CursorBasedIterator
+{
+    protected $key;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(ClientInterface $client, $key, $match = null, $count = null)
+    {
+        $this->requiredCommand($client, 'ZSCAN');
+
+        parent::__construct($client, $match, $count);
+
+        $this->key = $key;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function executeCommand()
+    {
+        return $this->client->zscan($this->key, $this->cursor, $this->getScanOptions());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function extractNext()
+    {
+        if ($kv = each($this->elements)) {
+            $this->position = $kv[0];
+            $this->current = $kv[1];
+
+            unset($this->elements[$this->position]);
+        }
+    }
+}
+
+/**
+ * Abstracts the iteration of members stored in a set by leveraging the SSCAN
+ * command (Redis >= 2.8) wrapped in a fully-rewindable PHP iterator.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ *
+ * @link http://redis.io/commands/scan
+ */
+class SetKey extends CursorBasedIterator
+{
+    protected $key;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(ClientInterface $client, $key, $match = null, $count = null)
+    {
+        $this->requiredCommand($client, 'SSCAN');
+
+        parent::__construct($client, $match, $count);
+
+        $this->key = $key;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function executeCommand()
+    {
+        return $this->client->sscan($this->key, $this->cursor, $this->getScanOptions());
+    }
+}
+
+/**
+ * Abstracts the iteration of the keyspace on a Redis instance by leveraging the
+ * SCAN command (Redis >= 2.8) wrapped in a fully-rewindable PHP iterator.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ *
+ * @link http://redis.io/commands/scan
+ */
+class Keyspace extends CursorBasedIterator
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(ClientInterface $client, $match = null, $count = null)
+    {
+        $this->requiredCommand($client, 'SCAN');
+
+        parent::__construct($client, $match, $count);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function executeCommand()
+    {
+        return $this->client->scan($this->cursor, $this->getScanOptions());
+    }
+}
+
+/**
+ * Abstracts the iteration of fields and values of an hash by leveraging the
+ * HSCAN command (Redis >= 2.8) wrapped in a fully-rewindable PHP iterator.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ *
+ * @link http://redis.io/commands/scan
+ */
+class HashKey extends CursorBasedIterator
+{
+    protected $key;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(ClientInterface $client, $key, $match = null, $count = null)
+    {
+        $this->requiredCommand($client, 'HSCAN');
+
+        parent::__construct($client, $match, $count);
+
+        $this->key = $key;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function executeCommand()
+    {
+        return $this->client->hscan($this->key, $this->cursor, $this->getScanOptions());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function extractNext()
+    {
+        if ($kv = each($this->elements)) {
+            $this->position = $kv[0];
+            $this->current = $kv[1];
+
+            unset($this->elements[$this->position]);
+        }
+    }
+}
+
+/**
+ * Abstracts the iteration of items stored in a list by leveraging the LRANGE
+ * command wrapped in a fully-rewindable PHP iterator.
+ *
+ * This iterator tries to emulate the behaviour of cursor-based iterators based
+ * on the SCAN-family of commands introduced in Redis <= 2.8, meaning that due
+ * to its incremental nature with multiple fetches it can only offer limited
+ * guarantees on the returned elements because the collection can change several
+ * times (trimmed, deleted, overwritten) during the iteration process.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ *
+ * @link http://redis.io/commands/lrange
+ */
+class ListKey implements \Iterator
+{
+    protected $client;
+    protected $count;
+    protected $key;
+
+    protected $valid;
+    protected $fetchmore;
+    protected $elements;
+    protected $position;
+    protected $current;
+
+    /**
+     * @param ClientInterface $client Client connected to Redis.
+     * @param string          $key    Redis list key.
+     * @param int             $count  Number of items retrieved on each fetch operation.
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function __construct(ClientInterface $client, $key, $count = 10)
+    {
+        $this->requiredCommand($client, 'LRANGE');
+
+        if ((false === $count = filter_var($count, FILTER_VALIDATE_INT)) || $count < 0) {
+            throw new \InvalidArgumentException('The $count argument must be a positive integer.');
+        }
+
+        $this->client = $client;
+        $this->key = $key;
+        $this->count = $count;
+
+        $this->reset();
+    }
+
+    /**
+     * Ensures that the client instance supports the specified Redis command
+     * required to fetch elements from the server to perform the iteration.
+     *
+     * @param ClientInterface $client    Client connected to Redis.
+     * @param string          $commandID Command ID.
+     *
+     * @throws NotSupportedException
+     */
+    protected function requiredCommand(ClientInterface $client, $commandID)
+    {
+        if (!$client->getProfile()->supportsCommand($commandID)) {
+            throw new NotSupportedException("The current profile does not support '$commandID'.");
+        }
+    }
+
+    /**
+     * Resets the inner state of the iterator.
+     */
+    protected function reset()
+    {
+        $this->valid = true;
+        $this->fetchmore = true;
+        $this->elements = array();
+        $this->position = -1;
+        $this->current = null;
+    }
+
+    /**
+     * Fetches a new set of elements from the remote collection, effectively
+     * advancing the iteration process.
+     *
+     * @return array
+     */
+    protected function executeCommand()
+    {
+        return $this->client->lrange($this->key, $this->position + 1, $this->position + $this->count);
+    }
+
+    /**
+     * Populates the local buffer of elements fetched from the server during the
+     * iteration.
+     */
+    protected function fetch()
+    {
+        $elements = $this->executeCommand();
+
+        if (count($elements) < $this->count) {
+            $this->fetchmore = false;
+        }
+
+        $this->elements = $elements;
+    }
+
+    /**
+     * Extracts next values for key() and current().
+     */
+    protected function extractNext()
+    {
+        ++$this->position;
+        $this->current = array_shift($this->elements);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rewind()
+    {
+        $this->reset();
+        $this->next();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function current()
+    {
+        return $this->current;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function key()
+    {
+        return $this->position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function next()
+    {
+        if (!$this->elements && $this->fetchmore) {
+            $this->fetch();
+        }
+
+        if ($this->elements) {
+            $this->extractNext();
+        } else {
+            $this->valid = false;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function valid()
+    {
+        return $this->valid;
+    }
+}
+
 /* --------------------------------------------------------------------------- */
 
 namespace Predis\Cluster;
 
 use Predis\Command\CommandInterface;
 use Predis\Command\ScriptCommand;
-use Predis\Cluster\Distributor\DistributorInterface;
-use Predis\Cluster\Distributor\HashRing;
 use Predis\Cluster\Hash\CRC16;
 use Predis\Cluster\Hash\HashGeneratorInterface;
 use Predis\NotSupportedException;
+use Predis\Cluster\Distributor\DistributorInterface;
+use Predis\Cluster\Distributor\HashRing;
 
 /**
  * Interface for classes defining the strategy used to calculate an hash out of
@@ -13298,6 +13298,48 @@ abstract class ClusterStrategy implements StrategyInterface
 }
 
 /**
+ * Default class used by Predis to calculate hashes out of keys of
+ * commands supported by redis-cluster.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class RedisStrategy extends ClusterStrategy
+{
+    protected $hashGenerator;
+
+    /**
+     * @param HashGeneratorInterface $hashGenerator Hash generator instance.
+     */
+    public function __construct(HashGeneratorInterface $hashGenerator = null)
+    {
+        parent::__construct();
+
+        $this->hashGenerator = $hashGenerator ?: new CRC16();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSlotByKey($key)
+    {
+        $key = $this->extractKeyTag($key);
+        $slot = $this->hashGenerator->hash($key) & 0x3FFF;
+
+        return $slot;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDistributor()
+    {
+        throw new NotSupportedException(
+            'This cluster strategy does not provide an external distributor'
+        );
+    }
+}
+
+/**
  * Default cluster strategy used by Predis to handle client-side sharding.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
@@ -13361,55 +13403,13 @@ class PredisStrategy extends ClusterStrategy
     }
 }
 
-/**
- * Default class used by Predis to calculate hashes out of keys of
- * commands supported by redis-cluster.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class RedisStrategy extends ClusterStrategy
-{
-    protected $hashGenerator;
-
-    /**
-     * @param HashGeneratorInterface $hashGenerator Hash generator instance.
-     */
-    public function __construct(HashGeneratorInterface $hashGenerator = null)
-    {
-        parent::__construct();
-
-        $this->hashGenerator = $hashGenerator ?: new CRC16();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSlotByKey($key)
-    {
-        $key = $this->extractKeyTag($key);
-        $slot = $this->hashGenerator->hash($key) & 0x3FFF;
-
-        return $slot;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDistributor()
-    {
-        throw new NotSupportedException(
-            'This cluster strategy does not provide an external distributor'
-        );
-    }
-}
-
 /* --------------------------------------------------------------------------- */
 
 namespace Predis\Protocol;
 
-use Predis\CommunicationException;
-use Predis\Command\CommandInterface;
 use Predis\Connection\CompositeConnectionInterface;
+use Predis\Command\CommandInterface;
+use Predis\CommunicationException;
 
 /**
  * Defines a pluggable protocol processor capable of serializing commands and
@@ -13438,23 +13438,6 @@ interface ProtocolProcessorInterface
 }
 
 /**
- * Defines a pluggable serializer for Redis commands.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-interface RequestSerializerInterface
-{
-    /**
-     * Serializes a Redis command.
-     *
-     * @param CommandInterface $command Redis command.
-     *
-     * @return string
-     */
-    public function serialize(CommandInterface $command);
-}
-
-/**
  * Defines a pluggable reader capable of parsing responses returned by Redis and
  * deserializing them to PHP objects.
  *
@@ -13473,6 +13456,23 @@ interface ResponseReaderInterface
 }
 
 /**
+ * Defines a pluggable serializer for Redis commands.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+interface RequestSerializerInterface
+{
+    /**
+     * Serializes a Redis command.
+     *
+     * @param CommandInterface $command Redis command.
+     *
+     * @return string
+     */
+    public function serialize(CommandInterface $command);
+}
+
+/**
  * Exception used to indentify errors encountered while parsing the Redis wire
  * protocol.
  *
@@ -13480,482 +13480,6 @@ interface ResponseReaderInterface
  */
 class ProtocolException extends CommunicationException
 {
-}
-
-/* --------------------------------------------------------------------------- */
-
-namespace Predis\Pipeline;
-
-use Predis\ClientException;
-use Predis\ClientInterface;
-use Predis\Connection\ConnectionInterface;
-use Predis\Connection\NodeConnectionInterface;
-use Predis\Response\ErrorInterface as ErrorResponseInterface;
-use Predis\Response\ResponseInterface;
-use Predis\Response\ServerException;
-use Predis\CommunicationException;
-use Predis\Connection\Aggregate\ClusterInterface;
-use Predis\NotSupportedException;
-use Predis\ClientContextInterface;
-use Predis\Command\CommandInterface;
-use Predis\Connection\Aggregate\ReplicationInterface;
-
-/**
- * Implementation of a command pipeline in which write and read operations of
- * Redis commands are pipelined to alleviate the effects of network round-trips.
- *
- * {@inheritdoc}
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class Pipeline implements ClientContextInterface
-{
-    private $client;
-    private $pipeline;
-
-    private $responses = array();
-    private $running = false;
-
-    /**
-     * @param ClientInterface $client Client instance used by the context.
-     */
-    public function __construct(ClientInterface $client)
-    {
-        $this->client = $client;
-        $this->pipeline = new \SplQueue();
-    }
-
-    /**
-     * Queues a command into the pipeline buffer.
-     *
-     * @param string $method    Command ID.
-     * @param array  $arguments Arguments for the command.
-     *
-     * @return $this
-     */
-    public function __call($method, $arguments)
-    {
-        $command = $this->client->createCommand($method, $arguments);
-        $this->recordCommand($command);
-
-        return $this;
-    }
-
-    /**
-     * Queues a command instance into the pipeline buffer.
-     *
-     * @param CommandInterface $command Command to be queued in the buffer.
-     */
-    protected function recordCommand(CommandInterface $command)
-    {
-        $this->pipeline->enqueue($command);
-    }
-
-    /**
-     * Queues a command instance into the pipeline buffer.
-     *
-     * @param CommandInterface $command Command instance to be queued in the buffer.
-     *
-     * @return $this
-     */
-    public function executeCommand(CommandInterface $command)
-    {
-        $this->recordCommand($command);
-
-        return $this;
-    }
-
-    /**
-     * Throws an exception on -ERR responses returned by Redis.
-     *
-     * @param ConnectionInterface    $connection Redis connection that returned the error.
-     * @param ErrorResponseInterface $response   Instance of the error response.
-     *
-     * @throws ServerException
-     */
-    protected function exception(ConnectionInterface $connection, ErrorResponseInterface $response)
-    {
-        $connection->disconnect();
-        $message = $response->getMessage();
-
-        throw new ServerException($message);
-    }
-
-    /**
-     * Returns the underlying connection to be used by the pipeline.
-     *
-     * @return ConnectionInterface
-     */
-    protected function getConnection()
-    {
-        $connection = $this->getClient()->getConnection();
-
-        if ($connection instanceof ReplicationInterface) {
-            $connection->switchTo('master');
-        }
-
-        return $connection;
-    }
-
-    /**
-     * Implements the logic to flush the queued commands and read the responses
-     * from the current connection.
-     *
-     * @param ConnectionInterface $connection Current connection instance.
-     * @param \SplQueue           $commands   Queued commands.
-     *
-     * @return array
-     */
-    protected function executePipeline(ConnectionInterface $connection, \SplQueue $commands)
-    {
-        foreach ($commands as $command) {
-            $connection->writeRequest($command);
-        }
-
-        $responses = array();
-        $exceptions = $this->throwServerExceptions();
-
-        while (!$commands->isEmpty()) {
-            $command = $commands->dequeue();
-            $response = $connection->readResponse($command);
-
-            if (!$response instanceof ResponseInterface) {
-                $responses[] = $command->parseResponse($response);
-            } elseif ($response instanceof ErrorResponseInterface && $exceptions) {
-                $this->exception($connection, $response);
-            } else {
-                $responses[] = $response;
-            }
-        }
-
-        return $responses;
-    }
-
-    /**
-     * Flushes the buffer holding all of the commands queued so far.
-     *
-     * @param bool $send Specifies if the commands in the buffer should be sent to Redis.
-     *
-     * @return $this
-     */
-    public function flushPipeline($send = true)
-    {
-        if ($send && !$this->pipeline->isEmpty()) {
-            $responses = $this->executePipeline($this->getConnection(), $this->pipeline);
-            $this->responses = array_merge($this->responses, $responses);
-        } else {
-            $this->pipeline = new \SplQueue();
-        }
-
-        return $this;
-    }
-
-    /**
-     * Marks the running status of the pipeline.
-     *
-     * @param bool $bool Sets the running status of the pipeline.
-     *
-     * @throws ClientException
-     */
-    private function setRunning($bool)
-    {
-        if ($bool && $this->running) {
-            throw new ClientException('The current pipeline context is already being executed.');
-        }
-
-        $this->running = $bool;
-    }
-
-    /**
-     * Handles the actual execution of the whole pipeline.
-     *
-     * @param mixed $callable Optional callback for execution.
-     *
-     * @throws \Exception
-     * @throws \InvalidArgumentException
-     *
-     * @return array
-     */
-    public function execute($callable = null)
-    {
-        if ($callable && !is_callable($callable)) {
-            throw new \InvalidArgumentException('The argument must be a callable object.');
-        }
-
-        $exception = null;
-        $this->setRunning(true);
-
-        try {
-            if ($callable) {
-                call_user_func($callable, $this);
-            }
-
-            $this->flushPipeline();
-        } catch (\Exception $exception) {
-            // NOOP
-        }
-
-        $this->setRunning(false);
-
-        if ($exception) {
-            throw $exception;
-        }
-
-        return $this->responses;
-    }
-
-    /**
-     * Returns if the pipeline should throw exceptions on server errors.
-     *
-     * @return bool
-     */
-    protected function throwServerExceptions()
-    {
-        return (bool) $this->client->getOptions()->exceptions;
-    }
-
-    /**
-     * Returns the underlying client instance used by the pipeline object.
-     *
-     * @return ClientInterface
-     */
-    public function getClient()
-    {
-        return $this->client;
-    }
-}
-
-/**
- * Command pipeline wrapped into a MULTI / EXEC transaction.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class Atomic extends Pipeline
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(ClientInterface $client)
-    {
-        if (!$client->getProfile()->supportsCommands(array('multi', 'exec', 'discard'))) {
-            throw new ClientException(
-                "The current profile does not support 'MULTI', 'EXEC' and 'DISCARD'."
-            );
-        }
-
-        parent::__construct($client);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getConnection()
-    {
-        $connection = $this->getClient()->getConnection();
-
-        if (!$connection instanceof NodeConnectionInterface) {
-            $class = __CLASS__;
-
-            throw new ClientException("The class '$class' does not support aggregate connections.");
-        }
-
-        return $connection;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function executePipeline(ConnectionInterface $connection, \SplQueue $commands)
-    {
-        $profile = $this->getClient()->getProfile();
-        $connection->executeCommand($profile->createCommand('multi'));
-
-        foreach ($commands as $command) {
-            $connection->writeRequest($command);
-        }
-
-        foreach ($commands as $command) {
-            $response = $connection->readResponse($command);
-
-            if ($response instanceof ErrorResponseInterface) {
-                $connection->executeCommand($profile->createCommand('discard'));
-                throw new ServerException($response->getMessage());
-            }
-        }
-
-        $executed = $connection->executeCommand($profile->createCommand('exec'));
-
-        if (!isset($executed)) {
-            // TODO: should be throwing a more appropriate exception.
-            throw new ClientException(
-                'The underlying transaction has been aborted by the server.'
-            );
-        }
-
-        if (count($executed) !== count($commands)) {
-            $expected = count($commands);
-            $received = count($executed);
-
-            throw new ClientException(
-                "Invalid number of responses [expected $expected, received $received]."
-            );
-        }
-
-        $responses = array();
-        $sizeOfPipe = count($commands);
-        $exceptions = $this->throwServerExceptions();
-
-        for ($i = 0; $i < $sizeOfPipe; ++$i) {
-            $command = $commands->dequeue();
-            $response = $executed[$i];
-
-            if (!$response instanceof ResponseInterface) {
-                $responses[] = $command->parseResponse($response);
-            } elseif ($response instanceof ErrorResponseInterface && $exceptions) {
-                $this->exception($connection, $response);
-            } else {
-                $responses[] = $response;
-            }
-
-            unset($executed[$i]);
-        }
-
-        return $responses;
-    }
-}
-
-/**
- * Command pipeline that does not throw exceptions on connection errors, but
- * returns the exception instances as the rest of the response elements.
- *
- * @todo Awful naming!
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ConnectionErrorProof extends Pipeline
-{
-    /**
-     * {@inheritdoc}
-     */
-    protected function getConnection()
-    {
-        return $this->getClient()->getConnection();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function executePipeline(ConnectionInterface $connection, \SplQueue $commands)
-    {
-        if ($connection instanceof NodeConnectionInterface) {
-            return $this->executeSingleNode($connection, $commands);
-        } elseif ($connection instanceof ClusterInterface) {
-            return $this->executeCluster($connection, $commands);
-        } else {
-            $class = get_class($connection);
-
-            throw new NotSupportedException("The connection class '$class' is not supported.");
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function executeSingleNode(NodeConnectionInterface $connection, \SplQueue $commands)
-    {
-        $responses = array();
-        $sizeOfPipe = count($commands);
-
-        foreach ($commands as $command) {
-            try {
-                $connection->writeRequest($command);
-            } catch (CommunicationException $exception) {
-                return array_fill(0, $sizeOfPipe, $exception);
-            }
-        }
-
-        for ($i = 0; $i < $sizeOfPipe; ++$i) {
-            $command = $commands->dequeue();
-
-            try {
-                $responses[$i] = $connection->readResponse($command);
-            } catch (CommunicationException $exception) {
-                $add = count($commands) - count($responses);
-                $responses = array_merge($responses, array_fill(0, $add, $exception));
-
-                break;
-            }
-        }
-
-        return $responses;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function executeCluster(ClusterInterface $connection, \SplQueue $commands)
-    {
-        $responses = array();
-        $sizeOfPipe = count($commands);
-        $exceptions = array();
-
-        foreach ($commands as $command) {
-            $cmdConnection = $connection->getConnection($command);
-
-            if (isset($exceptions[spl_object_hash($cmdConnection)])) {
-                continue;
-            }
-
-            try {
-                $cmdConnection->writeRequest($command);
-            } catch (CommunicationException $exception) {
-                $exceptions[spl_object_hash($cmdConnection)] = $exception;
-            }
-        }
-
-        for ($i = 0; $i < $sizeOfPipe; ++$i) {
-            $command = $commands->dequeue();
-
-            $cmdConnection = $connection->getConnection($command);
-            $connectionHash = spl_object_hash($cmdConnection);
-
-            if (isset($exceptions[$connectionHash])) {
-                $responses[$i] = $exceptions[$connectionHash];
-                continue;
-            }
-
-            try {
-                $responses[$i] = $cmdConnection->readResponse($command);
-            } catch (CommunicationException $exception) {
-                $responses[$i] = $exception;
-                $exceptions[$connectionHash] = $exception;
-            }
-        }
-
-        return $responses;
-    }
-}
-
-/**
- * Command pipeline that writes commands to the servers but discards responses.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class FireAndForget extends Pipeline
-{
-    /**
-     * {@inheritdoc}
-     */
-    protected function executePipeline(ConnectionInterface $connection, \SplQueue $commands)
-    {
-        while (!$commands->isEmpty()) {
-            $connection->writeRequest($commands->dequeue());
-        }
-
-        $connection->disconnect();
-
-        return array();
-    }
 }
 
 /* --------------------------------------------------------------------------- */
@@ -14353,6 +13877,482 @@ class KetamaRing extends HashRing
         // Binary search for the first item in ringkeys with a value greater
         // or equal to the key. If no such item exists, return the first item.
         return $lower < $ringKeysCount ? $lower : 0;
+    }
+}
+
+/* --------------------------------------------------------------------------- */
+
+namespace Predis\Pipeline;
+
+use Predis\Connection\ConnectionInterface;
+use Predis\ClientException;
+use Predis\ClientInterface;
+use Predis\Connection\NodeConnectionInterface;
+use Predis\Response\ErrorInterface as ErrorResponseInterface;
+use Predis\Response\ResponseInterface;
+use Predis\Response\ServerException;
+use Predis\ClientContextInterface;
+use Predis\Command\CommandInterface;
+use Predis\Connection\Aggregate\ReplicationInterface;
+use Predis\CommunicationException;
+use Predis\Connection\Aggregate\ClusterInterface;
+use Predis\NotSupportedException;
+
+/**
+ * Implementation of a command pipeline in which write and read operations of
+ * Redis commands are pipelined to alleviate the effects of network round-trips.
+ *
+ * {@inheritdoc}
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class Pipeline implements ClientContextInterface
+{
+    private $client;
+    private $pipeline;
+
+    private $responses = array();
+    private $running = false;
+
+    /**
+     * @param ClientInterface $client Client instance used by the context.
+     */
+    public function __construct(ClientInterface $client)
+    {
+        $this->client = $client;
+        $this->pipeline = new \SplQueue();
+    }
+
+    /**
+     * Queues a command into the pipeline buffer.
+     *
+     * @param string $method    Command ID.
+     * @param array  $arguments Arguments for the command.
+     *
+     * @return $this
+     */
+    public function __call($method, $arguments)
+    {
+        $command = $this->client->createCommand($method, $arguments);
+        $this->recordCommand($command);
+
+        return $this;
+    }
+
+    /**
+     * Queues a command instance into the pipeline buffer.
+     *
+     * @param CommandInterface $command Command to be queued in the buffer.
+     */
+    protected function recordCommand(CommandInterface $command)
+    {
+        $this->pipeline->enqueue($command);
+    }
+
+    /**
+     * Queues a command instance into the pipeline buffer.
+     *
+     * @param CommandInterface $command Command instance to be queued in the buffer.
+     *
+     * @return $this
+     */
+    public function executeCommand(CommandInterface $command)
+    {
+        $this->recordCommand($command);
+
+        return $this;
+    }
+
+    /**
+     * Throws an exception on -ERR responses returned by Redis.
+     *
+     * @param ConnectionInterface    $connection Redis connection that returned the error.
+     * @param ErrorResponseInterface $response   Instance of the error response.
+     *
+     * @throws ServerException
+     */
+    protected function exception(ConnectionInterface $connection, ErrorResponseInterface $response)
+    {
+        $connection->disconnect();
+        $message = $response->getMessage();
+
+        throw new ServerException($message);
+    }
+
+    /**
+     * Returns the underlying connection to be used by the pipeline.
+     *
+     * @return ConnectionInterface
+     */
+    protected function getConnection()
+    {
+        $connection = $this->getClient()->getConnection();
+
+        if ($connection instanceof ReplicationInterface) {
+            $connection->switchTo('master');
+        }
+
+        return $connection;
+    }
+
+    /**
+     * Implements the logic to flush the queued commands and read the responses
+     * from the current connection.
+     *
+     * @param ConnectionInterface $connection Current connection instance.
+     * @param \SplQueue           $commands   Queued commands.
+     *
+     * @return array
+     */
+    protected function executePipeline(ConnectionInterface $connection, \SplQueue $commands)
+    {
+        foreach ($commands as $command) {
+            $connection->writeRequest($command);
+        }
+
+        $responses = array();
+        $exceptions = $this->throwServerExceptions();
+
+        while (!$commands->isEmpty()) {
+            $command = $commands->dequeue();
+            $response = $connection->readResponse($command);
+
+            if (!$response instanceof ResponseInterface) {
+                $responses[] = $command->parseResponse($response);
+            } elseif ($response instanceof ErrorResponseInterface && $exceptions) {
+                $this->exception($connection, $response);
+            } else {
+                $responses[] = $response;
+            }
+        }
+
+        return $responses;
+    }
+
+    /**
+     * Flushes the buffer holding all of the commands queued so far.
+     *
+     * @param bool $send Specifies if the commands in the buffer should be sent to Redis.
+     *
+     * @return $this
+     */
+    public function flushPipeline($send = true)
+    {
+        if ($send && !$this->pipeline->isEmpty()) {
+            $responses = $this->executePipeline($this->getConnection(), $this->pipeline);
+            $this->responses = array_merge($this->responses, $responses);
+        } else {
+            $this->pipeline = new \SplQueue();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Marks the running status of the pipeline.
+     *
+     * @param bool $bool Sets the running status of the pipeline.
+     *
+     * @throws ClientException
+     */
+    private function setRunning($bool)
+    {
+        if ($bool && $this->running) {
+            throw new ClientException('The current pipeline context is already being executed.');
+        }
+
+        $this->running = $bool;
+    }
+
+    /**
+     * Handles the actual execution of the whole pipeline.
+     *
+     * @param mixed $callable Optional callback for execution.
+     *
+     * @throws \Exception
+     * @throws \InvalidArgumentException
+     *
+     * @return array
+     */
+    public function execute($callable = null)
+    {
+        if ($callable && !is_callable($callable)) {
+            throw new \InvalidArgumentException('The argument must be a callable object.');
+        }
+
+        $exception = null;
+        $this->setRunning(true);
+
+        try {
+            if ($callable) {
+                call_user_func($callable, $this);
+            }
+
+            $this->flushPipeline();
+        } catch (\Exception $exception) {
+            // NOOP
+        }
+
+        $this->setRunning(false);
+
+        if ($exception) {
+            throw $exception;
+        }
+
+        return $this->responses;
+    }
+
+    /**
+     * Returns if the pipeline should throw exceptions on server errors.
+     *
+     * @return bool
+     */
+    protected function throwServerExceptions()
+    {
+        return (bool) $this->client->getOptions()->exceptions;
+    }
+
+    /**
+     * Returns the underlying client instance used by the pipeline object.
+     *
+     * @return ClientInterface
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
+}
+
+/**
+ * Command pipeline that writes commands to the servers but discards responses.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class FireAndForget extends Pipeline
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected function executePipeline(ConnectionInterface $connection, \SplQueue $commands)
+    {
+        while (!$commands->isEmpty()) {
+            $connection->writeRequest($commands->dequeue());
+        }
+
+        $connection->disconnect();
+
+        return array();
+    }
+}
+
+/**
+ * Command pipeline wrapped into a MULTI / EXEC transaction.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class Atomic extends Pipeline
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(ClientInterface $client)
+    {
+        if (!$client->getProfile()->supportsCommands(array('multi', 'exec', 'discard'))) {
+            throw new ClientException(
+                "The current profile does not support 'MULTI', 'EXEC' and 'DISCARD'."
+            );
+        }
+
+        parent::__construct($client);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getConnection()
+    {
+        $connection = $this->getClient()->getConnection();
+
+        if (!$connection instanceof NodeConnectionInterface) {
+            $class = __CLASS__;
+
+            throw new ClientException("The class '$class' does not support aggregate connections.");
+        }
+
+        return $connection;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function executePipeline(ConnectionInterface $connection, \SplQueue $commands)
+    {
+        $profile = $this->getClient()->getProfile();
+        $connection->executeCommand($profile->createCommand('multi'));
+
+        foreach ($commands as $command) {
+            $connection->writeRequest($command);
+        }
+
+        foreach ($commands as $command) {
+            $response = $connection->readResponse($command);
+
+            if ($response instanceof ErrorResponseInterface) {
+                $connection->executeCommand($profile->createCommand('discard'));
+                throw new ServerException($response->getMessage());
+            }
+        }
+
+        $executed = $connection->executeCommand($profile->createCommand('exec'));
+
+        if (!isset($executed)) {
+            // TODO: should be throwing a more appropriate exception.
+            throw new ClientException(
+                'The underlying transaction has been aborted by the server.'
+            );
+        }
+
+        if (count($executed) !== count($commands)) {
+            $expected = count($commands);
+            $received = count($executed);
+
+            throw new ClientException(
+                "Invalid number of responses [expected $expected, received $received]."
+            );
+        }
+
+        $responses = array();
+        $sizeOfPipe = count($commands);
+        $exceptions = $this->throwServerExceptions();
+
+        for ($i = 0; $i < $sizeOfPipe; ++$i) {
+            $command = $commands->dequeue();
+            $response = $executed[$i];
+
+            if (!$response instanceof ResponseInterface) {
+                $responses[] = $command->parseResponse($response);
+            } elseif ($response instanceof ErrorResponseInterface && $exceptions) {
+                $this->exception($connection, $response);
+            } else {
+                $responses[] = $response;
+            }
+
+            unset($executed[$i]);
+        }
+
+        return $responses;
+    }
+}
+
+/**
+ * Command pipeline that does not throw exceptions on connection errors, but
+ * returns the exception instances as the rest of the response elements.
+ *
+ * @todo Awful naming!
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ConnectionErrorProof extends Pipeline
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected function getConnection()
+    {
+        return $this->getClient()->getConnection();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function executePipeline(ConnectionInterface $connection, \SplQueue $commands)
+    {
+        if ($connection instanceof NodeConnectionInterface) {
+            return $this->executeSingleNode($connection, $commands);
+        } elseif ($connection instanceof ClusterInterface) {
+            return $this->executeCluster($connection, $commands);
+        } else {
+            $class = get_class($connection);
+
+            throw new NotSupportedException("The connection class '$class' is not supported.");
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function executeSingleNode(NodeConnectionInterface $connection, \SplQueue $commands)
+    {
+        $responses = array();
+        $sizeOfPipe = count($commands);
+
+        foreach ($commands as $command) {
+            try {
+                $connection->writeRequest($command);
+            } catch (CommunicationException $exception) {
+                return array_fill(0, $sizeOfPipe, $exception);
+            }
+        }
+
+        for ($i = 0; $i < $sizeOfPipe; ++$i) {
+            $command = $commands->dequeue();
+
+            try {
+                $responses[$i] = $connection->readResponse($command);
+            } catch (CommunicationException $exception) {
+                $add = count($commands) - count($responses);
+                $responses = array_merge($responses, array_fill(0, $add, $exception));
+
+                break;
+            }
+        }
+
+        return $responses;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function executeCluster(ClusterInterface $connection, \SplQueue $commands)
+    {
+        $responses = array();
+        $sizeOfPipe = count($commands);
+        $exceptions = array();
+
+        foreach ($commands as $command) {
+            $cmdConnection = $connection->getConnection($command);
+
+            if (isset($exceptions[spl_object_hash($cmdConnection)])) {
+                continue;
+            }
+
+            try {
+                $cmdConnection->writeRequest($command);
+            } catch (CommunicationException $exception) {
+                $exceptions[spl_object_hash($cmdConnection)] = $exception;
+            }
+        }
+
+        for ($i = 0; $i < $sizeOfPipe; ++$i) {
+            $command = $commands->dequeue();
+
+            $cmdConnection = $connection->getConnection($command);
+            $connectionHash = spl_object_hash($cmdConnection);
+
+            if (isset($exceptions[$connectionHash])) {
+                $responses[$i] = $exceptions[$connectionHash];
+                continue;
+            }
+
+            try {
+                $responses[$i] = $cmdConnection->readResponse($command);
+            } catch (CommunicationException $exception) {
+                $responses[$i] = $exception;
+                $exceptions[$connectionHash] = $exception;
+            }
+        }
+
+        return $responses;
     }
 }
 
@@ -15354,108 +15354,6 @@ class CompositeProtocolProcessor implements ProtocolProcessorInterface
 }
 
 /**
- * Protocol processor for the standard Redis wire protocol.
- *
- * @link http://redis.io/topics/protocol
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ProtocolProcessor implements ProtocolProcessorInterface
-{
-    protected $mbiterable;
-    protected $serializer;
-
-    /**
-     *
-     */
-    public function __construct()
-    {
-        $this->mbiterable = false;
-        $this->serializer = new RequestSerializer();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function write(CompositeConnectionInterface $connection, CommandInterface $command)
-    {
-        $request = $this->serializer->serialize($command);
-        $connection->writeBuffer($request);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function read(CompositeConnectionInterface $connection)
-    {
-        $chunk = $connection->readLine();
-        $prefix = $chunk[0];
-        $payload = substr($chunk, 1);
-
-        switch ($prefix) {
-            case '+':
-                return new StatusResponse($payload);
-
-            case '$':
-                $size = (int) $payload;
-                if ($size === -1) {
-                    return;
-                }
-
-                return substr($connection->readBuffer($size + 2), 0, -2);
-
-            case '*':
-                $count = (int) $payload;
-
-                if ($count === -1) {
-                    return;
-                }
-                if ($this->mbiterable) {
-                    return new MultiBulkIterator($connection, $count);
-                }
-
-                $multibulk = array();
-
-                for ($i = 0; $i < $count; ++$i) {
-                    $multibulk[$i] = $this->read($connection);
-                }
-
-                return $multibulk;
-
-            case ':':
-                $integer = (int) $payload;
-                return $integer == $payload ? $integer : $payload;
-
-            case '-':
-                return new ErrorResponse($payload);
-
-            default:
-                CommunicationException::handle(new ProtocolException(
-                    $connection, "Unknown response prefix: '$prefix'."
-                ));
-
-                return;
-        }
-    }
-
-    /**
-     * Enables or disables returning multibulk responses as specialized PHP
-     * iterators used to stream bulk elements of a multibulk response instead
-     * returning a plain array.
-     *
-     * Streamable multibulk responses are not globally supported by the
-     * abstractions built-in into Predis, such as transactions or pipelines.
-     * Use them with care!
-     *
-     * @param bool $value Enable or disable streamable multibulk responses.
-     */
-    public function useIterableMultibulk($value)
-    {
-        $this->mbiterable = (bool) $value;
-    }
-}
-
-/**
  * Request serializer for the standard Redis wire protocol.
  *
  * @link http://redis.io/topics/protocol
@@ -15582,6 +15480,108 @@ class ResponseReader implements ResponseReaderInterface
         CommunicationException::handle(
             new ProtocolException($connection, $message)
         );
+    }
+}
+
+/**
+ * Protocol processor for the standard Redis wire protocol.
+ *
+ * @link http://redis.io/topics/protocol
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class ProtocolProcessor implements ProtocolProcessorInterface
+{
+    protected $mbiterable;
+    protected $serializer;
+
+    /**
+     *
+     */
+    public function __construct()
+    {
+        $this->mbiterable = false;
+        $this->serializer = new RequestSerializer();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function write(CompositeConnectionInterface $connection, CommandInterface $command)
+    {
+        $request = $this->serializer->serialize($command);
+        $connection->writeBuffer($request);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function read(CompositeConnectionInterface $connection)
+    {
+        $chunk = $connection->readLine();
+        $prefix = $chunk[0];
+        $payload = substr($chunk, 1);
+
+        switch ($prefix) {
+            case '+':
+                return new StatusResponse($payload);
+
+            case '$':
+                $size = (int) $payload;
+                if ($size === -1) {
+                    return;
+                }
+
+                return substr($connection->readBuffer($size + 2), 0, -2);
+
+            case '*':
+                $count = (int) $payload;
+
+                if ($count === -1) {
+                    return;
+                }
+                if ($this->mbiterable) {
+                    return new MultiBulkIterator($connection, $count);
+                }
+
+                $multibulk = array();
+
+                for ($i = 0; $i < $count; ++$i) {
+                    $multibulk[$i] = $this->read($connection);
+                }
+
+                return $multibulk;
+
+            case ':':
+                $integer = (int) $payload;
+                return $integer == $payload ? $integer : $payload;
+
+            case '-':
+                return new ErrorResponse($payload);
+
+            default:
+                CommunicationException::handle(new ProtocolException(
+                    $connection, "Unknown response prefix: '$prefix'."
+                ));
+
+                return;
+        }
+    }
+
+    /**
+     * Enables or disables returning multibulk responses as specialized PHP
+     * iterators used to stream bulk elements of a multibulk response instead
+     * returning a plain array.
+     *
+     * Streamable multibulk responses are not globally supported by the
+     * abstractions built-in into Predis, such as transactions or pipelines.
+     * Use them with care!
+     *
+     * @param bool $value Enable or disable streamable multibulk responses.
+     */
+    public function useIterableMultibulk($value)
+    {
+        $this->mbiterable = (bool) $value;
     }
 }
 
@@ -16102,323 +16102,6 @@ class DispatcherLoop
 
 /* --------------------------------------------------------------------------- */
 
-namespace Predis\Replication;
-
-use Predis\ClientException;
-use Predis\Command\CommandInterface;
-use Predis\NotSupportedException;
-use Predis\CommunicationException;
-
-/**
- * Exception class that identifies when master is missing in a replication setup.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class MissingMasterException extends ClientException
-{
-}
-
-/**
- * Defines a strategy for master/slave replication.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class ReplicationStrategy
-{
-    protected $disallowed;
-    protected $readonly;
-    protected $readonlySHA1;
-
-    /**
-     *
-     */
-    public function __construct()
-    {
-        $this->disallowed = $this->getDisallowedOperations();
-        $this->readonly = $this->getReadOnlyOperations();
-        $this->readonlySHA1 = array();
-    }
-
-    /**
-     * Returns if the specified command will perform a read-only operation
-     * on Redis or not.
-     *
-     * @param CommandInterface $command Command instance.
-     *
-     * @throws NotSupportedException
-     *
-     * @return bool
-     */
-    public function isReadOperation(CommandInterface $command)
-    {
-        if (isset($this->disallowed[$id = $command->getId()])) {
-            throw new NotSupportedException(
-                "The command '$id' is not allowed in replication mode."
-            );
-        }
-
-        if (isset($this->readonly[$id])) {
-            if (true === $readonly = $this->readonly[$id]) {
-                return true;
-            }
-
-            return call_user_func($readonly, $command);
-        }
-
-        if (($eval = $id === 'EVAL') || $id === 'EVALSHA') {
-            $sha1 = $eval ? sha1($command->getArgument(0)) : $command->getArgument(0);
-
-            if (isset($this->readonlySHA1[$sha1])) {
-                if (true === $readonly = $this->readonlySHA1[$sha1]) {
-                    return true;
-                }
-
-                return call_user_func($readonly, $command);
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns if the specified command is not allowed for execution in a master
-     * / slave replication context.
-     *
-     * @param CommandInterface $command Command instance.
-     *
-     * @return bool
-     */
-    public function isDisallowedOperation(CommandInterface $command)
-    {
-        return isset($this->disallowed[$command->getId()]);
-    }
-
-    /**
-     * Checks if a SORT command is a readable operation by parsing the arguments
-     * array of the specified commad instance.
-     *
-     * @param CommandInterface $command Command instance.
-     *
-     * @return bool
-     */
-    protected function isSortReadOnly(CommandInterface $command)
-    {
-        $arguments = $command->getArguments();
-        $argc = count($arguments);
-
-        if ($argc > 1) {
-            for ($i = 1; $i < $argc; ++$i) {
-                $argument = strtoupper($arguments[$i]);
-                if ($argument === 'STORE') {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Checks if BITFIELD performs a read-only operation by looking for certain
-     * SET and INCRYBY modifiers in the arguments array of the command.
-     *
-     * @param CommandInterface $command Command instance.
-     *
-     * @return bool
-     */
-    protected function isBitfieldReadOnly(CommandInterface $command)
-    {
-        $arguments = $command->getArguments();
-        $argc = count($arguments);
-
-        if ($argc >= 2) {
-            for ($i = 1; $i < $argc; ++$i) {
-                $argument = strtoupper($arguments[$i]);
-                if ($argument === 'SET' || $argument === 'INCRBY') {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Checks if a GEORADIUS command is a readable operation by parsing the
-     * arguments array of the specified commad instance.
-     *
-     * @param CommandInterface $command Command instance.
-     *
-     * @return bool
-     */
-    protected function isGeoradiusReadOnly(CommandInterface $command)
-    {
-        $arguments = $command->getArguments();
-        $argc = count($arguments);
-        $startIndex = $command->getId() === 'GEORADIUS' ? 5 : 4;
-
-        if ($argc > $startIndex) {
-            for ($i = $startIndex; $i < $argc; ++$i) {
-                $argument = strtoupper($arguments[$i]);
-                if ($argument === 'STORE' || $argument === 'STOREDIST') {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Marks a command as a read-only operation.
-     *
-     * When the behavior of a command can be decided only at runtime depending
-     * on its arguments, a callable object can be provided to dynamically check
-     * if the specified command performs a read or a write operation.
-     *
-     * @param string $commandID Command ID.
-     * @param mixed  $readonly  A boolean value or a callable object.
-     */
-    public function setCommandReadOnly($commandID, $readonly = true)
-    {
-        $commandID = strtoupper($commandID);
-
-        if ($readonly) {
-            $this->readonly[$commandID] = $readonly;
-        } else {
-            unset($this->readonly[$commandID]);
-        }
-    }
-
-    /**
-     * Marks a Lua script for EVAL and EVALSHA as a read-only operation. When
-     * the behaviour of a script can be decided only at runtime depending on
-     * its arguments, a callable object can be provided to dynamically check
-     * if the passed instance of EVAL or EVALSHA performs write operations or
-     * not.
-     *
-     * @param string $script   Body of the Lua script.
-     * @param mixed  $readonly A boolean value or a callable object.
-     */
-    public function setScriptReadOnly($script, $readonly = true)
-    {
-        $sha1 = sha1($script);
-
-        if ($readonly) {
-            $this->readonlySHA1[$sha1] = $readonly;
-        } else {
-            unset($this->readonlySHA1[$sha1]);
-        }
-    }
-
-    /**
-     * Returns the default list of disallowed commands.
-     *
-     * @return array
-     */
-    protected function getDisallowedOperations()
-    {
-        return array(
-            'SHUTDOWN' => true,
-            'INFO' => true,
-            'DBSIZE' => true,
-            'LASTSAVE' => true,
-            'CONFIG' => true,
-            'MONITOR' => true,
-            'SLAVEOF' => true,
-            'SAVE' => true,
-            'BGSAVE' => true,
-            'BGREWRITEAOF' => true,
-            'SLOWLOG' => true,
-        );
-    }
-
-    /**
-     * Returns the default list of commands performing read-only operations.
-     *
-     * @return array
-     */
-    protected function getReadOnlyOperations()
-    {
-        return array(
-            'EXISTS' => true,
-            'TYPE' => true,
-            'KEYS' => true,
-            'SCAN' => true,
-            'RANDOMKEY' => true,
-            'TTL' => true,
-            'GET' => true,
-            'MGET' => true,
-            'SUBSTR' => true,
-            'STRLEN' => true,
-            'GETRANGE' => true,
-            'GETBIT' => true,
-            'LLEN' => true,
-            'LRANGE' => true,
-            'LINDEX' => true,
-            'SCARD' => true,
-            'SISMEMBER' => true,
-            'SINTER' => true,
-            'SUNION' => true,
-            'SDIFF' => true,
-            'SMEMBERS' => true,
-            'SSCAN' => true,
-            'SRANDMEMBER' => true,
-            'ZRANGE' => true,
-            'ZREVRANGE' => true,
-            'ZRANGEBYSCORE' => true,
-            'ZREVRANGEBYSCORE' => true,
-            'ZCARD' => true,
-            'ZSCORE' => true,
-            'ZCOUNT' => true,
-            'ZRANK' => true,
-            'ZREVRANK' => true,
-            'ZSCAN' => true,
-            'ZLEXCOUNT' => true,
-            'ZRANGEBYLEX' => true,
-            'ZREVRANGEBYLEX' => true,
-            'HGET' => true,
-            'HMGET' => true,
-            'HEXISTS' => true,
-            'HLEN' => true,
-            'HKEYS' => true,
-            'HVALS' => true,
-            'HGETALL' => true,
-            'HSCAN' => true,
-            'HSTRLEN' => true,
-            'PING' => true,
-            'AUTH' => true,
-            'SELECT' => true,
-            'ECHO' => true,
-            'QUIT' => true,
-            'OBJECT' => true,
-            'BITCOUNT' => true,
-            'BITPOS' => true,
-            'TIME' => true,
-            'PFCOUNT' => true,
-            'SORT' => array($this, 'isSortReadOnly'),
-            'BITFIELD' => array($this, 'isBitfieldReadOnly'),
-            'GEOHASH' => true,
-            'GEOPOS' => true,
-            'GEODIST' => true,
-            'GEORADIUS' => array($this, 'isGeoradiusReadOnly'),
-            'GEORADIUSBYMEMBER' => array($this, 'isGeoradiusReadOnly'),
-        );
-    }
-}
-
-/**
- * Exception class that identifies a role mismatch when connecting to node
- * managed by redis-sentinel.
- *
- * @author Daniele Alessandri <suppakilla@gmail.com>
- */
-class RoleException extends CommunicationException
-{
-}
-
-/* --------------------------------------------------------------------------- */
-
 namespace Predis\Transaction;
 
 use Predis\PredisException;
@@ -16462,6 +16145,160 @@ class AbortedMultiExecException extends PredisException
     public function getTransaction()
     {
         return $this->transaction;
+    }
+}
+
+/**
+ * Utility class used to track the state of a MULTI / EXEC transaction.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class MultiExecState
+{
+    const INITIALIZED = 1;    // 0b00001
+    const INSIDEBLOCK = 2;    // 0b00010
+    const DISCARDED = 4;    // 0b00100
+    const CAS = 8;    // 0b01000
+    const WATCH = 16;   // 0b10000
+
+    private $flags;
+
+    /**
+     *
+     */
+    public function __construct()
+    {
+        $this->flags = 0;
+    }
+
+    /**
+     * Sets the internal state flags.
+     *
+     * @param int $flags Set of flags
+     */
+    public function set($flags)
+    {
+        $this->flags = $flags;
+    }
+
+    /**
+     * Gets the internal state flags.
+     *
+     * @return int
+     */
+    public function get()
+    {
+        return $this->flags;
+    }
+
+    /**
+     * Sets one or more flags.
+     *
+     * @param int $flags Set of flags
+     */
+    public function flag($flags)
+    {
+        $this->flags |= $flags;
+    }
+
+    /**
+     * Resets one or more flags.
+     *
+     * @param int $flags Set of flags
+     */
+    public function unflag($flags)
+    {
+        $this->flags &= ~$flags;
+    }
+
+    /**
+     * Returns if the specified flag or set of flags is set.
+     *
+     * @param int $flags Flag
+     *
+     * @return bool
+     */
+    public function check($flags)
+    {
+        return ($this->flags & $flags) === $flags;
+    }
+
+    /**
+     * Resets the state of a transaction.
+     */
+    public function reset()
+    {
+        $this->flags = 0;
+    }
+
+    /**
+     * Returns the state of the RESET flag.
+     *
+     * @return bool
+     */
+    public function isReset()
+    {
+        return $this->flags === 0;
+    }
+
+    /**
+     * Returns the state of the INITIALIZED flag.
+     *
+     * @return bool
+     */
+    public function isInitialized()
+    {
+        return $this->check(self::INITIALIZED);
+    }
+
+    /**
+     * Returns the state of the INSIDEBLOCK flag.
+     *
+     * @return bool
+     */
+    public function isExecuting()
+    {
+        return $this->check(self::INSIDEBLOCK);
+    }
+
+    /**
+     * Returns the state of the CAS flag.
+     *
+     * @return bool
+     */
+    public function isCAS()
+    {
+        return $this->check(self::CAS);
+    }
+
+    /**
+     * Returns if WATCH is allowed in the current state.
+     *
+     * @return bool
+     */
+    public function isWatchAllowed()
+    {
+        return $this->check(self::INITIALIZED) && !$this->check(self::CAS);
+    }
+
+    /**
+     * Returns the state of the WATCH flag.
+     *
+     * @return bool
+     */
+    public function isWatching()
+    {
+        return $this->check(self::WATCH);
+    }
+
+    /**
+     * Returns the state of the DISCARDED flag.
+     *
+     * @return bool
+     */
+    public function isDiscarded()
+    {
+        return $this->check(self::DISCARDED);
     }
 }
 
@@ -16902,158 +16739,321 @@ class MultiExec implements ClientContextInterface
     }
 }
 
+/* --------------------------------------------------------------------------- */
+
+namespace Predis\Replication;
+
+use Predis\Command\CommandInterface;
+use Predis\NotSupportedException;
+use Predis\CommunicationException;
+use Predis\ClientException;
+
 /**
- * Utility class used to track the state of a MULTI / EXEC transaction.
+ * Defines a strategy for master/slave replication.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class MultiExecState
+class ReplicationStrategy
 {
-    const INITIALIZED = 1;    // 0b00001
-    const INSIDEBLOCK = 2;    // 0b00010
-    const DISCARDED = 4;    // 0b00100
-    const CAS = 8;    // 0b01000
-    const WATCH = 16;   // 0b10000
-
-    private $flags;
+    protected $disallowed;
+    protected $readonly;
+    protected $readonlySHA1;
 
     /**
      *
      */
     public function __construct()
     {
-        $this->flags = 0;
+        $this->disallowed = $this->getDisallowedOperations();
+        $this->readonly = $this->getReadOnlyOperations();
+        $this->readonlySHA1 = array();
     }
 
     /**
-     * Sets the internal state flags.
+     * Returns if the specified command will perform a read-only operation
+     * on Redis or not.
      *
-     * @param int $flags Set of flags
-     */
-    public function set($flags)
-    {
-        $this->flags = $flags;
-    }
-
-    /**
-     * Gets the internal state flags.
+     * @param CommandInterface $command Command instance.
      *
-     * @return int
-     */
-    public function get()
-    {
-        return $this->flags;
-    }
-
-    /**
-     * Sets one or more flags.
-     *
-     * @param int $flags Set of flags
-     */
-    public function flag($flags)
-    {
-        $this->flags |= $flags;
-    }
-
-    /**
-     * Resets one or more flags.
-     *
-     * @param int $flags Set of flags
-     */
-    public function unflag($flags)
-    {
-        $this->flags &= ~$flags;
-    }
-
-    /**
-     * Returns if the specified flag or set of flags is set.
-     *
-     * @param int $flags Flag
+     * @throws NotSupportedException
      *
      * @return bool
      */
-    public function check($flags)
+    public function isReadOperation(CommandInterface $command)
     {
-        return ($this->flags & $flags) === $flags;
+        if (isset($this->disallowed[$id = $command->getId()])) {
+            throw new NotSupportedException(
+                "The command '$id' is not allowed in replication mode."
+            );
+        }
+
+        if (isset($this->readonly[$id])) {
+            if (true === $readonly = $this->readonly[$id]) {
+                return true;
+            }
+
+            return call_user_func($readonly, $command);
+        }
+
+        if (($eval = $id === 'EVAL') || $id === 'EVALSHA') {
+            $sha1 = $eval ? sha1($command->getArgument(0)) : $command->getArgument(0);
+
+            if (isset($this->readonlySHA1[$sha1])) {
+                if (true === $readonly = $this->readonlySHA1[$sha1]) {
+                    return true;
+                }
+
+                return call_user_func($readonly, $command);
+            }
+        }
+
+        return false;
     }
 
     /**
-     * Resets the state of a transaction.
-     */
-    public function reset()
-    {
-        $this->flags = 0;
-    }
-
-    /**
-     * Returns the state of the RESET flag.
+     * Returns if the specified command is not allowed for execution in a master
+     * / slave replication context.
+     *
+     * @param CommandInterface $command Command instance.
      *
      * @return bool
      */
-    public function isReset()
+    public function isDisallowedOperation(CommandInterface $command)
     {
-        return $this->flags === 0;
+        return isset($this->disallowed[$command->getId()]);
     }
 
     /**
-     * Returns the state of the INITIALIZED flag.
+     * Checks if a SORT command is a readable operation by parsing the arguments
+     * array of the specified commad instance.
+     *
+     * @param CommandInterface $command Command instance.
      *
      * @return bool
      */
-    public function isInitialized()
+    protected function isSortReadOnly(CommandInterface $command)
     {
-        return $this->check(self::INITIALIZED);
+        $arguments = $command->getArguments();
+        $argc = count($arguments);
+
+        if ($argc > 1) {
+            for ($i = 1; $i < $argc; ++$i) {
+                $argument = strtoupper($arguments[$i]);
+                if ($argument === 'STORE') {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
-     * Returns the state of the INSIDEBLOCK flag.
+     * Checks if BITFIELD performs a read-only operation by looking for certain
+     * SET and INCRYBY modifiers in the arguments array of the command.
+     *
+     * @param CommandInterface $command Command instance.
      *
      * @return bool
      */
-    public function isExecuting()
+    protected function isBitfieldReadOnly(CommandInterface $command)
     {
-        return $this->check(self::INSIDEBLOCK);
+        $arguments = $command->getArguments();
+        $argc = count($arguments);
+
+        if ($argc >= 2) {
+            for ($i = 1; $i < $argc; ++$i) {
+                $argument = strtoupper($arguments[$i]);
+                if ($argument === 'SET' || $argument === 'INCRBY') {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
-     * Returns the state of the CAS flag.
+     * Checks if a GEORADIUS command is a readable operation by parsing the
+     * arguments array of the specified commad instance.
+     *
+     * @param CommandInterface $command Command instance.
      *
      * @return bool
      */
-    public function isCAS()
+    protected function isGeoradiusReadOnly(CommandInterface $command)
     {
-        return $this->check(self::CAS);
+        $arguments = $command->getArguments();
+        $argc = count($arguments);
+        $startIndex = $command->getId() === 'GEORADIUS' ? 5 : 4;
+
+        if ($argc > $startIndex) {
+            for ($i = $startIndex; $i < $argc; ++$i) {
+                $argument = strtoupper($arguments[$i]);
+                if ($argument === 'STORE' || $argument === 'STOREDIST') {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
-     * Returns if WATCH is allowed in the current state.
+     * Marks a command as a read-only operation.
      *
-     * @return bool
+     * When the behavior of a command can be decided only at runtime depending
+     * on its arguments, a callable object can be provided to dynamically check
+     * if the specified command performs a read or a write operation.
+     *
+     * @param string $commandID Command ID.
+     * @param mixed  $readonly  A boolean value or a callable object.
      */
-    public function isWatchAllowed()
+    public function setCommandReadOnly($commandID, $readonly = true)
     {
-        return $this->check(self::INITIALIZED) && !$this->check(self::CAS);
+        $commandID = strtoupper($commandID);
+
+        if ($readonly) {
+            $this->readonly[$commandID] = $readonly;
+        } else {
+            unset($this->readonly[$commandID]);
+        }
     }
 
     /**
-     * Returns the state of the WATCH flag.
+     * Marks a Lua script for EVAL and EVALSHA as a read-only operation. When
+     * the behaviour of a script can be decided only at runtime depending on
+     * its arguments, a callable object can be provided to dynamically check
+     * if the passed instance of EVAL or EVALSHA performs write operations or
+     * not.
      *
-     * @return bool
+     * @param string $script   Body of the Lua script.
+     * @param mixed  $readonly A boolean value or a callable object.
      */
-    public function isWatching()
+    public function setScriptReadOnly($script, $readonly = true)
     {
-        return $this->check(self::WATCH);
+        $sha1 = sha1($script);
+
+        if ($readonly) {
+            $this->readonlySHA1[$sha1] = $readonly;
+        } else {
+            unset($this->readonlySHA1[$sha1]);
+        }
     }
 
     /**
-     * Returns the state of the DISCARDED flag.
+     * Returns the default list of disallowed commands.
      *
-     * @return bool
+     * @return array
      */
-    public function isDiscarded()
+    protected function getDisallowedOperations()
     {
-        return $this->check(self::DISCARDED);
+        return array(
+            'SHUTDOWN' => true,
+            'INFO' => true,
+            'DBSIZE' => true,
+            'LASTSAVE' => true,
+            'CONFIG' => true,
+            'MONITOR' => true,
+            'SLAVEOF' => true,
+            'SAVE' => true,
+            'BGSAVE' => true,
+            'BGREWRITEAOF' => true,
+            'SLOWLOG' => true,
+        );
     }
+
+    /**
+     * Returns the default list of commands performing read-only operations.
+     *
+     * @return array
+     */
+    protected function getReadOnlyOperations()
+    {
+        return array(
+            'EXISTS' => true,
+            'TYPE' => true,
+            'KEYS' => true,
+            'SCAN' => true,
+            'RANDOMKEY' => true,
+            'TTL' => true,
+            'GET' => true,
+            'MGET' => true,
+            'SUBSTR' => true,
+            'STRLEN' => true,
+            'GETRANGE' => true,
+            'GETBIT' => true,
+            'LLEN' => true,
+            'LRANGE' => true,
+            'LINDEX' => true,
+            'SCARD' => true,
+            'SISMEMBER' => true,
+            'SINTER' => true,
+            'SUNION' => true,
+            'SDIFF' => true,
+            'SMEMBERS' => true,
+            'SSCAN' => true,
+            'SRANDMEMBER' => true,
+            'ZRANGE' => true,
+            'ZREVRANGE' => true,
+            'ZRANGEBYSCORE' => true,
+            'ZREVRANGEBYSCORE' => true,
+            'ZCARD' => true,
+            'ZSCORE' => true,
+            'ZCOUNT' => true,
+            'ZRANK' => true,
+            'ZREVRANK' => true,
+            'ZSCAN' => true,
+            'ZLEXCOUNT' => true,
+            'ZRANGEBYLEX' => true,
+            'ZREVRANGEBYLEX' => true,
+            'HGET' => true,
+            'HMGET' => true,
+            'HEXISTS' => true,
+            'HLEN' => true,
+            'HKEYS' => true,
+            'HVALS' => true,
+            'HGETALL' => true,
+            'HSCAN' => true,
+            'HSTRLEN' => true,
+            'PING' => true,
+            'AUTH' => true,
+            'SELECT' => true,
+            'ECHO' => true,
+            'QUIT' => true,
+            'OBJECT' => true,
+            'BITCOUNT' => true,
+            'BITPOS' => true,
+            'TIME' => true,
+            'PFCOUNT' => true,
+            'SORT' => array($this, 'isSortReadOnly'),
+            'BITFIELD' => array($this, 'isBitfieldReadOnly'),
+            'GEOHASH' => true,
+            'GEOPOS' => true,
+            'GEODIST' => true,
+            'GEORADIUS' => array($this, 'isGeoradiusReadOnly'),
+            'GEORADIUSBYMEMBER' => array($this, 'isGeoradiusReadOnly'),
+        );
+    }
+}
+
+/**
+ * Exception class that identifies a role mismatch when connecting to node
+ * managed by redis-sentinel.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class RoleException extends CommunicationException
+{
+}
+
+/**
+ * Exception class that identifies when master is missing in a replication setup.
+ *
+ * @author Daniele Alessandri <suppakilla@gmail.com>
+ */
+class MissingMasterException extends ClientException
+{
 }
 
 /* --------------------------------------------------------------------------- */
