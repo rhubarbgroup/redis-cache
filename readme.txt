@@ -171,6 +171,18 @@ The following commands are supported:
 
 == Changelog ==
 
+= 1.3.6 =
+
+  * Added support for Redis Sentinel
+  * Added support for sharing
+  * Switched to PHAR version of Predis
+  * Improved diagnostics
+  * Added `WP_REDIS_SELECTIVE_FLUSH`
+  * Added `$fail_gracefully` parameter to `WP_Object_Cache::__construct()`
+  * Always enforce `WP_REDIS_MAXTTL`
+  * Pass `$selective` and `$salt` to `redis_object_cache_flush` action
+  * Don’t set `WP_CACHE_KEY_SALT` constant
+
 = 1.3.5 =
 
   * Added basic diagnostics to admin interface
@@ -283,6 +295,10 @@ The following commands are supported:
 
 
 == Upgrade Notice ==
+
+= 1.3.6 =
+
+This update contains various improvements.
 
 = 1.3.5 =
 
