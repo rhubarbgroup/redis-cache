@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.7
+
+* Revert back to single file Predis version
+
 ## 1.3.6
 
 * Added support for Redis Sentinel
