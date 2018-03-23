@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.8
+
+* Switched from single file Predis version to full library
+
 ## 1.3.7
 
 * Revert back to single file Predis version

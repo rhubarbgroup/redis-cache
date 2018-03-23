@@ -3,8 +3,8 @@ Contributors: tillkruess
 Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, performance, replication, clustering
 Requires at least: 3.3
-Tested up to: 4.8
-Stable tag: 1.3.7
+Tested up to: 4.9
+Stable tag: 1.3.8
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -171,6 +171,10 @@ The following commands are supported:
 
 == Changelog ==
 
+= 1.3.8 =
+
+  * Switched from single file Predis version to full library
+
 = 1.3.7 =
 
   * Revert back to single file Predis version
@@ -299,6 +303,10 @@ The following commands are supported:
 
 
 == Upgrade Notice ==
+
+= 1.3.7 =
+
+This update contains a critical fix for Predis.
 
 = 1.3.7 =
 
