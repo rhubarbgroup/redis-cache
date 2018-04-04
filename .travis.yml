@@ -8,6 +8,8 @@ php:
 services:
   - redis-server
 
+before_install: pecl install redis
+
 install: travis_retry composer install --no-interaction --prefer-source
 
 script: vendor/bin/phpunit
