@@ -8,7 +8,8 @@ php:
 services:
   - redis-server
 
-before_install: pecl install redis
+before_install:
+  - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 install: travis_retry composer install --no-interaction --prefer-source
 
