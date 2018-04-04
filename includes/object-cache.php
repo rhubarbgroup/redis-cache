@@ -491,7 +491,11 @@ class WP_Object_Cache
             }
 
             // Throws exception if Redis is unavailable
-            $this->redis->ping();
+            if (defined('WP_REDIS_CLUSTER') && strcasecmp('pecl', $client) === 0) {
+                $this->redis->ping(WP_REDIS_HOST);
+            } else {
+                $this->redis->ping();
+            }
 
             $this->redis_connected = true;
         } catch (Exception $exception) {
