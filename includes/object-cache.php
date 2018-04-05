@@ -424,9 +424,9 @@ class WP_Object_Cache
                 $this->redis_client = sprintf('PhpRedis (v%s)', phpversion('redis'));
 
                 if (defined('WP_REDIS_SHARDS')) {
-                    $this->redis = new RedisArray(WP_REDIS_CLUSTER);
+                    $this->redis = new RedisArray(array_values(WP_REDIS_CLUSTER));
                 } elseif (defined('WP_REDIS_CLUSTER')) {
-                    $this->redis = new RedisCluster(null, WP_REDIS_CLUSTER);
+                    $this->redis = new RedisCluster(null, array_values(WP_REDIS_CLUSTER));
                 } else {
                     $this->redis = new Redis();
 
@@ -492,7 +492,7 @@ class WP_Object_Cache
 
             // Throws exception if Redis is unavailable
             if (defined('WP_REDIS_CLUSTER') && strcasecmp('pecl', $client) === 0) {
-                $this->redis->ping(WP_REDIS_HOST);
+                $this->redis->ping(current(array_values(WP_REDIS_CLUSTER)));
             } else {
                 $this->redis->ping();
             }
