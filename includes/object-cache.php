@@ -424,9 +424,9 @@ class WP_Object_Cache
                 $this->redis_client = sprintf('PhpRedis (v%s)', phpversion('redis'));
 
                 if (defined('WP_REDIS_SHARDS')) {
-                    $this->redis = new RedisArray(explode(',', WP_REDIS_CLUSTER));
+                    $this->redis = new RedisArray(WP_REDIS_CLUSTER);
                 } elseif (defined('WP_REDIS_CLUSTER')) {
-                    $this->redis = new RedisCluster(null, explode(',', WP_REDIS_CLUSTER));
+                    $this->redis = new RedisCluster(null, WP_REDIS_CLUSTER);
                 } else {
                     $this->redis = new Redis();
 
@@ -474,7 +474,7 @@ class WP_Object_Cache
                     $parameters = WP_REDIS_SERVERS;
                     $options[ 'replication' ] = true;
                 } elseif (defined('WP_REDIS_CLUSTER')) {
-                    $parameters = explode(',', WP_REDIS_CLUSTER);
+                    $parameters = WP_REDIS_CLUSTER;
                     $options[ 'cluster' ] = 'redis';
                 }
 
@@ -683,7 +683,13 @@ class WP_Object_Cache
                     $this->redis instanceof Predis\Client ? 0 : []
                 ));
             } else {
-                $result = $this->parse_redis_response($this->redis->flushdb());
+                if (defined('WP_REDIS_CLUSTER') && defined('WP_REDIS_CLIENT') && strcasecmp('pecl', WP_REDIS_CLIENT) === 0) {
+                    foreach(WP_REDIS_CLUSTER as $host) {
+                        $result = $this->parse_redis_response($this->redis->flushdb($host));
+                    }
+                } else {
+                    $result = $this->parse_redis_response($this->redis->flushdb());
+                }
             }
 
             if (function_exists('do_action')) {
