@@ -685,7 +685,8 @@ class WP_Object_Cache
             } else {
                 if (defined('WP_REDIS_CLUSTER') && defined('WP_REDIS_CLIENT') && strcasecmp('pecl', WP_REDIS_CLIENT) === 0) {
                     foreach(WP_REDIS_CLUSTER as $host) {
-                        $result = $this->parse_redis_response($this->redis->flushdb($host));
+                        $parsed_host = parse_url($host);
+                        $result = $this->parse_redis_response($this->redis->flushdb($parsed_host['host']));
                     }
                 } else {
                     $result = $this->parse_redis_response($this->redis->flushdb());
