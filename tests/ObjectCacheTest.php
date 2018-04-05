@@ -13,7 +13,11 @@ class ObjectCacheTest extends PHPUnit_Framework_TestCase
     public function testRedisClusterInstance()
     {
         // TODO: remove if Travis supports Redis Cluster
-       //  $this->expectException(RedisClusterException::class);
+        if (strcasecmp('hhvm', phpversion()) !== 0) {
+            $this->expectException(RedisClusterException::class);
+        }
+
+        echo phpversion() . PHP_EOL;
 
         define('WP_REDIS_CLUSTER', '127.0.0.1');
         define('WP_REDIS_HOST', '127.0.0.1');
