@@ -474,7 +474,7 @@ class WP_Object_Cache
                     $parameters = WP_REDIS_SERVERS;
                     $options[ 'replication' ] = true;
                 } elseif (defined('WP_REDIS_CLUSTER')) {
-                    $parameters = explode(',' WP_REDIS_CLUSTER);
+                    $parameters = explode(',', WP_REDIS_CLUSTER);
                     $options[ 'cluster' ] = 'redis';
                 }
 
