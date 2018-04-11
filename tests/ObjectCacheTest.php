@@ -13,8 +13,10 @@ class ObjectCacheTest extends PHPUnit_Framework_TestCase
     public function testRedisFlush()
     {
         $wpObjectCache = new WP_Object_Cache(false);
-        $result = $wpObjectCache->flush();
-        $this->assertTrue($result);
+        $results = $wpObjectCache->flush();
+        foreach($results as $result) {
+            $this->assertTrue($result);
+        }
     }
 
     public function testRedisClusterInstance()
