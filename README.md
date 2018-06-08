@@ -27,10 +27,6 @@ To adjust the connection parameters, define any of the following constants in yo
 
   Specifies the client used to communicate with Redis. Supports `hhvm`, `pecl` and `predis`.
 
-* `WP_REDIS_SCHEME` (default: `tcp`)
-
-  Specifies the protocol used to communicate with an instance of Redis. Internally the client uses the connection class associated to the specified connection scheme. Supports `tcp` (TCP/IP), `unix` (UNIX domain sockets), `tls` (transport layer security) or `http` (HTTP protocol through Webdis).
-
 * `WP_REDIS_HOST` (default: `127.0.0.1`)
 
   IP or hostname of the target server. This is ignored when connecting to Redis using UNIX domain sockets.
@@ -38,10 +34,6 @@ To adjust the connection parameters, define any of the following constants in yo
 * `WP_REDIS_PORT` (default: `6379`)
 
   TCP/IP port of the target server. This is ignored when connecting to Redis using UNIX domain sockets.
-
-* `WP_REDIS_PATH` (default: _not set_)
-
-  Path of the UNIX domain socket file used when connecting to Redis using UNIX domain sockets.
 
 * `WP_REDIS_DATABASE` (default: `0`)
 

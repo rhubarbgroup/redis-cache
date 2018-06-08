@@ -40,10 +40,8 @@ if ( $dropin ) {
 $constants = array(
     'WP_REDIS_DISABLED',
     'WP_REDIS_CLIENT',
-    'WP_REDIS_SCHEME',
     'WP_REDIS_HOST',
     'WP_REDIS_PORT',
-    'WP_REDIS_PATH',
     'WP_REDIS_DATABASE',
     'WP_REDIS_SERVERS',
     'WP_REDIS_CLUSTER',
@@ -51,8 +49,8 @@ $constants = array(
     'WP_REDIS_SENTINEL',
     'WP_REDIS_MAXTTL',
     'WP_CACHE_KEY_SALT',
-	'WP_REDIS_GLOBAL_GROUPS',
-	'WP_REDIS_IGNORED_GROUPS',
+    'WP_REDIS_GLOBAL_GROUPS',
+    'WP_REDIS_IGNORED_GROUPS',
 );
 
 foreach ( $constants as $constant ) {
