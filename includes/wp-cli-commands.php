@@ -2,6 +2,11 @@
 
 WP_CLI::add_command( 'redis', 'RedisObjectCache_CLI_Commands' );
 
+/**
+ * RedisObjectCache_CLI_Commands class.
+ *
+ * @extends WP_CLI_Command
+ */
 class RedisObjectCache_CLI_Commands extends WP_CLI_Command {
 
     /**

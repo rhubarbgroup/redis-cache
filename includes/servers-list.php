@@ -1,7 +1,18 @@
 <?php
 
+/**
+ * Servers_List class.
+ *
+ * @extends WP_List_Table
+ */
 class Servers_List extends WP_List_Table {
 
+    /**
+     * __construct function.
+     *
+     * @access public
+     * @return void
+     */
     public function __construct() {
 
         parent::__construct( array(
@@ -12,6 +23,12 @@ class Servers_List extends WP_List_Table {
 
     }
 
+    /**
+     * get_columns function.
+     *
+     * @access public
+     * @return void
+     */
     public function get_columns() {
 
         return array(
@@ -26,6 +43,12 @@ class Servers_List extends WP_List_Table {
 
     }
 
+    /**
+     * get_hidden_columns function.
+     *
+     * @access public
+     * @return void
+     */
     public function get_hidden_columns() {
 
         $hidden = array( 'host', 'port', 'path' );
@@ -44,6 +67,12 @@ class Servers_List extends WP_List_Table {
 
     }
 
+    /**
+     * prepare_items function.
+     *
+     * @access public
+     * @return void
+     */
     public function prepare_items() {
 
         if ( ! class_exists( 'Predis\Client' ) ) {
@@ -56,6 +85,14 @@ class Servers_List extends WP_List_Table {
 
     }
 
+    /**
+     * column_default function.
+     *
+     * @access public
+     * @param mixed $item
+     * @param mixed $column_name
+     * @return void
+     */
     public function column_default( $item, $column_name ) {
 
         switch ( $column_name ) {
@@ -81,11 +118,24 @@ class Servers_List extends WP_List_Table {
 
     }
 
+    /**
+     * display_tablenav function.
+     *
+     * @access protected
+     * @param mixed $which
+     * @return void
+     */
     protected function display_tablenav($which)
     {
         // hide table navigation
     }
 
+    /**
+     * get_servers function.
+     *
+     * @access protected
+     * @return void
+     */
     protected function get_servers() {
 
         $server = array(
