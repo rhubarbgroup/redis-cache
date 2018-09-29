@@ -101,6 +101,10 @@ class Servers_List extends WP_List_Table {
             }
         }
 
+        if ( defined( 'WP_REDIS_SHARDS' ) ) {
+            $servers = WP_REDIS_SHARDS;
+        }
+
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $servers = WP_REDIS_CLUSTER;
         }
