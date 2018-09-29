@@ -20,12 +20,45 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
     require_once dirname( __FILE__ ) . '/includes/wp-cli-commands.php';
 }
 
+/**
+ * RedisObjectCache class.
+ */
 class RedisObjectCache {
 
+    /**
+     * page
+     *
+     * @var mixed
+     * @access private
+     */
     private $page;
+
+    /**
+     * screen
+     *
+     * (default value: 'settings_page_redis-cache')
+     *
+     * @var string
+     * @access private
+     */
     private $screen = 'settings_page_redis-cache';
+
+    /**
+     * actions
+     *
+     * (default value: array( 'enable-cache', 'disable-cache', 'flush-cache', 'update-dropin' ))
+     *
+     * @var string
+     * @access private
+     */
     private $actions = array( 'enable-cache', 'disable-cache', 'flush-cache', 'update-dropin' );
 
+    /**
+     * __construct function.
+     *
+     * @access public
+     * @return void
+     */
     public function __construct() {
 
         load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
@@ -50,6 +83,12 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * add_admin_menu_page function.
+     *
+     * @access public
+     * @return void
+     */
     public function add_admin_menu_page() {
 
         // add sub-page to "Settings"
@@ -64,6 +103,12 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * show_admin_page function.
+     *
+     * @access public
+     * @return void
+     */
     public function show_admin_page() {
 
         // request filesystem credentials?
@@ -93,6 +138,12 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * show_servers_list function.
+     *
+     * @access public
+     * @return void
+     */
     public function show_servers_list() {
 
         require_once plugin_dir_path( __FILE__ ) . '/includes/servers-list.php';
@@ -103,6 +154,13 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * add_plugin_actions_links function.
+     *
+     * @access public
+     * @param mixed $links
+     * @return void
+     */
     public function add_plugin_actions_links( $links ) {
 
         // add settings link to plugin actions
@@ -113,6 +171,13 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * enqueue_admin_styles function.
+     *
+     * @access public
+     * @param mixed $hook_suffix
+     * @return void
+     */
     public function enqueue_admin_styles( $hook_suffix ) {
 
         if ( $hook_suffix === $this->screen ) {
@@ -122,10 +187,22 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * object_cache_dropin_exists function.
+     *
+     * @access public
+     * @return void
+     */
     public function object_cache_dropin_exists() {
         return file_exists( WP_CONTENT_DIR . '/object-cache.php' );
     }
 
+    /**
+     * validate_object_cache_dropin function.
+     *
+     * @access public
+     * @return void
+     */
     public function validate_object_cache_dropin() {
 
         if ( ! $this->object_cache_dropin_exists() ) {
@@ -143,6 +220,12 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * get_status function.
+     *
+     * @access public
+     * @return void
+     */
     public function get_status() {
 
         if ( ! $this->object_cache_dropin_exists() ) {
@@ -163,6 +246,12 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * get_redis_status function.
+     *
+     * @access public
+     * @return void
+     */
     public function get_redis_status() {
 
         global $wp_object_cache;
@@ -175,6 +264,12 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * get_redis_client_name function.
+     *
+     * @access public
+     * @return void
+     */
     public function get_redis_client_name() {
 
         global $wp_object_cache;
@@ -191,14 +286,32 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * get_redis_cachekey_prefix function.
+     *
+     * @access public
+     * @return void
+     */
     public function get_redis_cachekey_prefix() {
         return defined( 'WP_CACHE_KEY_SALT' ) ? WP_CACHE_KEY_SALT : null;
     }
 
+    /**
+     * get_redis_maxttl function.
+     *
+     * @access public
+     * @return void
+     */
     public function get_redis_maxttl() {
         return defined( 'WP_REDIS_MAXTTL' ) ? WP_REDIS_MAXTTL : null;
     }
 
+    /**
+     * show_admin_notices function.
+     *
+     * @access public
+     * @return void
+     */
     public function show_admin_notices() {
 
         // only show admin notices to users with the right capability
@@ -233,6 +346,12 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * add_admin_page_notices function.
+     *
+     * @access public
+     * @return void
+     */
     public function add_admin_page_notices() {
 
         // show PHP version warning
@@ -278,6 +397,12 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * do_admin_actions function.
+     *
+     * @access public
+     * @return void
+     */
     public function do_admin_actions() {
 
         global $wp_filesystem;
@@ -340,6 +465,14 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * initialize_filesystem function.
+     *
+     * @access public
+     * @param mixed $url
+     * @param bool $silent (default: false)
+     * @return void
+     */
     public function initialize_filesystem( $url, $silent = false ) {
 
         if ( $silent ) {
@@ -372,6 +505,13 @@ class RedisObjectCache {
 
     }
 
+    /**
+     * on_deactivation function.
+     *
+     * @access public
+     * @param mixed $plugin
+     * @return void
+     */
     public function on_deactivation( $plugin ) {
 
         global $wp_filesystem;
