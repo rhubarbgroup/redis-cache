@@ -424,7 +424,7 @@ class WP_Object_Cache
                 $this->redis_client = sprintf('PhpRedis (v%s)', phpversion('redis'));
 
                 if (defined('WP_REDIS_SHARDS')) {
-                    $this->redis = new RedisArray(array_values(WP_REDIS_CLUSTER));
+                    $this->redis = new RedisArray(array_values(WP_REDIS_SHARDS));
                 } elseif (defined('WP_REDIS_CLUSTER')) {
                     $this->redis = new RedisCluster(null, array_values(WP_REDIS_CLUSTER));
                 } else {
