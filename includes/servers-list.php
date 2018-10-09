@@ -52,7 +52,11 @@ class Servers_List extends WP_List_Table {
 
         $this->items = $this->get_servers();
 
-        $this->_column_headers = array($this->get_columns(), $this->get_hidden_columns(), array());
+        $this->_column_headers = array(
+            $this->get_columns(),
+            $this->get_hidden_columns(),
+            array()
+        );
 
     }
 
@@ -93,7 +97,7 @@ class Servers_List extends WP_List_Table {
             'scheme' => 'tcp',
         );
 
-        foreach ( [ 'scheme', 'host', 'port', 'path', 'password', 'database' ] as $setting ) {
+        foreach ( array( 'scheme', 'host', 'port', 'path', 'password', 'database' ) as $setting ) {
             $constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
 
             if ( defined( $constant ) ) {
@@ -117,9 +121,9 @@ class Servers_List extends WP_List_Table {
             $servers = array( $server );
         }
 
-        return array_map(function($parameters) {
-            return is_string($parameters) ? Predis\Connection\Parameters::parse($parameters) : $parameters;
-        }, $servers);
+        return array_map( function ( $parameters ) {
+            return is_string( $parameters ) ? Predis\Connection\Parameters::parse( $parameters ) : $parameters;
+        }, $servers );
 
     }
 
