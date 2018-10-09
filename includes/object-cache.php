@@ -492,7 +492,7 @@ class WP_Object_Cache
             }
 
             // Throws exception if Redis is unavailable
-            if (defined('WP_REDIS_CLUSTER') && strcasecmp('pecl', $client) === 0) {
+            if (defined('WP_REDIS_CLUSTER')) {
                 $this->redis->ping(current(array_values(WP_REDIS_CLUSTER)));
             } else {
                 $this->redis->ping();
@@ -679,7 +679,7 @@ class WP_Object_Cache
                     return i
                 ";
 
-                if (defined('WP_REDIS_CLUSTER') && defined('WP_REDIS_CLIENT') && strcasecmp('pecl', WP_REDIS_CLIENT) === 0) {
+                if (defined('WP_REDIS_CLUSTER')) {
                     foreach($this->redis->_masters() as $master) {
                         $redis = new Redis();
                         $redis->connect($master[0], $master[1]);
@@ -695,9 +695,9 @@ class WP_Object_Cache
                     );
                 }
             } else {
-                if (defined('WP_REDIS_CLUSTER') && defined('WP_REDIS_CLIENT') && strcasecmp('pecl', WP_REDIS_CLIENT) === 0) {
                     foreach($this->redis->_masters() as $master) {
                         $result[] = $this->parse_redis_response($this->redis->flushdb($master));
+                if (defined('WP_REDIS_CLUSTER')) {
                     }
                 } else {
                     $result[] = $this->parse_redis_response($this->redis->flushdb());
