@@ -662,7 +662,7 @@ class WP_Object_Cache
             sleep($delay);
         }
 
-        $result = [];
+        $results = [];
         $this->cache = array();
 
         if ($this->redis_status()) {
@@ -681,13 +681,13 @@ class WP_Object_Cache
 
                 if (defined('WP_REDIS_CLUSTER')) {
                     foreach($this->redis->_masters() as $master) {
-                        $redis = new Redis();
+                        $redis = new Redis;
                         $redis->connect($master[0], $master[1]);
-                        $result[] = $this->parse_redis_response($this->redis->eval($script));
+                        $results[] = $this->parse_redis_response($this->redis->eval($script));
                         unset($redis);
                     }
                 } else {
-                    $result[] = $this->parse_redis_response(
+                    $results[] = $this->parse_redis_response(
                         $this->redis->eval(
                             $script,
                             $this->redis instanceof Predis\Client ? 0 : []
@@ -695,27 +695,31 @@ class WP_Object_Cache
                     );
                 }
             } else {
-                    foreach($this->redis->_masters() as $master) {
-                        $result[] = $this->parse_redis_response($this->redis->flushdb($master));
                 if (defined('WP_REDIS_CLUSTER')) {
+                    foreach ($this->redis->_masters() as $master) {
+                        $results[] = $this->parse_redis_response($this->redis->flushdb($master));
                     }
                 } else {
-                    $result[] = $this->parse_redis_response($this->redis->flushdb());
+                    $results[] = $this->parse_redis_response($this->redis->flushdb());
                 }
             }
 
             if (function_exists('do_action')) {
-                foreach($result as $response) {
-                    do_action('redis_object_cache_flush', $result, $delay, $selective, $salt);
-                }
+                do_action('redis_object_cache_flush', $results, $delay, $selective, $salt);
             }
         }
 
-        if (empty($result)) {
-            $result = false;
+        if (empty($results)) {
+            return false;
         }
 
-        return $result;
+        foreach ($results as $result) {
+            if (! $result) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
