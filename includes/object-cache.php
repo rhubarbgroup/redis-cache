@@ -491,7 +491,11 @@ class WP_Object_Cache
             }
 
             // Throws exception if Redis is unavailable
-            $this->redis->ping();
+            if (defined('WP_REDIS_CLUSTER') && strcasecmp('pecl', $client) === 0) {
+                $this->redis->ping(current(array_values(WP_REDIS_CLUSTER)));
+            } else {
+                $this->redis->ping();
+            }
 
             $this->redis_connected = true;
         } catch (Exception $exception) {
@@ -657,7 +661,7 @@ class WP_Object_Cache
             sleep($delay);
         }
 
-        $result = false;
+        $result = [];
         $this->cache = array();
 
         if ($this->redis_status()) {
@@ -674,17 +678,40 @@ class WP_Object_Cache
                     return i
                 ";
 
-                $result = $this->parse_redis_response($this->redis->eval(
-                    $script,
-                    $this->redis instanceof Predis\Client ? 0 : []
-                ));
+                if (defined('WP_REDIS_CLUSTER') && defined('WP_REDIS_CLIENT') && strcasecmp('pecl', WP_REDIS_CLIENT) === 0) {
+                    foreach($this->redis->_masters() as $master) {
+                        $redis = new Redis();
+                        $redis->connect($master[0], $master[1]);
+                        $result[] = $this->parse_redis_response($this->redis->eval($script));
+                        unset($redis);
+                    }
+                } else {
+                    $result[] = $this->parse_redis_response(
+                        $this->redis->eval(
+                            $script,
+                            $this->redis instanceof Predis\Client ? 0 : []
+                        )
+                    );
+                }
             } else {
-                $result = $this->parse_redis_response($this->redis->flushdb());
+                if (defined('WP_REDIS_CLUSTER') && defined('WP_REDIS_CLIENT') && strcasecmp('pecl', WP_REDIS_CLIENT) === 0) {
+                    foreach($this->redis->_masters() as $master) {
+                        $result[] = $this->parse_redis_response($this->redis->flushdb($master));
+                    }
+                } else {
+                    $result[] = $this->parse_redis_response($this->redis->flushdb());
+                }
             }
 
             if (function_exists('do_action')) {
-                do_action('redis_object_cache_flush', $result, $delay, $selective, $salt);
+                foreach($result as $response) {
+                    do_action('redis_object_cache_flush', $result, $delay, $selective, $salt);
+                }
             }
+        }
+
+        if (empty($result)) {
+            $result = false;
         }
 
         return $result;
@@ -964,7 +991,7 @@ class WP_Object_Cache
         $salt = defined('WP_CACHE_KEY_SALT') ? trim(WP_CACHE_KEY_SALT) : '';
         $prefix = in_array($group, $this->global_groups) ? $this->global_prefix : $this->blog_prefix;
 
-        return "{$salt}{$prefix}:{$group}:{$key}";
+        return "{{$salt}{$prefix}}:{$group}:{$key}";
     }
 
     /**
