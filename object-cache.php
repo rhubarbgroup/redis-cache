@@ -486,7 +486,8 @@ class WP_Object_Cache {
      * @return bool
      */
     public function redis_status() {
-        return $this->redis_connected;
+        // Filter the status to enable disabling.
+        return apply_filters( 'redis_object_cache_redis_status', $this->redis_connected );
     }
 
     /**
