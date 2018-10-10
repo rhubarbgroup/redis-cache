@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0
+
+* Added a filter for the `redis_status()` method's return value to enable disabling the Redis connection.
+
 ## 1.3.4
 
 * Added WP-CLI support
