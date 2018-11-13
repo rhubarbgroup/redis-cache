@@ -72,6 +72,13 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
   Set to `true` to disable the object cache at runtime.
 
+* `WP_REDIS_IGBINARY` (default: _not set_)
+
+  Uses [igbinary](https://github.com/igbinary/igbinary) serializer that serialize data into a binary
+  form and thus reduce data size compared with php's `serialize()` function. Before using this
+  parameter ensure that php-igbinary extension is installed and redis database is
+  [flush](https://redis.io/commands/flushdb)ed.
+
 
 ## Replication & Clustering
 
