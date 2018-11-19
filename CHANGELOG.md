@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.9
+
+* Fixed `WP_REDIS_SHARDS` not showing up in server list
+* Fixed `WP_REDIS_SHARDS` not working when using PECL extension
+* Removed `WP_REDIS_SCHEME` and `WP_REDIS_PATH` leftovers
+
 ## 1.3.8
 
 * Switched from single file Predis version to full library
