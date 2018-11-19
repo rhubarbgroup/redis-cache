@@ -581,6 +581,10 @@ class WP_Object_Cache
      */
     protected function add_or_replace($add, $key, $value, $group = 'default', $expiration = 0)
     {
+        if ( $add && wp_suspend_cache_addition() ) {
+			return false;
+        }
+
         $result = true;
         $derived_key = $this->build_key($key, $group);
 
