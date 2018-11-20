@@ -1115,6 +1115,10 @@ class WP_Object_Cache
      */
     protected function maybe_unserialize($original)
     {
+        if (defined('WP_REDIS_IGBINARY') && WP_REDIS_IGBINARY) {
+            return igbinary_unserialize($original);
+        }
+
         // don't attempt to unserialize data that wasn't serialized going in
         if ($this->is_serialized($original)) {
             return @unserialize($original);
@@ -1130,6 +1134,10 @@ class WP_Object_Cache
      */
     protected function maybe_serialize($data)
     {
+        if (defined('WP_REDIS_IGBINARY') && WP_REDIS_IGBINARY) {
+            return igbinary_serialize($data);
+        }
+
         if (is_array($data) || is_object($data)) {
             return serialize($data);
         }
