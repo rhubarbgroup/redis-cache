@@ -34,3 +34,24 @@
         0 0 0 1px #d54e21,
         0 0 2px 1px rgba( 30, 140, 190, .8 );
 }
+
+.settings_page_redis-cache .card,
+.settings_page_redis-cache br.clearfix {
+    display: none;
+}
+
+@media screen and (min-width: 1110px) {
+    .settings_page_redis-cache .card {
+        display: block;
+        float: right;
+    }
+
+    .settings_page_redis-cache .section-overview {
+        float: left;
+    }
+
+    .settings_page_redis-cache br.clearfix {
+        display: block;
+        clear: both;
+    }
+}

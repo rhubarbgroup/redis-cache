@@ -5,53 +5,77 @@
 
     <h1><?php _e( 'Redis Object Cache', 'redis-cache' ); ?></h1>
 
-    <h2 class="title"><?php _e( 'Overview', 'redis-cache' ); ?></h2>
+    <?php if ( defined( 'EAE_DISABLE_NOTICES' ) || ! is_plugin_active( 'email-address-encoder' ) && ! is_plugin_active( 'email-encoder-premium' ) && ! is_plugin_inactive( 'email-address-encoder' ) && ! is_plugin_inactive( 'email-encoder-premium' ) ) : ?>
+        <div class="card">
+            <h2 class="title">
+                <?php _e( 'Are your email addresses protected?', 'redis-cache' ); ?>
+            </h2>
+            <p>
+                <?php _e( 'Enjoy a clean inbox and peace of mind knowing that your email address is safe from email-harvesting robots.', 'redis-cache' ); ?>
+            </p>
+            <p>
+                <a class="button button-primary" target="_blank" rel="noopener" href="https://encoder.till.im/?utm_source=wp-plugin&amp;utm_medium=redis">
+                    <?php _e( 'Download for Free', 'email-address-encoder' ); ?>
+                </a>
+            </p>
+        </div>
+    <?php endif; ?>
 
-    <table class="form-table">
+    <div class="section-overview">
 
-        <tr>
-            <th><?php _e( 'Status:', 'redis-cache' ); ?></th>
-            <td><code><?php echo $this->get_status(); ?></code></td>
-        </tr>
+        <h2 class="title"><?php _e( 'Overview', 'redis-cache' ); ?></h2>
 
-        <?php if ( ! is_null( $this->get_redis_client_name() ) ) : ?>
+        <table class="form-table">
+
             <tr>
-                <th><?php _e( 'Client:', 'redis-cache' ); ?></th>
-                <td><code><?php echo esc_html( $this->get_redis_client_name() ); ?></code></td>
+                <th><?php _e( 'Status:', 'redis-cache' ); ?></th>
+                <td><code><?php echo $this->get_status(); ?></code></td>
             </tr>
-        <?php endif; ?>
 
-        <?php if ( ! is_null( $this->get_redis_cachekey_prefix() ) && trim( $this->get_redis_cachekey_prefix() ) !== '' ) : ?>
-            <tr>
-                <th><?php _e( 'Key Prefix:', 'redis-cache' ); ?></th>
-                <td><code><?php echo esc_html( $this->get_redis_cachekey_prefix() ); ?></code></td>
-            </tr>
-        <?php endif; ?>
+            <?php if ( ! is_null( $this->get_redis_client_name() ) ) : ?>
+                <tr>
+                    <th><?php _e( 'Client:', 'redis-cache' ); ?></th>
+                    <td><code><?php echo esc_html( $this->get_redis_client_name() ); ?></code></td>
+                </tr>
+            <?php endif; ?>
 
-        <?php if ( ! is_null( $this->get_redis_maxttl() ) ) : ?>
-            <tr>
-                <th><?php _e( 'Max. TTL:', 'redis-cache' ); ?></th>
-                <td><code><?php echo esc_html( $this->get_redis_maxttl() ); ?></code></td>
-            </tr>
-        <?php endif; ?>
+            <?php if ( ! is_null( $this->get_redis_cachekey_prefix() ) && trim( $this->get_redis_cachekey_prefix() ) !== '' ) : ?>
+                <tr>
+                    <th><?php _e( 'Key Prefix:', 'redis-cache' ); ?></th>
+                    <td><code><?php echo esc_html( $this->get_redis_cachekey_prefix() ); ?></code></td>
+                </tr>
+            <?php endif; ?>
 
-    </table>
+            <?php if ( ! is_null( $this->get_redis_maxttl() ) ) : ?>
+                <tr>
+                    <th><?php _e( 'Max. TTL:', 'redis-cache' ); ?></th>
+                    <td><code><?php echo esc_html( $this->get_redis_maxttl() ); ?></code></td>
+                </tr>
+            <?php endif; ?>
 
-    <p class="submit">
+        </table>
 
-        <?php if ( $this->get_redis_status() ) : ?>
-            <a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'flush-cache', $this->page ) ), 'flush-cache' ); ?>" class="button button-primary button-large"><?php _e( 'Flush Cache', 'redis-cache' ); ?></a> &nbsp;
-        <?php endif; ?>
+        <p class="submit">
 
-        <?php if ( ! $this->object_cache_dropin_exists() ) : ?>
-            <a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'enable-cache', $this->page ) ), 'enable-cache' ); ?>" class="button button-primary button-large"><?php _e( 'Enable Object Cache', 'redis-cache' ); ?></a>
-        <?php elseif ( $this->validate_object_cache_dropin() ) : ?>
-            <a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'disable-cache', $this->page ) ), 'disable-cache' ); ?>" class="button button-secondary button-large delete"><?php _e( 'Disable Object Cache', 'redis-cache' ); ?></a>
-        <?php endif; ?>
+            <?php if ( $this->get_redis_status() ) : ?>
+                <a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'flush-cache', $this->page ) ), 'flush-cache' ); ?>" class="button button-primary button-large"><?php _e( 'Flush Cache', 'redis-cache' ); ?></a> &nbsp;
+            <?php endif; ?>
 
-    </p>
+            <?php if ( ! $this->object_cache_dropin_exists() ) : ?>
+                <a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'enable-cache', $this->page ) ), 'enable-cache' ); ?>" class="button button-primary button-large"><?php _e( 'Enable Object Cache', 'redis-cache' ); ?></a>
+            <?php elseif ( $this->validate_object_cache_dropin() ) : ?>
+                <a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'disable-cache', $this->page ) ), 'disable-cache' ); ?>" class="button button-secondary button-large delete"><?php _e( 'Disable Object Cache', 'redis-cache' ); ?></a>
+            <?php endif; ?>
 
-    <h2 class="title"><?php _e( 'Servers', 'redis-cache' ); ?></h2>
+        </p>
+
+    </div>
+
+    <br class="clearfix">
+
+    <h2 class="title">
+        <?php _e( 'Servers', 'redis-cache' ); ?>
+    </h2>
 
     <?php $this->show_servers_list(); ?>
 
