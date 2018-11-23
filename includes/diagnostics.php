@@ -40,6 +40,8 @@ if ( $dropin ) {
 $constants = array(
     'WP_REDIS_DISABLED',
     'WP_REDIS_CLIENT',
+    'WP_REDIS_SCHEME',
+    'WP_REDIS_PATH',
     'WP_REDIS_HOST',
     'WP_REDIS_PORT',
     'WP_REDIS_DATABASE',
