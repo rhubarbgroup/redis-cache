@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.1
+
+* Fixed potential fatal error related to `wp_suspend_cache_addition()`
+
+## 1.4.0
+
+* Added support for igbinary
+* Added support for `wp_suspend_cache_addition()`
+
 ## 1.3.9
 
 * Fixed `WP_REDIS_SHARDS` not showing up in server list
