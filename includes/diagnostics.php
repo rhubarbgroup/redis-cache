@@ -49,6 +49,7 @@ $constants = array(
     'WP_REDIS_CLUSTER',
     'WP_REDIS_SHARDS',
     'WP_REDIS_SENTINEL',
+    'WP_REDIS_IGBINARY',
     'WP_REDIS_MAXTTL',
     'WP_CACHE_KEY_SALT',
     'WP_REDIS_GLOBAL_GROUPS',

@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, performance, replication, clustering
 Requires at least: 3.3
 Tested up to: 5.0
-Stable tag: 1.3.9
+Stable tag: 1.4.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -175,6 +175,11 @@ The following commands are supported:
 
 == Changelog ==
 
+= 1.4.0 =
+
+  * Added support for igbinary
+  * Added support for `wp_suspend_cache_addition()`
+
 = 1.3.9 =
 
   * Fixed `WP_REDIS_SHARDS` not showing up in server list
@@ -313,6 +318,10 @@ The following commands are supported:
 
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+
+This update adds support for igbinary and `wp_suspend_cache_addition()`.
 
 = 1.3.9 =
 
