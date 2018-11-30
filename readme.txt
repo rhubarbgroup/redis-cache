@@ -175,6 +175,10 @@ The following commands are supported:
 
 == Changelog ==
 
+= 1.4.1 =
+
+  * Fixed potential fatal error related to `wp_suspend_cache_addition()`
+
 = 1.4.0 =
 
   * Added support for igbinary
