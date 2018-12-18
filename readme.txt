@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/tillkruss
 Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, performance, replication, clustering
 Requires at least: 3.3
 Tested up to: 5.0
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -175,6 +175,10 @@ The following commands are supported:
 
 == Changelog ==
 
+= 1.4.2 =
+
+  * Renamed `redis_object_cache_get` filter to `redis_object_cache_get_value` to avoid conflicts with `redis_object_cache_get` action
+
 = 1.4.1 =
 
   * Fixed potential fatal error related to `wp_suspend_cache_addition()`
@@ -322,6 +326,10 @@ The following commands are supported:
 
 
 == Upgrade Notice ==
+
+= 1.4.2 =
+
+This update renames the `redis_object_cache_get` filter to avoid conflicts. Update your code if necessary.
 
 = 1.4.0 =
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.2
+
+* Renamed `redis_object_cache_get` filter to `redis_object_cache_get_value` to avoid conflicts with `redis_object_cache_get` action
+
 ## 1.4.1
 
 * Fixed potential fatal error related to `wp_suspend_cache_addition()`
