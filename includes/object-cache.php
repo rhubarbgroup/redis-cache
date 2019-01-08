@@ -600,7 +600,7 @@ class WP_Object_Cache
                 return false;
             }
 
-            $expiration = apply_filters('redis_cache_expiration', $this->validate_expiration($expiration), $key, $value, $group);
+            $expiration = apply_filters('redis_cache_expiration', $this->validate_expiration($expiration), $key, $group);
 
             if ($expiration) {
                 $result = $this->parse_redis_response($this->redis->setex($derived_key, $expiration, $this->maybe_serialize($value)));
