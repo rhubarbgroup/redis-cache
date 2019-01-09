@@ -838,7 +838,7 @@ class WP_Object_Cache
 
         // save if group not excluded from redis and redis is up
         if (! in_array($group, $this->ignored_groups) && $this->redis_status()) {
-            $expiration = $this->validate_expiration($expiration);
+            $expiration = apply_filters('redis_cache_expiration', $this->validate_expiration($expiration), $key, $group);
 
             if ($expiration) {
                 $result = $this->parse_redis_response($this->redis->setex($derived_key, $expiration, $this->maybe_serialize($value)));
