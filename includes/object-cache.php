@@ -490,6 +490,10 @@ class WP_Object_Cache
                 $this->redis_client .= sprintf(' (v%s)', Predis\Client::VERSION);
             }
 
+            if (! defined('WP_REDIS_CLUSTER')) {
+                $this->redis->ping(); // Throws exception if Redis is unavailable
+            }
+
             $this->redis_connected = true;
         } catch (Exception $exception) {
 
