@@ -131,12 +131,6 @@ define( 'WP_REDIS_CLUSTER', [
     'tcp://127.0.0.1:6379?alias=node-01',
     'tcp://127.0.0.2:6379?alias=node-02',
     'tcp://127.0.0.3:6379?alias=node-03',
-    'tcp://127.0.0.4:6379?alias=node-04',
-    'tcp://127.0.0.5:6379?alias=node-05',
-    'tcp://127.0.0.6:6379?alias=node-06',
-    'tcp://127.0.0.7:6379?alias=node-07',
-    'tcp://127.0.0.8:6379?alias=node-08',
-    'tcp://127.0.0.9:6379?alias=node-09',
 ] );
 ```
 
