@@ -13,7 +13,7 @@ $info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
 if ( $dropin ) {
     try {
         $cache = new WP_Object_Cache( false );
-        $info[ 'Ping' ] = $cache->redis_instance()->ping();
+        $info[ 'Ping' ] = defined( 'WP_REDIS_CLUSTER' ) ? 'Not supported' : $cache->redis_instance()->ping();
     } catch ( Exception $exception ) {
         $info[ 'Connection Exception' ] = sprintf( '%s (%s)', $exception->getMessage(), get_class( $exception ) );
     }
