@@ -41,6 +41,13 @@ class RedisObjectCache {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
         add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
+        /**
+        * Additional hooks to option updates to ensure they get refreshed in the
+        * Redis object-cache when they change.
+        */
+        add_action( 'added_option',   array( $this, 'maybe_clear_alloptions_cache' ) );
+        add_action( 'updated_option', array( $this, 'maybe_clear_alloptions_cache' ) );
+        add_action( 'deleted_option', array( $this, 'maybe_clear_alloptions_cache' ) );
 
         add_filter( sprintf(
             '%splugin_action_links_%s',
@@ -48,6 +55,32 @@ class RedisObjectCache {
             plugin_basename( __FILE__ )
         ), array( $this, 'add_plugin_actions_links' ) );
 
+    }
+
+
+    /**
+    * Fix a race condition in options caching
+    
+    * See https://core.trac.wordpress.org/ticket/31245
+    * and https://github.com/tillkruss/redis-cache/issues/58
+    *
+    */
+    public function maybe_clear_alloptions_cache( $option ) {
+        //skip options checking if it is in ignored group
+        if( defined('WP_REDIS_IGNORED_GROUPS') && is_array(WP_REDIS_IGNORED_GROUPS) && in_array( 'options' , WP_REDIS_IGNORED_GROUPS )) {
+            return;
+        }      
+        // error_log("added/updated/deleted option: $option");
+
+        if ( wp_installing() === FALSE ) {
+            $alloptions = wp_load_alloptions(); // alloptions should be cached at this point
+
+            // If option is part of the alloptions collection then clear it.
+            if ( array_key_exists($option, $alloptions) ) {
+                wp_cache_delete( $option, 'options' );
+            }
+
+        }
     }
 
     public function add_admin_menu_page() {
