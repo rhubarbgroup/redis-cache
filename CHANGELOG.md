@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0
+
+* All ignored cache group comparisons use strict string comparison.
+
 ## 1.4.0
 
 * Added a filter for the `redis_status()` method's return value to enable disabling the Redis connection.
