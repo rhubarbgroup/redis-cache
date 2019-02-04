@@ -41,10 +41,7 @@ class RedisObjectCache {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
         add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
-        /**
-        * Additional hooks to option updates to ensure they get refreshed in the
-        * Redis object-cache when they change.
-        */
+
         add_action( 'added_option',   array( $this, 'maybe_clear_alloptions_cache' ) );
         add_action( 'updated_option', array( $this, 'maybe_clear_alloptions_cache' ) );
         add_action( 'deleted_option', array( $this, 'maybe_clear_alloptions_cache' ) );
@@ -57,29 +54,20 @@ class RedisObjectCache {
 
     }
 
-
-    /**
-    * Fix a race condition in options caching
-    
-    * See https://core.trac.wordpress.org/ticket/31245
-    * and https://github.com/tillkruss/redis-cache/issues/58
-    *
-    */
+    // https://core.trac.wordpress.org/ticket/31245
+    // https://github.com/tillkruss/redis-cache/issues/58
     public function maybe_clear_alloptions_cache( $option ) {
-        //skip options checking if it is in ignored group
-        if( defined('WP_REDIS_IGNORED_GROUPS') && is_array(WP_REDIS_IGNORED_GROUPS) && in_array( 'options' , WP_REDIS_IGNORED_GROUPS )) {
+
+        if ( defined( 'WP_REDIS_IGNORED_GROUPS' ) && in_array( 'options' , WP_REDIS_IGNORED_GROUPS ) ) {
             return;
-        }      
-        // error_log("added/updated/deleted option: $option");
+        }
 
-        if ( wp_installing() === FALSE ) {
-            $alloptions = wp_load_alloptions(); // alloptions should be cached at this point
+        if ( ! wp_installing() ) {
+            $alloptions = wp_load_alloptions();
 
-            // If option is part of the alloptions collection then clear it.
-            if ( array_key_exists($option, $alloptions) ) {
+            if ( array_key_exists( $option, $alloptions ) ) {
                 wp_cache_delete( $option, 'options' );
             }
-
         }
     }
 
