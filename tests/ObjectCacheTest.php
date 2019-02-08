@@ -13,10 +13,9 @@ class ObjectCacheTest extends PHPUnit_Framework_TestCase
     public function testRedisFlush()
     {
         $wpObjectCache = new WP_Object_Cache(false);
-        $results = $wpObjectCache->flush();
-        foreach($results as $result) {
-            $this->assertTrue($result);
-        }
+        $result = $wpObjectCache->flush();
+
+        $this->assertTrue($result);
     }
 
     public function testRedisClusterInstance()
@@ -28,6 +27,7 @@ class ObjectCacheTest extends PHPUnit_Framework_TestCase
 
         define('WP_REDIS_CLUSTER', ['127.0.0.1']);
         define('WP_REDIS_HOST', '127.0.0.1');
+
         $wpObjectCache = new WP_Object_Cache(false);
         $this->assertNotEmpty($wpObjectCache->redis_instance());
     }
