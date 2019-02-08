@@ -2,7 +2,9 @@
 
 ## 1.4.2
 
-* Renamed `redis_object_cache_get` filter to `redis_object_cache_get_value` to avoid conflicts with `redis_object_cache_get` action
+* Improved cluster support
+* Added `redis_cache_expiration` filter
+* Renamed `redis_object_cache_get` filter to `redis_object_cache_get_value`
 
 ## 1.4.1
 
