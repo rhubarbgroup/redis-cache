@@ -387,7 +387,7 @@ class WP_Object_Cache
             $constant = sprintf('WP_REDIS_%s', strtoupper($setting));
 
             if (defined($constant)) {
-                $parameters[ $setting ] = constant($constant);
+                $parameters[$setting] = constant($constant);
             }
         }
 
@@ -413,12 +413,12 @@ class WP_Object_Cache
                 $this->redis = new Redis();
 
                 // Adjust host and port, if the scheme is `unix`
-                if (strcasecmp('unix', $parameters[ 'scheme' ]) === 0) {
-                    $parameters[ 'host' ] = 'unix://' . $parameters[ 'path' ];
-                    $parameters[ 'port' ] = 0;
+                if (strcasecmp('unix', $parameters['scheme']) === 0) {
+                    $parameters['host'] = 'unix://' . $parameters['path'];
+                    $parameters['port'] = 0;
                 }
 
-                $this->redis->connect($parameters[ 'host' ], $parameters[ 'port' ]);
+                $this->redis->connect($parameters['host'], $parameters['port']);
             }
 
             if (strcasecmp('pecl', $client) === 0) {
@@ -431,21 +431,21 @@ class WP_Object_Cache
                 } else {
                     $this->redis = new Redis();
 
-                    if (strcasecmp('unix', $parameters[ 'scheme' ]) === 0) {
-                        $this->redis->connect($parameters[ 'path' ]);
+                    if (strcasecmp('unix', $parameters['scheme']) === 0) {
+                        $this->redis->connect($parameters['path']);
                     } else {
-                        $this->redis->connect($parameters[ 'host' ], $parameters[ 'port' ]);
+                        $this->redis->connect($parameters['host'], $parameters['port']);
                     }
                 }
             }
 
             if (strcasecmp('pecl', $client) === 0 || strcasecmp('hhvm', $client) === 0) {
-                if (isset($parameters[ 'password' ])) {
-                    $this->redis->auth($parameters[ 'password' ]);
+                if (isset($parameters['password'])) {
+                    $this->redis->auth($parameters['password']);
                 }
 
-                if (isset($parameters[ 'database' ])) {
-                    $this->redis->select($parameters[ 'database' ]);
+                if (isset($parameters['database'])) {
+                    $this->redis->select($parameters['database']);
                 }
             }
 
@@ -469,19 +469,19 @@ class WP_Object_Cache
                     $parameters = WP_REDIS_SHARDS;
                 } elseif (defined('WP_REDIS_SENTINEL')) {
                     $parameters = WP_REDIS_SERVERS;
-                    $options[ 'replication' ] = 'sentinel';
-                    $options[ 'service' ] = WP_REDIS_SENTINEL;
+                    $options['replication'] = 'sentinel';
+                    $options['service'] = WP_REDIS_SENTINEL;
                 } elseif (defined('WP_REDIS_SERVERS')) {
                     $parameters = WP_REDIS_SERVERS;
-                    $options[ 'replication' ] = true;
+                    $options['replication'] = true;
                 } elseif (defined('WP_REDIS_CLUSTER')) {
                     $parameters = WP_REDIS_CLUSTER;
-                    $options[ 'cluster' ] = 'redis';
+                    $options['cluster'] = 'redis';
                 }
 
                 foreach (array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant) {
                     if (defined('WP_REDIS_PASSWORD') && defined($constant)) {
-                        $options[ 'parameters' ][ 'password' ] = WP_REDIS_PASSWORD;
+                        $options['parameters']['password'] = WP_REDIS_PASSWORD;
                     }
                 }
 
@@ -613,7 +613,7 @@ class WP_Object_Cache
             }
         }
 
-        $exists = isset($this->cache[ $derived_key ]);
+        $exists = isset($this->cache[$derived_key]);
 
         if ($add == $exists) {
             return false;
@@ -638,8 +638,8 @@ class WP_Object_Cache
         $result = false;
         $derived_key = $this->build_key($key, $group);
 
-        if (isset($this->cache[ $derived_key ])) {
-            unset($this->cache[ $derived_key ]);
+        if (isset($this->cache[$derived_key])) {
+            unset($this->cache[$derived_key]);
             $result = true;
         }
 
@@ -746,11 +746,11 @@ class WP_Object_Cache
     {
         $derived_key = $this->build_key($key, $group);
 
-        if (isset($this->cache[ $derived_key ]) && ! $force) {
+        if (isset($this->cache[$derived_key]) && ! $force) {
             $found = true;
             $this->cache_hits++;
 
-            return is_object($this->cache[ $derived_key ]) ? clone $this->cache[ $derived_key ] : $this->cache[ $derived_key ];
+            return is_object($this->cache[$derived_key]) ? clone $this->cache[$derived_key] : $this->cache[$derived_key];
         } elseif (in_array($group, $this->ignored_groups) || ! $this->redis_status()) {
             $found = false;
             $this->cache_misses++;
@@ -812,7 +812,7 @@ class WP_Object_Cache
         foreach ($groups as $group => $keys) {
             if (in_array($group, $this->ignored_groups) || ! $this->redis_status()) {
                 foreach ($keys as $key) {
-                    $cache[ $this->build_key($key, $group) ] = $this->get($key, $group);
+                    $cache[$this->build_key($key, $group)] = $this->get($key, $group);
                 }
             } else {
                 // Reformat arguments as expected by Redis
@@ -1055,7 +1055,7 @@ class WP_Object_Cache
      */
     public function add_to_internal_cache($derived_key, $value)
     {
-        $this->cache[ $derived_key ] = $value;
+        $this->cache[$derived_key] = $value;
     }
 
     /**
@@ -1070,8 +1070,8 @@ class WP_Object_Cache
     {
         $derived_key = $this->build_key($key, $group);
 
-        if (isset($this->cache[ $derived_key ])) {
-            return $this->cache[ $derived_key ];
+        if (isset($this->cache[$derived_key])) {
+            return $this->cache[$derived_key];
         }
 
         return false;
