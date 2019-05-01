@@ -698,7 +698,7 @@ class WP_Object_Cache
 
                 if (defined('WP_REDIS_CLUSTER')) {
                     try {
-                        foreach($this->redis->_masters() as $master) {
+                        foreach ($this->redis->_masters() as $master) {
                             $redis = new Redis;
                             $redis->connect($master[0], $master[1]);
                             $results[] = $this->parse_redis_response($this->redis->eval($script));
@@ -1327,10 +1327,10 @@ class WP_Object_Cache
      * @param \Exception $exception Exception thrown.
      */
     protected function handle_exception($exception) {
+        $this->redis_connected = false;
+
         // When Redis is unavailable, fall back to the internal cache by forcing all groups to be "no redis" groups
         $this->ignored_groups = array_unique(array_merge($this->ignored_groups, $this->global_groups));
-
-        $this->redis_connected = false;
 
         if (! $this->fail_gracefully) {
             throw $exception;
