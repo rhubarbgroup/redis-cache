@@ -507,7 +507,7 @@ class WP_Object_Cache
 
             $this->redis_connected = true;
         } catch (Exception $exception) {
-            $this->handle_redis_failure($exception);
+            $this->handle_exception($exception);
         }
 
         // Assign global and blog prefixes for use with keys
@@ -613,8 +613,8 @@ class WP_Object_Cache
                     $result = $this->parse_redis_response($this->redis->set($derived_key, $this->maybe_serialize($value)));
                 }
             } catch (Exception $exception) {
-                $this->handle_redis_failure($exception);
                 $result = false;
+                $this->handle_exception($exception);
             }
         }
 
@@ -652,8 +652,8 @@ class WP_Object_Cache
             try {
                 $result = $this->parse_redis_response($this->redis->del($derived_key));
             } catch (Exception $exception) {
-                $this->handle_redis_failure($exception);
                 $result = false;
+                $this->handle_exception($exception);
             }
         }
 
@@ -705,8 +705,8 @@ class WP_Object_Cache
                             unset($redis);
                         }
                     } catch (Exception $exception) {
-                        $this->handle_redis_failure($exception);
                         $results[] = false;
+                        $this->handle_exception($exception);
                     }
                 } else {
                     try {
@@ -717,8 +717,8 @@ class WP_Object_Cache
                             )
                         );
                     } catch (Exception $exception) {
-                        $this->handle_redis_failure($exception);
                         $results[] = false;
+                        $this->handle_exception($exception);
                     }
                 }
             } else {
@@ -728,15 +728,15 @@ class WP_Object_Cache
                             $results[] = $this->parse_redis_response($this->redis->flushdb($master));
                         }
                     } catch (Exception $exception) {
-                        $this->handle_redis_failure($exception);
                         $results[] = false;
+                        $this->handle_exception($exception);
                     }
                 } else {
                     try {
                         $results[] = $this->parse_redis_response($this->redis->flushdb());
                     } catch (Exception $exception) {
-                        $this->handle_redis_failure($exception);
                         $results[] = false;
+                        $this->handle_exception($exception);
                     }
                 }
             }
@@ -791,8 +791,8 @@ class WP_Object_Cache
         try {
             $result = $this->redis->get($derived_key);
         } catch (Exception $exception) {
-            $this->handle_redis_failure($exception);
             $result = false;
+            $this->handle_exception($exception);
         }
 
         if ($result === null || $result === false) {
@@ -861,7 +861,7 @@ class WP_Object_Cache
                 try {
                     $group_cache = $this->redis->mget($derived_keys);
                 } catch (Exception $exception) {
-                    $this->handle_redis_failure($exception);
+                    $this->handle_exception($exception);
                     $group_cache = array_fill(0, count($derived_keys) - 1, false);
                 }
 
@@ -918,8 +918,8 @@ class WP_Object_Cache
                     $result = $this->parse_redis_response($this->redis->set($derived_key, $this->maybe_serialize($value)));
                 }
             } catch (Exception $exception) {
-                $this->handle_redis_failure($exception);
                 $result = false;
+                $this->handle_exception($exception);
             }
         }
 
@@ -963,8 +963,8 @@ class WP_Object_Cache
 
             $this->add_to_internal_cache($derived_key, (int) $this->redis->get($derived_key));
         } catch (Exception $exception) {
-            $this->handle_redis_failure($exception);
             $result = false;
+            $this->handle_exception($exception);
         }
 
         return $result;
@@ -1011,8 +1011,8 @@ class WP_Object_Cache
 
             $this->add_to_internal_cache($derived_key, (int) $this->redis->get($derived_key));
         } catch (Exception $exception) {
-            $this->handle_redis_failure($exception);
             $result = false;
+            $this->handle_exception($exception);
         }
 
         return $result;
@@ -1326,7 +1326,7 @@ class WP_Object_Cache
      *
      * @param \Exception $exception Exception thrown.
      */
-    private function handle_redis_failure($exception) {
+    protected function handle_exception($exception) {
         // When Redis is unavailable, fall back to the internal cache by forcing all groups to be "no redis" groups
         $this->ignored_groups = array_unique(array_merge($this->ignored_groups, $this->global_groups));
 
