@@ -1334,6 +1334,8 @@ class WP_Object_Cache
 
         if (! $this->fail_gracefully) {
             throw $exception;
+        } else {
+            error_log($exception);
         }
     }
 }
