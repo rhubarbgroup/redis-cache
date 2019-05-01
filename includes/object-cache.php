@@ -613,8 +613,9 @@ class WP_Object_Cache
                     $result = $this->parse_redis_response($this->redis->set($derived_key, $this->maybe_serialize($value)));
                 }
             } catch (Exception $exception) {
-                $result = false;
                 $this->handle_exception($exception);
+
+                return false;
             }
         }
 
@@ -652,8 +653,9 @@ class WP_Object_Cache
             try {
                 $result = $this->parse_redis_response($this->redis->del($derived_key));
             } catch (Exception $exception) {
-                $result = false;
                 $this->handle_exception($exception);
+
+                return false;
             }
         }
 
@@ -705,8 +707,9 @@ class WP_Object_Cache
                             unset($redis);
                         }
                     } catch (Exception $exception) {
-                        $results[] = false;
                         $this->handle_exception($exception);
+
+                        return false;
                     }
                 } else {
                     try {
@@ -717,8 +720,9 @@ class WP_Object_Cache
                             )
                         );
                     } catch (Exception $exception) {
-                        $results[] = false;
                         $this->handle_exception($exception);
+
+                        return false;
                     }
                 }
             } else {
@@ -728,15 +732,17 @@ class WP_Object_Cache
                             $results[] = $this->parse_redis_response($this->redis->flushdb($master));
                         }
                     } catch (Exception $exception) {
-                        $results[] = false;
                         $this->handle_exception($exception);
+
+                        return false;
                     }
                 } else {
                     try {
                         $results[] = $this->parse_redis_response($this->redis->flushdb());
                     } catch (Exception $exception) {
-                        $results[] = false;
                         $this->handle_exception($exception);
+
+                        return false;
                     }
                 }
             }
@@ -791,8 +797,9 @@ class WP_Object_Cache
         try {
             $result = $this->redis->get($derived_key);
         } catch (Exception $exception) {
-            $result = false;
             $this->handle_exception($exception);
+
+            return false;
         }
 
         if ($result === null || $result === false) {
@@ -918,8 +925,9 @@ class WP_Object_Cache
                     $result = $this->parse_redis_response($this->redis->set($derived_key, $this->maybe_serialize($value)));
                 }
             } catch (Exception $exception) {
-                $result = false;
                 $this->handle_exception($exception);
+
+                return false;
             }
         }
 
@@ -963,8 +971,9 @@ class WP_Object_Cache
 
             $this->add_to_internal_cache($derived_key, (int) $this->redis->get($derived_key));
         } catch (Exception $exception) {
-            $result = false;
             $this->handle_exception($exception);
+
+            return false;
         }
 
         return $result;
@@ -1011,8 +1020,9 @@ class WP_Object_Cache
 
             $this->add_to_internal_cache($derived_key, (int) $this->redis->get($derived_key));
         } catch (Exception $exception) {
-            $result = false;
             $this->handle_exception($exception);
+
+            return false;
         }
 
         return $result;
