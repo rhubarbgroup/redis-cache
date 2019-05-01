@@ -1205,7 +1205,7 @@ class WP_Object_Cache
      */
     protected function maybe_unserialize($original)
     {
-        if (defined('WP_REDIS_IGBINARY') && WP_REDIS_IGBINARY) {
+        if (defined('WP_REDIS_IGBINARY') && WP_REDIS_IGBINARY && function_exists('igbinary_unserialize')) {
             return igbinary_unserialize($original);
         }
 
@@ -1224,7 +1224,7 @@ class WP_Object_Cache
      */
     protected function maybe_serialize($data)
     {
-        if (defined('WP_REDIS_IGBINARY') && WP_REDIS_IGBINARY) {
+        if (defined('WP_REDIS_IGBINARY') && WP_REDIS_IGBINARY && function_exists('igbinary_serialize')) {
             return igbinary_serialize($data);
         }
 
