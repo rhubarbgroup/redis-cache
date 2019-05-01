@@ -279,7 +279,6 @@ function wp_cache_add_non_persistent_groups($groups)
 
 class WP_Object_Cache
 {
-
     /**
      * The Redis client.
      *
@@ -463,7 +462,7 @@ class WP_Object_Cache
 
                 // Require PHP 5.4 or greater
                 if (version_compare(PHP_VERSION, '5.4.0', '<')) {
-                    throw new Exception;
+                    throw new Exception('Predis required PHP 5.4 or newer.');
                 }
 
                 // Load bundled Predis library
