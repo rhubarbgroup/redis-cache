@@ -5,7 +5,13 @@
 
     <h1><?php _e( 'Redis Object Cache', 'redis-cache' ); ?></h1>
 
-    <?php if ( defined( 'EAE_DISABLE_NOTICES' ) || ! is_plugin_active( 'email-address-encoder' ) && ! is_plugin_active( 'email-encoder-premium' ) && ! is_plugin_inactive( 'email-address-encoder' ) && ! is_plugin_inactive( 'email-encoder-premium' ) ) : ?>
+    <?php if (
+        defined( 'EAE_DISABLE_NOTICES' ) ||
+        ! is_plugin_active( 'email-address-encoder' ) &&
+        ! is_plugin_active( 'email-encoder-premium' ) &&
+        ! is_plugin_inactive( 'email-address-encoder' ) &&
+        ! is_plugin_inactive( 'email-encoder-premium' )
+    ) : ?>
         <div class="card">
             <h2 class="title">
                 <?php _e( 'Are your email addresses protected?', 'redis-cache' ); ?>
