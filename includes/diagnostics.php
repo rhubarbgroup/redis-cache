@@ -67,8 +67,8 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
 }
 
 if ( $dropin ) {
-    $info[ 'Global Groups' ] = json_encode( $wp_object_cache->global_groups );
-    $info[ 'Ignored Groups' ] = json_encode( $wp_object_cache->ignored_groups );
+    $info[ 'Global Groups' ] = json_encode( $wp_object_cache->global_groups, JSON_PRETTY_PRINT );
+    $info[ 'Ignored Groups' ] = json_encode( $wp_object_cache->ignored_groups, JSON_PRETTY_PRINT );
 }
 
 foreach ( $info as $name => $value ) {
