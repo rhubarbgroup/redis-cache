@@ -180,7 +180,9 @@ function wp_cache_init()
     global $wp_object_cache;
 
     if (! ($wp_object_cache instanceof WP_Object_Cache)) {
-        $wp_object_cache = new WP_Object_Cache;
+        $fail_gracefully = ! defined('WP_REDIS_GRACEFUL') || WP_REDIS_GRACEFUL;
+
+        $wp_object_cache = new WP_Object_Cache($fail_gracefully);
     }
 }
 
