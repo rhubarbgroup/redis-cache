@@ -2,6 +2,7 @@
 
 ## 1.4.2
 
+* Added graceful Redis failures and `WP_REDIS_GRACEFUL` constant
 * Improved cluster support
 * Added `redis_cache_expiration` filter
 * Renamed `redis_object_cache_get` filter to `redis_object_cache_get_value`
