@@ -346,7 +346,7 @@ class WP_Object_Cache
      *
      * @var array
      */
-    public $ignored_groups = array( 'counts', 'plugins' );
+    public $ignored_groups = array('counts', 'plugins');
 
     /**
      * Prefix used for global groups.
@@ -393,7 +393,7 @@ class WP_Object_Cache
             'port' => 6379
         );
 
-        foreach (array( 'scheme', 'host', 'port', 'path', 'password', 'database' ) as $setting) {
+        foreach (array('scheme', 'host', 'port', 'path', 'password', 'database') as $setting) {
             $constant = sprintf('WP_REDIS_%s', strtoupper($setting));
 
             if (defined($constant)) {
@@ -489,7 +489,7 @@ class WP_Object_Cache
                     $options['cluster'] = 'redis';
                 }
 
-                foreach (array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant) {
+                foreach (array('WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER') as $constant) {
                     if (defined('WP_REDIS_PASSWORD') && defined($constant)) {
                         $options['parameters']['password'] = WP_REDIS_PASSWORD;
                     }
@@ -591,7 +591,7 @@ class WP_Object_Cache
             ? wp_suspend_cache_addition()
             : false;
 
-        if ( $add && $cache_addition_suspended ) {
+        if ($add && $cache_addition_suspended) {
             return false;
         }
 
@@ -878,10 +878,10 @@ class WP_Object_Cache
                 $group_cache = array_combine($derived_keys, $group_cache);
 
                 // Restores cached data to its original data type
-                $group_cache = array_map(array( $this, 'maybe_unserialize' ), $group_cache);
+                $group_cache = array_map(array($this, 'maybe_unserialize'), $group_cache);
 
                 // Redis returns null for values not found in cache, but expected return value is false in this instance
-                $group_cache = array_map(array( $this, 'filter_redis_get_multi' ), $group_cache);
+                $group_cache = array_map(array($this, 'filter_redis_get_multi'), $group_cache);
 
                 $cache = array_merge($cache, $group_cache);
             }
