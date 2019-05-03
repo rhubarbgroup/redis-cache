@@ -145,7 +145,10 @@ class RedisObjectCache {
 
     public function get_status() {
 
-        if ( ! $this->object_cache_dropin_exists() ) {
+        if (
+            ! $this->object_cache_dropin_exists() ||
+            ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED )
+        ) {
             return __( 'Disabled', 'redis-cache' );
         }
 
@@ -166,6 +169,10 @@ class RedisObjectCache {
     public function get_redis_status() {
 
         global $wp_object_cache;
+
+        if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
+            return;
+        }
 
         if ( $this->validate_object_cache_dropin() ) {
             return $wp_object_cache->redis_status();
