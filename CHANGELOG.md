@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.3
+
+* Require PHP 5.4 or newer
+* Use pretty print in diagnostics
+* Fixed admin issues when `WP_REDIS_DISABLED` is `false`
+
 ## 1.4.2
 
 * Added graceful Redis failures and `WP_REDIS_GRACEFUL` constant
