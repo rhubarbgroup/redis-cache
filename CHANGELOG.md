@@ -5,6 +5,7 @@
 * Require PHP 5.4 or newer
 * Use pretty print in diagnostics
 * Fixed admin issues when `WP_REDIS_DISABLED` is `false`
+* Throw exception if Redis library is missing
 
 ## 1.4.2
 
