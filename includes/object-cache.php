@@ -1078,7 +1078,7 @@ class WP_Object_Cache
         $salt = defined('WP_CACHE_KEY_SALT') ? trim(WP_CACHE_KEY_SALT) : '';
         $prefix = in_array($group, $this->global_groups) ? $this->global_prefix : $this->blog_prefix;
 
-        return "{{$salt}{$prefix}}:{$group}:{$key}";
+        return "{$salt}{$prefix}:{$group}:{$key}";
     }
 
     /**
