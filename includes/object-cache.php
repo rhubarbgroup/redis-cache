@@ -342,6 +342,13 @@ class WP_Object_Cache
     );
 
     /**
+     * List of groups that will not be flushed.
+     *
+     * @var array
+     */
+    public $unflushable_groups = array('userlogins');
+
+    /**
      * List of groups not saved to Redis.
      *
      * @var array
@@ -407,6 +414,10 @@ class WP_Object_Cache
 
         if (defined('WP_REDIS_IGNORED_GROUPS') && is_array(WP_REDIS_IGNORED_GROUPS)) {
             $this->ignored_groups = WP_REDIS_IGNORED_GROUPS;
+        }
+
+        if (defined('WP_REDIS_UNFLUSHABLE_GROUPS') && is_array(WP_REDIS_UNFLUSHABLE_GROUPS)) {
+            $this->unflashable_groups = WP_REDIS_UNFLUSHABLE_GROUPS;
         }
 
         $client = defined('WP_REDIS_CLIENT') ? WP_REDIS_CLIENT : null;
@@ -699,14 +710,7 @@ class WP_Object_Cache
             $selective = defined('WP_REDIS_SELECTIVE_FLUSH') ? WP_REDIS_SELECTIVE_FLUSH : null;
 
             if ($salt && $selective) {
-                $script = "
-                    local i = 0
-                    for _,k in ipairs(redis.call('keys', '{$salt}*')) do
-                        redis.call('del', k)
-                        i = i + 1
-                    end
-                    return i
-                ";
+                $script = $this->lua_flush_script($salt);
 
                 if (defined('WP_REDIS_CLUSTER')) {
                     try {
@@ -773,6 +777,51 @@ class WP_Object_Cache
         }
 
         return true;
+    }
+
+    /**
+     * Lua script to flush selectively.
+     * 
+     * @param   string        $salt       The salt to be used to differentiate.
+     * @return  string                    Generated lua script.
+     */
+    protected function lua_flush_script($salt)
+    {
+        $rep_squotes = array('\'' => '\\\'');
+        $salt        = strtr($salt, $rep_squotes);
+        $salt_length = strlen($salt);
+        $unflushable = array_map(
+            function($group) use ($rep_squotes) {
+                return ':' . strtr($group, $rep_squotes) . ':';
+            },
+            $this->unflushable_groups
+        );
+        $unflushable = '{\'' . implode('\',\'', $unflushable) . '\'}';
+        return "            
+            local cur = 0
+            local i = 0
+            local unf = {$unflushable}
+            local d
+            local tmp
+            repeat
+                tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
+                cur = tonumber(tmp[1])
+                if tmp[2] then
+                    for _, v in pairs(tmp[2]) do
+                        d = true
+                        for _, s in pairs(unf) do
+                            d = d and not v:find(s, {$salt_length})
+                            if not d then break end
+                        end
+                        if d then
+                            redis.call('del', v)
+                            i = i + 1
+                        end
+                    end
+                end
+            until 0 == cur
+            return i
+        ";
     }
 
     /**
@@ -1195,6 +1244,18 @@ class WP_Object_Cache
         $groups = (array) $groups;
 
         $this->ignored_groups = array_unique(array_merge($this->ignored_groups, $groups));
+    }
+
+    /**
+     * Sets the list of groups not to flushed cached.
+     *
+     * @param array $groups List of groups that are unflushable.
+     */
+    public function add_unflushable_groups($groups)
+    {
+        $groups = (array) $groups;
+
+        $this->unflushable_groups = array_unique(array_merge($this->unflushable_groups, $groups));
     }
 
     /**
