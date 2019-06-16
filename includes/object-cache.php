@@ -789,6 +789,16 @@ class WP_Object_Cache
     {
         $rep_squotes = array('\'' => '\\\'');
         $salt        = strtr($salt, $rep_squotes);
+        if ( ! $this->unflushable_groups ) {
+            return <<<EOT
+                local i = 0
+                for _,k in ipairs(redis.call('keys', '{$salt}*')) do
+                    redis.call('del', k)
+                    i = i + 1
+                end
+                return i
+EOT;
+        }
         $salt_length = strlen($salt);
         $unflushable = array_map(
             function($group) use ($rep_squotes) {
@@ -797,7 +807,7 @@ class WP_Object_Cache
             $this->unflushable_groups
         );
         $unflushable = '{\'' . implode('\',\'', $unflushable) . '\'}';
-        return "            
+        return <<<EOT          
             local cur = 0
             local i = 0
             local unf = {$unflushable}
@@ -821,7 +831,7 @@ class WP_Object_Cache
                 end
             until 0 == cur
             return i
-        ";
+EOT;
     }
 
     /**
