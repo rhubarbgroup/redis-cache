@@ -807,7 +807,7 @@ EOT;
             $this->unflushable_groups
         );
         $unflushable = '{\'' . implode('\',\'', $unflushable) . '\'}';
-        return <<<EOT          
+        return <<<EOT
             local cur = 0
             local i = 0
             local unf = {$unflushable}
