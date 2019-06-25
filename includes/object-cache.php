@@ -791,11 +791,19 @@ class WP_Object_Cache
         $salt        = strtr($salt, $rep_squotes);
         if ( ! $this->unflushable_groups ) {
             return <<<EOT
+                local cur = 0
                 local i = 0
-                for _,k in ipairs(redis.call('keys', '{$salt}*')) do
-                    redis.call('del', k)
-                    i = i + 1
-                end
+                local tmp
+                repeat
+                    tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
+                    cur = tonumber(tmp[1])
+                    if tmp[2] then
+                        for _, v in pairs(tmp[2]) do
+                            redis.call('del', v)
+                            i = i + 1
+                        end
+                    end
+                until 0 == cur
                 return i
 EOT;
         }
