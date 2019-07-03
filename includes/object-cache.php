@@ -808,7 +808,7 @@ LUA;
 
         $salt_length = strlen($salt);
 
-        $unflushable = array_map(function ($group) use ($rep_squotes) {
+        $unflushable = array_map(function ($group) {
             return ":{$group}:";
         }, $this->unflushable_groups);
 
