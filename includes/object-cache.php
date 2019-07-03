@@ -781,16 +781,14 @@ class WP_Object_Cache
 
     /**
      * Lua script to flush selectively.
-     * 
+     *
      * @param   string        $salt       The salt to be used to differentiate.
      * @return  string                    Generated lua script.
      */
     protected function lua_flush_script($salt)
     {
-        $rep_squotes = array('\'' => '\\\'');
-        $salt        = strtr($salt, $rep_squotes);
-        if ( ! $this->unflushable_groups ) {
-            return <<<EOT
+        if (! $this->unflushable_groups) {
+            return <<<LUA
                 local cur = 0
                 local i = 0
                 local tmp
@@ -805,17 +803,18 @@ class WP_Object_Cache
                     end
                 until 0 == cur
                 return i
-EOT;
+LUA;
         }
+
         $salt_length = strlen($salt);
-        $unflushable = array_map(
-            function($group) use ($rep_squotes) {
-                return ':' . strtr($group, $rep_squotes) . ':';
-            },
-            $this->unflushable_groups
-        );
-        $unflushable = '{\'' . implode('\',\'', $unflushable) . '\'}';
-        return <<<EOT
+
+        $unflushable = array_map(function ($group) use ($rep_squotes) {
+            return ":{$group}:";
+        }, $this->unflushable_groups);
+
+        $unflushable = sprintf("{'%s'}", implode('\',\'', $unflushable));
+
+        return <<<LUA
             local cur = 0
             local i = 0
             local unf = {$unflushable}
@@ -839,7 +838,7 @@ EOT;
                 end
             until 0 == cur
             return i
-EOT;
+LUA;
     }
 
     /**
