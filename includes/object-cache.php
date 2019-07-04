@@ -417,7 +417,7 @@ class WP_Object_Cache
         }
 
         if (defined('WP_REDIS_UNFLUSHABLE_GROUPS') && is_array(WP_REDIS_UNFLUSHABLE_GROUPS)) {
-            $this->unflashable_groups = WP_REDIS_UNFLUSHABLE_GROUPS;
+            $this->unflushable_groups = WP_REDIS_UNFLUSHABLE_GROUPS;
         }
 
         $client = defined('WP_REDIS_CLIENT') ? WP_REDIS_CLIENT : null;
