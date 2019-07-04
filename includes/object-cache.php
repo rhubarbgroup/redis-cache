@@ -710,14 +710,14 @@ class WP_Object_Cache
             $selective = defined('WP_REDIS_SELECTIVE_FLUSH') ? WP_REDIS_SELECTIVE_FLUSH : null;
 
             if ($salt && $selective) {
-                $script = $this->lua_flush_script($salt);
+                $script = $this->get_flush_closure($salt);
 
                 if (defined('WP_REDIS_CLUSTER')) {
                     try {
                         foreach ($this->redis->_masters() as $master) {
                             $redis = new Redis;
                             $redis->connect($master[0], $master[1]);
-                            $results[] = $this->parse_redis_response($this->redis->eval($script));
+                            $results[] = $this->parse_redis_response($script());
                             unset($redis);
                         }
                     } catch (Exception $exception) {
@@ -727,12 +727,7 @@ class WP_Object_Cache
                     }
                 } else {
                     try {
-                        $results[] = $this->parse_redis_response(
-                            $this->redis->eval(
-                                $script,
-                                $this->redis instanceof Predis\Client ? 0 : []
-                            )
-                        );
+                        $results[] = $this->parse_redis_response($script());
                     } catch (Exception $exception) {
                         $this->handle_exception($exception);
 
@@ -780,15 +775,31 @@ class WP_Object_Cache
     }
 
     /**
-     * Lua script to flush selectively.
+     * Returns a closure to flush selectively.
      *
-     * @param   string        $salt       The salt to be used to differentiate.
-     * @return  string                    Generated lua script.
+     * @param   string        $salt The salt to be used to differentiate.
+     * @return  callable      Generated callable executing the lua script.
      */
-    protected function lua_flush_script($salt)
+    protected function get_flush_closure($salt)
     {
-        if (! $this->unflushable_groups) {
-            return <<<LUA
+        if ($this->unflushable_groups) {
+            return $this->lua_flush_extended_closure($salt);
+        } else {
+            return $this->lua_flush_closure($salt);
+        }
+    }
+
+    /**
+     * Returns a closure ready to be called to flush selectively ignoring unflushable groups.
+     *
+     * @param   string        $salt The salt to be used to differentiate.
+     * @return  callable      Generated callable executing the lua script.
+     */
+    protected function lua_flush_closure($salt)
+    {
+        return function () use ($salt) {
+            $is_predis = $this->redis instanceof Predis\Client;
+            $script = <<<LUA
                 local cur = 0
                 local i = 0
                 local tmp
@@ -804,41 +815,57 @@ class WP_Object_Cache
                 until 0 == cur
                 return i
 LUA;
-        }
+            return call_user_func_array(
+                [$this->redis, 'eval'],
+                $is_predis ? [$script, 0] : [$script]
+            );
+        };
+    }
 
-        $salt_length = strlen($salt);
+    /**
+     * Returns a closure ready to be called to flush selectively.
+     *
+     * @param   string        $salt The salt to be used to differentiate.
+     * @return  callable      Generated callable executing the lua script.
+     */
+    protected function lua_flush_extended_closure($salt)
+    {
+        return function () use ($salt) {
+            $is_predis = $this->redis instanceof Predis\Client;
+            $salt_length = strlen($salt);
+            $unflushable = array_map(function ($group) {
+                return ":{$group}:";
+            }, $this->unflushable_groups);
 
-        $unflushable = array_map(function ($group) {
-            return ":{$group}:";
-        }, $this->unflushable_groups);
-
-        $unflushable = sprintf("{'%s'}", implode('\',\'', $unflushable));
-
-        return <<<LUA
-            local cur = 0
-            local i = 0
-            local unf = {$unflushable}
-            local d
-            local tmp
-            repeat
-                tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
-                cur = tonumber(tmp[1])
-                if tmp[2] then
-                    for _, v in pairs(tmp[2]) do
-                        d = true
-                        for _, s in pairs(unf) do
-                            d = d and not v:find(s, {$salt_length})
-                            if not d then break end
-                        end
-                        if d then
-                            redis.call('del', v)
-                            i = i + 1
+            $script = <<<LUA
+                local cur = 0
+                local i = 0
+                local d, tmp
+                repeat
+                    tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
+                    cur = tonumber(tmp[1])
+                    if tmp[2] then
+                        for _, v in pairs(tmp[2]) do
+                            d = true
+                            for _, s in pairs(KEYS) do
+                                d = d and not v:find(s, {$salt_length})
+                                if not d then break end
+                            end
+                            if d then
+                                redis.call('del', v)
+                                i = i + 1
+                            end
                         end
                     end
-                end
-            until 0 == cur
-            return i
+                until 0 == cur
+                return i
 LUA;
+            $args = $is_predis
+                ? array_merge([$script, count($unflushable)], $unflushable)
+                : [$script, $unflushable, count($unflushable)];
+
+            return call_user_func_array([$this->redis, 'eval'], $args);
+        };
     }
 
     /**
