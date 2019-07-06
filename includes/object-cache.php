@@ -809,7 +809,8 @@ LUA;
         $salt_length = strlen($salt);
 
         $unflushable = array_map(function ($group) {
-            return ":{$group}:";
+            $sep = chr(0);
+            return "{$sep}{$group}{$sep}";
         }, $this->unflushable_groups);
 
         $unflushable = sprintf("{'%s'}", implode('\',\'', $unflushable));
