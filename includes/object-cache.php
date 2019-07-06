@@ -1144,7 +1144,10 @@ LUA;
         $salt = defined('WP_CACHE_KEY_SALT') ? trim(WP_CACHE_KEY_SALT) : '';
         $prefix = in_array($group, $this->global_groups) ? $this->global_prefix : $this->blog_prefix;
 
-        return "{$salt}{$prefix}:{$group}:{$key}";
+	    $sep = chr(0);
+	    $group = strtr( $group, $sep, '' );
+
+        return "{$salt}{$prefix}{$sep}{$group}{$sep}{$key}";
     }
 
     /**
