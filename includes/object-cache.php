@@ -798,7 +798,6 @@ class WP_Object_Cache
     protected function lua_flush_closure($salt)
     {
         return function () use ($salt) {
-            $is_predis = $this->redis instanceof Predis\Client;
             $script = <<<LUA
                 local cur = 0
                 local i = 0
@@ -815,10 +814,12 @@ class WP_Object_Cache
                 until 0 == cur
                 return i
 LUA;
-            return call_user_func_array(
-                [$this->redis, 'eval'],
-                $is_predis ? [$script, 0] : [$script]
-            );
+
+            $args = ($this->redis instanceof Predis\Client)
+                ? [$script, 0]
+                : [$script];
+
+            return call_user_func_array([$this->redis, 'eval'], $args);
         };
     }
 
@@ -831,8 +832,8 @@ LUA;
     protected function lua_flush_extended_closure($salt)
     {
         return function () use ($salt) {
-            $is_predis = $this->redis instanceof Predis\Client;
             $salt_length = strlen($salt);
+
             $unflushable = array_map(function ($group) {
                 return ":{$group}:";
             }, $this->unflushable_groups);
@@ -860,7 +861,8 @@ LUA;
                 until 0 == cur
                 return i
 LUA;
-            $args = $is_predis
+
+            $args = ($this->redis instanceof Predis\Client)
                 ? array_merge([$script, count($unflushable)], $unflushable)
                 : [$script, $unflushable, count($unflushable)];
 
