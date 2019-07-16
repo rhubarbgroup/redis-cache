@@ -399,7 +399,7 @@ class WP_Object_Cache
             'host' => '127.0.0.1',
             'port' => 6379,
             'timeout' => 5,
-			'read_timeout' => 5,
+            'read_timeout' => 5,
             'retry_interval' => null
         );
 
