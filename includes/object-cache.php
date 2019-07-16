@@ -397,10 +397,13 @@ class WP_Object_Cache
         $parameters = array(
             'scheme' => 'tcp',
             'host' => '127.0.0.1',
-            'port' => 6379
+            'port' => 6379,
+            'timeout' => 5,
+            'read_timeout' => 5,
+            'retry_interval' => null
         );
 
-        foreach (array('scheme', 'host', 'port', 'path', 'password', 'database') as $setting) {
+        foreach (array('scheme', 'host', 'port', 'path', 'password', 'database', 'timeout', 'read_timeout', 'retry_interval') as $setting) {
             $constant = sprintf('WP_REDIS_%s', strtoupper($setting));
 
             if (defined($constant)) {
@@ -439,7 +442,11 @@ class WP_Object_Cache
                     $parameters['port'] = 0;
                 }
 
-                $this->redis->connect($parameters['host'], $parameters['port']);
+                $this->redis->connect($parameters['host'], $parameters['port'], $parameters['timeout'], null, $parameters['retry_interval']);
+
+                if ($parameters['read_timeout']) {
+                    $this->redis->setOption(Redis::OPT_READ_TIMEOUT, $parameters['read_timeout']);
+                }
             }
 
             if (strcasecmp('pecl', $client) === 0) {
@@ -453,9 +460,9 @@ class WP_Object_Cache
                     $this->redis = new Redis();
 
                     if (strcasecmp('unix', $parameters['scheme']) === 0) {
-                        $this->redis->connect($parameters['path']);
+                        $this->redis->connect($parameters['path'], null, $parameters['timeout'], null, $parameters['retry_interval'], $parameters['read_timeout']);
                     } else {
-                        $this->redis->connect($parameters['host'], $parameters['port']);
+                        $this->redis->connect($parameters['host'], $parameters['port'], $parameters['timeout'], null, $parameters['retry_interval'], $parameters['read_timeout']);
                     }
                 }
             }
@@ -506,6 +513,10 @@ class WP_Object_Cache
                 } elseif (defined('WP_REDIS_CLUSTER')) {
                     $parameters = WP_REDIS_CLUSTER;
                     $options['cluster'] = 'redis';
+				}
+				
+                if ($parameters['read_timeout']) {
+                    $parameters['read_write_timeout'] = $parameters['read_timeout'];
                 }
 
                 foreach (array('WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER') as $constant) {

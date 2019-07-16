@@ -67,6 +67,18 @@ To adjust the connection parameters, define any of the following constants in yo
 
       Accepts a value used to authenticate with a Redis server protected by password with the `AUTH` command.
 
+  * `WP_REDIS_TIMEOUT` (default: `5`)
+
+	  Amount of time in seconds (fractions of a second allowed) to attempt initial connection to Redis server before failing.
+
+  * `WP_REDIS_READ_TIMEOUT` (default: `5`)
+
+	  Amount of time in seconds (fractions of a second allowed) to attempt a read from the Redis server before failing.
+
+  * `WP_REDIS_RETRY_INTERVAL` (default: _not set_)
+
+	  Amount of time in miliseconds to retry a failed connection attempt.
+
 
 == Configuration Parameters ==
 
