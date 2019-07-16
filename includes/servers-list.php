@@ -81,7 +81,7 @@ class Servers_List extends WP_List_Table {
             'scheme' => 'tcp',
         );
 
-        foreach (array('scheme', 'host', 'port', 'path', 'password', 'database') as $setting) {
+        foreach (array('scheme', 'host', 'port', 'path', 'password', 'database', 'timeout', 'read_timeout', 'retry_interval') as $setting) {
             $constant = sprintf('WP_REDIS_%s', strtoupper($setting));
 
             if (defined($constant)) {
