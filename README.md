@@ -56,7 +56,7 @@ To adjust the connection parameters, define any of the following constants in yo
   Amount of time in seconds (fractions of a second allowed) to attempt initial connection to Redis server before failing.
 
 * `WP_REDIS_READ_TIMEOUT` (default: `5`)
- 
+
   Amount of time in seconds (fractions of a second allowed) to attempt a read from the Redis server before failing.
 
 * `WP_REDIS_RETRY_INTERVAL` (default: _not set_)
