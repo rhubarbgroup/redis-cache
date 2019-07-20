@@ -531,9 +531,7 @@ class WP_Object_Cache
                 $this->redis_client .= sprintf(' (v%s)', Predis\Client::VERSION);
             }
 
-            if (defined('WP_REDIS_CLUSTER')) {
-                $this->redis->ping(current(array_values(WP_REDIS_CLUSTER)));
-            } else {
+            if (!defined('WP_REDIS_CLUSTER')) {
                 $this->redis->ping();
             }
 
