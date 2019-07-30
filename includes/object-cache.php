@@ -1476,6 +1476,10 @@ LUA;
         }
 
         error_log($exception);
+
+        if (function_exists('do_action')) {
+            do_action('redis_object_cache_error', $exception);
+        }
     }
 }
 
