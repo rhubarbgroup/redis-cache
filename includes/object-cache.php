@@ -514,7 +514,7 @@ class WP_Object_Cache
                     $parameters = WP_REDIS_CLUSTER;
                     $options['cluster'] = 'redis';
 				}
-				
+
                 if ($parameters['read_timeout']) {
                     $parameters['read_write_timeout'] = $parameters['read_timeout'];
                 }
@@ -1183,9 +1183,13 @@ LUA;
 
         $salt = defined('WP_CACHE_KEY_SALT') ? trim(WP_CACHE_KEY_SALT) : '';
         $prefix = in_array($group, $this->global_groups) ? $this->global_prefix : $this->blog_prefix;
+
+        $key = str_replace(':', '-', $group);
         $group = str_replace(':', '-', $group);
 
-        return "{$salt}{$prefix}:{$group}:{$key}";
+        $prefix = trim($prefix, '_-:$');
+
+        return mb_strtolower("{$salt}{$prefix}:{$group}:{$key}");
     }
 
     /**
