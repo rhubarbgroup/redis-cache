@@ -714,6 +714,12 @@ class WP_Object_Cache {
                 // Retrieve from cache in a single request
                 $group_cache = $this->redis->mget( $derived_keys );
 
+                // If there are no values in cache,
+                // populate as many empty values (false) as there are keys given.
+                if ( empty( $group_cache ) ) {
+                    $group_cache = array_fill( 0, count( $derived_keys ) - 1, false );
+                }
+
                 // Build an array of values looked up, keyed by the derived cache key
                 $group_cache = array_combine( $derived_keys, $group_cache );
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1
+
+* Fix an error in `get_multi()`. If no values are found for given keys, the method sets empty values to prevent errors in array handling.
+
 ## 1.5.0
 
 * All ignored cache group comparisons use strict string comparison.
