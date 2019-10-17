@@ -202,6 +202,11 @@ The following commands are supported:
 
 = 1.5.0 =
 
+Since Predis isn't maintained any longer, it's highly recommended to switch over to PhpRedis as well as enabling the new JSON serializer:
+
+    define( 'WP_REDIS_SERIALIZER', Redis::SERIALIZER_JSON );
+
+
   * Improved Redis key name builder
   * Added support for PhpRedis serializers
   * Added `redis_object_cache_error` action
