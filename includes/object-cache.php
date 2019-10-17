@@ -465,6 +465,10 @@ class WP_Object_Cache
                         $this->redis->connect($parameters['host'], $parameters['port'], $parameters['timeout'], null, $parameters['retry_interval'], $parameters['read_timeout']);
                     }
                 }
+
+                if (defined('WP_REDIS_SERIALIZER') && ! empty(WP_REDIS_SERIALIZER)) {
+                    $this->redis->setOption(Redis::OPT_SERIALIZER, WP_REDIS_SERIALIZER);
+                }
             }
 
             if (strcasecmp('pecl', $client) === 0 || strcasecmp('hhvm', $client) === 0) {
@@ -1352,6 +1356,10 @@ LUA;
      */
     protected function maybe_unserialize($original)
     {
+        if (defined('WP_REDIS_SERIALIZER') && ! empty(WP_REDIS_SERIALIZER)) {
+            return $original;
+        }
+
         if (defined('WP_REDIS_IGBINARY') && WP_REDIS_IGBINARY && function_exists('igbinary_unserialize')) {
             return igbinary_unserialize($original);
         }
@@ -1371,6 +1379,10 @@ LUA;
      */
     protected function maybe_serialize($data)
     {
+        if (defined('WP_REDIS_SERIALIZER') && ! empty(WP_REDIS_SERIALIZER)) {
+            return $data;
+        }
+
         if (defined('WP_REDIS_IGBINARY') && WP_REDIS_IGBINARY && function_exists('igbinary_serialize')) {
             return igbinary_serialize($data);
         }

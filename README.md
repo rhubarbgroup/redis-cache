@@ -100,6 +100,10 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
   Set to `false` to disable graceful failures and throw exceptions.
 
+* `WP_REDIS_SERIALIZER` (default: _not set_)
+
+  _(PECL only)_ Use PhpRedis’ built-in serializers. Possible values: `Redis::SERIALIZER_PHP`, `Redis::SERIALIZER_IGBINARY`, `Redis::SERIALIZER_MSGPACK` and `Redis::SERIALIZER_JSON`.
+
 * `WP_REDIS_IGBINARY` (default: _not set_)
 
   Set to `true` to enable the [igbinary](https://github.com/igbinary/igbinary) serializer.
