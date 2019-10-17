@@ -200,6 +200,15 @@ The following commands are supported:
 
 == Changelog ==
 
+= 1.5.0 =
+
+  * Improved Redis key name builder
+  * Added support for PhpRedis serializers
+  * Added `redis_object_cache_error` action
+  * Added timeout, read-timeout and retry configuration
+  * Added unflushable groups (defaults to `['userlogins']`)
+  * Fixed passwords not showing in server list
+
 = 1.4.3 =
 
   * Require PHP 5.4 or newer
