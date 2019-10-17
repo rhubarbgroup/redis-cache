@@ -118,11 +118,11 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
   * `WP_REDIS_SERIALIZER` (default: _not set_)
 
-    _(PECL only)_ Use PhpRedis’ built-in serializers. Possible values: `Redis::SERIALIZER_PHP`, `Redis::SERIALIZER_IGBINARY`, `Redis::SERIALIZER_MSGPACK` and `Redis::SERIALIZER_JSON`.
+    Use PhpRedis’ built-in serializers. Supported values are `Redis::SERIALIZER_PHP` and `Redis::SERIALIZER_IGBINARY`.
 
   * `WP_REDIS_IGBINARY` (default: _not set_)
 
-    Set to `true` to enable the [igbinary](https://github.com/igbinary/igbinary) serializer.
+    Set to `true` to enable the [igbinary](https://github.com/igbinary/igbinary) serializer. Ignored when `WP_REDIS_SERIALIZER` is set.
 
 
 == Replication & Clustering ==
@@ -202,10 +202,7 @@ The following commands are supported:
 
 = 1.5.0 =
 
-Since Predis isn't maintained any longer, it's highly recommended to switch over to PhpRedis as well as enabling the new JSON serializer:
-
-    define( 'WP_REDIS_SERIALIZER', Redis::SERIALIZER_JSON );
-
+Since Predis isn't maintained any longer, it's highly recommended to switch over to PhpRedis (the Redis PECL extention).
 
   * Improved Redis key name builder
   * Added support for PhpRedis serializers

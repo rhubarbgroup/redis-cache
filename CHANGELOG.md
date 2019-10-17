@@ -2,11 +2,7 @@
 
 ## 1.5.0
 
-Since Predis isn't maintained any longer, it's highly recommended to switch over to PhpRedis as well as enabling the new JSON serializer:
-
-```php
-define( 'WP_REDIS_SERIALIZER', Redis::SERIALIZER_JSON );
-```
+Since Predis isn't maintained any longer, it's highly recommended to switch over to PhpRedis (the Redis PECL extention).
 
 * Improved Redis key name builder
 * Added support for PhpRedis serializers
