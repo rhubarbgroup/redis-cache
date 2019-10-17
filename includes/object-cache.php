@@ -1188,7 +1188,7 @@ LUA;
         $salt = defined('WP_CACHE_KEY_SALT') ? trim(WP_CACHE_KEY_SALT) : '';
         $prefix = in_array($group, $this->global_groups) ? $this->global_prefix : $this->blog_prefix;
 
-        $key = str_replace(':', '-', $group);
+        $key = str_replace(':', '-', $key);
         $group = str_replace(':', '-', $group);
 
         $prefix = trim($prefix, '_-:$');
