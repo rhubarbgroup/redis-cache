@@ -473,6 +473,10 @@ class WP_Object_Cache
                 }
 
                 if (isset($parameters['database'])) {
+                    if (ctype_digit($parameters['database'])) {
+                        $parameters['database'] = intval($parameters['database']);
+                    }
+
                     $this->redis->select($parameters['database']);
                 }
             }
