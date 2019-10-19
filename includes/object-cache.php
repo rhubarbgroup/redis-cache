@@ -1197,7 +1197,7 @@ LUA;
 
         $prefix = trim($prefix, '_-:$');
 
-        return mb_strtolower("{$salt}{$prefix}:{$group}:{$key}");
+        return strtolower("{$salt}{$prefix}:{$group}:{$key}");
     }
 
     /**
