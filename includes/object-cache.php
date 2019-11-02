@@ -3,7 +3,7 @@
 Plugin Name: Redis Object Cache Drop-In
 Plugin URI: http://wordpress.org/plugins/redis-cache/
 Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, HHVM, replication, clustering and WP-CLI.
-Version: 1.4.3
+Version: 1.5.0
 Author: Till Krüss
 Author URI: https://till.im/
 License: GPLv3
@@ -397,10 +397,13 @@ class WP_Object_Cache
         $parameters = array(
             'scheme' => 'tcp',
             'host' => '127.0.0.1',
-            'port' => 6379
+            'port' => 6379,
+            'timeout' => 5,
+            'read_timeout' => 5,
+            'retry_interval' => null
         );
 
-        foreach (array('scheme', 'host', 'port', 'path', 'password', 'database') as $setting) {
+        foreach (array('scheme', 'host', 'port', 'path', 'password', 'database', 'timeout', 'read_timeout', 'retry_interval') as $setting) {
             $constant = sprintf('WP_REDIS_%s', strtoupper($setting));
 
             if (defined($constant)) {
@@ -417,7 +420,7 @@ class WP_Object_Cache
         }
 
         if (defined('WP_REDIS_UNFLUSHABLE_GROUPS') && is_array(WP_REDIS_UNFLUSHABLE_GROUPS)) {
-            $this->unflashable_groups = WP_REDIS_UNFLUSHABLE_GROUPS;
+            $this->unflushable_groups = WP_REDIS_UNFLUSHABLE_GROUPS;
         }
 
         $client = defined('WP_REDIS_CLIENT') ? WP_REDIS_CLIENT : null;
@@ -439,7 +442,11 @@ class WP_Object_Cache
                     $parameters['port'] = 0;
                 }
 
-                $this->redis->connect($parameters['host'], $parameters['port']);
+                $this->redis->connect($parameters['host'], $parameters['port'], $parameters['timeout'], null, $parameters['retry_interval']);
+
+                if ($parameters['read_timeout']) {
+                    $this->redis->setOption(Redis::OPT_READ_TIMEOUT, $parameters['read_timeout']);
+                }
             }
 
             if (strcasecmp('pecl', $client) === 0) {
@@ -453,10 +460,14 @@ class WP_Object_Cache
                     $this->redis = new Redis();
 
                     if (strcasecmp('unix', $parameters['scheme']) === 0) {
-                        $this->redis->connect($parameters['path']);
+                        $this->redis->connect($parameters['path'], null, $parameters['timeout'], null, $parameters['retry_interval'], $parameters['read_timeout']);
                     } else {
-                        $this->redis->connect($parameters['host'], $parameters['port']);
+                        $this->redis->connect($parameters['host'], $parameters['port'], $parameters['timeout'], null, $parameters['retry_interval'], $parameters['read_timeout']);
                     }
+                }
+
+                if (defined('WP_REDIS_SERIALIZER') && ! empty(WP_REDIS_SERIALIZER)) {
+                    $this->redis->setOption(Redis::OPT_SERIALIZER, WP_REDIS_SERIALIZER);
                 }
             }
 
@@ -466,6 +477,10 @@ class WP_Object_Cache
                 }
 
                 if (isset($parameters['database'])) {
+                    if (ctype_digit($parameters['database'])) {
+                        $parameters['database'] = intval($parameters['database']);
+                    }
+
                     $this->redis->select($parameters['database']);
                 }
             }
@@ -506,6 +521,10 @@ class WP_Object_Cache
                 } elseif (defined('WP_REDIS_CLUSTER')) {
                     $parameters = WP_REDIS_CLUSTER;
                     $options['cluster'] = 'redis';
+				}
+
+                if ($parameters['read_timeout']) {
+                    $parameters['read_write_timeout'] = $parameters['read_timeout'];
                 }
 
                 foreach (array('WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER') as $constant) {
@@ -710,14 +729,14 @@ class WP_Object_Cache
             $selective = defined('WP_REDIS_SELECTIVE_FLUSH') ? WP_REDIS_SELECTIVE_FLUSH : null;
 
             if ($salt && $selective) {
-                $script = $this->lua_flush_script($salt);
+                $script = $this->get_flush_closure($salt);
 
                 if (defined('WP_REDIS_CLUSTER')) {
                     try {
                         foreach ($this->redis->_masters() as $master) {
                             $redis = new Redis;
                             $redis->connect($master[0], $master[1]);
-                            $results[] = $this->parse_redis_response($this->redis->eval($script));
+                            $results[] = $this->parse_redis_response($script());
                             unset($redis);
                         }
                     } catch (Exception $exception) {
@@ -727,12 +746,7 @@ class WP_Object_Cache
                     }
                 } else {
                     try {
-                        $results[] = $this->parse_redis_response(
-                            $this->redis->eval(
-                                $script,
-                                $this->redis instanceof Predis\Client ? 0 : []
-                            )
-                        );
+                        $results[] = $this->parse_redis_response($script());
                     } catch (Exception $exception) {
                         $this->handle_exception($exception);
 
@@ -780,58 +794,99 @@ class WP_Object_Cache
     }
 
     /**
-     * Lua script to flush selectively.
-     * 
-     * @param   string        $salt       The salt to be used to differentiate.
-     * @return  string                    Generated lua script.
+     * Returns a closure to flush selectively.
+     *
+     * @param   string        $salt The salt to be used to differentiate.
+     * @return  callable      Generated callable executing the lua script.
      */
-    protected function lua_flush_script($salt)
+    protected function get_flush_closure($salt)
     {
-        $rep_squotes = array('\'' => '\\\'');
-        $salt        = strtr($salt, $rep_squotes);
-        if ( ! $this->unflushable_groups ) {
-            return <<<EOT
-                local i = 0
-                for _,k in ipairs(redis.call('keys', '{$salt}*')) do
-                    redis.call('del', k)
-                    i = i + 1
-                end
-                return i
-EOT;
+        if ($this->unflushable_groups) {
+            return $this->lua_flush_extended_closure($salt);
+        } else {
+            return $this->lua_flush_closure($salt);
         }
-        $salt_length = strlen($salt);
-        $unflushable = array_map(
-            function($group) use ($rep_squotes) {
-                return ':' . strtr($group, $rep_squotes) . ':';
-            },
-            $this->unflushable_groups
-        );
-        $unflushable = '{\'' . implode('\',\'', $unflushable) . '\'}';
-        return <<<EOT
-            local cur = 0
-            local i = 0
-            local unf = {$unflushable}
-            local d
-            local tmp
-            repeat
-                tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
-                cur = tonumber(tmp[1])
-                if tmp[2] then
-                    for _, v in pairs(tmp[2]) do
-                        d = true
-                        for _, s in pairs(unf) do
-                            d = d and not v:find(s, {$salt_length})
-                            if not d then break end
-                        end
-                        if d then
+    }
+
+    /**
+     * Returns a closure ready to be called to flush selectively ignoring unflushable groups.
+     *
+     * @param   string        $salt The salt to be used to differentiate.
+     * @return  callable      Generated callable executing the lua script.
+     */
+    protected function lua_flush_closure($salt)
+    {
+        return function () use ($salt) {
+            $script = <<<LUA
+                local cur = 0
+                local i = 0
+                local tmp
+                repeat
+                    tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
+                    cur = tonumber(tmp[1])
+                    if tmp[2] then
+                        for _, v in pairs(tmp[2]) do
                             redis.call('del', v)
                             i = i + 1
                         end
                     end
-                end
-            until 0 == cur
-            return i
-EOT;
+                until 0 == cur
+                return i
+LUA;
+
+            $args = ($this->redis instanceof Predis\Client)
+                ? [$script, 0]
+                : [$script];
+
+            return call_user_func_array([$this->redis, 'eval'], $args);
+        };
+    }
+
+    /**
+     * Returns a closure ready to be called to flush selectively.
+     *
+     * @param   string        $salt The salt to be used to differentiate.
+     * @return  callable      Generated callable executing the lua script.
+     */
+    protected function lua_flush_extended_closure($salt)
+    {
+        return function () use ($salt) {
+            $salt_length = strlen($salt);
+
+            $unflushable = array_map(function ($group) {
+                return ":{$group}:";
+            }, $this->unflushable_groups);
+
+            $script = <<<LUA
+                local cur = 0
+                local i = 0
+                local d, tmp
+                repeat
+                    tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
+                    cur = tonumber(tmp[1])
+                    if tmp[2] then
+                        for _, v in pairs(tmp[2]) do
+                            d = true
+                            for _, s in pairs(KEYS) do
+                                d = d and not v:find(s, {$salt_length})
+                                if not d then break end
+                            end
+                            if d then
+                                redis.call('del', v)
+                                i = i + 1
+                            end
+                        end
+                    end
+                until 0 == cur
+                return i
+LUA;
+
+            $args = ($this->redis instanceof Predis\Client)
+                ? array_merge([$script, count($unflushable)], $unflushable)
+                : [$script, $unflushable, count($unflushable)];
+
+            return call_user_func_array([$this->redis, 'eval'], $args);
+        };
     }
 
     /**
@@ -1137,7 +1192,12 @@ EOT;
         $salt = defined('WP_CACHE_KEY_SALT') ? trim(WP_CACHE_KEY_SALT) : '';
         $prefix = in_array($group, $this->global_groups) ? $this->global_prefix : $this->blog_prefix;
 
-        return "{$salt}{$prefix}:{$group}:{$key}";
+        $key = str_replace(':', '-', $key);
+        $group = str_replace(':', '-', $group);
+
+        $prefix = trim($prefix, '_-:$');
+
+        return strtolower("{$salt}{$prefix}:{$group}:{$key}");
     }
 
     /**
@@ -1296,6 +1356,10 @@ EOT;
      */
     protected function maybe_unserialize($original)
     {
+        if (defined('WP_REDIS_SERIALIZER') && ! empty(WP_REDIS_SERIALIZER)) {
+            return $original;
+        }
+
         if (defined('WP_REDIS_IGBINARY') && WP_REDIS_IGBINARY && function_exists('igbinary_unserialize')) {
             return igbinary_unserialize($original);
         }
@@ -1315,6 +1379,10 @@ EOT;
      */
     protected function maybe_serialize($data)
     {
+        if (defined('WP_REDIS_SERIALIZER') && ! empty(WP_REDIS_SERIALIZER)) {
+            return $data;
+        }
+
         if (defined('WP_REDIS_IGBINARY') && WP_REDIS_IGBINARY && function_exists('igbinary_serialize')) {
             return igbinary_serialize($data);
         }
@@ -1428,6 +1496,10 @@ EOT;
         }
 
         error_log($exception);
+
+        if (function_exists('do_action')) {
+            do_action('redis_object_cache_error', $exception);
+        }
     }
 }
 

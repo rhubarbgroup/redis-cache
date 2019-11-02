@@ -2,6 +2,11 @@
 
 WP_CLI::add_command( 'redis', 'RedisObjectCache_CLI_Commands' );
 
+/**
+ * Enables, disabled, updates, and checks the status of the Redis object cache.
+ *
+ * @package wp-cli
+ */
 class RedisObjectCache_CLI_Commands extends WP_CLI_Command {
 
     /**

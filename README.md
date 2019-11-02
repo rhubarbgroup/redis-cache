@@ -51,6 +51,18 @@ To adjust the connection parameters, define any of the following constants in yo
 
   Accepts a value used to authenticate with a Redis server protected by password with the `AUTH` command.
 
+* `WP_REDIS_TIMEOUT` (default: `5`)
+
+  Amount of time in seconds (fractions of a second allowed) to attempt initial connection to Redis server before failing.
+
+* `WP_REDIS_READ_TIMEOUT` (default: `5`)
+
+  Amount of time in seconds (fractions of a second allowed) to attempt a read from the Redis server before failing.
+
+* `WP_REDIS_RETRY_INTERVAL` (default: _not set_)
+
+  Amount of time in miliseconds to retry a failed connection attempt.
+
 
 ## Configuration Parameters
 
@@ -76,6 +88,10 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
   Set the cache groups that should not be cached in Redis.
 
+* `WP_REDIS_UNFLUSHABLE_GROUPS` (default: _not set_)
+
+  Set groups not being flushed during a selective cache flush.
+
 * `WP_REDIS_DISABLED` (default: _not set_)
 
   Set to `true` to disable the object cache at runtime.
@@ -84,9 +100,13 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
   Set to `false` to disable graceful failures and throw exceptions.
 
+* `WP_REDIS_SERIALIZER` (default: _not set_)
+
+  Use PhpRedis’ built-in serializers. Supported values are `Redis::SERIALIZER_PHP` and `Redis::SERIALIZER_IGBINARY`.
+
 * `WP_REDIS_IGBINARY` (default: _not set_)
 
-  Set to `true` to enable the [igbinary](https://github.com/igbinary/igbinary) serializer.
+  Set to `true` to enable the [igbinary](https://github.com/igbinary/igbinary) serializer. Ignored when `WP_REDIS_SERIALIZER` is set.
 
 
 ## Replication & Clustering
