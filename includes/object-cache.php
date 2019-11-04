@@ -450,7 +450,11 @@ class WP_Object_Cache
             }
 
             if (strcasecmp('pecl', $client) === 0) {
-                $this->redis_client = sprintf('PhpRedis (v%s)', phpversion('redis'));
+                $phpredis_version = phpversion('redis');
+                $this->redis_client = sprintf(
+                    'PhpRedis (v%s)',
+                    $phpredis_version
+                );
 
                 if (defined('WP_REDIS_SHARDS')) {
                     $this->redis = new RedisArray(array_values(WP_REDIS_SHARDS));
@@ -459,11 +463,27 @@ class WP_Object_Cache
                 } else {
                     $this->redis = new Redis();
 
+                    $connection_args = [
+                        $parameters['host'],
+                        $parameters['port'],
+                        $parameters['timeout'],
+                        null,
+                        $parameters['retry_interval'],
+                    ];
+
                     if (strcasecmp('unix', $parameters['scheme']) === 0) {
-                        $this->redis->connect($parameters['path'], null, $parameters['timeout'], null, $parameters['retry_interval'], $parameters['read_timeout']);
-                    } else {
-                        $this->redis->connect($parameters['host'], $parameters['port'], $parameters['timeout'], null, $parameters['retry_interval'], $parameters['read_timeout']);
+                        $connection_args[0] = $parameters['path'];
+                        $connection_args[1] = null;
                     }
+
+                    if (version_compare($phpredis_version,'3.1.3','>=')){
+                        $connection_args[] = $parameters['read_timeout'];
+                    }
+
+                    call_user_func_array(
+                        [ $this->redis, 'connect' ],
+                        $connection_args
+                    );
                 }
 
                 if (defined('WP_REDIS_SERIALIZER') && ! empty(WP_REDIS_SERIALIZER)) {
