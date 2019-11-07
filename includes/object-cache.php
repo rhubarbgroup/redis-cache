@@ -701,6 +701,8 @@ class WP_Object_Cache
      */
     public function delete($key, $group = 'default')
     {
+        $start_time = microtime(true);
+
         $result = false;
         $derived_key = $this->build_key($key, $group);
 
@@ -720,7 +722,8 @@ class WP_Object_Cache
         }
 
         if (function_exists('do_action')) {
-            do_action('redis_object_cache_delete', $key, $group);
+            $execute_time = microtime(true) - $start_time;
+            do_action('redis_object_cache_delete', $key, $group, $execute_time);
         }
 
         return $result;
@@ -747,6 +750,8 @@ class WP_Object_Cache
         if ($this->redis_status()) {
             $salt = defined('WP_CACHE_KEY_SALT') ? trim(WP_CACHE_KEY_SALT) : null;
             $selective = defined('WP_REDIS_SELECTIVE_FLUSH') ? WP_REDIS_SELECTIVE_FLUSH : null;
+
+            $start_time = microtime(true);
 
             if ($salt && $selective) {
                 $script = $this->get_flush_closure($salt);
@@ -796,7 +801,9 @@ class WP_Object_Cache
             }
 
             if (function_exists('do_action')) {
-                do_action('redis_object_cache_flush', $results, $delay, $selective, $salt);
+                $execute_time = microtime(true) - $start_time;
+
+                do_action('redis_object_cache_flush', $results, $delay, $selective, $salt, $execute_time);
             }
         }
 
@@ -924,6 +931,8 @@ LUA;
      */
     public function get($key, $group = 'default', $force = false, &$found = null)
     {
+        $start_time = microtime(true);
+
         $derived_key = $this->build_key($key, $group);
 
         if (isset($this->cache[$derived_key]) && ! $force) {
@@ -962,7 +971,10 @@ LUA;
         $value = is_object($value) ? clone $value : $value;
 
         if (function_exists('do_action')) {
-            do_action('redis_object_cache_get', $key, $value, $group, $force, $found);
+            
+            $execute_time = microtime(true) - $start_time;
+
+            do_action('redis_object_cache_get', $key, $value, $group, $force, $found, $execute_time);
         }
 
         if (function_exists('apply_filters') && function_exists('has_filter')) {
@@ -1055,6 +1067,8 @@ LUA;
      */
     public function set($key, $value, $group = 'default', $expiration = 0)
     {
+        $start_time = microtime(true);
+
         $result = true;
         $derived_key = $this->build_key($key, $group);
 
@@ -1081,7 +1095,9 @@ LUA;
         }
 
         if (function_exists('do_action')) {
-            do_action('redis_object_cache_set', $key, $value, $group, $expiration);
+            $execute_time = microtime(true) - $start_time;
+
+            do_action('redis_object_cache_set', $key, $value, $group, $expiration, $execute_time);
         }
 
         return $result;
