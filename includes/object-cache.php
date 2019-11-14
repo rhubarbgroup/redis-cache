@@ -845,6 +845,7 @@ class WP_Object_Cache
     {
         return function () use ($salt) {
             $script = <<<LUA
+                redis.replicate_commands()
                 local cur = 0
                 local i = 0
                 local tmp
@@ -885,6 +886,7 @@ LUA;
             }, $this->unflushable_groups);
 
             $script = <<<LUA
+                redis.replicate_commands()
                 local cur = 0
                 local i = 0
                 local d, tmp
