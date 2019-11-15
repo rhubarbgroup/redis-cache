@@ -5,27 +5,19 @@
 
     <h1><?php _e( 'Redis Object Cache', 'redis-cache' ); ?></h1>
 
-    <?php if (
-        defined( 'EAE_DISABLE_NOTICES' ) ||
-        ! is_plugin_active( 'email-address-encoder' ) &&
-        ! is_plugin_active( 'email-encoder-premium' ) &&
-        ! is_plugin_inactive( 'email-address-encoder' ) &&
-        ! is_plugin_inactive( 'email-encoder-premium' )
-    ) : ?>
-        <div class="card">
-            <h2 class="title">
-                <?php _e( 'Are your email addresses protected?', 'redis-cache' ); ?>
-            </h2>
-            <p>
-                <?php _e( 'Enjoy a clean inbox and peace of mind knowing that your email address is safe from email-harvesting robots.', 'redis-cache' ); ?>
-            </p>
-            <p>
-                <a class="button button-primary" target="_blank" rel="noopener" href="https://encoder.till.im/?utm_source=wp-plugin&amp;utm_medium=redis">
-                    <?php _e( 'Download for Free', 'email-address-encoder' ); ?>
-                </a>
-            </p>
-        </div>
-    <?php endif; ?>
+    <div class="card">
+        <h2 class="title">
+            <?php _e( 'Redis Cache Pro', 'redis-cache' ); ?>
+        </h2>
+        <p>
+            <?php _e( 'A business class object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.', 'redis-cache' ); ?>
+        </p>
+        <p>
+            <a class="button button-primary" target="_blank" rel="noopener" href="https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=redis">
+                <?php _e( 'Learn more', 'redis-cache' ); ?>
+            </a>
+        </p>
+    </div>
 
     <div class="section-overview">
 
