@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.5.1
+
+This plugin turned 5 years today (Nov 14th) and it's fitting to release the [business edition](https://wprediscache.com) on it's birthday.
+It's a truly reliable, highly optimized and easy to debug rewrite of this plugin for SMBs.
+
+* Added execution times to actions
+* Added `WP_REDIS_VERSION` constant
+* Fixed PhpRedis v3 compatibility
+* Fixed an issue with selective flushing
+* Fixed an issue with `mb_*` functions not existing
+* Replaced Email Address Encoder card with Redis Cache Pro card
+* Gather version metrics for better decision making
+
 ## 1.5.0
 
 Since Predis isn't maintained any longer, it's highly recommended to switch over to PhpRedis (the Redis PECL extention).
