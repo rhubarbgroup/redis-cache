@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'REDIS_CACHE_VERSION', '1.5.1' );
+define( 'WP_REDIS_VERSION', '1.5.1' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
     require_once dirname( __FILE__ ) . '/includes/wp-cli-commands.php';
