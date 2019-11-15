@@ -13,7 +13,7 @@
             <?php _e( 'A business class object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.', 'redis-cache' ); ?>
         </p>
         <p>
-            <a class="button button-primary" target="_blank" rel="noopener" href="https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=redis">
+            <a class="button button-primary" target="_blank" rel="noopener" href="https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=settings">
                 <?php _e( 'Learn more', 'redis-cache' ); ?>
             </a>
         </p>

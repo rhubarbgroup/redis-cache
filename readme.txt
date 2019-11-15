@@ -20,6 +20,20 @@ To adjust the connection parameters, prefix cache keys or configure replication/
 
 Forked from Eric Mann's and Erick Hitter's [Redis Object Cache](https://github.com/ericmann/Redis-Object-Cache).
 
+= Redis Cache Pro =
+
+A **business class** Redis object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.
+
+* Rewritten for raw performance
+* WordPress object cache API compliant
+* Easy debugging & logging
+* Fully unit tested (100% code coverage)
+* Secure connections with TLS
+* Seamless WP CLI & Debug Bar integration
+* Optimized for WooCommerce, Jetpack & Yoast SEO
+
+Learn more about [Redis Cache Pro](https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=readme).
+
 
 == Installation ==
 
