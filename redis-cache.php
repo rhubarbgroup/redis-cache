@@ -16,6 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+define( 'REDIS_CACHE_VERSION', '1.5.1' );
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
     require_once dirname( __FILE__ ) . '/includes/wp-cli-commands.php';
 }
@@ -116,8 +118,7 @@ class RedisObjectCache {
     public function enqueue_admin_styles( $hook_suffix ) {
 
         if ( $hook_suffix === $this->screen ) {
-            $plugin = get_plugin_data( __FILE__ );
-            wp_enqueue_style( 'redis-cache', plugin_dir_url( __FILE__ ) . 'includes/admin-page.css', null, $plugin[ 'Version' ] );
+            wp_enqueue_style( 'redis-cache', plugin_dir_url( __FILE__ ) . 'includes/admin-page.css', null, WP_REDIS_VERSION );
         }
 
     }
