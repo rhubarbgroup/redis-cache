@@ -973,7 +973,7 @@ LUA;
         $value = is_object($value) ? clone $value : $value;
 
         if (function_exists('do_action')) {
-            
+
             $execute_time = microtime(true) - $start_time;
 
             do_action('redis_object_cache_get', $key, $value, $group, $force, $found, $execute_time);
