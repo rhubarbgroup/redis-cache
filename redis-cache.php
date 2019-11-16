@@ -185,6 +185,21 @@ class RedisObjectCache {
 
     }
 
+    public function get_redis_version() {
+
+        global $wp_object_cache;
+
+        if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
+            return;
+        }
+
+        if ( $this->validate_object_cache_dropin() ) {
+            return $wp_object_cache->redis_version();
+        }
+
+        return;
+    }
+
     public function get_redis_client_name() {
 
         global $wp_object_cache;

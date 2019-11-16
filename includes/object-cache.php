@@ -289,6 +289,13 @@ class WP_Object_Cache
     private $redis;
 
     /**
+     * The Redis server version.
+     *
+     * @var null|string
+     */
+    private $redis_version = null;
+
+    /**
      * Track if Redis is available
      *
      * @var bool
@@ -565,6 +572,13 @@ class WP_Object_Cache
                 $this->redis->ping();
             }
 
+            $server_info = $this->redis->info( 'SERVER' );
+            if (isset($server_info['redis_version'])) {
+                $this->redis_version = $server_info['redis_version'];
+            } elseif (isset( $server_info['Server']['redis_version'])) {
+                $this->redis_version = $server_info['Server']['redis_version'];
+            }
+
             $this->redis_connected = true;
         } catch (Exception $exception) {
             $this->handle_exception($exception);
@@ -595,6 +609,16 @@ class WP_Object_Cache
     public function redis_instance()
     {
         return $this->redis;
+    }
+
+    /**
+     * Returns the Redis server version.
+     *
+     * @return null|string
+     */
+    public function redis_version()
+    {
+        return $this->redis_version;
     }
 
     /**
@@ -845,7 +869,6 @@ class WP_Object_Cache
     {
         return function () use ($salt) {
             $script = <<<LUA
-                redis.replicate_commands()
                 local cur = 0
                 local i = 0
                 local tmp
@@ -861,6 +884,10 @@ class WP_Object_Cache
                 until 0 == cur
                 return i
 LUA;
+
+            if (version_compare($this->redis_version(), '5', '<') && version_compare($this->redis_version(), '3.2', '>=')) {
+                $script = 'redis.replicate_commands()' . "\n" . $script;
+            }
 
             $args = ($this->redis instanceof Predis\Client)
                 ? [$script, 0]
@@ -886,7 +913,6 @@ LUA;
             }, $this->unflushable_groups);
 
             $script = <<<LUA
-                redis.replicate_commands()
                 local cur = 0
                 local i = 0
                 local d, tmp
@@ -909,6 +935,9 @@ LUA;
                 until 0 == cur
                 return i
 LUA;
+            if (version_compare($this->redis_version(), '5', '<') && version_compare($this->redis_version(), '3.2', '>=')) {
+                $script = 'redis.replicate_commands()' . "\n" . $script;
+            }
 
             $args = ($this->redis instanceof Predis\Client)
                 ? array_merge([$script, count($unflushable)], $unflushable)
