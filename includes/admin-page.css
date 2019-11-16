@@ -40,6 +40,11 @@
     display: none;
 }
 
+.settings_page_redis-cache .card ul {
+    list-style: circle;
+    padding-left: 25px;
+}
+
 @media screen and (min-width: 1110px) {
     .settings_page_redis-cache .card {
         display: block;
