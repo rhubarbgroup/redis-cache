@@ -318,6 +318,7 @@ class RedisObjectCache {
                     'network' => is_multisite(),
                     'client' => $this->get_redis_client_name(),
                     'serializer' => defined('WP_REDIS_SERIALIZER') ? WP_REDIS_SERIALIZER : null,
+                    'woocommerce' => defined('WC_VERSION') ? WC_VERSION : null,
                     // only gathers boolean values (no DSNs)
                     'cluster' => defined('WP_REDIS_CLUSTER') ? (bool) WP_REDIS_CLUSTER : null,
                     'servers' => defined('WP_REDIS_SERVERS') ? (bool) WP_REDIS_SERVERS : null,
