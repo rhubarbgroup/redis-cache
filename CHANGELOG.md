@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.2
+
+* Added Redis version to diagnostics
+* Added `WP_REDIS_DISABLE_BANNERS` constant to disable promotions
+* Fixed an issue with `redis.replicate_commands()`
+
 ## 1.5.1
 
 This plugin turned 5 years today (Nov 14th) and its only fitting to release the business edition today as well. [Redis Cache Pro](https://wprediscache.com/) is a truly reliable, highly optimized and easy to debug rewrite of this plugin for SMBs.

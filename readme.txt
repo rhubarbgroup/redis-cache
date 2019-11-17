@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, perform
 Requires at least: 3.3
 Tested up to: 5.3
 Requires PHP: 5.4
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -213,6 +213,12 @@ The following commands are supported:
 
 
 == Changelog ==
+
+= 1.5.2 =
+
+  * Added Redis version to diagnostics
+  * Added `WP_REDIS_DISABLE_BANNERS` constant to disable promotions
+  * Fixed an issue with `redis.replicate_commands()`
 
 = 1.5.1 =
 
