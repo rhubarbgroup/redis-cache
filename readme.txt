@@ -225,6 +225,8 @@ The following commands are supported:
 = 1.5.3 =
 
 - Fixed: Call to undefined function `get_plugin_data()`
+- Fixed: Call to undefined method `WP_Object_Cache::redis_version()`
+
 = 1.5.2 =
 
   * Added Redis version to diagnostics

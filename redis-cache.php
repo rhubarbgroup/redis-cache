@@ -217,7 +217,7 @@ class RedisObjectCache {
             return;
         }
 
-        if ( $this->validate_object_cache_dropin() ) {
+        if ( $this->validate_object_cache_dropin() && method_exists( $wp_object_cache, 'redis_version' ) ) {
             return $wp_object_cache->redis_version();
         }
 
