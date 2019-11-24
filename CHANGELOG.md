@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.3
+
+- Fixed: Call to undefined function `get_plugin_data()`
 ## 1.5.2
 
 * Added Redis version to diagnostics

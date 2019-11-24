@@ -30,6 +30,8 @@ class RedisObjectCache {
 
     public function __construct() {
 
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
         load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
 
         register_activation_hook( __FILE__, 'wp_cache_flush' );
