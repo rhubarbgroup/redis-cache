@@ -221,7 +221,6 @@ class RedisObjectCache {
             return $wp_object_cache->redis_version();
         }
 
-        return;
     }
 
     public function get_redis_client_name() {
@@ -235,8 +234,6 @@ class RedisObjectCache {
         if ( defined( 'WP_REDIS_CLIENT' ) ) {
             return WP_REDIS_CLIENT;
         }
-
-        return null;
 
     }
 
