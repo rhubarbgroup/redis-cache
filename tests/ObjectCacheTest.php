@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../includes/object-cache.php';
 
-class ObjectCacheTest extends PHPUnit_Framework_TestCase
+class ObjectCacheTest extends \PHPUnit\Framework\TestCase
 {
     public function testRedisInstance()
     {
