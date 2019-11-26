@@ -126,10 +126,6 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
   Set to `false` to disable promotions for [Redis Cache Pro](https://wprediscache.com/).
 
-* `WP_REDIS_DISABLE_METRICS` (default: _not set_)
-
-  Set to `false` to disable the collection of system metrics. No user data such as emails, names, IPs, browser, usage or behavioral data is collected. Just version numbers and anonymous configuration options to help make better development decisions.
-
 
 ## Replication & Clustering
 

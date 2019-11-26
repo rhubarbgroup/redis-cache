@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.4
+- Removed metrics
+
 ## 1.5.3
 
 - Fixed: Call to undefined function `get_plugin_data()`

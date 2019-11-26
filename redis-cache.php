@@ -3,7 +3,7 @@
 Plugin Name: Redis Object Cache
 Plugin URI: https://wordpress.org/plugins/redis-cache/
 Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, HHVM, replication, clustering and WP-CLI.
-Version: 1.5.3
+Version: 1.5.4
 Text Domain: redis-cache
 Domain Path: /languages
 Author: Till Krüss
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'WP_REDIS_VERSION', '1.5.3' );
+define( 'WP_REDIS_VERSION', '1.5.4' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
     require_once dirname( __FILE__ ) . '/includes/wp-cli-commands.php';
@@ -41,14 +41,12 @@ class RedisObjectCache {
         add_action( 'deactivate_plugin', array( $this, 'on_deactivation' ) );
 
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', array( $this, 'add_admin_menu_page' ) );
-        add_action( 'admin_init', array( $this, 'schedule_events' ) );
         add_action( 'admin_notices', array( $this, 'show_admin_notices' ) );
         add_action( 'admin_notices', array( $this, 'pro_notice' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
         add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
-        add_action( 'redis_gather_metrics', array( $this, 'gather_metrics' ) );
         add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
 
         add_filter( sprintf(
@@ -322,50 +320,6 @@ class RedisObjectCache {
 
         }
 
-    }
-
-    public function schedule_events()
-    {
-        if ( ! wp_next_scheduled( 'redis_gather_metrics' ) ) {
-            wp_schedule_event( time(), 'daily', 'redis_gather_metrics' );
-        }
-    }
-
-    public function gather_metrics()
-    {
-        // disable metrics using WP_REDIS_DISABLE_METRICS
-        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
-            return;
-        }
-
-        try {
-            wp_remote_post( 'https://wprediscache.com/api/metrics', [
-                'blocking' => false,
-                'headers' => [
-                    'Accept' => 'application/json',
-                ],
-                'body' => [
-                    'url' => get_home_url(),
-                    'plugin' => WP_REDIS_VERSION,
-                    'wordpress' => get_bloginfo('version'),
-                    'network' => is_multisite(),
-                    'php' => phpversion(),
-                    'phpredis' => phpversion('redis'),
-                    'igbinary' => phpversion('igbinary'),
-                    'redis' => $this->get_redis_version(),
-                    'client' => $this->get_redis_client_name(),
-                    'serializer' => defined('WP_REDIS_SERIALIZER') ? WP_REDIS_SERIALIZER : null,
-                    'woocommerce' => defined('WC_VERSION') ? WC_VERSION : null,
-                    // only gathers boolean values (no DSNs)
-                    'cluster' => defined('WP_REDIS_CLUSTER') ? (bool) WP_REDIS_CLUSTER : null,
-                    'servers' => defined('WP_REDIS_SERVERS') ? (bool) WP_REDIS_SERVERS : null,
-                    'sentinel' => defined('WP_REDIS_SENTINEL') ? (bool) WP_REDIS_SENTINEL : null,
-                    'shards' => defined('WP_REDIS_SHARDS') ? (bool) WP_REDIS_SHARDS : null,
-                ],
-            ] );
-        } catch (\Exception $discard) {
-            //
-        }
     }
 
     public function do_admin_actions() {

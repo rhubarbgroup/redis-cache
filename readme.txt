@@ -142,11 +142,6 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
     Set to `false` to disable promotions for [Redis Cache Pro](https://wprediscache.com/).
 
-  * `WP_REDIS_DISABLE_METRICS` (default: _not set_)
-
-    Set to `false` to disable the collection of system metrics. No user data such as emails, names, IPs, browser, usage or behavioral data is collected. Just version numbers and anonymous configuration options to help make better development decisions.
-
-
 == Replication & Clustering ==
 
 To use Replication, Sharding or Clustering, make sure your server is running PHP7 or higher (HHVM is not supported) and you consulted the [Predis](https://github.com/nrk/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
@@ -221,6 +216,10 @@ The following commands are supported:
 
 
 == Changelog ==
+
+= 1.5.4 =
+
+- Removed metrics
 
 = 1.5.3 =
 
