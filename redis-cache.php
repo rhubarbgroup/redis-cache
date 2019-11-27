@@ -48,6 +48,11 @@ class RedisObjectCache {
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
         add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
         add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
+        add_action( 'admin_init', function() {
+            if ( wp_next_scheduled( 'redis_gather_metrics' ) ) {
+                wp_clear_scheduled_hook('redis_gather_metrics');
+            }
+        });
 
         add_filter( sprintf(
             '%splugin_action_links_%s',
