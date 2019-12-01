@@ -572,11 +572,13 @@ class WP_Object_Cache
                 $this->redis->ping();
             }
 
-            $server_info = $this->redis->info( 'SERVER' );
-            if (isset($server_info['redis_version'])) {
-                $this->redis_version = $server_info['redis_version'];
-            } elseif (isset( $server_info['Server']['redis_version'])) {
-                $this->redis_version = $server_info['Server']['redis_version'];
+            if ( ! isset( $options['replication'] ) || ! $options['replication'] ) {
+                $server_info = $this->redis->info( 'SERVER' );
+                if (isset($server_info['redis_version'])) {
+                    $this->redis_version = $server_info['redis_version'];
+                } elseif (isset( $server_info['Server']['redis_version'])) {
+                    $this->redis_version = $server_info['Server']['redis_version'];
+                }
             }
 
             $this->redis_connected = true;
