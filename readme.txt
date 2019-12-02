@@ -219,12 +219,12 @@ The following commands are supported:
 
 = 1.5.4 =
 
-- Removed metrics
+  * Removed metrics
 
 = 1.5.3 =
 
-- Fixed: Call to undefined function `get_plugin_data()`
-- Fixed: Call to undefined method `WP_Object_Cache::redis_version()`
+  * Fixed: Call to undefined function `get_plugin_data()`
+  * Fixed: Call to undefined method `WP_Object_Cache::redis_version()`
 
 = 1.5.2 =
 
