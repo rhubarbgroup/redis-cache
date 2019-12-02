@@ -217,6 +217,14 @@ The following commands are supported:
 
 == Changelog ==
 
+= 1.5.5 =
+
+Please flush the object cache after updating the drop to v1.5.5 to avoid dead keys filling up Redis memory.
+
+  * Removed lowercasing keys
+  * Remove scheduled metrics event
+  * Fixed Redis version call when using replication
+
 = 1.5.4 =
 
   * Removed metrics
