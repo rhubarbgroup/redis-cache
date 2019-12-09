@@ -124,7 +124,7 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
 * `WP_REDIS_DISABLE_BANNERS` (default: _not set_)
 
-  Set to `false` to disable promotions for [Redis Cache Pro](https://wprediscache.com/).
+  Set to `true` to disable promotions for [Redis Cache Pro](https://wprediscache.com/).
 
 
 ## Replication & Clustering
