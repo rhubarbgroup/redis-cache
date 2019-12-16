@@ -13,8 +13,13 @@ $info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
 
 if ( $dropin ) {
     try {
-        $cache = new WP_Object_Cache( false );
-        $info[ 'Ping' ] = defined( 'WP_REDIS_CLUSTER' ) ? 'Not supported' : $cache->redis_instance()->ping();
+        // Redis Cluster does not support the Ping command
+        if(defined( 'WP_REDIS_CLUSTER' )) {
+            $info[ 'Ping' ] = 'Not supported';
+        } else {
+            $cache = new WP_Object_Cache( false );
+            $info[ 'Ping' ] = $cache->redis_instance()->ping();
+        }
     } catch ( Exception $exception ) {
         $info[ 'Connection Exception' ] = sprintf( '%s (%s)', $exception->getMessage(), get_class( $exception ) );
     }
