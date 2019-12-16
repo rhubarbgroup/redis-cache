@@ -567,7 +567,8 @@ class WP_Object_Cache
             }
 
             if (defined('WP_REDIS_CLUSTER')) {
-                $this->redis->ping(current(array_values(WP_REDIS_CLUSTER)));
+                // Redis Cluster does not support the Ping command
+                //$this->redis->ping(current(array_values(WP_REDIS_CLUSTER)));
             } else {
                 $this->redis->ping();
             }
