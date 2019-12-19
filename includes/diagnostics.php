@@ -13,8 +13,7 @@ $info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
 
 if ( $dropin ) {
     try {
-        // Redis Cluster does not support the Ping command
-        if(defined( 'WP_REDIS_CLUSTER' )) {
+        if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $info[ 'Ping' ] = 'Not supported';
         } else {
             $cache = new WP_Object_Cache( false );
