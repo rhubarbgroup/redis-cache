@@ -6,14 +6,19 @@ $info = $plugins = $dropins = array();
 $dropin = $this->validate_object_cache_dropin() && ( ! defined('WP_REDIS_DISABLED') || ! WP_REDIS_DISABLED );
 
 $info[ 'Status' ] = $this->get_status();
-$info[ 'Redis Version' ] = $this->get_redis_version() ?: 'Unknown';
+
+if (defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis' && defined( 'WP_REDIS_CLUSTER' )) {
+    $info[ 'Redis Version' ] = 'Not supported';
+} else {
+    $info[ 'Redis Version' ] = $this->get_redis_version() ?: 'Unknown';
+}
 $info[ 'Client' ] = $this->get_redis_client_name();
 
 $info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
 
 if ( $dropin ) {
     try {
-        if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+        if (defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis' && defined( 'WP_REDIS_CLUSTER' )) {
             $info[ 'Ping' ] = 'Not supported';
         } else {
             $cache = new WP_Object_Cache( false );
