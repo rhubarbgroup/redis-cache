@@ -16,9 +16,11 @@ $info[ 'Client' ] = $this->get_redis_client_name();
 
 $info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
 
+$usesPredis = defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis';
+
 if ( $dropin ) {
     try {
-        if (defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis' && defined( 'WP_REDIS_CLUSTER' )) {
+        if ($usesPredis && defined( 'WP_REDIS_CLUSTER' )) {
             $info[ 'Ping' ] = 'Not supported';
         } else {
             $cache = new WP_Object_Cache( false );
