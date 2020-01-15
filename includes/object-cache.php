@@ -550,7 +550,7 @@ class WP_Object_Cache
                     $options['cluster'] = 'redis';
 				}
 
-                if ($parameters['read_timeout']) {
+                if (isset($parameters['read_timeout']) && $parameters['read_timeout']) {
                     $parameters['read_write_timeout'] = $parameters['read_timeout'];
                 }
 
