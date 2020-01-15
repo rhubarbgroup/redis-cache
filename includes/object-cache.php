@@ -565,15 +565,18 @@ class WP_Object_Cache
 
                 $this->redis_client .= sprintf(' (v%s)', Predis\Client::VERSION);
             }
+            
+            $usesReplication = isset( $options['replication'] ) && $options['replication'];
+            $onPredisCluster = (strcasecmp('predis', $client) === 0) && defined('WP_REDIS_CLUSTER');
 
-            if ((strcasecmp('predis', $client) === 0) && defined('WP_REDIS_CLUSTER')) {
+            if ($onPredisCluster) {
                 // Redis Cluster does not support the Ping command
                 //$this->redis->ping(current(array_values(WP_REDIS_CLUSTER)));
             } else {
                 $this->redis->ping();
             }
 
-            if ( ((strcasecmp('predis', $client) === 0) && !defined('WP_REDIS_CLUSTER')) && (! isset( $options['replication'] ) || ! $options['replication']) ) {
+            if ( (!$onPredisCluster) && (!$usesReplication ) {
                 $server_info = $this->redis->info( 'SERVER' );
 
                 if (isset($server_info['redis_version'])) {
