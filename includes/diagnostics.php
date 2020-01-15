@@ -10,7 +10,7 @@ $info[ 'Status' ] = $this->get_status();
 if (defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis' && defined( 'WP_REDIS_CLUSTER' )) {
     $info[ 'Redis Version' ] = 'Not supported';
 } else {
-    $info[ 'Redis Version' ] = $this->get_redis_version() ?: 'Unknown';
+    $info[ 'Redis Version' ] = $this->get_redis_version();
 }
 $info[ 'Client' ] = $this->get_redis_client_name();
 
