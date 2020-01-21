@@ -1319,6 +1319,10 @@ LUA;
      */
     public function add_to_internal_cache($derived_key, $value)
     {
+        if (is_object($value)) {
+            $value = clone $value;
+        }
+
         $this->cache[$derived_key] = $value;
     }
 
