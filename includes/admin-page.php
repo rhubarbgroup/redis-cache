@@ -15,11 +15,12 @@
             </p>
             <ul>
                 <li>Rewritten for raw performance</li>
-                <li>100% WordPress object cache API compliant</li>
-                <li>Easy debugging & logging</li>
+                <li>WordPress object cache API compliant</li>
+                <li>Easy debugging &amp; logging</li>
+                <li>Cache analytics and preloading</li>
                 <li>Fully unit tested (100% code coverage)</li>
                 <li>Secure connections with TLS</li>
-                <li>Seamless WP CLI & Debug Bar integration</li>
+                <li>Health checks via WordPress, WP CLI &amp; Debug Bar</li>
                 <li>Optimized for WooCommerce, Jetpack & Yoast SEO</li>
             </ul>
             <p>

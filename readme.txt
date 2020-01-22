@@ -27,9 +27,10 @@ A **business class** Redis object cache backend. Truly reliable, highly optimize
 * Rewritten for raw performance
 * WordPress object cache API compliant
 * Easy debugging & logging
+* Cache analytics and preloading
 * Fully unit tested (100% code coverage)
 * Secure connections with TLS
-* Seamless WP CLI & Debug Bar integration
+* Health checks via WordPress, WP CLI & Debug Bar
 * Optimized for WooCommerce, Jetpack & Yoast SEO
 
 Learn more about [Redis Cache Pro](https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=readme).
