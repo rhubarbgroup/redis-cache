@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.6
+
+- Added object cloning to in-memory cache
+- Fixed PHP notice related to `read_timeout` parameter
+
 ## 1.5.5
 
 Please flush the object cache after updating the drop to v1.5.5 to avoid dead keys filling up Redis memory.
