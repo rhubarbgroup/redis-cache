@@ -8,6 +8,7 @@ Text Domain: redis-cache
 Domain Path: /languages
 Author: Till Krüss
 Author URI: https://till.im/
+GitHub Plugin URI: https://github.com/tillkruss/redis-cache
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 */
