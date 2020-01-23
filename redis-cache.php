@@ -44,6 +44,7 @@ class RedisObjectCache {
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', array( $this, 'add_admin_menu_page' ) );
         add_action( 'admin_notices', array( $this, 'show_admin_notices' ) );
         add_action( 'admin_notices', array( $this, 'pro_notice' ) );
+        add_filter( 'admin_notices', array( $this, 'wc_pro_notice' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
@@ -140,7 +141,13 @@ class RedisObjectCache {
             return;
         }
 
-        if ( ! in_array( $screen->id, array( 'dashboard', $this->screen ) ) ) {
+        if ( ! in_array( $screen->id, array(
+            'dashboard',
+            'edit-shop_order',
+            'edit-product',
+            'woocommerce_page_wc-admin',
+            $this->screen
+        ) ) ) {
             return;
         }
 
@@ -428,6 +435,43 @@ class RedisObjectCache {
             __( 'Redis Cache Pro is out!', 'redis-cache' ),
             sprintf(
                 __( 'A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href="%1$s">Learn more »</a>', 'redis-cache' ),
+                network_admin_url( $this->page )
+            )
+        );
+    }
+
+    public function wc_pro_notice() {
+        if ( ! class_exists( 'WooCommerce' ) ) {
+            return;
+        }
+
+        $screen = get_current_screen();
+
+        if ( ! isset( $screen->id ) ) {
+            return;
+        }
+
+        if ( ! in_array( $screen->id, array( 'edit-shop_order', 'edit-product', 'woocommerce_page_wc-admin' ) ) ) {
+            return;
+        }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        if ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS ) {
+            return;
+        }
+
+        if ( get_user_meta( get_current_user_id(), 'roc_dismissed_wc_pro_notice', true ) == '1' ) {
+            return;
+        }
+
+        printf(
+            '<div class="notice woocommerce-message woocommerce-admin-promo-messages is-dismissible" data-dismissible="wc_pro_notice"><p><strong>%s</strong></p><p>%s</p></div>',
+            __( 'Redis Cache Pro + WooCommerce = 🚀', 'redis-cache' ),
+            sprintf(
+                __( 'Redis Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style="color: #bb77ae;" href="%1$s">Learn more »</a>', 'redis-cache' ),
                 network_admin_url( $this->page )
             )
         );
