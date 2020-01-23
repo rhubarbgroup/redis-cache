@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, perform
 Requires at least: 3.3
 Tested up to: 5.3
 Requires PHP: 5.4
-Stable tag: 1.5.5
+Stable tag: 1.5.6
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -217,6 +217,11 @@ The following commands are supported:
 
 
 == Changelog ==
+
+= 1.5.6 =
+
+- Added object cloning to in-memory cache
+- Fixed PHP notice related to `read_timeout` parameter
 
 = 1.5.5 =
 
