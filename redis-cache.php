@@ -407,7 +407,7 @@ class RedisObjectCache {
             return;
         }
 
-        if ( ! in_array( $screen->id, array( 'dashboard', $this->screen ) ) ) {
+        if ( ! in_array( $screen->id, array( 'dashboard' ) ) ) {
             return;
         }
 
