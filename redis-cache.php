@@ -469,7 +469,7 @@ class RedisObjectCache {
 
         printf(
             '<div class="notice woocommerce-message woocommerce-admin-promo-messages is-dismissible" data-dismissible="wc_pro_notice"><p><strong>%s</strong></p><p>%s</p></div>',
-            __( 'Redis Cache Pro + WooCommerce = 🚀', 'redis-cache' ),
+            __( 'Redis Cache Pro + WooCommerce = ❤️', 'redis-cache' ),
             sprintf(
                 __( 'Redis Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style="color: #bb77ae;" href="%1$s">Learn more »</a>', 'redis-cache' ),
                 network_admin_url( $this->page )
