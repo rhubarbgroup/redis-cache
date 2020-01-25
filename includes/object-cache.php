@@ -574,7 +574,7 @@ class WP_Object_Cache
                 $this->redis->ping();
             }
 
-            if ( (!$onPredisCluster) && (!$usesReplication ) {
+            if ( (!$onPredisCluster) && (!$usesReplication )) {
                 $server_info = $this->redis->info( 'SERVER' );
 
                 if (isset($server_info['redis_version'])) {
