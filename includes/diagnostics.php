@@ -7,11 +7,14 @@ $dropin = $this->validate_object_cache_dropin() && ( ! defined('WP_REDIS_DISABLE
 
 $info[ 'Status' ] = $this->get_status();
 
+$info[ 'Redis Version' ] = (defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis' && defined( 'WP_REDIS_CLUSTER' ))?'Not supported':$this->get_redis_version();
+/*
 if (defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis' && defined( 'WP_REDIS_CLUSTER' )) {
     $info[ 'Redis Version' ] = 'Not supported';
 } else {
     $info[ 'Redis Version' ] = $this->get_redis_version();
 }
+*/
 $info[ 'Client' ] = $this->get_redis_client_name();
 
 $info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
