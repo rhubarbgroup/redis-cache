@@ -3,27 +3,20 @@
 global $wp_object_cache;
 
 $info = $plugins = $dropins = array();
-$dropin = $this->validate_object_cache_dropin() && ( ! defined('WP_REDIS_DISABLED') || ! WP_REDIS_DISABLED );
+$usesPredis = defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis';
+$isCluster = defined( 'WP_REDIS_CLUSTER' );
+$isDisabled = defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED;
+
+$dropin = $this->validate_object_cache_dropin() && ! $isDisabled;
 
 $info[ 'Status' ] = $this->get_status();
-
-$info[ 'Redis Version' ] = (defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis' && defined( 'WP_REDIS_CLUSTER' ))?'Not supported':$this->get_redis_version();
-/*
-if (defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis' && defined( 'WP_REDIS_CLUSTER' )) {
-    $info[ 'Redis Version' ] = 'Not supported';
-} else {
-    $info[ 'Redis Version' ] = $this->get_redis_version();
-}
-*/
+$info[ 'Redis Version' ] = $this->get_redis_version() ?: 'Unknown';
 $info[ 'Client' ] = $this->get_redis_client_name();
-
 $info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
-
-$usesPredis = defined( 'WP_REDIS_CLIENT' ) && WP_REDIS_CLIENT === 'predis';
 
 if ( $dropin ) {
     try {
-        if ($usesPredis && defined( 'WP_REDIS_CLUSTER' )) {
+        if ($usesPredis && $isCluster) {
             $info[ 'Ping' ] = 'Not supported';
         } else {
             $cache = new WP_Object_Cache( false );
