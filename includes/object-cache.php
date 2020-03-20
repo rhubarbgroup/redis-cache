@@ -487,12 +487,12 @@ class WP_Object_Cache
                         $connection_args[1] = null;
                     }
 
-                    if (version_compare($phpredis_version,'3.1.3','>=')){
+                    if (version_compare($phpredis_version, '3.1.3', '>=')) {
                         $connection_args[] = $parameters['read_timeout'];
                     }
 
                     call_user_func_array(
-                        [ $this->redis, 'connect' ],
+                        [$this->redis, 'connect'],
                         $connection_args
                     );
                 }
