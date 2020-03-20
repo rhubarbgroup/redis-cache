@@ -466,7 +466,18 @@ class WP_Object_Cache
                 if (defined('WP_REDIS_SHARDS')) {
                     $this->redis = new RedisArray(array_values(WP_REDIS_SHARDS));
                 } elseif (defined('WP_REDIS_CLUSTER')) {
-                    $this->redis = new RedisCluster(null, array_values(WP_REDIS_CLUSTER));
+                    $connection_args = [
+                        null,
+                        array_values(WP_REDIS_CLUSTER),
+                        $parameters['timeout'],
+                        $parameters['read_timeout'],
+                    ];
+
+                    if (isset($parameters['password']) && version_compare($phpredis_version, '4.3.0', '>=')) {
+                        $connection_args[] = $parameters['password'];
+                    }
+
+                    $this->redis = new RedisCluster($connection_args);
                 } else {
                     $this->redis = new Redis();
 
