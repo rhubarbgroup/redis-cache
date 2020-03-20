@@ -977,7 +977,7 @@ LUA;
             $found = true;
             $this->cache_hits++;
 
-            return is_object($this->cache[$derived_key]) ? clone $this->cache[$derived_key] : $this->cache[$derived_key];
+            return $this->get_from_internal_cache($derived_key, $group);
         } elseif (in_array($group, $this->ignored_groups) || ! $this->redis_status()) {
             $found = false;
             $this->cache_misses++;
@@ -1006,10 +1006,7 @@ LUA;
 
         $this->add_to_internal_cache($derived_key, $value);
 
-        $value = is_object($value) ? clone $value : $value;
-
         if (function_exists('do_action')) {
-
             $execute_time = microtime(true) - $start_time;
 
             do_action('redis_object_cache_get', $key, $value, $group, $force, $found, $execute_time);
@@ -1333,20 +1330,22 @@ LUA;
     /**
      * Get a value specifically from the internal, run-time cache, not Redis.
      *
-     * @param   int|string $key        Key value.
-     * @param   int|string $group      Group that the value belongs to.
+     * @param   int|string $derived_key Key value.
+     * @param   int|string $group       Group that the value belongs to.
      *
      * @return  bool|mixed              Value on success; false on failure.
      */
-    public function get_from_internal_cache($key, $group)
+    public function get_from_internal_cache($derived_key, $group)
     {
-        $derived_key = $this->build_key($key, $group);
-
-        if (isset($this->cache[$derived_key])) {
-            return $this->cache[$derived_key];
+        if (! isset($this->cache[$derived_key])) {
+            return false;
         }
 
-        return false;
+        if (is_object($this->cache[$derived_key])) {
+            return clone $this->cache[$derived_key];
+        }
+
+        return $this->cache[$derived_key];
     }
 
     /**
@@ -1444,7 +1443,9 @@ LUA;
 
         // don't attempt to unserialize data that wasn't serialized going in
         if ($this->is_serialized($original)) {
-            return @unserialize($original);
+            $value = @unserialize($original);
+
+            return is_object($value) ? clone $value : $value;
         }
 
         return $original;
@@ -1452,11 +1453,16 @@ LUA;
 
     /**
      * Serialize data, if needed.
+     *
      * @param string|array|object $data Data that might be serialized.
      * @return mixed A scalar data
      */
     protected function maybe_serialize($data)
     {
+        if (is_object($data)) {
+            $data = clone $data;
+        }
+
         if (defined('WP_REDIS_SERIALIZER') && ! empty(WP_REDIS_SERIALIZER)) {
             return $data;
         }
