@@ -477,7 +477,7 @@ class WP_Object_Cache
                         $connection_args[] = $parameters['password'];
                     }
 
-                    $this->redis = new RedisCluster($connection_args);
+                    $this->redis = new RedisCluster(...$connection_args);
                 } else {
                     $this->redis = new Redis();
 
