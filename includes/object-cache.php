@@ -489,8 +489,12 @@ class WP_Object_Cache
                         $parameters['retry_interval'],
                     ];
 
-                    if ($parameters['scheme'] == 'tls') {
-                        $connection_args[0] = $parameters['scheme'] . '://' . $parameters['host'];
+                    if (strcasecmp('tls', $parameters['scheme']) === 0) {
+                        $connection_args[0] = sprintf(
+                            '%s://%s',
+                            $parameters['scheme'],
+                            str_replace('tls://', '', $parameters['host'])
+                        );
                     }
 
                     if (strcasecmp('unix', $parameters['scheme']) === 0) {
