@@ -592,12 +592,12 @@ class WP_Object_Cache
             }
 
             if ( ! isset( $options['replication'] ) || ! $options['replication'] ) {
-                $server_info = $this->redis->info( 'SERVER' );
+                $info = $this->redis->info();
 
-                if (isset($server_info['redis_version'])) {
-                    $this->redis_version = $server_info['redis_version'];
-                } elseif (isset( $server_info['Server']['redis_version'])) {
-                    $this->redis_version = $server_info['Server']['redis_version'];
+                if (isset($info['redis_version'])) {
+                    $this->redis_version = $info['redis_version'];
+                } elseif (isset($info['Server']['redis_version'])) {
+                    $this->redis_version = $info['Server']['redis_version'];
                 }
             }
 

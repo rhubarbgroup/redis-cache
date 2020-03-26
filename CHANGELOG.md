@@ -4,6 +4,7 @@
 
 - Added support for PhpRedis TLS connections
 - Added support for timeout, read timeout and password when using PhpRedis cluster
+- Fixed issue with `INFO` command
 - Fixed object cloning when setting cache keys
 
 ## 1.5.6

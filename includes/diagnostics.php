@@ -6,9 +6,7 @@ $info = $plugins = $dropins = array();
 $dropin = $this->validate_object_cache_dropin() && ( ! defined('WP_REDIS_DISABLED') || ! WP_REDIS_DISABLED );
 
 $info[ 'Status' ] = $this->get_status();
-$info[ 'Redis Version' ] = $this->get_redis_version() ?: 'Unknown';
 $info[ 'Client' ] = $this->get_redis_client_name();
-
 $info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
 
 if ( $dropin ) {
@@ -30,6 +28,8 @@ if ( defined( 'PHP_VERSION' ) ) {
 if ( defined( 'HHVM_VERSION' ) ) {
     $info[ 'HHVM Version' ] = HHVM_VERSION;
 }
+
+$info[ 'Redis Version' ] = $this->get_redis_version() ?: 'Unknown';
 
 $info[ 'Multisite' ] = is_multisite() ? 'Yes' : 'No';
 
