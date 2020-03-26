@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## 1.5.7
 
 - Added support for PhpRedis TLS connections
 - Added support for timeout, read timeout and password when using PhpRedis cluster

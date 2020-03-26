@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, perform
 Requires at least: 3.3
 Tested up to: 5.3
 Requires PHP: 5.4
-Stable tag: 1.5.6
+Stable tag: 1.5.7
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -217,6 +217,13 @@ The following commands are supported:
 
 
 == Changelog ==
+
+= 1.5.7 =
+
+- Added support for PhpRedis TLS connections
+- Added support for timeout, read timeout and password when using PhpRedis cluster
+- Fixed issue with `INFO` command
+- Fixed object cloning when setting cache keys
 
 = 1.5.6 =
 
