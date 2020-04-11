@@ -882,7 +882,15 @@ class WP_Object_Cache
     }
 
     protected function glob_quote($string) {
-        return str_replace(['[', '*', '?'], ['[[]', '[*]', '[?]'], $string);
+        $characters = ['*', '+', '?', '!', '{', '}', '[', ']', '(', ')', '|', '@'];
+        
+        return str_replace(
+            $characters,
+            array_map(function ($character) {
+                return "[{$character}]";
+            }, $characters),
+            $string
+        );
     }
 
     /**
