@@ -881,6 +881,18 @@ class WP_Object_Cache
         }
     }
 
+    protected function glob_quote($string) {
+        $characters = ['*', '+', '?', '!', '{', '}', '[', ']', '(', ')', '|', '@'];
+        
+        return str_replace(
+            $characters,
+            array_map(function ($character) {
+                return "[{$character}]";
+            }, $characters),
+            $string
+        );
+    }
+
     /**
      * Returns a closure ready to be called to flush selectively ignoring unflushable groups.
      *
@@ -889,6 +901,8 @@ class WP_Object_Cache
      */
     protected function lua_flush_closure($salt)
     {
+        $salt = $this->glob_quote($salt);
+
         return function () use ($salt) {
             $script = <<<LUA
                 local cur = 0
@@ -927,6 +941,8 @@ LUA;
      */
     protected function lua_flush_extended_closure($salt)
     {
+        $salt = $this->glob_quote($salt);
+
         return function () use ($salt) {
             $salt_length = strlen($salt);
 
