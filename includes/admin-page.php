@@ -42,24 +42,40 @@
                 <td><code><?php echo $this->get_status(); ?></code></td>
             </tr>
 
-            <?php if ( ! is_null( $this->get_redis_client_name() ) ) : ?>
+            <?php $redisClient = $this->get_redis_client_name(); ?>
+            <?php $redisPrefix = $this->get_redis_cachekey_prefix(); ?>
+            <?php $redisMaxTTL = $this->get_redis_maxttl(); ?>
+
+            <?php if ( ! is_null( $redisClient ) ) : ?>
                 <tr>
                     <th><?php _e( 'Client:', 'redis-cache' ); ?></th>
-                    <td><code><?php echo esc_html( $this->get_redis_client_name() ); ?></code></td>
+                    <td><code><?php echo esc_html( $redisClient ); ?></code></td>
                 </tr>
             <?php endif; ?>
 
-            <?php if ( ! is_null( $this->get_redis_cachekey_prefix() ) && trim( $this->get_redis_cachekey_prefix() ) !== '' ) : ?>
+            <?php if ( ! is_null( $redisPrefix ) && trim( $redisPrefix ) !== '' ) : ?>
                 <tr>
                     <th><?php _e( 'Key Prefix:', 'redis-cache' ); ?></th>
-                    <td><code><?php echo esc_html( $this->get_redis_cachekey_prefix() ); ?></code></td>
+                    <td>
+                        <code><?php echo esc_html( $redisPrefix ); ?></code>
+
+                        <?php if ( strlen( (string) $redisPrefix ) > 20 || ! ctype_alnum( $redisPrefix ) ) : ?>
+                            <p class="description" style="color: #d54e21;"><?php _e( 'Consider using a shorter, alphanumeric prefix.', 'redis-cache' ); ?></p>
+                        <?php endif; ?>
+                    </td>
                 </tr>
             <?php endif; ?>
 
-            <?php if ( ! is_null( $this->get_redis_maxttl() ) ) : ?>
+            <?php if ( ! is_null( $redisMaxTTL ) ) : ?>
                 <tr>
                     <th><?php _e( 'Max. TTL:', 'redis-cache' ); ?></th>
-                    <td><code><?php echo esc_html( $this->get_redis_maxttl() ); ?></code></td>
+                    <td>
+                        <code><?php echo esc_html( $redisMaxTTL ); ?></code>
+
+                        <?php if ( ! ctype_digit( $redisMaxTTL ) !== 0 ) : ?>
+                            <p class="description" style="color: #d54e21;"><?php _e( 'This doesn’t appear to be a valid number.', 'redis-cache' ); ?></p>
+                        <?php endif; ?>
+                    </td>
                 </tr>
             <?php endif; ?>
 
