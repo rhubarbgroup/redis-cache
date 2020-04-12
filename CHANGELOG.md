@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+- Add warning messages to MaxTTL and prefix settings
+- Fixed flushing the cache when the prefix contains special characters
+
 ## 1.5.7
 
 - Added support for PhpRedis TLS connections
