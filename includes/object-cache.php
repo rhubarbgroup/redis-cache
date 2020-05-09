@@ -592,7 +592,11 @@ class WP_Object_Cache
             }
 
             if ( ! isset( $options['replication'] ) || ! $options['replication'] ) {
-                $info = $this->redis->info();
+                if (defined('WP_REDIS_CLUSTER')) {
+                    $this->redis->info(current(array_values(WP_REDIS_CLUSTER)));
+                } else {
+                    $this->redis->info();
+                }
 
                 if (isset($info['redis_version'])) {
                     $this->redis_version = $info['redis_version'];
