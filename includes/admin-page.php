@@ -107,13 +107,21 @@
 
     <?php if ( isset( $_GET[ 'diagnostics' ] ) ) : ?>
 
-        <h2 class="title"><?php _e( 'Diagnostics', 'redis-cache' ); ?></h2>
+        <br>
+        <h2 class="title">
+            <?php _e( 'Diagnostics', 'redis-cache' ); ?>
+        </h2>
 
         <textarea class="large-text readonly" rows="20" readonly><?php include dirname( __FILE__ ) . '/diagnostics.php'; ?></textarea>
 
     <?php else : ?>
 
-        <p><a href="<?php echo network_admin_url( add_query_arg( 'diagnostics', '1', $this->page ) ); ?>"><?php _e( 'Show Diagnostics', 'redis-cache' ); ?></a></p>
+        <p class="mt-5">
+            <br>
+            <a class="button button-secondary" href="<?php echo network_admin_url( add_query_arg( 'diagnostics', '1', $this->page ) ); ?>">
+                <?php _e( 'Show Diagnostics', 'redis-cache' ); ?>
+            </a>
+        </p>
 
     <?php endif; ?>
 
