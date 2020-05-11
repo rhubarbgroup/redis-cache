@@ -49,6 +49,7 @@ class RedisObjectCache {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
         add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
+        add_action( 'shutdown', array( $this, 'maybe_print_stats' ) );
         add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
 
         add_filter( sprintf(
@@ -475,6 +476,29 @@ class RedisObjectCache {
                 network_admin_url( $this->page )
             )
         );
+    }
+
+    public function maybe_print_stats()
+    {
+        global $wp_object_cache;
+
+        if (! WP_DEBUG) {
+            return;
+        }
+
+        $size = 0;
+
+        foreach ($wp_object_cache->cache as $group => $cache) {
+            $size += strlen(serialize($cache));
+        }
+
+        $message = 'Status: ' . ($wp_object_cache->redis_status() ? 'Connected' : 'Not Connected') . PHP_EOL;
+        $message .= 'Client: ' . $wp_object_cache->redis_client . PHP_EOL;
+        $message .= 'Hits: ' . $wp_object_cache->cache_hits . PHP_EOL;
+        $message .= 'Misses: ' . $wp_object_cache->cache_misses . PHP_EOL;
+        $message .= 'Size: ' . size_format($size) . PHP_EOL;
+
+        printf("\n<!--\n%s\n\n%s\n-->\n", '[Redis Object Cache]', $message);
     }
 
     public function initialize_filesystem( $url, $silent = false ) {
