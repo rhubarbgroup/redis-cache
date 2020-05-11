@@ -49,7 +49,15 @@
             <?php if ( ! is_null( $redisClient ) ) : ?>
                 <tr>
                     <th><?php _e( 'Client:', 'redis-cache' ); ?></th>
-                    <td><code><?php echo esc_html( $redisClient ); ?></code></td>
+                    <td>
+                        <code><?php echo esc_html( $redisClient ); ?></code>
+
+                        <?php if ( strpos( (string) $redisClient, 'predis' ) !== false ) : ?>
+                            <p class="description" style="color: #d54e21; max-width: 20rem;">
+                                <?php _e( 'The Predis library is no longer maintained. Consider switching over to PhpRedis to avoid compatiblity issues in the future.', 'redis-cache' ); ?>
+                            </p>
+                        <?php endif; ?>
+                    </td>
                 </tr>
             <?php endif; ?>
 
@@ -60,7 +68,9 @@
                         <code><?php echo esc_html( $redisPrefix ); ?></code>
 
                         <?php if ( strlen( (string) $redisPrefix ) > 20 || ! ctype_alnum( $redisPrefix ) ) : ?>
-                            <p class="description" style="color: #d54e21;"><?php _e( 'Consider using a shorter, alphanumeric prefix.', 'redis-cache' ); ?></p>
+                            <p class="description" style="color: #d54e21;">
+                                <?php _e( 'Consider using a shorter, alphanumeric prefix.', 'redis-cache' ); ?>
+                            </p>
                         <?php endif; ?>
                     </td>
                 </tr>
@@ -73,7 +83,9 @@
                         <code><?php echo esc_html( $redisMaxTTL ); ?></code>
 
                         <?php if ( ! ctype_digit( $redisMaxTTL ) !== 0 ) : ?>
-                            <p class="description" style="color: #d54e21;"><?php _e( 'This doesn’t appear to be a valid number.', 'redis-cache' ); ?></p>
+                            <p class="description" style="color: #d54e21;">
+                                <?php _e( 'This doesn’t appear to be a valid number.', 'redis-cache' ); ?>
+                            </p>
                         <?php endif; ?>
                     </td>
                 </tr>
