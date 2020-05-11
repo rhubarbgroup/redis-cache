@@ -2,8 +2,10 @@
 
 ## [Unreleased]
 
-- Added warning messages to MaxTTL and prefix settings
-- Added Pro version compatibility to settings
+- Added warning message about invalid MaxTTL
+- Added warning about unmaintained Predis library
+- Added suggestion about shorter, human-readable prefixes
+- Added Redis Cache Pro compatibility to settings
 - Fixed flushing the cache when the prefix contains special characters
 - Fixed calling Redis `INFO` when using clusters
 - Cleaned up the settings a little bit
