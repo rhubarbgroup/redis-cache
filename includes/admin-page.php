@@ -69,7 +69,7 @@
 
                         <?php if ( strlen( (string) $redisPrefix ) > 20 || ! ctype_alnum( $redisPrefix ) ) : ?>
                             <p class="description" style="color: #d54e21;">
-                                <?php _e( 'Consider using a shorter, alphanumeric prefix.', 'redis-cache' ); ?>
+                                <?php _e( 'Consider using a shorter, human-readable prefix.', 'redis-cache' ); ?>
                             </p>
                         <?php endif; ?>
                     </td>
@@ -82,7 +82,7 @@
                     <td>
                         <code><?php echo esc_html( $redisMaxTTL ); ?></code>
 
-                        <?php if ( ! ctype_digit( $redisMaxTTL ) !== 0 ) : ?>
+                        <?php if ( ! is_int( $redisMaxTTL ) && ! ctype_digit( $redisMaxTTL ) !== 0 ) : ?>
                             <p class="description" style="color: #d54e21;">
                                 <?php _e( 'This doesn’t appear to be a valid number.', 'redis-cache' ); ?>
                             </p>
