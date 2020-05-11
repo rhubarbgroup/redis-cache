@@ -102,7 +102,7 @@
             <?php if ( ! $this->object_cache_dropin_exists() ) : ?>
                 <a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'enable-cache', $this->page ) ), 'enable-cache' ); ?>" class="button button-primary button-large"><?php _e( 'Enable Object Cache', 'redis-cache' ); ?></a>
             <?php elseif ( $this->validate_object_cache_dropin() ) : ?>
-                <a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'disable-cache', $this->page ) ), 'disable-cache' ); ?>" class="button button-secondary button-large delete"><?php _e( 'Disable Object Cache', 'redis-cache' ); ?></a>
+                <a href="<?php echo wp_nonce_url( network_admin_url( add_query_arg( 'action', 'disable-cache', $this->page ) ), 'disable-cache' ); ?>" class="button button-secondary button-large"><?php _e( 'Disable Object Cache', 'redis-cache' ); ?></a>
             <?php endif; ?>
 
         </p>
