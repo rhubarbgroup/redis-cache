@@ -230,7 +230,7 @@ function wp_cache_set($key, $value, $group = '', $expiration = 0)
 }
 
 /**
- * Switch the interal blog id.
+ * Switch the internal blog id.
  *
  * This changes the blog id used to create keys in blog specific groups.
  *
@@ -887,7 +887,7 @@ class WP_Object_Cache
 
     protected function glob_quote($string) {
         $characters = ['*', '+', '?', '!', '{', '}', '[', ']', '(', ')', '|', '@'];
-        
+
         return str_replace(
             $characters,
             array_map(function ($character) {
@@ -1443,7 +1443,7 @@ LUA;
     /**
      * Wrapper to validate the cache keys expiration value
      *
-     * @param mixed $expiration Incomming expiration value (whatever it is)
+     * @param mixed $expiration Incoming expiration value (whatever it is)
      */
     protected function validate_expiration($expiration)
     {

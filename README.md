@@ -76,7 +76,7 @@ To adjust the connection parameters, define any of the following constants in yo
 
 * `WP_REDIS_RETRY_INTERVAL` (default: _not set_)
 
-  Amount of time in miliseconds to retry a failed connection attempt.
+  Amount of time in milliseconds to retry a failed connection attempt.
 
 
 ## Configuration Parameters
