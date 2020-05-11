@@ -108,36 +108,36 @@
     <?php if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS ) : ?>
         <br>
         <h2 class="title">
-            <?php _e('Redis Cache Pro', 'redis-cache'); ?>
+            <?php _e( 'Redis Cache Pro', 'redis-cache' ); ?>
         </h2>
 
-        <?php $isPhp7 = version_compare(phpversion(), '7.0', '>='); ?>
-        <?php $isPhpRedis311 = version_compare(phpversion('redis'), '3.1.1', '>='); ?>
-        <?php $phpRedisInstalled = (bool) phpversion('redis'); ?>
+        <?php $isPhp7 = version_compare( phpversion(), '7.0', '>=' ); ?>
+        <?php $isPhpRedis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
+        <?php $phpRedisInstalled = (bool) phpversion( 'redis' ); ?>
 
         <?php if ($isPhp7 && $isPhpRedis311) : ?>
             <p>
-                <?php _e('This server <u>does meet</u> the Pro version’s requirements (PHP 7+; PhpRedis 3.1.1+).', 'redis-cache'); ?>
+                <?php _e( 'Your site meets the system requirements for the Pro version (PHP 7+; PhpRedis 3.1.1+).', 'redis-cache' ); ?>
             </p>
         <?php else : ?>
             <p>
-                <?php _e('This server <u>does not meet</u> the Pro version’s requirements:', 'redis-cache'); ?>
+                <?php _e( 'Your site <i>does not</i> meet the system requirements for the Pro version:', 'redis-cache' ); ?>
             </p>
 
             <ul style="padding-left: 30px; list-style: disc;">
                 <?php if (! $isPhp7) : ?>
                     <li>
-                        <?php printf(__('The PHP version (%s) is too old. PHP 7+ is required.', 'redis-cache'), phpversion()); ?>
+                        <?php printf( __( 'The current version (%s) of PHP is too old. PHP 7 or newer is required.', 'redis-cache' ), phpversion() ); ?>
                     </li>
                 <?php endif; ?>
 
                 <?php if (! $phpRedisInstalled) : ?>
                     <li>
-                        <?php printf(__('The PhpRedis extention is not installed.', 'redis-cache'), phpversion()); ?>
+                        <?php printf( __( 'The PhpRedis extension is not installed.', 'redis-cache' ), phpversion() ); ?>
                     </li>
                 <?php elseif (! $isPhpRedis311) : ?>
                     <li>
-                        <?php printf(__('The PhpRedis extention version (%s) is too old. PhpRedis 3.1.1_ is required.', 'redis-cache'), phpversion('redis')); ?>
+                        <?php printf( __( 'The current version (%s) of the PhpRedis extension is too old. PhpRedis 3.1 or newer is required.', 'redis-cache' ), phpversion( 'redis' ) ); ?>
                     </li>
                 <?php endif; ?>
             </ul>
