@@ -56,7 +56,7 @@ This plugin turned 5 years today (Nov 14th) and its only fitting to release the 
 
 ## 1.5.0
 
-Since Predis isn't maintained any longer, it's highly recommended to switch over to PhpRedis (the Redis PECL extention).
+Since Predis isn't maintained any longer, it's highly recommended to switch over to PhpRedis (the Redis PECL extension).
 
 * Improved Redis key name builder
 * Added support for PhpRedis serializers
