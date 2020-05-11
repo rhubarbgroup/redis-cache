@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## 1.5.8
 
 - Added warning message about invalid MaxTTL
 - Added warning about unmaintained Predis library

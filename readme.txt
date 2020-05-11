@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, perform
 Requires at least: 3.3
 Tested up to: 5.4
 Requires PHP: 5.4
-Stable tag: 1.5.7
+Stable tag: 1.5.8
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -217,6 +217,16 @@ The following commands are supported:
 
 
 == Changelog ==
+
+= 1.5.8 =
+
+- Added warning message about invalid MaxTTL
+- Added warning about unmaintained Predis library
+- Added suggestion about shorter, human-readable prefixes
+- Added Redis Cache Pro compatibility to settings
+- Fixed flushing the cache when the prefix contains special characters
+- Fixed calling Redis `INFO` when using clusters
+- Cleaned up the settings a little bit
 
 = 1.5.7 =
 
