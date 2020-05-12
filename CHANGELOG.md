@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Fixed MaxTTL warning condition
+
 ## 1.5.8
 
 - Added warning message about invalid MaxTTL

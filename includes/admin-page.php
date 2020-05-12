@@ -82,7 +82,7 @@
                     <td>
                         <code><?php echo esc_html( $redisMaxTTL ); ?></code>
 
-                        <?php if ( ! is_int( $redisMaxTTL ) && ! ctype_digit( $redisMaxTTL ) !== 0 ) : ?>
+                        <?php if ( ! is_int( $redisMaxTTL ) && ! ctype_digit( $redisMaxTTL ) ) : ?>
                             <p class="description" style="color: #d54e21;">
                                 <?php _e( 'This doesn’t appear to be a valid number.', 'redis-cache' ); ?>
                             </p>
