@@ -593,7 +593,7 @@ class WP_Object_Cache
 
             if ( ! isset( $options['replication'] ) || ! $options['replication'] ) {
                 if (defined('WP_REDIS_CLUSTER')) {
-                    $this->redis->info(current(array_values(WP_REDIS_CLUSTER)));
+                    $info = $this->redis->info(current(array_values(WP_REDIS_CLUSTER)));
                 } else {
                     $info = $this->redis->info();
                 }
