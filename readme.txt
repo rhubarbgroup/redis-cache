@@ -220,7 +220,9 @@ The following commands are supported:
 
 = 1.5.9 =
 
-- Fixed missing `$info` variable in function `__construct()`
+- Fixed missing `$info` variable assignment in constructor
+- Fixed MaxTTL warning condition
+- Switched to using default button styles
 
 = 1.5.8 =
 
