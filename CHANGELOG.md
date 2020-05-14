@@ -4,6 +4,10 @@
 
 - Fixed MaxTTL warning condition
 
+## 1.5.9
+
+- Fixed missing `$info` variable in function `__construct()`
+
 ## 1.5.8
 
 - Added warning message about invalid MaxTTL
