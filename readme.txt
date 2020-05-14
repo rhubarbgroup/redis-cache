@@ -1,6 +1,6 @@
 === Redis Object Cache ===
 Contributors: tillkruess
-Donate link: https://www.paypal.me/tillkruss
+Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, performance, replication, clustering
 Requires at least: 3.3
 Tested up to: 5.4
