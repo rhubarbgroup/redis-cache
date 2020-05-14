@@ -595,7 +595,7 @@ class WP_Object_Cache
                 if (defined('WP_REDIS_CLUSTER')) {
                     $this->redis->info(current(array_values(WP_REDIS_CLUSTER)));
                 } else {
-                    $this->redis->info();
+                    $info = $this->redis->info();
                 }
 
                 if (isset($info['redis_version'])) {
