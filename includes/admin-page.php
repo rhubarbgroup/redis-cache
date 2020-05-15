@@ -67,7 +67,7 @@
                     <td>
                         <code><?php echo esc_html( $redisPrefix ); ?></code>
 
-                        <?php if ( strlen( (string) $redisPrefix ) > 20 || ! ctype_alnum( $redisPrefix ) ) : ?>
+                        <?php if ( strlen( (string) $redisPrefix ) > 20 || ! preg_match( '/[\w-]/', $redisPrefix ) ) : ?>
                             <p class="description" style="color: #d54e21;">
                                 <?php _e( 'Consider using a shorter, human-readable prefix.', 'redis-cache' ); ?>
                             </p>

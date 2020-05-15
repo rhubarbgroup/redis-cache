@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Fixed logic of prefix suggestion
+
 ## 1.5.9
 
 - Fixed missing `$info` variable assignment in constructor
