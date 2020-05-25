@@ -419,15 +419,24 @@ class WP_Object_Cache
         }
 
         if (defined('WP_REDIS_GLOBAL_GROUPS') && is_array(WP_REDIS_GLOBAL_GROUPS)) {
-            $this->global_groups = WP_REDIS_GLOBAL_GROUPS;
+            $this->global_groups = array_map(
+                [$this, 'sanitize_key_part'],
+                WP_REDIS_GLOBAL_GROUPS
+            );
         }
 
         if (defined('WP_REDIS_IGNORED_GROUPS') && is_array(WP_REDIS_IGNORED_GROUPS)) {
-            $this->ignored_groups = WP_REDIS_IGNORED_GROUPS;
+            $this->ignored_groups = array_map(
+                [$this, 'sanitize_key_part'],
+                WP_REDIS_IGNORED_GROUPS
+            );
         }
 
         if (defined('WP_REDIS_UNFLUSHABLE_GROUPS') && is_array(WP_REDIS_UNFLUSHABLE_GROUPS)) {
-            $this->unflushable_groups = WP_REDIS_UNFLUSHABLE_GROUPS;
+            $this->unflushable_groups = array_map(
+                [$this, 'sanitize_key_part'],
+                WP_REDIS_UNFLUSHABLE_GROUPS
+            );
         }
 
         $client = defined('WP_REDIS_CLIENT') ? WP_REDIS_CLIENT : null;
@@ -707,7 +716,7 @@ class WP_Object_Cache
         $derived_key = $this->build_key($key, $group);
 
         // save if group not excluded and redis is up
-        if (! in_array($group, $this->ignored_groups) && $this->redis_status()) {
+        if (! $this->is_ignored_group($group) && $this->redis_status()) {
             try {
                 $exists = $this->redis->exists($derived_key);
 
@@ -761,7 +770,7 @@ class WP_Object_Cache
             $result = true;
         }
 
-        if ($this->redis_status() && ! in_array($group, $this->ignored_groups)) {
+        if ($this->redis_status() && ! $this->is_ignored_group($group)) {
             try {
                 $result = $this->parse_redis_response($this->redis->del($derived_key));
             } catch (Exception $exception) {
@@ -1013,7 +1022,7 @@ LUA;
             $this->cache_hits++;
 
             return $this->get_from_internal_cache($derived_key, $group);
-        } elseif (in_array($group, $this->ignored_groups) || ! $this->redis_status()) {
+        } elseif ($this->is_ignored_group($group) || ! $this->redis_status()) {
             $found = false;
             $this->cache_misses++;
 
@@ -1078,7 +1087,7 @@ LUA;
         $cache = array();
 
         foreach ($groups as $group => $keys) {
-            if (in_array($group, $this->ignored_groups) || ! $this->redis_status()) {
+            if ($this->is_ignored_group($group) || ! $this->redis_status()) {
                 foreach ($keys as $key) {
                     $cache[$this->build_key($key, $group)] = $this->get($key, $group);
                 }
@@ -1143,7 +1152,7 @@ LUA;
         $derived_key = $this->build_key($key, $group);
 
         // save if group not excluded from redis and redis is up
-        if (! in_array($group, $this->ignored_groups) && $this->redis_status()) {
+        if (! $this->is_ignored_group($group) && $this->redis_status()) {
             $expiration = apply_filters('redis_cache_expiration', $this->validate_expiration($expiration), $key, $group);
 
             try {
@@ -1187,7 +1196,7 @@ LUA;
         $offset = (int) $offset;
 
         // If group is a non-Redis group, save to internal cache, not Redis
-        if (in_array($group, $this->ignored_groups) || ! $this->redis_status()) {
+        if ($this->is_ignored_group($group) || ! $this->redis_status()) {
             $value = $this->get_from_internal_cache($derived_key, $group);
             $value += $offset;
             $this->add_to_internal_cache($derived_key, $value);
@@ -1236,7 +1245,7 @@ LUA;
         $offset = (int) $offset;
 
         // If group is a non-Redis group, save to internal cache, not Redis
-        if (in_array($group, $this->ignored_groups) || ! $this->redis_status()) {
+        if ($this->is_ignored_group($group) || ! $this->redis_status()) {
             $value = $this->get_from_internal_cache($derived_key, $group);
             $value -= $offset;
             $this->add_to_internal_cache($derived_key, $value);
@@ -1296,14 +1305,71 @@ LUA;
         }
 
         $salt = defined('WP_CACHE_KEY_SALT') ? trim(WP_CACHE_KEY_SALT) : '';
-        $prefix = in_array($group, $this->global_groups) ? $this->global_prefix : $this->blog_prefix;
+        $prefix = $this->is_global_group($group) ? $this->global_prefix : $this->blog_prefix;
 
-        $key = str_replace(':', '-', $key);
-        $group = str_replace(':', '-', $group);
+        $key = $this->sanitize_key_part( $key );
+        $group = $this->sanitize_key_part($group);
 
         $prefix = trim($prefix, '_-:$');
 
         return "{$salt}{$prefix}:{$group}:{$key}";
+    }
+
+    /**
+     * Replaces the set group separator by another one
+     *
+     * @param   string  $part  The string to sanitize.
+     * @return  string         Sanitized string.
+     */
+    protected function sanitize_key_part( $part )
+    {
+        return str_replace(':', '-', $part);
+    }
+
+    /**
+     * Checks if the given group is part the ignored group array
+     *
+     * @param string  $group  Name of the group to check
+     * @return bool
+     */
+    protected function is_ignored_group($group)
+    {
+        return $this->is_in_group($group, $this->ignored_groups);
+    }
+
+    /**
+     * Checks if the given group is part the global group array
+     *
+     * @param string  $group  Name of the group to check
+     * @return bool
+     */
+    protected function is_global_group($group)
+    {
+        return $this->is_in_group($group, $this->global_groups);
+    }
+
+    /**
+     * Checks if the given group is part the unflushable group array
+     *
+     * @param string  $group  Name of the group to check
+     * @return bool
+     */
+    protected function is_unflushable_group($group)
+    {
+        return $this->is_in_group($group, $this->unflushable_groups);
+    }
+
+    /**
+     * Checks if a specific group is part of an array of groups
+     *
+     * @param string  $name    Name of the group to check
+     * @param array   $groups  Array of groups to check against.
+     * @return bool
+     */
+    protected function is_in_group($name, $groups)
+    {
+        $name = $this->sanitize_key_part($name);
+        return in_array($name, $groups, true);
     }
 
     /**
