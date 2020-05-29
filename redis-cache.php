@@ -49,6 +49,7 @@ class RedisObjectCache {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
         add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
+        add_action( 'shutdown', array( $this, 'maybe_print_comment' ), 0 );
         add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
 
         add_filter( sprintf(
@@ -475,6 +476,36 @@ class RedisObjectCache {
                 network_admin_url( $this->page )
             )
         );
+    }
+
+    public function maybe_print_comment() {
+        global $wp_object_cache;
+
+        if ( defined( 'WP_REDIS_DISABLE_COMMENT' ) && WP_REDIS_DISABLE_COMMENT ) {
+            return;
+        }
+
+        $message = sprintf(
+            __( 'Performance optimized by Redis Object Cache. Learn more: %s', 'redis-cache' ),
+            'https://wprediscache.com'
+        );
+
+        if (! WP_DEBUG) {
+            printf("\n<!-- %s -->\n", $message);
+
+            return;
+        }
+
+        $bytes = strlen(serialize($wp_object_cache->cache));
+
+        $debug = sprintf(
+            __( 'Retrieved %d objects (%s) from Redis using %s.', 'redis-cache' ),
+            $wp_object_cache->cache_hits,
+            function_exists( 'size_format' ) ? size_format($bytes) : "{$bytes} bytes",
+            $wp_object_cache->redis_client
+        );
+
+        printf("<!--\n%s\n\n%s\n-->\n", $message, $debug);
     }
 
     public function initialize_filesystem( $url, $silent = false ) {

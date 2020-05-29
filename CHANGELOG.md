@@ -7,7 +7,10 @@
 ## [Unreleased]
 
 - Prevent fatal error when replacing foreign dropin
+- Added HTML footer comment with optional debug information
 - Removed prefix suggestions
+
+_The HTML footer comment only prints debug information when `WP_DEBUG` is enabled. To disable the comment entirely, set the `WP_REDIS_DISABLE_COMMENT` constant to `true`._
 
 ## 1.5.9
 
