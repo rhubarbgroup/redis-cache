@@ -1298,7 +1298,7 @@ LUA;
         $salt = defined('WP_CACHE_KEY_SALT') ? trim(WP_CACHE_KEY_SALT) : '';
         $prefix = $this->is_global_group($group) ? $this->global_prefix : $this->blog_prefix;
 
-        $key = $this->sanitize_key_part( $key );
+        $key = $this->sanitize_key_part($key);
         $group = $this->sanitize_key_part($group);
 
         $prefix = trim($prefix, '_-:$');
@@ -1325,7 +1325,7 @@ LUA;
      */
     protected function is_ignored_group($group)
     {
-        return $this->is_in_group($group, $this->ignored_groups);
+        return in_array($this->sanitize_key_part($group), $this->ignored_groups, true);
     }
 
     /**
@@ -1336,7 +1336,7 @@ LUA;
      */
     protected function is_global_group($group)
     {
-        return $this->is_in_group($group, $this->global_groups);
+        return in_array($this->sanitize_key_part($group), $this->global_groups, true);
     }
 
     /**
@@ -1347,20 +1347,7 @@ LUA;
      */
     protected function is_unflushable_group($group)
     {
-        return $this->is_in_group($group, $this->unflushable_groups);
-    }
-
-    /**
-     * Checks if a specific group is part of an array of groups
-     *
-     * @param string  $name    Name of the group to check
-     * @param array   $groups  Array of groups to check against.
-     * @return bool
-     */
-    protected function is_in_group($name, $groups)
-    {
-        $name = $this->sanitize_key_part($name);
-        return in_array($name, $groups, true);
+        return in_array($this->sanitize_key_part($group), $this->unflushable_groups, true);
     }
 
     /**
