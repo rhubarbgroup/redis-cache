@@ -4,6 +4,10 @@
 
 - Fixed logic of prefix suggestion
 
+## [Unreleased]
+
+- Removed prefix suggestions
+
 ## 1.5.9
 
 - Fixed missing `$info` variable assignment in constructor
