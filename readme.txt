@@ -1,7 +1,7 @@
 === Redis Object Cache ===
 Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
-Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, performance, replication, clustering
+Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, performance, replication, clustering, keydb
 Requires at least: 3.3
 Tested up to: 5.4
 Requires PHP: 5.4
