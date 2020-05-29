@@ -709,17 +709,23 @@ class WP_Object_Cache
         // save if group not excluded and redis is up
         if (! in_array($group, $this->ignored_groups) && $this->redis_status()) {
             try {
-                $exists = $this->redis->exists($derived_key);
-
-                if ($add == $exists) {
-                    return false;
-                }
-
                 $expiration = apply_filters('redis_cache_expiration', $this->validate_expiration($expiration), $key, $group);
 
-                if ($expiration) {
+                if ($add) {
+                    // use `setnx` (atomic operation) and then extend the TTL
+                    $result = $this->parse_redis_response($this->redis->setnx($derived_key, $this->maybe_serialize($value)));
+                    if (! $result ) {
+                        return false;
+                    }
+
+                    if ($expiration) {
+                        $this->redis->expire($derived_key, $expiration);
+                    }
+                } elseif ($expiration) {
+                    // update value and extend TTL
                     $result = $this->parse_redis_response($this->redis->setex($derived_key, $expiration, $this->maybe_serialize($value)));
                 } else {
+                    // only update the value
                     $result = $this->parse_redis_response($this->redis->set($derived_key, $this->maybe_serialize($value)));
                 }
             } catch (Exception $exception) {
