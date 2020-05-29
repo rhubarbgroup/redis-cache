@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.1
+
+- Fixed issue with footer comment showing during ajax requests
+
 ## 1.6.0
 
 - Improved group name sanitization (thanks @naxvog)

@@ -481,6 +481,18 @@ class RedisObjectCache {
     public function maybe_print_comment() {
         global $wp_object_cache;
 
+        if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+            return;
+        }
+
+        if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+            return;
+        }
+
+        if ( ! defined( 'WP_USE_THEMES' ) || ! WP_USE_THEMES ) {
+            return;
+        }
+
         if ( defined( 'WP_REDIS_DISABLE_COMMENT' ) && WP_REDIS_DISABLE_COMMENT ) {
             return;
         }
