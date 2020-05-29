@@ -6,6 +6,7 @@
 
 ## [Unreleased]
 
+- Prevent fatal error when replacing foreign dropin
 - Removed prefix suggestions
 
 ## 1.5.9
