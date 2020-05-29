@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## 1.6.0
 
 - Improved group name sanitization (thanks @naxvog)
 - Prevent fatal error when replacing foreign dropin
