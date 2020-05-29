@@ -2,10 +2,7 @@
 
 ## [Unreleased]
 
-- Fixed logic of prefix suggestion
-
-## [Unreleased]
-
+- Improved group name sanitization (thanks @naxvog)
 - Prevent fatal error when replacing foreign dropin
 - Added HTML footer comment with optional debug information
 - Removed prefix suggestions
