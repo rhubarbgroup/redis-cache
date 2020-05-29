@@ -419,24 +419,15 @@ class WP_Object_Cache
         }
 
         if (defined('WP_REDIS_GLOBAL_GROUPS') && is_array(WP_REDIS_GLOBAL_GROUPS)) {
-            $this->global_groups = array_map(
-                [$this, 'sanitize_key_part'],
-                WP_REDIS_GLOBAL_GROUPS
-            );
+            $this->global_groups = array_map([$this, 'sanitize_key_part'], WP_REDIS_GLOBAL_GROUPS);
         }
 
         if (defined('WP_REDIS_IGNORED_GROUPS') && is_array(WP_REDIS_IGNORED_GROUPS)) {
-            $this->ignored_groups = array_map(
-                [$this, 'sanitize_key_part'],
-                WP_REDIS_IGNORED_GROUPS
-            );
+            $this->ignored_groups = array_map([$this, 'sanitize_key_part'], WP_REDIS_IGNORED_GROUPS);
         }
 
         if (defined('WP_REDIS_UNFLUSHABLE_GROUPS') && is_array(WP_REDIS_UNFLUSHABLE_GROUPS)) {
-            $this->unflushable_groups = array_map(
-                [$this, 'sanitize_key_part'],
-                WP_REDIS_UNFLUSHABLE_GROUPS
-            );
+            $this->unflushable_groups = array_map([$this, 'sanitize_key_part'], WP_REDIS_UNFLUSHABLE_GROUPS);
         }
 
         $client = defined('WP_REDIS_CLIENT') ? WP_REDIS_CLIENT : null;
