@@ -2,7 +2,7 @@
 
 ## 1.6.1
 
-- Fixed issue with footer comment showing during ajax requests
+- Fixed issue with footer comment showing during AJAX requests
 
 ## 1.6.0
 
