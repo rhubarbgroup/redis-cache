@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.2
+
+- Added even more JSON request checks
+
 ## 1.6.1
 
 - Fixed issue with footer comment showing during AJAX requests

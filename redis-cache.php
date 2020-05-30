@@ -481,11 +481,7 @@ class RedisObjectCache {
     public function maybe_print_comment() {
         global $wp_object_cache;
 
-        if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
-            return;
-        }
-
-        if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+        if ( defined( 'WP_REDIS_DISABLE_COMMENT' ) && WP_REDIS_DISABLE_COMMENT ) {
             return;
         }
 
@@ -493,7 +489,19 @@ class RedisObjectCache {
             return;
         }
 
-        if ( defined( 'WP_REDIS_DISABLE_COMMENT' ) && WP_REDIS_DISABLE_COMMENT ) {
+        if (
+            ( defined( 'DOING_CRON' ) && DOING_CRON ) ||
+            ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ||
+            ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ||
+            ( defined( 'JSON_REQUEST' ) && JSON_REQUEST ) ||
+            ( defined( 'IFRAME_REQUEST' ) && IFRAME_REQUEST ) ||
+            ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ||
+            ( defined( 'WC_API_REQUEST' ) && WC_API_REQUEST )
+        ) {
+            return;
+        }
+
+        if ( function_exists( 'wp_is_json_request' ) && wp_is_json_request() ) {
             return;
         }
 
