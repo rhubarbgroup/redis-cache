@@ -95,7 +95,7 @@ To adjust the connection parameters, define any of the following constants in yo
 	  Amount of time in milliseconds to retry a failed connection attempt.
 
 
-== Configuration Parameters ==
+== Configuration Options ==
 
 To adjust the configuration, define any of the following constants in your `wp-config.php` file.
 
