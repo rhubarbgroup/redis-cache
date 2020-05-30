@@ -143,6 +143,10 @@ To adjust the configuration, define any of the following constants in your `wp-c
 
     Set to `true` to disable promotions for [Redis Cache Pro](https://wprediscache.com/).
 
+  * `WP_REDIS_DISABLE_COMMENT` (default: _not set_)
+
+    Set to `true` to disable the HTML footer comment and it's optional debugging information when `WP_DEBUG` is enabled.
+
 == Replication & Clustering ==
 
 To use Replication, Sharding or Clustering, make sure your server is running PHP7 or higher (HHVM is not supported) and you consulted the [Predis](https://github.com/nrk/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
