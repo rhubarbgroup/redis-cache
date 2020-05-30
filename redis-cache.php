@@ -481,6 +481,14 @@ class RedisObjectCache {
     public function maybe_print_comment() {
         global $wp_object_cache;
 
+        if (
+            ! isset( $wp_object_cache->cache_hits ) ||
+            ! isset( $wp_object_cache->redis_client ) ||
+            ! is_array( $wp_object_cache->cache )
+        ) {
+            return;
+        }
+
         if ( defined( 'WP_REDIS_DISABLE_COMMENT' ) && WP_REDIS_DISABLE_COMMENT ) {
             return;
         }

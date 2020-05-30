@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Prevent PHP warnings in `maybe_print_comment()`
+
 ## 1.6.2
 
 - Added even more JSON request checks
