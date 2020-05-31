@@ -3,7 +3,7 @@
 Plugin Name: Redis Object Cache
 Plugin URI: https://wordpress.org/plugins/redis-cache/
 Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, HHVM, replication, clustering and WP-CLI.
-Version: 1.6.2
+Version: 1.6.3
 Text Domain: redis-cache
 Domain Path: /languages
 Author: Till Krüss
@@ -49,7 +49,7 @@ class RedisObjectCache {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
         add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
-        add_action( 'shutdown', array( $this, 'maybe_print_comment' ), 0 );
+        add_action( 'wp_head', array( $this, 'register_shutdown_hooks' ) );
         add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
 
         add_filter( sprintf(
@@ -478,24 +478,15 @@ class RedisObjectCache {
         );
     }
 
+    public function register_shutdown_hooks()
+    {
+        if ( ! defined( 'WP_REDIS_DISABLE_COMMENT' ) || ! WP_REDIS_DISABLE_COMMENT ) {
+            add_action( 'shutdown', array( $this, 'maybe_print_comment' ), 0 );
+        }
+    }
+
     public function maybe_print_comment() {
         global $wp_object_cache;
-
-        if (
-            ! isset( $wp_object_cache->cache_hits ) ||
-            ! isset( $wp_object_cache->redis_client ) ||
-            ! is_array( $wp_object_cache->cache )
-        ) {
-            return;
-        }
-
-        if ( defined( 'WP_REDIS_DISABLE_COMMENT' ) && WP_REDIS_DISABLE_COMMENT ) {
-            return;
-        }
-
-        if ( ! defined( 'WP_USE_THEMES' ) || ! WP_USE_THEMES ) {
-            return;
-        }
 
         if (
             ( defined( 'DOING_CRON' ) && DOING_CRON ) ||
@@ -510,6 +501,14 @@ class RedisObjectCache {
         }
 
         if ( function_exists( 'wp_is_json_request' ) && wp_is_json_request() ) {
+            return;
+        }
+
+        if (
+            ! isset( $wp_object_cache->cache_hits ) ||
+            ! isset( $wp_object_cache->redis_client ) ||
+            ! is_array( $wp_object_cache->cache )
+        ) {
             return;
         }
 

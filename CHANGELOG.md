@@ -1,7 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## 1.6.3
 
+- Improved registration of `shutdown` callback
 - Prevent PHP warnings in `maybe_print_comment()`
 
 ## 1.6.2
