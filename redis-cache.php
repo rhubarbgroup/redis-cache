@@ -29,7 +29,14 @@ class RedisObjectCache {
     private $screen = 'settings_page_redis-cache';
     private $actions = array( 'enable-cache', 'disable-cache', 'flush-cache', 'update-dropin' );
 
-    public function __construct() {
+    /**
+     * Plugin instance property.
+     *
+     * @var RedisObjectCache
+     */
+    private static $instance;
+
+    private function __construct() {
 
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
@@ -58,6 +65,19 @@ class RedisObjectCache {
             plugin_basename( __FILE__ )
         ), array( $this, 'add_plugin_actions_links' ) );
 
+    }
+
+    /**
+     * Plugin instanciation method.
+     * 
+     * @return RedisObjectCache
+     */
+    public static function instance() {
+        if ( ! isset( self::$instance ) ) {
+            self::$instance = new self;
+        }
+
+        return self::$instance;
     }
 
     public function add_admin_menu_page() {
@@ -585,4 +605,15 @@ class RedisObjectCache {
 
 }
 
-$GLOBALS[ 'redisObjectCache' ] = new RedisObjectCache;
+if ( ! function_exists( 'redis_object_cache' ) ) {
+    /**
+     * Returns the plugin instance.
+     *
+     * @return RedisObjectCache
+     */
+    function redis_object_cache() {
+        return RedisObjectCache::instance();
+    }
+}
+
+RedisObjectCache::instance();
