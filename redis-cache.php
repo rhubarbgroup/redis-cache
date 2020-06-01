@@ -585,4 +585,20 @@ class RedisObjectCache {
 
 }
 
-$GLOBALS[ 'redisObjectCache' ] = new RedisObjectCache;
+if ( ! function_exists( 'redis_object_cache' ) ) {
+    /**
+     * Instanciates the plugin
+     *
+     * @return RedisObjectCache
+     */
+    function redis_object_cache() {
+        global $redis_object_cache;
+        if ( ! $redis_object_cache ) {
+            $redis_object_cache = new RedisObjectCache();
+            $GLOBALS['redis_object_cache'] = $redis_object_cache;
+        }
+        return $redis_object_cache;
+    }
+}
+
+redis_object_cache();
