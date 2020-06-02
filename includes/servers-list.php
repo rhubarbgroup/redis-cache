@@ -3,11 +3,13 @@
 class Servers_List extends WP_List_Table {
 
     public function __construct() {
-        parent::__construct(array(
-            'singular' => __('Server', 'redis-cache'),
-            'plural' => __('Servers', 'redis-cache'),
-            'ajax' => false
-        ));
+        parent::__construct(
+            array(
+                'singular' => __( 'Server', 'redis-cache' ),
+                'plural' => __( 'Servers', 'redis-cache' ),
+                'ajax' => false,
+            )
+        );
     }
 
     public function get_columns() {
