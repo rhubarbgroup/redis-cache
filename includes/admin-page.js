@@ -1,3 +1,4 @@
+
 ( function ( $ ) {
 	$( function () {
 		$( ".notice.is-dismissible[data-dismissible]" ).on(
