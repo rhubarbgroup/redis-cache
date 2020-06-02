@@ -4,6 +4,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
 	<description>Coding standards</description>
+	<exclude-pattern>*/includes/predis/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<config name="testVersion" value="5.4-" />
     <rule ref="PHPCompatibilityWP">
