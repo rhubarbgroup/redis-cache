@@ -13,7 +13,9 @@ Based on Eric Mann's and Erick Hitter's Redis Object Cache:
 https://github.com/ericmann/Redis-Object-Cache
 */
 
-if (! defined('WP_REDIS_DISABLED') || ! WP_REDIS_DISABLED) :
+if ( defined( 'WP_REDIS_DISABLED' ) && ! WP_REDIS_DISABLED ) {
+    return;
+}
 
 /**
  * Adds a value to cache.
@@ -1665,5 +1667,3 @@ LUA;
         }
     }
 }
-
-endif;

@@ -11,9 +11,13 @@
 		<include-pattern>*\.php$</include-pattern>
 	</rule>
     <rule ref="WordPress">
-		<exclude name="WordPress.PHP.DisallowShortTernary" />
-		<exclude name="Generic.Arrays.DisallowShortArraySyntax" />
-		<exclude name="Generic.WhiteSpace.DisallowSpaceIndent" />
-	</rule>
-	<rule ref="Generic.WhiteSpace.DisallowTabIndent" />
+        <exclude name="WordPress.PHP.DisallowShortTernary" />
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
+        <exclude name="WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys" />
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax" />
+        <exclude name="Generic.WhiteSpace.DisallowSpaceIndent" />
+        <exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned" />
+        <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
+    </rule>
+    <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
 </ruleset>
