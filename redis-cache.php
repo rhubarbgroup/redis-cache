@@ -6,6 +6,8 @@ Description: A persistent object cache backend powered by Redis. Supports Predis
 Version: 1.6.3
 Text Domain: redis-cache
 Domain Path: /languages
+Network: true
+Requires PHP: 5.6
 Author: Till Krüss
 Author URI: https://till.im/
 GitHub Plugin URI: https://github.com/tillkruss/redis-cache
