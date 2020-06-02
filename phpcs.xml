@@ -13,5 +13,7 @@
     <rule ref="WordPress">
 		<exclude name="WordPress.PHP.DisallowShortTernary" />
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax" />
+		<exclude name="Generic.WhiteSpace.DisallowSpaceIndent" />
 	</rule>
+	<rule ref="Generic.WhiteSpace.DisallowTabIndent" />
 </ruleset>
