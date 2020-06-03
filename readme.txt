@@ -4,7 +4,7 @@ Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, performance, replication, clustering, keydb
 Requires at least: 3.3
 Tested up to: 5.4
-Requires PHP: 5.4
+Requires PHP: 5.6
 Stable tag: 1.6.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html

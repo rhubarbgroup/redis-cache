@@ -3,20 +3,21 @@
          namespace="WordPressCS\WordPress"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
-    <description>Coding standards</description>
-    <exclude-pattern>*/vendor/*</exclude-pattern>
-    <config name="testVersion" value="5.4-" />
+	<description>Coding standards</description>
+	<exclude-pattern>*/includes/predis/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<config name="testVersion" value="5.4-" />
     <rule ref="PHPCompatibilityWP">
         <include-pattern>*\.php$</include-pattern>
     </rule>
     <rule ref="WordPress">
         <exclude name="WordPress.PHP.DisallowShortTernary" />
-        <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
         <exclude name="WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys" />
         <exclude name="Generic.Arrays.DisallowShortArraySyntax" />
         <exclude name="Generic.WhiteSpace.DisallowSpaceIndent" />
         <exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned" />
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
+        <!--exclude name="WordPress.Files.FileName.InvalidClassFileName" /-->
     </rule>
     <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
 </ruleset>

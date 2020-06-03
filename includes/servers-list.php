@@ -3,11 +3,13 @@
 class Servers_List extends WP_List_Table {
 
     public function __construct() {
-        parent::__construct(array(
-            'singular' => __('Server', 'redis-cache'),
-            'plural' => __('Servers', 'redis-cache'),
-            'ajax' => false
-        ));
+        parent::__construct(
+            array(
+                'singular' => __( 'Server', 'redis-cache' ),
+                'plural' => __( 'Servers', 'redis-cache' ),
+                'ajax' => false,
+            )
+        );
     }
 
     public function get_columns() {
@@ -25,24 +27,27 @@ class Servers_List extends WP_List_Table {
     }
 
     public function get_hidden_columns() {
-        $hidden = array('host', 'port', 'path');
+        $hidden = array( 'host', 'port', 'path' );
 
-        array_walk_recursive($this->items, function ($value, $key) use (&$hidden) {
-            if ($key == 'scheme') {
-                if (strcasecmp('unix', $value) === 0) {
-                    $hidden = array_diff($hidden, array('path'));
-                } else {
-                    $hidden = array_diff($hidden, array('host', 'port'));
+        array_walk_recursive(
+            $this->items,
+            function ( $value, $key ) use ( &$hidden ) {
+                if ( $key == 'scheme' ) {
+                    if ( strcasecmp( 'unix', $value ) === 0 ) {
+                        $hidden = array_diff( $hidden, array( 'path' ) );
+                    } else {
+                        $hidden = array_diff( $hidden, array( 'host', 'port' ) );
+                    }
                 }
             }
-        });
+        );
 
         return $hidden;
     }
 
     public function prepare_items() {
-        if (! class_exists('Predis\Client')) {
-            require_once dirname(__FILE__) . '/predis/autoload.php';
+        if ( ! class_exists( 'Predis\Client' ) ) {
+            require_once dirname( __FILE__ ) . '/predis/autoload.php';
         }
 
         $this->items = $this->get_servers();
@@ -50,28 +55,28 @@ class Servers_List extends WP_List_Table {
         $this->_column_headers = array(
             $this->get_columns(),
             $this->get_hidden_columns(),
-            array()
+            array(),
         );
     }
 
-    public function column_default($item, $column_name) {
-        switch ($column_name) {
+    public function column_default( $item, $column_name ) {
+        switch ( $column_name ) {
             case 'scheme':
-                return isset($item['scheme']) ? strtoupper($item['scheme']) : 'TCP';
+                return isset( $item['scheme'] ) ? strtoupper( $item['scheme'] ) : 'TCP';
             case 'host':
-                return isset($item['host']) ? $item['host'] : '127.0.0.1';
+                return isset( $item['host'] ) ? $item['host'] : '127.0.0.1';
             case 'port':
-                return isset($item['port']) ? $item['port'] : '6379';
+                return isset( $item['port'] ) ? $item['port'] : '6379';
             case 'database':
-                return isset($item['database']) ? $item['database'] : '0';
+                return isset( $item['database'] ) ? $item['database'] : '0';
             case 'password':
-                return isset($item['password']) ? __('Yes', 'redis-cache') : __('No', 'redis-cache');
+                return isset( $item['password'] ) ? __( 'Yes', 'redis-cache' ) : __( 'No', 'redis-cache' );
             default:
-                return isset($item[$column_name]) ? $item[$column_name] : '';
+                return isset( $item[ $column_name ] ) ? $item[ $column_name ] : '';
         }
     }
 
-    protected function display_tablenav($which) {
+    protected function display_tablenav( $which ) {
         // hide table navigation
     }
 
@@ -81,43 +86,49 @@ class Servers_List extends WP_List_Table {
             'scheme' => 'tcp',
         );
 
-        foreach (array('scheme', 'host', 'port', 'path', 'password', 'database', 'timeout', 'read_timeout', 'retry_interval') as $setting) {
-            $constant = sprintf('WP_REDIS_%s', strtoupper($setting));
+        foreach ( array( 'scheme', 'host', 'port', 'path', 'password', 'database', 'timeout', 'read_timeout', 'retry_interval' ) as $setting ) {
+            $constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
 
-            if (defined($constant)) {
-                $server[$setting] = constant($constant);
+            if ( defined( $constant ) ) {
+                $server[ $setting ] = constant( $constant );
             }
         }
 
-        if (defined('WP_REDIS_SHARDS')) {
+        if ( defined( 'WP_REDIS_SHARDS' ) ) {
             $servers = WP_REDIS_SHARDS;
         }
 
-        if (defined('WP_REDIS_CLUSTER')) {
+        if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $servers = WP_REDIS_CLUSTER;
         }
 
-        if (defined('WP_REDIS_SERVERS')) {
+        if ( defined( 'WP_REDIS_SERVERS' ) ) {
             $servers = WP_REDIS_SERVERS;
         }
 
-        if (! isset($servers)) {
-            $servers = array($server);
+        if ( ! isset( $servers ) ) {
+            $servers = array( $server );
         }
 
-        $servers = array_map(function ($server) {
+        $servers = array_map(
+            function ( $server ) {
 
-            return is_string($server)
-                ? Predis\Connection\Parameters::parse($server)
+                return is_string( $server )
+                ? Predis\Connection\Parameters::parse( $server )
                 : $server;
-        }, $servers);
+            },
+            $servers
+        );
 
-        return array_map(function ($server) {
-            if (defined('WP_REDIS_PASSWORD') && ! empty(WP_REDIS_PASSWORD)) {
-                $server['password'] = '********';
-            }
+        return array_map(
+            function ( $server ) {
+                if ( defined( 'WP_REDIS_PASSWORD' ) && ! empty( WP_REDIS_PASSWORD ) ) {
+                    $server['password'] = '********';
+                }
 
-            return $server;
-        }, $servers);
+                return $server;
+            },
+            $servers
+        );
     }
 }

@@ -6,6 +6,8 @@ Description: A persistent object cache backend powered by Redis. Supports Predis
 Version: 1.6.3
 Text Domain: redis-cache
 Domain Path: /languages
+Network: true
+Requires PHP: 5.6
 Author: Till Krüss
 Author URI: https://till.im/
 GitHub Plugin URI: https://github.com/tillkruss/redis-cache
@@ -59,22 +61,25 @@ class RedisObjectCache {
         add_action( 'wp_head', array( $this, 'register_shutdown_hooks' ) );
         add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
 
-        add_filter( sprintf(
-            '%splugin_action_links_%s',
-            is_multisite() ? 'network_admin_' : '',
-            plugin_basename( __FILE__ )
-        ), array( $this, 'add_plugin_actions_links' ) );
+        add_filter(
+            sprintf(
+                '%splugin_action_links_%s',
+                is_multisite() ? 'network_admin_' : '',
+                plugin_basename( __FILE__ )
+            ),
+            array( $this, 'add_plugin_actions_links' )
+        );
 
     }
 
     /**
      * Plugin instanciation method.
-     * 
+     *
      * @return RedisObjectCache
      */
     public static function instance() {
         if ( ! isset( self::$instance ) ) {
-            self::$instance = new self;
+            self::$instance = new self();
         }
 
         return self::$instance;
@@ -85,8 +90,8 @@ class RedisObjectCache {
         // add sub-page to "Settings"
         add_submenu_page(
             is_multisite() ? 'settings.php' : 'options-general.php',
-            __( 'Redis Object Cache', 'redis-cache'),
-            __( 'Redis', 'redis-cache'),
+            __( 'Redis Object Cache', 'redis-cache' ),
+            __( 'Redis', 'redis-cache' ),
             is_multisite() ? 'manage_network_options' : 'manage_options',
             'redis-cache',
             array( $this, 'show_admin_page' )
@@ -97,25 +102,22 @@ class RedisObjectCache {
     public function show_admin_page() {
 
         // request filesystem credentials?
-        if ( isset( $_GET[ '_wpnonce' ], $_GET[ 'action' ] ) ) {
+        if ( isset( $_GET['_wpnonce'], $_GET['action'] ) ) {
 
-            $action = $_GET[ 'action' ];
+            $action = $_GET['action'];
 
             foreach ( $this->actions as $name ) {
 
                 // verify nonce
-                if ( $action === $name && wp_verify_nonce( $_GET[ '_wpnonce' ], $action ) ) {
+                if ( $action === $name && wp_verify_nonce( $_GET['_wpnonce'], $action ) ) {
 
                     $url = wp_nonce_url( network_admin_url( add_query_arg( 'action', $action, $this->page ) ), $action );
 
                     if ( $this->initialize_filesystem( $url ) === false ) {
                         return; // request filesystem credentials
                     }
-
                 }
-
             }
-
         }
 
         if ( wp_next_scheduled( 'redis_gather_metrics' ) ) {
@@ -131,7 +133,7 @@ class RedisObjectCache {
 
         require_once plugin_dir_path( __FILE__ ) . '/includes/servers-list.php';
 
-        $table = new Servers_List;
+        $table = new Servers_List();
         $table->prepare_items();
         $table->display();
 
@@ -162,13 +164,16 @@ class RedisObjectCache {
             return;
         }
 
-        if ( ! in_array( $screen->id, array(
-            'dashboard',
-            'edit-shop_order',
-            'edit-product',
-            'woocommerce_page_wc-admin',
-            $this->screen
-        ) ) ) {
+        if ( ! in_array(
+            $screen->id,
+            array(
+                'dashboard',
+                'edit-shop_order',
+                'edit-product',
+                'woocommerce_page_wc-admin',
+                $this->screen,
+            )
+        ) ) {
             return;
         }
 
@@ -193,7 +198,7 @@ class RedisObjectCache {
         $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
         $plugin = get_plugin_data( plugin_dir_path( __FILE__ ) . '/includes/object-cache.php' );
 
-        if ( strcmp( $dropin[ 'PluginURI' ], $plugin[ 'PluginURI' ] ) !== 0 ) {
+        if ( strcmp( $dropin['PluginURI'], $plugin['PluginURI'] ) !== 0 ) {
             return false;
         }
 
@@ -292,10 +297,9 @@ class RedisObjectCache {
                 $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
                 $plugin = get_plugin_data( plugin_dir_path( __FILE__ ) . '/includes/object-cache.php' );
 
-                if ( version_compare( $dropin[ 'Version' ], $plugin[ 'Version' ], '<' ) ) {
+                if ( version_compare( $dropin['Version'], $plugin['Version'], '<' ) ) {
                     $message = sprintf( __( 'The Redis object cache drop-in is outdated. Please <a href="%s">update it now</a>.', 'redis-cache' ), $url );
                 }
-
             } else {
 
                 $message = sprintf( __( 'An unknown object cache drop-in was found. To use Redis, <a href="%s">please replace it now</a>.', 'redis-cache' ), $url );
@@ -305,7 +309,6 @@ class RedisObjectCache {
             if ( isset( $message ) ) {
                 printf( '<div class="update-nag">%s</div>', $message );
             }
-
         }
 
     }
@@ -318,9 +321,9 @@ class RedisObjectCache {
         }
 
         // show action success/failure messages
-        if ( isset( $_GET[ 'message' ] ) ) {
+        if ( isset( $_GET['message'] ) ) {
 
-            switch ( $_GET[ 'message' ] ) {
+            switch ( $_GET['message'] ) {
 
                 case 'cache-enabled':
                     $message = __( 'Object cache enabled.', 'redis-cache' );
@@ -359,13 +362,13 @@ class RedisObjectCache {
 
         global $wp_filesystem;
 
-        if ( isset( $_GET[ '_wpnonce' ], $_GET[ 'action' ] ) ) {
+        if ( isset( $_GET['_wpnonce'], $_GET['action'] ) ) {
 
-            $action = $_GET[ 'action' ];
+            $action = $_GET['action'];
 
             // verify nonce
             foreach ( $this->actions as $name ) {
-                if ( $action === $name && ! wp_verify_nonce( $_GET[ '_wpnonce' ], $action ) ) {
+                if ( $action === $name && ! wp_verify_nonce( $_GET['_wpnonce'], $action ) ) {
                     return;
                 }
             }
@@ -402,7 +405,6 @@ class RedisObjectCache {
                             break;
 
                     }
-
                 }
 
                 // redirect if status `$message` was set
@@ -410,9 +412,7 @@ class RedisObjectCache {
                     wp_safe_redirect( network_admin_url( add_query_arg( 'message', $message, $this->page ) ) );
                     exit;
                 }
-
             }
-
         }
 
     }
@@ -420,7 +420,7 @@ class RedisObjectCache {
     public function dismiss_notice() {
         $notice = sprintf(
             'roc_dismissed_%s',
-            sanitize_key( $_POST[ 'notice' ] )
+            sanitize_key( $_POST['notice'] )
         );
 
         update_user_meta( get_current_user_id(), $notice, '1' );
@@ -498,8 +498,7 @@ class RedisObjectCache {
         );
     }
 
-    public function register_shutdown_hooks()
-    {
+    public function register_shutdown_hooks() {
         if ( ! defined( 'WP_REDIS_DISABLE_COMMENT' ) || ! WP_REDIS_DISABLE_COMMENT ) {
             add_action( 'shutdown', array( $this, 'maybe_print_comment' ), 0 );
         }
@@ -537,22 +536,22 @@ class RedisObjectCache {
             'https://wprediscache.com'
         );
 
-        if (! WP_DEBUG) {
-            printf("\n<!-- %s -->\n", $message);
+        if ( ! WP_DEBUG ) {
+            printf( "\n<!-- %s -->\n", $message );
 
             return;
         }
 
-        $bytes = strlen(serialize($wp_object_cache->cache));
+        $bytes = strlen( serialize( $wp_object_cache->cache ) );
 
         $debug = sprintf(
-            __( 'Retrieved %d objects (%s) from Redis using %s.', 'redis-cache' ),
+            __( 'Retrieved %1$d objects (%2$s) from Redis using %3$s.', 'redis-cache' ),
             $wp_object_cache->cache_hits,
-            function_exists( 'size_format' ) ? size_format($bytes) : "{$bytes} bytes",
+            function_exists( 'size_format' ) ? size_format( $bytes ) : "{$bytes} bytes",
             $wp_object_cache->redis_client
         );
 
-        printf("<!--\n%s\n\n%s\n-->\n", $message, $debug);
+        printf( "<!--\n%s\n\n%s\n-->\n", $message, $debug );
     }
 
     public function initialize_filesystem( $url, $silent = false ) {
@@ -598,7 +597,6 @@ class RedisObjectCache {
             if ( $this->validate_object_cache_dropin() && $this->initialize_filesystem( '', true ) ) {
                 $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
             }
-
         }
 
     }

@@ -121,7 +121,7 @@
         <?php $isPhpRedis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
         <?php $phpRedisInstalled = (bool) phpversion( 'redis' ); ?>
 
-        <?php if ($isPhp7 && $isPhpRedis311) : ?>
+        <?php if ( $isPhp7 && $isPhpRedis311 ) : ?>
             <p>
                 <?php _e( 'Your site meets the system requirements for the Pro version (PHP 7+; PhpRedis 3.1.1+).', 'redis-cache' ); ?>
             </p>
@@ -131,17 +131,17 @@
             </p>
 
             <ul style="padding-left: 30px; list-style: disc;">
-                <?php if (! $isPhp7) : ?>
+                <?php if ( ! $isPhp7 ) : ?>
                     <li>
                         <?php printf( __( 'The current version (%s) of PHP is too old. PHP 7 or newer is required.', 'redis-cache' ), phpversion() ); ?>
                     </li>
                 <?php endif; ?>
 
-                <?php if (! $phpRedisInstalled) : ?>
+                <?php if ( ! $phpRedisInstalled ) : ?>
                     <li>
                         <?php printf( __( 'The PhpRedis extension is not installed.', 'redis-cache' ), phpversion() ); ?>
                     </li>
-                <?php elseif (! $isPhpRedis311) : ?>
+                <?php elseif ( ! $isPhpRedis311 ) : ?>
                     <li>
                         <?php printf( __( 'The current version (%s) of the PhpRedis extension is too old. PhpRedis 3.1 or newer is required.', 'redis-cache' ), phpversion( 'redis' ) ); ?>
                     </li>
@@ -151,7 +151,7 @@
         <?php endif; ?>
     <?php endif; ?>
 
-    <?php if ( isset( $_GET[ 'diagnostics' ] ) ) : ?>
+    <?php if ( isset( $_GET['diagnostics'] ) ) : ?>
 
         <br>
         <h2 class="title">

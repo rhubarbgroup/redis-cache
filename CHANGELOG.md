@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+- Switch to WPCS for code standards
+- Require PHP 5.6
+- Made the plugin netork-only
+- Added singleton pattern to main plugin class
+- Added plugin instantiation function
+
 ## 1.6.3
 
 - Improved registration of `shutdown` callback
