@@ -31,7 +31,7 @@ class Autoloader {
     /**
      * Register loader with SPL autoloader stack.
      *
-     * @since  1.0.0
+     * @since  2.0.0
      * @return void
      */
     public function register() {
@@ -41,7 +41,7 @@ class Autoloader {
     /**
      * Adds a base directory for a namespace prefix.
      *
-     * @since  1.0.0
+     * @since  2.0.0
      * @param  string $prefix   The namespace prefix.
      * @param  string $base_dir A base directory for class files in the
      *                          namespace.
@@ -73,7 +73,7 @@ class Autoloader {
     /**
      * Loads the class file for a given class name.
      *
-     * @since  1.0.0
+     * @since  2.0.0
      * @param  string $class The fully-qualified class name.
      * @return string|null   The mapped file name on success, or null on failure.
      */
@@ -101,7 +101,7 @@ class Autoloader {
     /**
      * Load the mapped file for a namespace prefix and relative class.
      *
-     * @since  1.0.0
+     * @since  2.0.0
      * @param  string $prefix         The namespace prefix.
      * @param  string $relative_class The relative class name.
      * @return string|null            Null if no mapped file can be loaded, or
@@ -140,7 +140,7 @@ class Autoloader {
     /**
      * If a file exists, require it from the file system.
      *
-     * @since  1.0.0
+     * @since  2.0.0
      * @param  string $file The file to require.
      * @return bool   True if the file exists, false if not.
      */
