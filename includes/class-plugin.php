@@ -20,7 +20,7 @@ class Plugin {
     /**
      * Plugin instance property.
      *
-     * @var RedisObjectCache
+     * @var Plugin
      */
     private static $instance;
 
@@ -57,7 +57,7 @@ class Plugin {
     /**
      * Plugin instanciation method.
      *
-     * @return RedisObjectCache
+     * @return Plugin
      */
     public static function instance() {
         if ( ! isset( self::$instance ) ) {

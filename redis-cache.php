@@ -30,7 +30,10 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
     require_once dirname( __FILE__ ) . '/includes/wp-cli-commands.php';
 }
 
-require_once dirname( __FILE__ ) . '/includes/plugin.php';
+require_once WP_REDIS_PLUGIN_PATH . '/includes/class-autoloader.php';
+$autoloader = new Rhubarb\RedisCache\Autoloader();
+$autoloader->register();
+$autoloader->add_namespace( 'Rhubarb\RedisCache', WP_REDIS_PLUGIN_PATH . '/includes' );
 
 if ( ! function_exists( 'redis_object_cache' ) ) {
     /**
