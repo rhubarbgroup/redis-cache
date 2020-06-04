@@ -1,21 +1,21 @@
 <?php
 /*
-Plugin Name: Redis Object Cache
-Plugin URI: https://wordpress.org/plugins/redis-cache/
-Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, HHVM, replication, clustering and WP-CLI.
-Version: 1.6.3
-Text Domain: redis-cache
-Domain Path: /languages
-Network: true
-Requires PHP: 5.6
-Author: Till Krüss
-Author URI: https://till.im/
-GitHub Plugin URI: https://github.com/tillkruss/redis-cache
-License: GPLv3
-License URI: http://www.gnu.org/licenses/gpl-3.0.html
-*/
+ * Plugin Name: Redis Object Cache
+ * Plugin URI: https://wordpress.org/plugins/redis-cache/
+ * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, HHVM, replication, clustering and WP-CLI.
+ * Version: 1.6.3
+ * Text Domain: redis-cache
+ * Domain Path: /languages
+ * Network: true
+ * Requires PHP: 5.6
+ * Author: Till Krüss
+ * Author URI: https://till.im/
+ * GitHub Plugin URI: https://github.com/tillkruss/redis-cache
+ * License: GPLv3
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ */
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 define( 'WP_REDIS_FILE', __FILE__ );
 define( 'WP_REDIS_PLUGIN_PATH', __DIR__ );
