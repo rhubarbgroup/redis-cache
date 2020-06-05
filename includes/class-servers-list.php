@@ -1,5 +1,9 @@
 <?php
 
+namespace Rhubarb\RedisCache;
+
+use WP_List_Table;
+
 class Servers_List extends WP_List_Table {
 
     public function __construct() {

@@ -105,9 +105,7 @@ class Plugin {
     }
 
     public function show_servers_list() {
-        require_once WP_REDIS_PLUGIN_PATH . '/includes/servers-list.php';
-
-        $table = new \Servers_List();
+        $table = new Servers_List();
         $table->prepare_items();
         $table->display();
     }
