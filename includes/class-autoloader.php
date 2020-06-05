@@ -153,4 +153,4 @@ class Autoloader {
         }
         return false;
     }
-};
+}
