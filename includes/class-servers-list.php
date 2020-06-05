@@ -51,7 +51,7 @@ class Servers_List extends WP_List_Table {
 
     public function prepare_items() {
         if ( ! class_exists( 'Predis\Client' ) ) {
-            require_once dirname( __FILE__ ) . '/predis/autoload.php';
+            require_once WP_REDIS_PLUGIN_PATH . '/vendor/predis/predis/autoload.php';
         }
 
         $this->items = $this->get_servers();
