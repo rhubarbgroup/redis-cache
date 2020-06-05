@@ -27,6 +27,7 @@ $meta = get_file_data( WP_REDIS_FILE, [ 'Version' => 'Version' ] );
 define( 'WP_REDIS_VERSION', $meta['Version'] );
 
 require_once WP_REDIS_PLUGIN_PATH . '/includes/class-autoloader.php';
+
 $autoloader = new Rhubarb\RedisCache\Autoloader();
 $autoloader->register();
 $autoloader->add_namespace( 'Rhubarb\RedisCache', WP_REDIS_PLUGIN_PATH . '/includes' );
