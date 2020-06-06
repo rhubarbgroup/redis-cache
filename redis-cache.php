@@ -10,7 +10,7 @@
  * Requires PHP: 5.6
  * Author: Till Krüss
  * Author URI: https://till.im/
- * GitHub Plugin URI: https://github.com/tillkruss/redis-cache
+ * GitHub Plugin URI: https://github.com/rhubarbgroup/redis-cache
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -27,6 +27,7 @@ $meta = get_file_data( WP_REDIS_FILE, [ 'Version' => 'Version' ] );
 define( 'WP_REDIS_VERSION', $meta['Version'] );
 
 require_once WP_REDIS_PLUGIN_PATH . '/includes/class-autoloader.php';
+
 $autoloader = new Rhubarb\RedisCache\Autoloader();
 $autoloader->register();
 $autoloader->add_namespace( 'Rhubarb\RedisCache', WP_REDIS_PLUGIN_PATH . '/includes' );

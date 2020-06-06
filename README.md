@@ -22,26 +22,26 @@ Learn more about [Redis Cache Pro](https://wprediscache.com/?utm_source=wp-plugi
 
 ## Installation
 
-For detailed installation instructions, please see the [installation wiki page](https://github.com/tillkruss/redis-cache/wiki/Installation).
+For detailed installation instructions, please see the [installation wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Installation).
 
 ## Connection Parameters
 
 By default the object cache drop-in will connect to Redis over TCP at `127.0.0.1:6379` and select database `0`.
 
-To adjust the connection parameters, client, timeouts and intervals, please see the [connection parameters wiki page](https://github.com/tillkruss/redis-cache/wiki/Connection-Parameters).
+To adjust the connection parameters, client, timeouts and intervals, please see the [connection parameters wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Connection-Parameters).
 
 ## Configuration Options
 
 The plugin comes with quite a few configuration options, such as key prefixes, a maximum time-to-live for keys, ignored group and many more.
 
-Please see the [configuration options wiki page](https://github.com/tillkruss/redis-cache/wiki/Connection-Parameters) for a full list.
+Please see the [configuration options wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Connection-Parameters) for a full list.
 
 ## Replication & Clustering
 
 To use Replication, Sharding or Clustering, make sure your server is running PHP7 or higher (HHVM is not supported) and you consulted the [Predis](https://github.com/nrk/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
 
-Please see the [replication & clustering wiki page](https://github.com/tillkruss/redis-cache/wiki/Replication-&-Clustering) for more information.
+Please see the [replication & clustering wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Replication-&-Clustering) for more information.
 
 ### WP-CLI Commands
 
-To see a list of all available WP-CLI commands, please see the [WP CLI commands wiki page](https://github.com/tillkruss/redis-cache/wiki/WP-CLI-Commands).
+To see a list of all available WP-CLI commands, please see the [WP CLI commands wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/WP-CLI-Commands).

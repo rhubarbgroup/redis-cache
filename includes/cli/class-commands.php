@@ -4,7 +4,9 @@ namespace Rhubarb\RedisCache\CLI;
 
 use WP_CLI;
 use WP_CLI_Command;
+
 use WP_Filesystem;
+
 use Rhubarb\RedisCache\Plugin;
 
 /**

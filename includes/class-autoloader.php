@@ -50,11 +50,7 @@ class Autoloader {
      *                          searched first rather than last.
      * @return void
      */
-    public function add_namespace(
-        $prefix,
-        $base_dir,
-        $prepend = false
-    ) {
+    public function add_namespace( $prefix, $base_dir, $prepend = false ) {
         $prefix = trim( $prefix, '\\' ) . '\\';
 
         $base_dir = rtrim( $base_dir, \DIRECTORY_SEPARATOR ) . '/';
@@ -77,9 +73,7 @@ class Autoloader {
      * @param  string $class The fully-qualified class name.
      * @return string|null   The mapped file name on success, or null on failure.
      */
-    public function load_class(
-        $class
-    ) {
+    public function load_class( $class ) {
         $prefix = $class;
 
         while ( false !== ( $pos = strrpos( $prefix, '\\' ) ) ) { // phpcs:ignore
@@ -107,10 +101,7 @@ class Autoloader {
      * @return string|null            Null if no mapped file can be loaded, or
      *                                the name of the loaded mapped file.
      */
-    private function load_mapped_file(
-        $prefix,
-        $relative_class
-    ) {
+    private function load_mapped_file( $prefix, $relative_class ) {
         if ( false === isset( $this->prefixes[ $prefix ] ) ) {
             return null;
         }
@@ -144,9 +135,7 @@ class Autoloader {
      * @param  string $file The file to require.
      * @return bool   True if the file exists, false if not.
      */
-    private function require_file(
-        $file
-    ) {
+    private function require_file( $file ) {
         if ( file_exists( $file ) ) {
             require $file;
             return true;
