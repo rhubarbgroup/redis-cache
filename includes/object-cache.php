@@ -529,7 +529,7 @@ class WP_Object_Cache {
                 // Load bundled Predis library
                 if ( ! class_exists( 'Predis\Client' ) ) {
                     $predis = sprintf(
-                        '%s/redis-cache/includes/predis/autoload.php',
+                        '%s/redis-cache/dependencies/vendor/predis/predis/autoload.php',
                         defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins'
                     );
 
