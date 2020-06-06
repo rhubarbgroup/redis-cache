@@ -26,11 +26,15 @@ $meta = get_file_data( WP_REDIS_FILE, [ 'Version' => 'Version' ] );
 
 define( 'WP_REDIS_VERSION', $meta['Version'] );
 
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-    require_once dirname( __FILE__ ) . '/includes/wp-cli-commands.php';
-}
+require_once WP_REDIS_PLUGIN_PATH . '/includes/class-autoloader.php';
 
-require_once dirname( __FILE__ ) . '/includes/plugin.php';
+$autoloader = new Rhubarb\RedisCache\Autoloader();
+$autoloader->register();
+$autoloader->add_namespace( 'Rhubarb\RedisCache', WP_REDIS_PLUGIN_PATH . '/includes' );
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+    WP_CLI::add_command( 'redis', Rhubarb\RedisCache\CLI\Commands::class );
+}
 
 if ( ! function_exists( 'redis_object_cache' ) ) {
     /**
