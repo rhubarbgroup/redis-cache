@@ -120,7 +120,7 @@ class Plugin {
 
     public function enqueue_admin_styles( $hook_suffix ) {
         if ( $hook_suffix === $this->screen ) {
-            wp_enqueue_style( 'redis-cache', WP_REDIS_DIR . '/includes/admin-page.css', null, WP_REDIS_VERSION );
+            wp_enqueue_style( 'redis-cache', WP_REDIS_DIR . '/assets/css/admin-page.css', null, WP_REDIS_VERSION );
         }
     }
 
@@ -146,7 +146,7 @@ class Plugin {
 
         wp_enqueue_script(
             'roc-dismissible-notices',
-            plugins_url( 'includes/admin-page.js', WP_REDIS_FILE ),
+            plugins_url( 'assets/js/admin-page.js', WP_REDIS_FILE ),
             array( 'jquery' ),
             WP_REDIS_VERSION
         );
