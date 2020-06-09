@@ -78,7 +78,7 @@ function wp_cache_decr( $key, $offset = 1, $group = '' ) {
  *
  * @global WP_Object_Cache $wp_object_cache
  *
- * @return bool           Returns TRUE on success or FALSE on failure.
+ * @return bool          Returns TRUE on success or FALSE on failure.
  */
 function wp_cache_delete( $key, $group = '', $time = 0 ) {
     global $wp_object_cache;
@@ -94,7 +94,7 @@ function wp_cache_delete( $key, $group = '', $time = 0 ) {
  *
  * @global WP_Object_Cache $wp_object_cache
  *
- * @return bool             Returns TRUE on success or FALSE on failure.
+ * @return bool       Returns TRUE on success or FALSE on failure.
  */
 function wp_cache_flush( $delay = 0 ) {
     global $wp_object_cache;
@@ -116,7 +116,7 @@ function wp_cache_flush( $delay = 0 ) {
  *
  * @global WP_Object_Cache $wp_object_cache
  *
- * @return bool|mixed             Cached object value.
+ * @return bool|mixed        Cached object value.
  */
 function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
     global $wp_object_cache;
@@ -852,7 +852,7 @@ class WP_Object_Cache {
     /**
      * Returns a closure to flush selectively.
      *
-     * @param   string $salt The salt to be used to differentiate.
+     * @param   string $salt  The salt to be used to differentiate.
      * @return  callable      Generated callable executing the lua script.
      */
     protected function get_flush_closure( $salt ) {
@@ -881,7 +881,7 @@ class WP_Object_Cache {
     /**
      * Returns a closure ready to be called to flush selectively ignoring unflushable groups.
      *
-     * @param   string $salt The salt to be used to differentiate.
+     * @param   string $salt  The salt to be used to differentiate.
      * @return  callable      Generated callable executing the lua script.
      */
     protected function lua_flush_closure( $salt ) {
@@ -920,7 +920,7 @@ LUA;
     /**
      * Returns a closure ready to be called to flush selectively.
      *
-     * @param   string $salt The salt to be used to differentiate.
+     * @param   string $salt  The salt to be used to differentiate.
      * @return  callable      Generated callable executing the lua script.
      */
     protected function lua_flush_extended_closure( $salt ) {
@@ -982,7 +982,7 @@ LUA;
      *                             cache. Default false.
      * @param   bool   &$found     Optional. Whether the key was found in the cache. Disambiguates a return of
      *                             false, a storable value. Passed by reference. Default null.
-     * @return  bool|mixed                Cached object value.
+     * @return  bool|mixed         Cached object value.
      */
     public function get( $key, $group = 'default', $force = false, &$found = null ) {
         $start_time = microtime( true );
@@ -1285,7 +1285,7 @@ LUA;
      * Replaces the set group separator by another one
      *
      * @param   string $part  The string to sanitize.
-     * @return  string         Sanitized string.
+     * @return  string        Sanitized string.
      */
     protected function sanitize_key_part( $part ) {
          return str_replace( ':', '-', $part );
@@ -1328,7 +1328,7 @@ LUA;
      * Expected value in this case is false, so we convert
      *
      * @param   string $value  Value to possibly convert
-     * @return  string          Converted value
+     * @return  string         Converted value
      */
     protected function filter_redis_get_multi( $value ) {
         if ( is_null( $value ) ) {
@@ -1428,7 +1428,7 @@ LUA;
     /**
      * Sets the list of groups not to be cached by Redis.
      *
-     * @param array $groups List of groups that are to be ignored.
+     * @param array $groups  List of groups that are to be ignored.
      */
     public function add_non_persistent_groups( $groups ) {
         $groups = (array) $groups;
@@ -1450,7 +1450,7 @@ LUA;
     /**
      * Wrapper to validate the cache keys expiration value
      *
-     * @param mixed $expiration Incoming expiration value (whatever it is)
+     * @param mixed $expiration  Incoming expiration value (whatever it is)
      */
     protected function validate_expiration( $expiration ) {
         $expiration = is_int( $expiration ) || ctype_digit( $expiration ) ? (int) $expiration : 0;
@@ -1469,8 +1469,8 @@ LUA;
     /**
      * Unserialize value only if it was serialized.
      *
-     * @param string $original Maybe unserialized original, if is needed.
-     * @return mixed Unserialized data can be any type.
+     * @param string $original  Maybe unserialized original, if is needed.
+     * @return mixed            Unserialized data can be any type.
      */
     protected function maybe_unserialize( $original ) {
         if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
@@ -1494,8 +1494,8 @@ LUA;
     /**
      * Serialize data, if needed.
      *
-     * @param string|array|object $data Data that might be serialized.
-     * @return mixed A scalar data
+     * @param mixed $data  Data that might be serialized.
+     * @return mixed       A scalar data
      */
     protected function maybe_serialize( $data ) {
         if ( is_object( $data ) ) {
@@ -1527,9 +1527,9 @@ LUA;
      * If $data is not an string, then returned value will always be false.
      * Serialized data is always a string.
      *
-     * @param string $data   Value to check to see if was serialized.
-     * @param bool   $strict Optional. Whether to be strict about the end of the string. Default true.
-     * @return bool False if not serialized and true if it was.
+     * @param string $data    Value to check to see if was serialized.
+     * @param bool   $strict  Optional. Whether to be strict about the end of the string. Default true.
+     * @return bool           False if not serialized and true if it was.
      */
     protected function is_serialized( $data, $strict = true ) {
         // if it isn't a string, it isn't serialized.
@@ -1605,7 +1605,7 @@ LUA;
     /**
      * Handle the redis failure gracefully or throw an exception.
      *
-     * @param \Exception $exception Exception thrown.
+     * @param \Exception $exception  Exception thrown.
      */
     protected function handle_exception( $exception ) {
         $this->redis_connected = false;

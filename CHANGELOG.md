@@ -4,7 +4,7 @@
 
 - Switch to WPCS for code standards
 - Require PHP 5.6
-- Made the plugin netork-only
+- Made the plugin network-only
 - Added singleton pattern to main plugin class
 - Added plugin instantiation function
 
