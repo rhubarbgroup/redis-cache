@@ -125,24 +125,21 @@ function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
 }
 
 /**
- * Retrieve multiple values from cache.
+ * Gets multiple values from cache in one call.
  *
- * Gets multiple values from cache, including across multiple groups
- *
- * Usage: array( 'group0' => array( 'key0', 'key1', 'key2', ), 'group1' => array( 'key0' ) )
- *
- * Mirrors the Memcached Object Cache plugin's argument and return-value formats
- *
- * @param   array $groups  Array of groups and keys to retrieve
+ * @param array       $keys   Array of keys to get from group.
+ * @param string      $group  Optional. Where the cache contents are grouped. Default empty.
+ * @param bool        $force  Optional. Whether to force an update of the local cache from the persistent
+ *                            cache. Default false.
  *
  * @global WP_Object_Cache $wp_object_cache
  *
- * @return  bool|mixed           Array of cached values, keys in the format $group:$key. Non-existent keys false
+ * @return array|bool         Array of values.
  */
-function wp_cache_get_multi( $groups ) {
+function wp_cache_get_multi( $keys, $group = 'default', $force = false ) {
     global $wp_object_cache;
 
-    return $wp_object_cache->get_multi( $groups );
+    return $wp_object_cache->get_multi( $keys, $group, $force );
 }
 
 /**
@@ -1038,66 +1035,70 @@ LUA;
     }
 
     /**
-     * Retrieve multiple values from cache.
+     * Gets multiple values from cache in one call.
      *
-     * Gets multiple values from cache, including across multiple groups
+     * @param array       $keys   Array of keys to get from group.
+     * @param string      $group  Optional. Where the cache contents are grouped. Default empty.
+     * @param bool        $force  Optional. Whether to force an update of the local cache from the persistent
+     *                            cache. Default false.
      *
-     * Usage: array( 'group0' => array( 'key0', 'key1', 'key2', ), 'group1' => array( 'key0' ) )
+     * @global WP_Object_Cache $wp_object_cache
      *
-     * Mirrors the Memcached Object Cache plugin's argument and return-value formats
-     *
-     * @param   array $groups  Array of groups and keys to retrieve
-     * @return  bool|mixed                               Array of cached values, keys in the format $group:$key. Non-existent keys null.
+     * @return array|bool         Array of values.
      */
-    public function get_multi( $groups ) {
-        if ( empty( $groups ) || ! is_array( $groups ) ) {
+    public function get_multi( $keys, $group = 'default', $force = false ) {
+        if ( ! is_array( $keys ) ) {
             return false;
         }
 
-        // Retrieve requested caches and reformat results to mimic Memcached Object Cache's output
         $cache = array();
 
-        foreach ( $groups as $group => $keys ) {
-            if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
-                foreach ( $keys as $key ) {
-                    $cache[ $this->build_key( $key, $group ) ] = $this->get( $key, $group );
-                }
-            } else {
-                // Reformat arguments as expected by Redis
-                $derived_keys = array();
-
-                foreach ( $keys as $key ) {
-                    $derived_keys[] = $this->build_key( $key, $group );
-                }
-
-                // Retrieve from cache in a single request
-                try {
-                    $group_cache = $this->redis->mget( $derived_keys );
-                } catch ( Exception $exception ) {
-                    $this->handle_exception( $exception );
-                    $group_cache = array_fill( 0, count( $derived_keys ) - 1, false );
-                }
-
-                // Build an array of values looked up, keyed by the derived cache key
-                $group_cache = array_combine( $derived_keys, $group_cache );
-
-                // Restores cached data to its original data type
-                $group_cache = array_map( array( $this, 'maybe_unserialize' ), $group_cache );
-
-                // Redis returns null for values not found in cache, but expected return value is false in this instance
-                $group_cache = array_map( array( $this, 'filter_redis_get_multi' ), $group_cache );
-
-                $cache = array_merge( $cache, $group_cache );
+        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
+            foreach ( $keys as $key ) {
+                $cache[ $key ] = $this->get( $key, $group, $force );
             }
+
+            return $cache;
         }
 
-        // Add to the internal cache the found values from Redis
+        $derived_keys = array();
+        $start_time = microtime( true );
+
+        foreach ( $keys as $key ) {
+            $derived_keys[ $key ] = $this->build_key( $key, $group );
+        }
+
+        try {
+            $cache = $this->redis->mget( array_values( $derived_keys ) );
+        } catch ( Exception $exception ) {
+            $this->handle_exception( $exception );
+            $cache = array_fill( 0, count( $derived_keys ) - 1, false );
+        }
+
+        $cache = array_combine( $keys, $cache );
+
         foreach ( $cache as $key => $value ) {
             if ( $value ) {
                 $this->cache_hits++;
-                $this->add_to_internal_cache( $key, $value );
+                $this->add_to_internal_cache( $derived_keys[ $key ], $value );
             } else {
                 $this->cache_misses++;
+            }
+        }
+
+        $cache = array_map( array( $this, 'maybe_unserialize' ), $cache );
+
+        if ( function_exists( 'do_action' ) ) {
+            $execute_time = microtime( true ) - $start_time;
+
+            do_action( 'redis_object_cache_get_multi', $keys, $cache, $group, $force, $execute_time );
+        }
+
+        if ( function_exists( 'apply_filters' ) && function_exists( 'has_filter' ) ) {
+            if ( has_filter( 'redis_object_cache_get_value' ) ) {
+                foreach ($cache as $key => $value) {
+                    $cache[$key] = apply_filters( 'redis_object_cache_get_value', $value, $key, $group, $force );
+                }
             }
         }
 

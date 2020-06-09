@@ -7,6 +7,7 @@
 - Made the plugin network-only
 - Added singleton pattern to main plugin class
 - Added plugin instantiation function
+- Added support for WP 5.5's new `wp_cache_get_multi()` function
 
 ## 1.6.3
 
