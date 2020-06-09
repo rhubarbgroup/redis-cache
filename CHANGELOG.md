@@ -2,12 +2,18 @@
 
 ## [Unreleased]
 
-- Switch to WPCS for code standards
+Version 2.0 is a significant rewrite. The plugin now requires PHP 5.6, just like WordPress 5.2 does.
+
+The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `rhubarbgroup/redis-cache`.
+
 - Require PHP 5.6
-- Made the plugin network-only
-- Added singleton pattern to main plugin class
-- Added plugin instantiation function
+- Plugin is now "network-only"
+- Switch to WPCS for code standards
+- Added `Rhubarb\RedisCache` namespace to all files
 - Added support for WP 5.5's new `wp_cache_get_multi()` function
+- Added `redis_object_cache()` function to retrieve plugin instance
+- Use singleton pattern to instantiate plugin
+- Use Composer to install and load Predis
 
 ## 1.6.3
 
