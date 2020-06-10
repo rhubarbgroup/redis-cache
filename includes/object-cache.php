@@ -28,8 +28,6 @@ if ( defined( 'WP_REDIS_DISABLED' ) && ! WP_REDIS_DISABLED ) {
  * @param string $group      The group value appended to the $key.
  * @param int    $expiration The expiration time, defaults to 0.
  *
- * @global WP_Object_Cache $wp_object_cache
- *
  * @return bool              Returns TRUE on success or FALSE on failure.
  */
 function wp_cache_add( $key, $value, $group = '', $expiration = 0 ) {
@@ -59,8 +57,6 @@ function wp_cache_close() {
  * @param int    $offset The amount by which to decrement the item's value.
  * @param string $group  The group value appended to the $key.
  *
- * @global WP_Object_Cache $wp_object_cache
- *
  * @return int|bool      Returns item's new value on success or FALSE on failure.
  */
 function wp_cache_decr( $key, $offset = 1, $group = '' ) {
@@ -76,8 +72,6 @@ function wp_cache_decr( $key, $offset = 1, $group = '' ) {
  * @param string $group  The group value appended to the $key.
  * @param int    $time   The amount of time the server will wait to delete the item in seconds.
  *
- * @global WP_Object_Cache $wp_object_cache
- *
  * @return bool          Returns TRUE on success or FALSE on failure.
  */
 function wp_cache_delete( $key, $group = '', $time = 0 ) {
@@ -91,8 +85,6 @@ function wp_cache_delete( $key, $group = '', $time = 0 ) {
  * only keys prefixed with the `WP_CACHE_KEY_SALT` are flushed.
  *
  * @param int $delay  Number of seconds to wait before invalidating the items.
- *
- * @global WP_Object_Cache $wp_object_cache
  *
  * @return bool       Returns TRUE on success or FALSE on failure.
  */
@@ -114,8 +106,6 @@ function wp_cache_flush( $delay = 0 ) {
  * @param bool   &$found     Optional. Whether the key was found in the cache. Disambiguates a return of false,
  *                           a storable value. Passed by reference. Default null.
  *
- * @global WP_Object_Cache $wp_object_cache
- *
  * @return bool|mixed        Cached object value.
  */
 function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
@@ -125,18 +115,15 @@ function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
 }
 
 /**
- * Gets multiple values from cache in one call.
+ * Retrieves multiple values from the cache in one call.
  *
- * @param array  $keys   Array of keys to get from group.
- * @param string $group  Optional. Where the cache contents are grouped. Default empty.
- * @param bool   $force  Optional. Whether to force an update of the local cache from the persistent
- *                       cache. Default false.
- *
- * @global WP_Object_Cache $wp_object_cache
- *
- * @return array|bool         Array of values.
+ * @param array  $keys  Array of keys under which the cache contents are stored.
+ * @param string $group Optional. Where the cache contents are grouped. Default empty.
+ * @param bool   $force Optional. Whether to force an update of the local cache
+ *                      from the persistent cache. Default false.
+ * @return array Array of values organized into groups.
  */
-function wp_cache_get_multiple( $keys, $group = 'default', $force = false ) {
+function wp_cache_get_multiple( $keys, $group = '', $force = false ) {
     global $wp_object_cache;
 
     return $wp_object_cache->get_multiple( $keys, $group, $force );
@@ -149,8 +136,6 @@ function wp_cache_get_multiple( $keys, $group = 'default', $force = false ) {
  * @param int    $offset The amount by which to increment the item's value.
  * @param string $group  The group value appended to the $key.
  *
- * @global WP_Object_Cache $wp_object_cache
- *
  * @return int|bool      Returns item's new value on success or FALSE on failure.
  */
 function wp_cache_incr( $key, $offset = 1, $group = '' ) {
@@ -161,8 +146,6 @@ function wp_cache_incr( $key, $offset = 1, $group = '' ) {
 
 /**
  * Sets up Object Cache Global and assigns it.
- *
- * @global  WP_Object_Cache $wp_object_cache    WordPress Object Cache
  *
  * @return  void
  */
@@ -187,8 +170,6 @@ function wp_cache_init() {
  * @param string $group      The group value appended to the $key.
  * @param int    $expiration The expiration time, defaults to 0.
  *
- * @global WP_Object_Cache $wp_object_cache
- *
  * @return bool              Returns TRUE on success or FALSE on failure.
  */
 function wp_cache_replace( $key, $value, $group = '', $expiration = 0 ) {
@@ -207,8 +188,6 @@ function wp_cache_replace( $key, $value, $group = '', $expiration = 0 ) {
  * @param string $group      The group value appended to the $key.
  * @param int    $expiration The expiration time, defaults to 0.
  *
- * @global WP_Object_Cache $wp_object_cache
- *
  * @return bool              Returns TRUE on success or FALSE on failure.
  */
 function wp_cache_set( $key, $value, $group = '', $expiration = 0 ) {
@@ -224,8 +203,6 @@ function wp_cache_set( $key, $value, $group = '', $expiration = 0 ) {
  *
  * @param  int $_blog_id Blog ID
  *
- * @global WP_Object_Cache $wp_object_cache
- *
  * @return bool
  */
 function wp_cache_switch_to_blog( $_blog_id ) {
@@ -239,8 +216,6 @@ function wp_cache_switch_to_blog( $_blog_id ) {
  *
  * @param   string|array $groups     A group or an array of groups to add.
  *
- * @global WP_Object_Cache $wp_object_cache
- *
  * @return  void
  */
 function wp_cache_add_global_groups( $groups ) {
@@ -253,8 +228,6 @@ function wp_cache_add_global_groups( $groups ) {
  * Adds a group or set of groups to the list of non-Redis groups.
  *
  * @param   string|array $groups     A group or an array of groups to add.
- *
- * @global WP_Object_Cache $wp_object_cache
  *
  * @return  void
  */
@@ -656,9 +629,11 @@ class WP_Object_Cache {
         $this->redis = new Predis\Client( $parameters, $options );
         $this->redis->connect();
 
-        $this->diagnostics = array_merge( [
-            'client' => $client . sprintf( ' (v%s)', Predis\Client::VERSION ),
-        ], $parameters, $options );
+        $this->diagnostics = array_merge(
+            [ 'client' => $client . sprintf( ' (v%s)', Predis\Client::VERSION ) ],
+            $parameters,
+            $options
+        );
     }
 
     /**
@@ -700,9 +675,10 @@ class WP_Object_Cache {
             $this->redis->select( $parameters['database'] );
         }
 
-        $this->diagnostics = array_merge( [
-            'client' => sprintf( 'HHVM Extension (v%s)', HHVM_VERSION ),
-        ], $parameters );
+        $this->diagnostics = array_merge(
+            [ 'client' => sprintf( 'HHVM Extension (v%s)', HHVM_VERSION ) ],
+            $parameters
+        );
     }
 
     /**
@@ -1139,16 +1115,13 @@ LUA;
     }
 
     /**
-     * Gets multiple values from cache in one call.
+     * Retrieves multiple values from the cache in one call.
      *
-     * @param array  $keys   Array of keys to get from group.
-     * @param string $group  Optional. Where the cache contents are grouped. Default empty.
-     * @param bool   $force  Optional. Whether to force an update of the local cache from the persistent
-     *                       cache. Default false.
-     *
-     * @global WP_Object_Cache $wp_object_cache
-     *
-     * @return array|bool         Array of values.
+     * @param array  $keys  Array of keys under which the cache contents are stored.
+     * @param string $group Optional. Where the cache contents are grouped. Default empty.
+     * @param bool   $force Optional. Whether to force an update of the local cache
+     *                      from the persistent cache. Default false.
+     * @return array Array of values organized into groups.
      */
     public function get_multiple( $keys, $group = 'default', $force = false ) {
         if ( ! is_array( $keys ) ) {
