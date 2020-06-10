@@ -127,10 +127,10 @@ function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
 /**
  * Gets multiple values from cache in one call.
  *
- * @param array       $keys   Array of keys to get from group.
- * @param string      $group  Optional. Where the cache contents are grouped. Default empty.
- * @param bool        $force  Optional. Whether to force an update of the local cache from the persistent
- *                            cache. Default false.
+ * @param array  $keys   Array of keys to get from group.
+ * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+ * @param bool   $force  Optional. Whether to force an update of the local cache from the persistent
+ *                       cache. Default false.
  *
  * @global WP_Object_Cache $wp_object_cache
  *
@@ -466,7 +466,7 @@ class WP_Object_Cache {
             $client = str_replace( 'pecl', 'phpredis', $client );
         }
 
-        return trim(strtolower($client));
+        return trim( strtolower( $client ) );
     }
 
     /**
@@ -513,7 +513,7 @@ class WP_Object_Cache {
      * @param  array $parameters
      * @return void
      */
-    protected function connectUsingPhpRedis($parameters) {
+    protected function connectUsingPhpRedis( $parameters ) {
         $version = phpversion( 'redis' );
 
         $this->redis_client = sprintf( 'PhpRedis (v%s)', $version );
@@ -590,7 +590,7 @@ class WP_Object_Cache {
      * @param  array $parameters
      * @return void
      */
-    protected function connectUsingPredis($parameters) {
+    protected function connectUsingPredis( $parameters ) {
         $this->redis_client = 'Predis';
 
         // Require PHP 5.4 or greater
@@ -650,7 +650,7 @@ class WP_Object_Cache {
      * @param  array $parameters
      * @return void
      */
-    protected function connectUsingHHVM($parameters) {
+    protected function connectUsingHHVM( $parameters ) {
         $this->redis = new Redis();
         $this->redis_client = sprintf( 'HHVM Extension (v%s)', HHVM_VERSION );
 
@@ -1121,10 +1121,10 @@ LUA;
     /**
      * Gets multiple values from cache in one call.
      *
-     * @param array       $keys   Array of keys to get from group.
-     * @param string      $group  Optional. Where the cache contents are grouped. Default empty.
-     * @param bool        $force  Optional. Whether to force an update of the local cache from the persistent
-     *                            cache. Default false.
+     * @param array  $keys   Array of keys to get from group.
+     * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+     * @param bool   $force  Optional. Whether to force an update of the local cache from the persistent
+     *                       cache. Default false.
      *
      * @global WP_Object_Cache $wp_object_cache
      *
@@ -1180,8 +1180,8 @@ LUA;
 
         if ( function_exists( 'apply_filters' ) && function_exists( 'has_filter' ) ) {
             if ( has_filter( 'redis_object_cache_get_value' ) ) {
-                foreach ($cache as $key => $value) {
-                    $cache[$key] = apply_filters( 'redis_object_cache_get_value', $value, $key, $group, $force );
+                foreach ( $cache as $key => $value ) {
+                    $cache[ $key ] = apply_filters( 'redis_object_cache_get_value', $value, $key, $group, $force );
                 }
             }
         }
