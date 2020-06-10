@@ -479,8 +479,9 @@ class WP_Object_Cache {
             'scheme' => 'tcp',
             'host' => '127.0.0.1',
             'port' => 6379,
-            'timeout' => 5,
-            'read_timeout' => 5,
+            'database' => 0,
+            'timeout' => 1,
+            'read_timeout' => 1,
             'retry_interval' => null,
         );
 
