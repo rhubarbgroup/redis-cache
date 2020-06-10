@@ -345,7 +345,11 @@ class WP_Object_Cache {
      *
      * @var array
      */
-    public $ignored_groups = array( 'counts', 'plugins', 'themes' );
+    public $ignored_groups = array(
+        'counts',
+        'plugins',
+        'themes',
+    );
 
     /**
      * Prefix used for global groups.

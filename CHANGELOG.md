@@ -16,6 +16,7 @@ The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `
 - Use Composer to install and load Predis
 - Use separate methods to connect with all clients
 - Removed `CUSTOM_USER_TABLE` and `CUSTOM_USER_META_TABLE` weirdness
+- Added `themes` as ignored group
 
 ## 1.6.3
 
