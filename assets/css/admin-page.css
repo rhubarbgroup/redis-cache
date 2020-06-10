@@ -5,28 +5,23 @@
     padding-bottom: 7px;
 }
 
-.settings_page_redis-cache .card,
-.settings_page_redis-cache br.clearfix {
-    display: none;
-}
-
 .settings_page_redis-cache .card ul {
     list-style: circle;
     padding-left: 25px;
 }
 
-@media screen and (min-width: 1110px) {
-    .settings_page_redis-cache .card {
-        display: block;
-        float: right;
-    }
+.settings_page_redis-cache .card {
+    margin-top: 50px;
+}
 
+@media screen and (min-width: 1280px) {
     .settings_page_redis-cache .section-overview {
         float: left;
+        max-width: 50%;
     }
 
-    .settings_page_redis-cache br.clearfix {
-        display: block;
-        clear: both;
+    .settings_page_redis-cache .card {
+        float: right;
+        margin-top: 0;
     }
 }

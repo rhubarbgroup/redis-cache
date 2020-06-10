@@ -221,12 +221,20 @@ class Plugin {
     public function get_redis_client_name() {
         global $wp_object_cache;
 
-        if ( isset( $wp_object_cache->redis_client ) ) {
-            return $wp_object_cache->redis_client;
+        if ( isset( $wp_object_cache->diagnostics[ 'client' ] ) ) {
+            return $wp_object_cache->diagnostics[ 'client' ];
         }
 
         if ( defined( 'WP_REDIS_CLIENT' ) ) {
             return WP_REDIS_CLIENT;
+        }
+    }
+
+    public function get_diagnostics() {
+        global $wp_object_cache;
+
+        if ( $this->validate_object_cache_dropin() && property_exists( $wp_object_cache, 'diagnostics' ) ) {
+            return $wp_object_cache->diagnostics;
         }
     }
 
@@ -467,7 +475,7 @@ class Plugin {
 
         if (
             ! isset( $wp_object_cache->cache_hits ) ||
-            ! isset( $wp_object_cache->redis_client ) ||
+            ! isset( $wp_object_cache->diagnostics ) ||
             ! is_array( $wp_object_cache->cache )
         ) {
             return;
@@ -490,7 +498,7 @@ class Plugin {
             __( 'Retrieved %1$d objects (%2$s) from Redis using %3$s.', 'redis-cache' ),
             $wp_object_cache->cache_hits,
             function_exists( 'size_format' ) ? size_format( $bytes ) : "{$bytes} bytes",
-            $wp_object_cache->redis_client
+            $wp_object_cache->diagnostics['client']
         );
 
         printf( "<!--\n%s\n\n%s\n-->\n", $message, $debug );

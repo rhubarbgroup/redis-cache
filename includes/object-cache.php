@@ -302,11 +302,11 @@ class WP_Object_Cache {
     public $cache = array();
 
     /**
-     * Name of the used Redis client
+     * Holds the diagnostics values
      *
-     * @var bool
+     * @var array
      */
-    public $redis_client = null;
+    public $diagnostics = null;
 
     /**
      * List of global groups.
@@ -505,6 +505,14 @@ class WP_Object_Cache {
             }
         }
 
+        if ( isset( $parameters['password'] ) ) {
+            $password = $parameters['password'];
+
+            if ( is_null( $password ) || $password === '' ) {
+                unset( $parameters['password'] );
+            }
+        }
+
         return $parameters;
     }
 
@@ -517,36 +525,39 @@ class WP_Object_Cache {
     protected function connectUsingPhpRedis( $parameters ) {
         $version = phpversion( 'redis' );
 
-        $this->redis_client = sprintf( 'PhpRedis (v%s)', $version );
+        $this->diagnostics[ 'client' ] = sprintf( 'PhpRedis (v%s)', $version );
 
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
             $this->redis = new RedisArray( array_values( WP_REDIS_SHARDS ) );
+
+            $this->diagnostics[ 'shards' ] = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $connection_args = [
-                null,
-                array_values( WP_REDIS_CLUSTER ),
-                $parameters['timeout'],
-                $parameters['read_timeout'],
+            $args = [
+                'cluster' => array_values( WP_REDIS_CLUSTER ),
+                'timeout' => $parameters['timeout'],
+                'read_timeout' => $parameters['read_timeout'],
             ];
 
             if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
-                $connection_args[] = $parameters['password'];
+                $args['password'] = $parameters['password'];
             }
 
-            $this->redis = new RedisCluster( ...$connection_args );
+            $this->redis = new RedisCluster( null, ...array_values( $args ) );
+
+            $this->diagnostics += $args;
         } else {
             $this->redis = new Redis();
 
-            $connection_args = [
-                $parameters['host'],
-                $parameters['port'],
-                $parameters['timeout'],
+            $args = [
+                'host' => $parameters['host'],
+                'port' => $parameters['port'],
+                'timeout' => $parameters['timeout'],
                 null,
-                $parameters['retry_interval'],
+                'retry_interval' => $parameters['retry_interval'],
             ];
 
             if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {
-                $connection_args[0] = sprintf(
+                $args['host'] = sprintf(
                     '%s://%s',
                     $parameters['scheme'],
                     str_replace( 'tls://', '', $parameters['host'] )
@@ -554,20 +565,18 @@ class WP_Object_Cache {
             }
 
             if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
-                $connection_args[0] = $parameters['path'];
-                $connection_args[1] = null;
+                $args['host'] = $parameters['path'];
+                $args['port'] = null;
             }
 
             if ( version_compare( $version, '3.1.3', '>=' ) ) {
-                $connection_args[] = $parameters['read_timeout'];
+                $args['read_timeout'] = $parameters['read_timeout'];
             }
 
-            call_user_func_array(
-                [ $this->redis, 'connect' ],
-                $connection_args
-            );
+            call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
 
             if ( isset( $parameters['password'] ) ) {
+                $args['password'] = $parameters['password'];
                 $this->redis->auth( $parameters['password'] );
             }
 
@@ -576,8 +585,11 @@ class WP_Object_Cache {
                     $parameters['database'] = intval( $parameters['database'] );
                 }
 
+                $args['database'] = $parameters['database'];
                 $this->redis->select( $parameters['database'] );
             }
+
+            $this->diagnostics += $args;
         }
 
         if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
@@ -592,7 +604,7 @@ class WP_Object_Cache {
      * @return void
      */
     protected function connectUsingPredis( $parameters ) {
-        $this->redis_client = 'Predis';
+        $client = 'Predis';
 
         // Require PHP 5.4 or greater
         if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
@@ -612,8 +624,6 @@ class WP_Object_Cache {
                 );
             }
         }
-
-        $this->redis_client .= sprintf( ' (v%s)', Predis\Client::VERSION );
 
         $options = array();
 
@@ -635,14 +645,20 @@ class WP_Object_Cache {
             $parameters['read_write_timeout'] = $parameters['read_timeout'];
         }
 
-        foreach ( array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant ) {
-            if ( defined( 'WP_REDIS_PASSWORD' ) && defined( $constant ) ) {
-                $options['parameters']['password'] = WP_REDIS_PASSWORD;
+        if ( isset( $parameters['password'] ) ) {
+            foreach ( array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant ) {
+                if ( defined( $constant ) ) {
+                    $options['parameters']['password'] = WP_REDIS_PASSWORD;
+                }
             }
         }
 
         $this->redis = new Predis\Client( $parameters, $options );
         $this->redis->connect();
+
+        $this->diagnostics = array_merge( [
+            'client' => $client . sprintf( ' (v%s)', Predis\Client::VERSION ),
+        ], $parameters, $options );
     }
 
     /**
@@ -653,7 +669,6 @@ class WP_Object_Cache {
      */
     protected function connectUsingHHVM( $parameters ) {
         $this->redis = new Redis();
-        $this->redis_client = sprintf( 'HHVM Extension (v%s)', HHVM_VERSION );
 
         // Adjust host and port, if the scheme is `unix`
         if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
@@ -684,6 +699,10 @@ class WP_Object_Cache {
 
             $this->redis->select( $parameters['database'] );
         }
+
+        $this->diagnostics = array_merge( [
+            'client' => sprintf( 'HHVM Extension (v%s)', HHVM_VERSION ),
+        ], $parameters );
     }
 
     /**
@@ -1331,7 +1350,7 @@ LUA;
 
         <p>
             <strong>Redis Status:</strong> <?php echo $this->redis_status() ? 'Connected' : 'Not Connected'; ?><br />
-            <strong>Redis Client:</strong> <?php echo $this->redis_client; ?><br />
+            <strong>Redis Client:</strong> <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?><br />
             <strong>Cache Hits:</strong> <?php echo $this->cache_hits; ?><br />
             <strong>Cache Misses:</strong> <?php echo $this->cache_misses; ?>
         </p>
