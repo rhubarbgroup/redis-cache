@@ -56,7 +56,7 @@ To adjust the connection parameters, define any of the following constants in yo
 
   * `WP_REDIS_CLIENT` (default: _not set_)
 
-      Specifies the client used to communicate with Redis. Supports `hhvm`, `pecl` and `predis`.
+      Specifies the client used to communicate with Redis. Supports `predis`, `phpredis` and `hhvm`.
 
   * `WP_REDIS_SCHEME` (default: `tcp`)
 

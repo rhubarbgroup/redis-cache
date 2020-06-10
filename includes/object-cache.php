@@ -345,7 +345,7 @@ class WP_Object_Cache {
      *
      * @var array
      */
-    public $ignored_groups = array( 'counts', 'plugins' );
+    public $ignored_groups = array( 'counts', 'plugins', 'themes' );
 
     /**
      * Prefix used for global groups.
@@ -385,23 +385,6 @@ class WP_Object_Cache {
 
         $this->fail_gracefully = $fail_gracefully;
 
-        $parameters = array(
-            'scheme' => 'tcp',
-            'host' => '127.0.0.1',
-            'port' => 6379,
-            'timeout' => 5,
-            'read_timeout' => 5,
-            'retry_interval' => null,
-        );
-
-        foreach ( array( 'scheme', 'host', 'port', 'path', 'password', 'database', 'timeout', 'read_timeout', 'retry_interval' ) as $setting ) {
-            $constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
-
-            if ( defined( $constant ) ) {
-                $parameters[ $setting ] = constant( $constant );
-            }
-        }
-
         if ( defined( 'WP_REDIS_GLOBAL_GROUPS' ) && is_array( WP_REDIS_GLOBAL_GROUPS ) ) {
             $this->global_groups = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_GLOBAL_GROUPS );
         }
@@ -414,159 +397,20 @@ class WP_Object_Cache {
             $this->unflushable_groups = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_UNFLUSHABLE_GROUPS );
         }
 
-        $client = defined( 'WP_REDIS_CLIENT' ) ? WP_REDIS_CLIENT : null;
-
-        if ( class_exists( 'Redis' ) && strcasecmp( 'predis', $client ) !== 0 ) {
-            $client = defined( 'HHVM_VERSION' ) ? 'hhvm' : 'pecl';
-        } else {
-            $client = 'predis';
-        }
+        $client = $this->determine_client();
+        $parameters = $this->build_parameters();
 
         try {
-            if ( strcasecmp( 'hhvm', $client ) === 0 ) {
-                $this->redis_client = sprintf( 'HHVM Extension (v%s)', HHVM_VERSION );
-                $this->redis = new Redis();
-
-                // Adjust host and port, if the scheme is `unix`
-                if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
-                    $parameters['host'] = 'unix://' . $parameters['path'];
-                    $parameters['port'] = 0;
-                }
-
-                $this->redis->connect( $parameters['host'], $parameters['port'], $parameters['timeout'], null, $parameters['retry_interval'] );
-
-                if ( $parameters['read_timeout'] ) {
-                    $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $parameters['read_timeout'] );
-                }
-            }
-
-            if ( strcasecmp( 'pecl', $client ) === 0 ) {
-                $phpredis_version = phpversion( 'redis' );
-                $this->redis_client = sprintf(
-                    'PhpRedis (v%s)',
-                    $phpredis_version
-                );
-
-                if ( defined( 'WP_REDIS_SHARDS' ) ) {
-                    $this->redis = new RedisArray( array_values( WP_REDIS_SHARDS ) );
-                } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                    $connection_args = [
-                        null,
-                        array_values( WP_REDIS_CLUSTER ),
-                        $parameters['timeout'],
-                        $parameters['read_timeout'],
-                    ];
-
-                    if ( isset( $parameters['password'] ) && version_compare( $phpredis_version, '4.3.0', '>=' ) ) {
-                        $connection_args[] = $parameters['password'];
-                    }
-
-                    $this->redis = new RedisCluster( ...$connection_args );
-                } else {
-                    $this->redis = new Redis();
-
-                    $connection_args = [
-                        $parameters['host'],
-                        $parameters['port'],
-                        $parameters['timeout'],
-                        null,
-                        $parameters['retry_interval'],
-                    ];
-
-                    if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {
-                        $connection_args[0] = sprintf(
-                            '%s://%s',
-                            $parameters['scheme'],
-                            str_replace( 'tls://', '', $parameters['host'] )
-                        );
-                    }
-
-                    if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
-                        $connection_args[0] = $parameters['path'];
-                        $connection_args[1] = null;
-                    }
-
-                    if ( version_compare( $phpredis_version, '3.1.3', '>=' ) ) {
-                        $connection_args[] = $parameters['read_timeout'];
-                    }
-
-                    call_user_func_array(
-                        [ $this->redis, 'connect' ],
-                        $connection_args
-                    );
-                }
-
-                if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
-                    $this->redis->setOption( Redis::OPT_SERIALIZER, WP_REDIS_SERIALIZER );
-                }
-            }
-
-            if ( strcasecmp( 'pecl', $client ) === 0 || strcasecmp( 'hhvm', $client ) === 0 ) {
-                if ( isset( $parameters['password'] ) ) {
-                    $this->redis->auth( $parameters['password'] );
-                }
-
-                if ( isset( $parameters['database'] ) ) {
-                    if ( ctype_digit( $parameters['database'] ) ) {
-                        $parameters['database'] = intval( $parameters['database'] );
-                    }
-
-                    $this->redis->select( $parameters['database'] );
-                }
-            }
-
-            if ( strcasecmp( 'predis', $client ) === 0 ) {
-                $this->redis_client = 'Predis';
-
-                // Require PHP 5.4 or greater
-                if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
-                    throw new Exception( 'Predis required PHP 5.4 or newer.' );
-                }
-
-                // Load bundled Predis library
-                if ( ! class_exists( 'Predis\Client' ) ) {
-                    $predis = sprintf(
-                        '%s/redis-cache/dependencies/vendor/predis/predis/autoload.php',
-                        defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins'
-                    );
-
-                    if ( file_exists( $predis ) ) {
-                        require_once $predis;
-                    } else {
-                        throw new Exception( 'Predis library not found. Re-install Redis Cache plugin or delete object-cache.php.' );
-                    }
-                }
-
-                $options = array();
-
-                if ( defined( 'WP_REDIS_SHARDS' ) ) {
-                    $parameters = WP_REDIS_SHARDS;
-                } elseif ( defined( 'WP_REDIS_SENTINEL' ) ) {
-                    $parameters = WP_REDIS_SERVERS;
-                    $options['replication'] = 'sentinel';
-                    $options['service'] = WP_REDIS_SENTINEL;
-                } elseif ( defined( 'WP_REDIS_SERVERS' ) ) {
-                    $parameters = WP_REDIS_SERVERS;
-                    $options['replication'] = true;
-                } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                    $parameters = WP_REDIS_CLUSTER;
-                    $options['cluster'] = 'redis';
-                }
-
-                if ( isset( $parameters['read_timeout'] ) && $parameters['read_timeout'] ) {
-                    $parameters['read_write_timeout'] = $parameters['read_timeout'];
-                }
-
-                foreach ( array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant ) {
-                    if ( defined( 'WP_REDIS_PASSWORD' ) && defined( $constant ) ) {
-                        $options['parameters']['password'] = WP_REDIS_PASSWORD;
-                    }
-                }
-
-                $this->redis = new Predis\Client( $parameters, $options );
-                $this->redis->connect();
-
-                $this->redis_client .= sprintf( ' (v%s)', Predis\Client::VERSION );
+            switch ( $client ) {
+                case 'hhvm':
+                    $this->connectUsingHHVM( $parameters );
+                    break;
+                case 'phpredis':
+                    $this->connectUsingPhpRedis( $parameters );
+                    break;
+                case 'predis':
+                    $this->connectUsingPredis( $parameters );
+                    break;
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
@@ -596,8 +440,244 @@ class WP_Object_Cache {
 
         // Assign global and blog prefixes for use with keys
         if ( function_exists( 'is_multisite' ) ) {
-            $this->global_prefix = ( is_multisite() || defined( 'CUSTOM_USER_TABLE' ) && defined( 'CUSTOM_USER_META_TABLE' ) ) ? '' : $table_prefix;
-            $this->blog_prefix = ( is_multisite() ? $blog_id : $table_prefix );
+            $this->global_prefix = is_multisite() ? '' : $table_prefix;
+            $this->blog_prefix = is_multisite() ? $blog_id : $table_prefix;
+        }
+    }
+
+    /**
+     * Determine the Redis client.
+     *
+     * @return string
+     */
+    protected function determine_client() {
+        $client = 'predis';
+
+        if ( class_exists( 'Redis' ) ) {
+            $client = defined( 'HHVM_VERSION' ) ? 'hhvm' : 'phpredis';
+        }
+
+        if ( defined( 'WP_REDIS_CLIENT' ) ) {
+            $client = (string) WP_REDIS_CLIENT;
+            $client = str_replace( 'pecl', 'phpredis', $client );
+        }
+
+        return trim(strtolower($client));
+    }
+
+    /**
+     * Build the connection parameters from config constants.
+     *
+     * @return array
+     */
+    protected function build_parameters() {
+        $parameters = array(
+            'scheme' => 'tcp',
+            'host' => '127.0.0.1',
+            'port' => 6379,
+            'timeout' => 5,
+            'read_timeout' => 5,
+            'retry_interval' => null,
+        );
+
+        $settings = array(
+            'scheme',
+            'host',
+            'port',
+            'path',
+            'password',
+            'database',
+            'timeout',
+            'read_timeout',
+            'retry_interval',
+        );
+
+        foreach ( $settings as $setting ) {
+            $constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
+
+            if ( defined( $constant ) ) {
+                $parameters[ $setting ] = constant( $constant );
+            }
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * Connect to Redis using the PhpRedis (PECL) extention.
+     *
+     * @param  array $parameters
+     * @return void
+     */
+    protected function connectUsingPhpRedis($parameters) {
+        $version = phpversion( 'redis' );
+
+        $this->redis_client = sprintf( 'PhpRedis (v%s)', $version );
+
+        if ( defined( 'WP_REDIS_SHARDS' ) ) {
+            $this->redis = new RedisArray( array_values( WP_REDIS_SHARDS ) );
+        } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
+            $connection_args = [
+                null,
+                array_values( WP_REDIS_CLUSTER ),
+                $parameters['timeout'],
+                $parameters['read_timeout'],
+            ];
+
+            if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
+                $connection_args[] = $parameters['password'];
+            }
+
+            $this->redis = new RedisCluster( ...$connection_args );
+        } else {
+            $this->redis = new Redis();
+
+            $connection_args = [
+                $parameters['host'],
+                $parameters['port'],
+                $parameters['timeout'],
+                null,
+                $parameters['retry_interval'],
+            ];
+
+            if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {
+                $connection_args[0] = sprintf(
+                    '%s://%s',
+                    $parameters['scheme'],
+                    str_replace( 'tls://', '', $parameters['host'] )
+                );
+            }
+
+            if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
+                $connection_args[0] = $parameters['path'];
+                $connection_args[1] = null;
+            }
+
+            if ( version_compare( $version, '3.1.3', '>=' ) ) {
+                $connection_args[] = $parameters['read_timeout'];
+            }
+
+            call_user_func_array(
+                [ $this->redis, 'connect' ],
+                $connection_args
+            );
+
+            if ( isset( $parameters['password'] ) ) {
+                $this->redis->auth( $parameters['password'] );
+            }
+
+            if ( isset( $parameters['database'] ) ) {
+                if ( ctype_digit( $parameters['database'] ) ) {
+                    $parameters['database'] = intval( $parameters['database'] );
+                }
+
+                $this->redis->select( $parameters['database'] );
+            }
+        }
+
+        if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
+            $this->redis->setOption( Redis::OPT_SERIALIZER, WP_REDIS_SERIALIZER );
+        }
+    }
+
+    /**
+     * Connect to Redis using the Predis library.
+     *
+     * @param  array $parameters
+     * @return void
+     */
+    protected function connectUsingPredis($parameters) {
+        $this->redis_client = 'Predis';
+
+        // Require PHP 5.4 or greater
+        if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
+            throw new Exception( 'Predis requires PHP 5.4 or newer.' );
+        }
+
+        // Load bundled Predis library
+        if ( ! class_exists( 'Predis\Client' ) ) {
+            $predis = sprintf(
+                '%s/redis-cache/dependencies/vendor/predis/predis/autoload.php',
+                defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins'
+            );
+
+            if ( ! require_once $predis ) {
+                throw new Exception(
+                    'Predis library not found. Re-install Redis Cache plugin or delete the object-cache.php.'
+                );
+            }
+        }
+
+        $this->redis_client .= sprintf( ' (v%s)', Predis\Client::VERSION );
+
+        $options = array();
+
+        if ( defined( 'WP_REDIS_SHARDS' ) ) {
+            $parameters = WP_REDIS_SHARDS;
+        } elseif ( defined( 'WP_REDIS_SENTINEL' ) ) {
+            $parameters = WP_REDIS_SERVERS;
+            $options['replication'] = 'sentinel';
+            $options['service'] = WP_REDIS_SENTINEL;
+        } elseif ( defined( 'WP_REDIS_SERVERS' ) ) {
+            $parameters = WP_REDIS_SERVERS;
+            $options['replication'] = true;
+        } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
+            $parameters = WP_REDIS_CLUSTER;
+            $options['cluster'] = 'redis';
+        }
+
+        if ( isset( $parameters['read_timeout'] ) && $parameters['read_timeout'] ) {
+            $parameters['read_write_timeout'] = $parameters['read_timeout'];
+        }
+
+        foreach ( array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant ) {
+            if ( defined( 'WP_REDIS_PASSWORD' ) && defined( $constant ) ) {
+                $options['parameters']['password'] = WP_REDIS_PASSWORD;
+            }
+        }
+
+        $this->redis = new Predis\Client( $parameters, $options );
+        $this->redis->connect();
+    }
+
+    /**
+     * Connect to Redis using HHVM's Redis extention.
+     *
+     * @param  array $parameters
+     * @return void
+     */
+    protected function connectUsingHHVM($parameters) {
+        $this->redis = new Redis();
+        $this->redis_client = sprintf( 'HHVM Extension (v%s)', HHVM_VERSION );
+
+        // Adjust host and port, if the scheme is `unix`
+        if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
+            $parameters['host'] = 'unix://' . $parameters['path'];
+            $parameters['port'] = 0;
+        }
+
+        $this->redis->connect(
+            $parameters['host'],
+            $parameters['port'],
+            $parameters['timeout'],
+            null,
+            $parameters['retry_interval']
+        );
+
+        if ( $parameters['read_timeout'] ) {
+            $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $parameters['read_timeout'] );
+        }
+
+        if ( isset( $parameters['password'] ) ) {
+            $this->redis->auth( $parameters['password'] );
+        }
+
+        if ( isset( $parameters['database'] ) ) {
+            if ( ctype_digit( $parameters['database'] ) ) {
+                $parameters['database'] = intval( $parameters['database'] );
+            }
+
+            $this->redis->select( $parameters['database'] );
         }
     }
 
