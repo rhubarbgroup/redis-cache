@@ -136,10 +136,10 @@ function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
  *
  * @return array|bool         Array of values.
  */
-function wp_cache_get_multi( $keys, $group = 'default', $force = false ) {
+function wp_cache_get_multiple( $keys, $group = 'default', $force = false ) {
     global $wp_object_cache;
 
-    return $wp_object_cache->get_multi( $keys, $group, $force );
+    return $wp_object_cache->get_multiple( $keys, $group, $force );
 }
 
 /**
@@ -1130,7 +1130,7 @@ LUA;
      *
      * @return array|bool         Array of values.
      */
-    public function get_multi( $keys, $group = 'default', $force = false ) {
+    public function get_multiple( $keys, $group = 'default', $force = false ) {
         if ( ! is_array( $keys ) ) {
             return false;
         }
@@ -1404,23 +1404,6 @@ LUA;
      */
     protected function is_unflushable_group( $group ) {
         return in_array( $this->sanitize_key_part( $group ), $this->unflushable_groups, true );
-    }
-
-    /**
-     * Convert data types when using Redis MGET
-     *
-     * When requesting multiple keys, those not found in cache are assigned the value null upon return.
-     * Expected value in this case is false, so we convert
-     *
-     * @param   string $value  Value to possibly convert
-     * @return  string         Converted value
-     */
-    protected function filter_redis_get_multi( $value ) {
-        if ( is_null( $value ) ) {
-            $value = false;
-        }
-
-        return $value;
     }
 
     /**
