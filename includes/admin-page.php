@@ -78,7 +78,6 @@
             <table class="form-table">
 
                 <?php $diagnostics = $this->get_diagnostics(); ?>
-                <?php var_dump($diagnostics); ?>
 
                 <tr>
                     <th><?php _e('Status:', 'redis-cache'); ?></th>
