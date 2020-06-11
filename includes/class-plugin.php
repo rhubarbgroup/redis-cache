@@ -35,8 +35,6 @@ class Plugin {
         add_action( 'deactivate_plugin', array( $this, 'on_deactivation' ) );
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', array( $this, 'add_admin_menu_page' ) );
         add_action( 'admin_notices', array( $this, 'show_admin_notices' ) );
-        add_action( 'admin_notices', array( $this, 'pro_notice' ) );
-        add_filter( 'admin_notices', array( $this, 'wc_pro_notice' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
@@ -247,6 +245,11 @@ class Plugin {
     }
 
     public function show_admin_notices() {
+        if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS ) {
+            $this->pro_notice();
+            $this->wc_pro_notice();
+        }
+
         // only show admin notices to users with the right capability
         if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
             return;
@@ -393,10 +396,6 @@ class Plugin {
             return;
         }
 
-        if ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS ) {
-            return;
-        }
-
         if ( get_user_meta( get_current_user_id(), 'roc_dismissed_pro_release_notice', true ) == '1' ) {
             return;
         }
@@ -427,10 +426,6 @@ class Plugin {
         }
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            return;
-        }
-
-        if ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS ) {
             return;
         }
 
