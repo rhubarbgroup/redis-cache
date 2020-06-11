@@ -105,7 +105,7 @@ class Plugin {
         }
 
         // show admin page
-        require_once WP_REDIS_PLUGIN_PATH . '/includes/admin-page.php';
+        require_once WP_REDIS_PLUGIN_PATH . '/includes/ui/admin-page.php';
     }
 
     public function show_servers_list() {
