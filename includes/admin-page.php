@@ -195,7 +195,6 @@
 
         </div>
 
-        <br>
         <h2 class="title">
             <?php _e( 'Diagnostics', 'redis-cache' ); ?>
         </h2>
@@ -247,11 +246,14 @@
         <?php $phpRedisInstalled = (bool) phpversion( 'redis' ); ?>
 
         <?php if ( $isPhp7 && $isPhpRedis311 ) : ?>
+
             <p class="compatiblity">
                 <span class="dashicons dashicons-yes"></span>
                 <span><?php _e( 'Your site meets the system requirements for the Pro version.', 'redis-cache' ); ?></span>
             </p>
+
         <?php else : ?>
+
             <p class="compatiblity">
                 <span class="dashicons dashicons-no"></span>
                 <span><?php _e( 'Your site <i>does not</i> meet the system requirements for the Pro version:', 'redis-cache' ); ?></span>
