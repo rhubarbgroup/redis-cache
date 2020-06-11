@@ -95,7 +95,7 @@
                     <tr>
                         <th><?php _e( 'Cluster:', 'redis-cache' ); ?></th>
                         <td>
-                            <ul style="margin: 0;">
+                            <ul>
                                 <?php foreach ( $diagnostics['cluster'] as $node ) : ?>
                                     <li><code><?php echo esc_html( $node ); ?></code></li>
                                 <?php endforeach; ?>
@@ -108,7 +108,7 @@
                     <tr>
                         <th><?php _e( 'Shards:', 'redis-cache' ); ?></th>
                         <td>
-                            <ul style="margin: 0;">
+                            <ul>
                                 <?php foreach ( $diagnostics['shards'] as $node ) : ?>
                                     <li><code><?php echo esc_html( $node ); ?></code></li>
                                 <?php endforeach; ?>
@@ -121,7 +121,7 @@
                     <tr>
                         <th><?php _e( 'Servers:', 'redis-cache' ); ?></th>
                         <td>
-                            <ul style="margin: 0;">
+                            <ul>
                                 <?php foreach ( $diagnostics['servers'] as $node ) : ?>
                                     <li><code><?php echo esc_html( $node ); ?></code></li>
                                 <?php endforeach; ?>
@@ -195,60 +195,18 @@
 
         </div>
 
-        <br class="clearfix">
-
-        <?php if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS ) : ?>
-            <h2 class="title">
-                <?php _e( 'Redis Cache Pro', 'redis-cache' ); ?>
-            </h2>
-
-            <?php $isPhp7 = version_compare( phpversion(), '7.0', '>=' ); ?>
-            <?php $isPhpRedis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
-            <?php $phpRedisInstalled = (bool) phpversion( 'redis' ); ?>
-
-            <?php if ( $isPhp7 && $isPhpRedis311 ) : ?>
-                <p>
-                    <?php _e( 'Your site meets the system requirements for the Pro version (PHP 7+; PhpRedis 3.1.1+).', 'redis-cache' ); ?>
-                </p>
-            <?php else : ?>
-                <p>
-                    <?php _e( 'Your site <i>does not</i> meet the system requirements for the Pro version:', 'redis-cache' ); ?>
-                </p>
-
-                <ul style="padding-left: 30px; list-style: disc;">
-                    <?php if ( ! $isPhp7 ) : ?>
-                        <li>
-                            <?php printf( __( 'The current version (%s) of PHP is too old. PHP 7 or newer is required.', 'redis-cache' ), phpversion() ); ?>
-                        </li>
-                    <?php endif; ?>
-
-                    <?php if ( ! $phpRedisInstalled ) : ?>
-                        <li>
-                            <?php printf( __( 'The PhpRedis extension is not installed.', 'redis-cache' ), phpversion() ); ?>
-                        </li>
-                    <?php elseif ( ! $isPhpRedis311 ) : ?>
-                        <li>
-                            <?php printf( __( 'The current version (%s) of the PhpRedis extension is too old. PhpRedis 3.1 or newer is required.', 'redis-cache' ), phpversion( 'redis' ) ); ?>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-
-            <?php endif; ?>
-        <?php endif; ?>
+        <br>
+        <h2 class="title">
+            <?php _e( 'Diagnostics', 'redis-cache' ); ?>
+        </h2>
 
         <?php if ( isset( $_GET['diagnostics'] ) ) : ?>
-
-            <br>
-            <h2 class="title">
-                <?php _e( 'Diagnostics', 'redis-cache' ); ?>
-            </h2>
 
             <textarea class="large-text readonly" rows="20" readonly><?php include dirname( __FILE__ ) . '/diagnostics.php'; ?></textarea>
 
         <?php else : ?>
 
-            <p class="mt-5">
-                <br>
+            <p>
                 <a class="button button-secondary" href="<?php echo network_admin_url( add_query_arg( 'diagnostics', '1', $this->page ) ); ?>">
                     <?php _e( 'Show Diagnostics', 'redis-cache' ); ?>
                 </a>
@@ -258,28 +216,67 @@
 
     </div>
 
-    <div class="card">
-        <h2 class="title">
-            <?php _e( 'Redis Cache Pro', 'redis-cache' ); ?>
-        </h2>
-        <p>
-            <?php _e( '<b>A business class object cache backend.</b> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.', 'redis-cache' ); ?>
-        </p>
-        <ul>
-            <li>Rewritten for raw performance</li>
-            <li>WordPress object cache API compliant</li>
-            <li>Easy debugging &amp; logging</li>
-            <li>Cache analytics and preloading</li>
-            <li>Fully unit tested (100% code coverage)</li>
-            <li>Secure connections with TLS</li>
-            <li>Health checks via WordPress, WP CLI &amp; Debug Bar</li>
-            <li>Optimized for WooCommerce, Jetpack & Yoast SEO</li>
-        </ul>
-        <p>
-            <a class="button button-primary" target="_blank" rel="noopener" href="https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=settings">
-                <?php _e( 'Learn more', 'redis-cache' ); ?>
-            </a>
-        </p>
+    <div class="pro-version">
+
+        <div class="card">
+            <h2 class="title">
+                <?php _e( 'Redis Cache Pro', 'redis-cache' ); ?>
+            </h2>
+            <p>
+                <?php _e( '<b>A business class object cache backend.</b> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.', 'redis-cache' ); ?>
+            </p>
+            <ul>
+                <li>Rewritten for raw performance</li>
+                <li>WordPress object cache API compliant</li>
+                <li>Easy debugging &amp; logging</li>
+                <li>Cache analytics and preloading</li>
+                <li>Fully unit tested (100% code coverage)</li>
+                <li>Secure connections with TLS</li>
+                <li>Health checks via WordPress, WP CLI &amp; Debug Bar</li>
+                <li>Optimized for WooCommerce, Jetpack & Yoast SEO</li>
+            </ul>
+            <p>
+                <a class="button button-primary" target="_blank" rel="noopener" href="https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=settings">
+                    <?php _e( 'Learn more', 'redis-cache' ); ?>
+                </a>
+            </p>
+        </div>
+
+        <?php $isPhp7 = version_compare( phpversion(), '7.0', '>=' ); ?>
+        <?php $isPhpRedis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
+        <?php $phpRedisInstalled = (bool) phpversion( 'redis' ); ?>
+
+        <?php if ( $isPhp7 && $isPhpRedis311 ) : ?>
+            <p class="compatiblity">
+                <span class="dashicons dashicons-yes"></span>
+                <span><?php _e( 'Your site meets the system requirements for the Pro version.', 'redis-cache' ); ?></span>
+            </p>
+        <?php else : ?>
+            <p class="compatiblity">
+                <span class="dashicons dashicons-no"></span>
+                <span><?php _e( 'Your site <i>does not</i> meet the system requirements for the Pro version:', 'redis-cache' ); ?></span>
+            </p>
+
+            <ul>
+                <?php if ( ! $isPhp7 ) : ?>
+                    <li>
+                        <?php printf( __( 'The current version of PHP (%s) is too old. PHP 7.0 or newer is required.', 'redis-cache' ), phpversion() ); ?>
+                    </li>
+                <?php endif; ?>
+
+                <?php if ( ! $phpRedisInstalled ) : ?>
+                    <li>
+                        <?php printf( __( 'The PhpRedis extension is not installed.', 'redis-cache' ), phpversion() ); ?>
+                    </li>
+                <?php elseif ( ! $isPhpRedis311 ) : ?>
+                    <li>
+                        <?php printf( __( 'The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required.', 'redis-cache' ), phpversion( 'redis' ) ); ?>
+                    </li>
+                <?php endif; ?>
+            </ul>
+
+        <?php endif; ?>
+
     </div>
 
 </div>
