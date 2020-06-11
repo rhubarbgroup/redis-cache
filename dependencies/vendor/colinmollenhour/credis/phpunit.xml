@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<phpunit colors="true" verbose="true">
+    <testsuites>
+        <testsuite name="Basic">
+            <file>tests/CredisTest.php</file>
+            <file>tests/CredisStandaloneTest.php</file>
+        </testsuite>
+        <testsuite name="Cluster">
+            <file>tests/CredisClusterTest.php</file>
+            <file>tests/CredisStandaloneClusterTest.php</file>
+        </testsuite>
+        <testsuite name="Sentinel">
+            <file>tests/CredisSentinelTest.php</file>
+            <file>tests/CredisStandaloneSentinelTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>
