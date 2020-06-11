@@ -13,6 +13,8 @@ The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `
 - Added `Rhubarb\RedisCache` namespace to all files
 - Added support for WP 5.5's new `wp_cache_get_multi()` function
 - Added `redis_object_cache()` function to retrieve plugin instance
+- Added dropin warnings to network dashboard
+- Support overwriting existing dropin on setting screen
 - Use singleton pattern to instantiate plugin
 - Use Composer to install and load Predis
 - Use separate methods to connect with all clients
