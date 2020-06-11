@@ -23,7 +23,7 @@
                             <code><?php echo esc_html( $redisClient ); ?></code>
 
                             <?php if ( strpos( (string) $redisClient, 'predis' ) !== false ) : ?>
-                                <p class="description" style="color: #d54e21; max-width: 20rem;">
+                                <p class="description is-notice">
                                     <?php _e( 'The Predis library is no longer maintained. Consider switching over to PhpRedis to avoid compatiblity issues in the future.', 'redis-cache' ); ?>
                                 </p>
                             <?php endif; ?>
@@ -63,7 +63,7 @@
                             <code><?php echo esc_html( $redisMaxTTL ); ?></code>
 
                             <?php if ( ! is_int( $redisMaxTTL ) && ! ctype_digit( $redisMaxTTL ) ) : ?>
-                                <p class="description" style="color: #d54e21;">
+                                <p class="description is-notice">
                                     <?php _e( 'This doesn’t appear to be a valid number.', 'redis-cache' ); ?>
                                 </p>
                             <?php endif; ?>

@@ -9,6 +9,11 @@
     margin: 0;
 }
 
+.settings_page_redis-cache .form-table .description.is-notice {
+    max-width: 25rem;
+    color: #d54e21;
+}
+
 .settings_page_redis-cache .card ul {
     list-style: circle;
     padding-left: 25px;
