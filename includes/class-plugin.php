@@ -33,12 +33,17 @@ class Plugin {
         $this->page = is_multisite() ? 'settings.php?page=redis-cache' : 'options-general.php?page=redis-cache';
 
         add_action( 'deactivate_plugin', array( $this, 'on_deactivation' ) );
+
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', array( $this, 'add_admin_menu_page' ) );
+
         add_action( 'admin_notices', array( $this, 'show_admin_notices' ) );
+
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
         add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
+
         add_action( 'wp_head', array( $this, 'register_shutdown_hooks' ) );
         add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
 
@@ -260,7 +265,6 @@ class Plugin {
             $url = wp_nonce_url( network_admin_url( add_query_arg( 'action', 'update-dropin', $this->page ) ), 'update-dropin' );
 
             if ( $this->validate_object_cache_dropin() ) {
-
                 $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
                 $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
 
