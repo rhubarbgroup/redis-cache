@@ -37,6 +37,7 @@ class Plugin {
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', array( $this, 'add_admin_menu_page' ) );
 
         add_action( 'admin_notices', array( $this, 'show_admin_notices' ) );
+        add_action( 'network_admin_notices', array( $this, 'show_admin_notices' ) );
 
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
@@ -390,7 +391,7 @@ class Plugin {
             return;
         }
 
-        if ( ! in_array( $screen->id, array( 'dashboard' ) ) ) {
+        if ( ! in_array( $screen->id, array( 'dashboard', 'dashboard-network' ) ) ) {
             return;
         }
 
