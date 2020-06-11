@@ -269,12 +269,10 @@ class Plugin {
                 $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
 
                 if ( version_compare( $dropin['Version'], $plugin['Version'], '<' ) ) {
-                    $message = sprintf( __( 'The Redis object cache drop-in is outdated. Please <a href="%s">update it now</a>.', 'redis-cache' ), $url );
+                    $message = sprintf( __( 'The Redis object cache drop-in is outdated. Please <a href="%s">update the dropin</a>.', 'redis-cache' ), $url );
                 }
             } else {
-
-                $message = sprintf( __( 'An unknown object cache drop-in was found. To use Redis, <a href="%s">please replace it now</a>.', 'redis-cache' ), $url );
-
+                $message = sprintf( __( 'An unknown object cache drop-in was found. To use Redis, <a href="%s">enable the dropin</a>.', 'redis-cache' ), $url );
             }
 
             if ( isset( $message ) ) {
