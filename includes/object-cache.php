@@ -767,15 +767,19 @@ class WP_Object_Cache {
         // save if group not excluded and redis is up
         if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
             try {
-                $exists = $this->redis->exists( $derived_key );
-
-                if ( $add == $exists ) {
-                    return false;
-                }
-
                 $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
 
-                if ( $expiration ) {
+                if ( $add ) {
+                    if ( $this->redis instanceof Predis\Client ) {
+                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ), 'nx', 'ex', $expiration ) );
+                    } else {
+                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ), [ 'nx', 'ex' => $expiration ] ) );
+                    }
+
+                    if ( ! $result ) {
+                        return false;
+                    }
+                } elseif ( $expiration ) {
                     $result = $this->parse_redis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
                 } else {
                     $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
