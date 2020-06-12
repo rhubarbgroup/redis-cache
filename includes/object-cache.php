@@ -254,13 +254,6 @@ class WP_Object_Cache {
     private $redis_version = null;
 
     /**
-     * Used to track redis features without excessive usage of version_compare()
-     *
-     * @var array
-     */
-    private $redis_supports = [];
-
-    /**
      * Track if Redis is available
      *
      * @var bool
@@ -421,9 +414,6 @@ class WP_Object_Cache {
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
         }
-
-        // SET command with the EX, PX, NX and XX option requires redis version >= 2.6.12.
-        $this->redis_supports['advanced_set_options'] = version_compare( $this->redis_version(), '2.6.12', '>=' );
 
         // Assign global and blog prefixes for use with keys
         if ( function_exists( 'is_multisite' ) ) {
@@ -780,26 +770,14 @@ class WP_Object_Cache {
                 $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
 
                 if ( $add ) {
-                    if ( $this->redis_supports['advanced_set_options'] ) {
-                        if ( $this->redis instanceof Predis\Client ) {
-                            $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ), 'nx', 'ex', $expiration ) );
-                        } else {
-                            $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ), [ 'nx', 'ex' => $expiration ] ) );
-                        }
-
-                        if ( ! $result ) {
-                            return false;
-                        }
-
+                    if ( $this->redis instanceof Predis\Client ) {
+                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ), 'nx', 'ex', $expiration ) );
                     } else {
-                        $result = $this->parse_redis_response( $this->redis->setnx( $derived_key, $this->maybe_serialize( $value ) ) );
-                        if ( ! $result ) {
-                            return false;
-                        }
-    
-                        if ( $expiration ) {
-                            $this->redis->expire( $derived_key, $expiration );
-                        }
+                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ), [ 'nx', 'ex' => $expiration ] ) );
+                    }
+
+                    if ( ! $result ) {
+                        return false;
                     }
                 } elseif ( $expiration ) {
                     $result = $this->parse_redis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
