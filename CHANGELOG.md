@@ -21,6 +21,7 @@ The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `
 - Removed `CUSTOM_USER_TABLE` and `CUSTOM_USER_META_TABLE` weirdness
 - Added `themes` as ignored group
 - Changed default connection and read timeout to 1 second
+- Prevent race condition in `add_or_replace()`
 
 ## 1.6.3
 
