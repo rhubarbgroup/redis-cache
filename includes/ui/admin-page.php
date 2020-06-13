@@ -226,13 +226,14 @@
             </p>
             <ul>
                 <li>Rewritten for raw performance</li>
-                <li>WordPress object cache API compliant</li>
+                <li>100% WordPress API compliant</li>
+                <li>Faster serialization and compression</li>
                 <li>Easy debugging &amp; logging</li>
                 <li>Cache analytics and preloading</li>
                 <li>Fully unit tested (100% code coverage)</li>
                 <li>Secure connections with TLS</li>
-                <li>Health checks via WordPress, WP CLI &amp; Debug Bar</li>
-                <li>Optimized for WooCommerce, Jetpack & Yoast SEO</li>
+                <li>Health checks via WordPress &amp; WP CLI</li>
+                <li>Optimized for WooCommerce, Jetpack &amp; Yoast SEO</li>
             </ul>
             <p>
                 <a class="button button-primary" target="_blank" rel="noopener" href="https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=settings">

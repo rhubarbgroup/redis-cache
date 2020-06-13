@@ -10,12 +10,13 @@ Forked from Eric Mann's and Erick Hitter's [Redis Object Cache](https://github.c
 A **business class** Redis object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.
 
 * Rewritten for raw performance
-* WordPress object cache API compliant
+* 100% WordPress API compliant
+* Faster serialization and compression
 * Easy debugging & logging
 * Cache analytics and preloading
 * Fully unit tested (100% code coverage)
 * Secure connections with TLS
-* Health checks via WordPress, WP CLI & Debug Bar
+* Health checks via WordPress & WP CLI
 * Optimized for WooCommerce, Jetpack & Yoast SEO
 
 Learn more about [Redis Cache Pro](https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=readme).
