@@ -684,10 +684,7 @@ class WP_Object_Cache {
         if ( ( defined( 'WP_REDIS_SHARDS' ) || defined( 'WP_REDIS_SENTINEL' ) || defined( 'WP_REDIS_SERVERS' ) || defined( 'WP_REDIS_CLUSTER' ) ) && ! class_exists( 'Credis_Cluster' ) ) {
             $to_load[] = 'Cluster.php';
 
-            if ( true
-                && defined( 'WP_REDIS_SENTINEL' )
-                && ! class_exists( 'Credis_Sentinel' )
-            ) {
+            if ( defined( 'WP_REDIS_SENTINEL' ) && ! class_exists( 'Credis_Sentinel' ) ) {
                 $to_load[] = 'Sentinel.php';
             }
         }
