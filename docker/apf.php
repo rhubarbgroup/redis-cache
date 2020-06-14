@@ -1,7 +1,7 @@
 <?php
 
 $constants = [
-    'WP_REDIS_HOST' => 'redis_master',
+    'WP_REDIS_HOST' => 'redis-master',
 ];
 
 foreach ( $constants as $constant => $value ) {

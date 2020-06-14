@@ -25,8 +25,6 @@ services:
             WORDPRESS_DATABASE_USER: bn_wordpress
             WORDPRESS_DATABASE_NAME: bitnami_wordpress
             ALLOW_EMPTY_PASSWORD: "yes"
-            WORDPRESS_EXTRA_WP_CONFIG_CONTENT: |
-                define( 'WP_REDIS_HOST', 'redis-master' );
     redis-master:
         build: docker/redis
     redis-slave:
@@ -46,6 +44,4 @@ volumes:
     mariadb_data:
         driver: local
     wordpress_data:
-        driver: local
-    plugin_data:
         driver: local
