@@ -219,10 +219,10 @@
 
         <div class="card">
             <h2 class="title">
-                <?php esc_html_e( 'Redis Cache Pro', 'redis-cache' ); ?>
+                Redis Cache Pro
             </h2>
             <p>
-                <?php wp_kses_post( __( '<b>A business class object cache backend.</b> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.', 'redis-cache' ) ); ?>
+                <b>A business class object cache backend.</b> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.
             </p>
             <ul>
                 <li>Rewritten for raw performance</li>
