@@ -577,6 +577,10 @@ class WP_Object_Cache
                     if (defined('WP_REDIS_PASSWORD') && defined($constant)) {
                         $options['parameters']['password'] = WP_REDIS_PASSWORD;
                     }
+
+                    if (defined('WP_REDIS_DATABASE') && defined($constant)) {
+                        $options['parameters']['database'] = WP_REDIS_DATABASE;
+                    }
                 }
 
                 $this->redis = new Predis\Client($parameters, $options);
