@@ -1092,7 +1092,7 @@ LUA;
             $found = true;
             $this->cache_hits++;
 
-            return $this->get_from_internal_cache( $derived_key, $group );
+            return $this->get_from_internal_cache( $derived_key );
         } elseif ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             $found = false;
             $this->cache_misses++;
@@ -1266,7 +1266,7 @@ LUA;
 
         // If group is a non-Redis group, save to internal cache, not Redis
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
-            $value = $this->get_from_internal_cache( $derived_key, $group );
+            $value = $this->get_from_internal_cache( $derived_key );
             $value += $offset;
             $this->add_to_internal_cache( $derived_key, $value );
 
@@ -1313,7 +1313,7 @@ LUA;
 
         // If group is a non-Redis group, save to internal cache, not Redis
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
-            $value = $this->get_from_internal_cache( $derived_key, $group );
+            $value = $this->get_from_internal_cache( $derived_key );
             $value -= $offset;
             $this->add_to_internal_cache( $derived_key, $value );
 
@@ -1461,11 +1461,10 @@ LUA;
      * Get a value specifically from the internal, run-time cache, not Redis.
      *
      * @param   int|string $derived_key Key value.
-     * @param   int|string $group       Group that the value belongs to.
      *
      * @return  bool|mixed              Value on success; false on failure.
      */
-    public function get_from_internal_cache( $derived_key, $group ) {
+    public function get_from_internal_cache( $derived_key ) {
         if ( ! isset( $this->cache[ $derived_key ] ) ) {
             return false;
         }
