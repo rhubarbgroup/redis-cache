@@ -14,6 +14,7 @@ The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `
 - Added support for WP 5.5's new `wp_cache_get_multi()` function
 - Added `redis_object_cache()` function to retrieve plugin instance
 - Added dropin warnings to network dashboard
+- Added support for setting Sentinel database numbers
 - Support overwriting existing dropin on setting screen
 - Use singleton pattern to instantiate plugin
 - Use Composer to install and load Predis
@@ -23,6 +24,7 @@ The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `
 - Changed default connection and read timeout to 1 second
 - Prevent race condition in `add_or_replace()`
 - Renamed `WP_CACHE_KEY_SALT` to `WP_REDIS_PREFIX` for clarity
+- Replaced "slave" terminology with "replica"
 
 ## 1.6.3
 
