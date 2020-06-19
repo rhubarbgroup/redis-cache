@@ -1177,6 +1177,7 @@ LUA;
             $cache = $this->redis->mget( array_values( $derived_keys ) );
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
+
             $cache = array_fill( 0, count( $derived_keys ) - 1, false );
         }
 
