@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.5'
 services:
     mariadb:
         image: 'bitnami/mariadb:10.3'
@@ -16,7 +16,6 @@ services:
         volumes:
             - 'wordpress_data:/bitnami/wordpress'
             - '.:/redis-cache:ro'
-            - './docker/apf.php:/apf.php:ro'
         depends_on:
             - mariadb
         environment:

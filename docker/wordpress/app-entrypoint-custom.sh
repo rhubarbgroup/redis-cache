@@ -14,20 +14,27 @@ if [[ "$1" == "nami" && "$2" == "start" ]] || [[ "$1" == "httpd" ]]; then
 fi
 
 # Additional custom actions
-plugin_source_dir="/redis-cache"
-plugin_target_dir="/opt/bitnami/wordpress/wp-content/plugins/redis-cache"
-php_ini_path="/opt/bitnami/php/etc/php.ini"
+PLUGIN_SOURCE_DIR="/redis-cache"
+PLUGIN_TARGET_DIR="/opt/bitnami/wordpress/wp-content/plugins/redis-cache"
+PHP_INI_PATH="/opt/bitnami/php/etc/php.ini"
 
 ## Symlink generation
-ln -s "$plugin_source_dir" "$plugin_target_dir"
+if [ ! -L "$PLUGIN_TARGET_DIR" ]; then
+    ln -s "$PLUGIN_SOURCE_DIR" "$PLUGIN_TARGET_DIR"
+fi
 
 ## Set APF file
-cp "$php_ini_path" "$php_ini_path-original"
-temp_file=$(mktemp)
-awk '{gsub(/^auto_prepend_file =/,"& \"/apf.php\"",$0)}1' "$php_ini_path" \
-    > "$temp_file" \
-    && mv "$temp_file" "$php_ini_path"
-info "Set PHP auto prepend file"
+if [ -f "/redis-cache/docker/apf.php" ]; then
+    cp "$PHP_INI_PATH" "$PHP_INI_PATH-original"
+    TF=$(mktemp)
+    awk '{gsub(/^auto_prepend_file =/,"& \"/redis-cache/docker/apf.php\"",$0)}1' "$PHP_INI_PATH" \
+        > "$TF" \
+        && mv "$TF" "$PHP_INI_PATH"
+    info "Set PHP auto prepend file"
+else
+    error "Unable to set PHP auto prepend file"
+    ls -lah /redis-cache/docker | grep 'apf.php'
+fi
 
 ## Activates the newly copied plugin
 info "Activating plugin and enabling dropin"
