@@ -618,9 +618,10 @@ class WP_Object_Cache {
             $parameters['read_write_timeout'] = $parameters['read_timeout'];
         }
 
-        foreach (array('WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER') as $constant) {
-            if ( defined ( $constant ) ) {
+        foreach ( array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant ) {
+            if ( defined( $constant ) ) {
                 $options['parameters']['database'] = $parameters['database'];
+
                 if ( isset( $parameters['password'] ) ) {
                     $options['parameters']['password'] = WP_REDIS_PASSWORD;
                 }
@@ -772,9 +773,20 @@ class WP_Object_Cache {
 
                 if ( $add ) {
                     if ( $this->redis instanceof Predis\Client ) {
-                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ), 'nx', 'ex', $expiration ) );
+                        $result = $this->parse_redis_response(
+                            $this->redis->set( $derived_key, $this->maybe_serialize( $value ), 'nx', 'ex', $expiration )
+                        );
                     } else {
-                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ), [ 'nx', 'ex' => $expiration ] ) );
+                        $result = $this->parse_redis_response(
+                            $this->redis->set(
+                                $derived_key,
+                                $this->maybe_serialize( $value ),
+                                [
+                                    'nx',
+                                    'ex' => $expiration,
+                                ]
+                            )
+                        );
                     }
 
                     if ( ! $result ) {
