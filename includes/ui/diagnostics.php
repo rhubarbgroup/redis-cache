@@ -74,7 +74,6 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
     $password = WP_REDIS_PASSWORD;
 
     if ( is_array( $password ) ) {
-
         if ( isset( $password[1] ) && ! is_null( $password[1] ) && $password[1] !== '' ) {
             $password[1] = str_repeat( '•', 8 );
         }
