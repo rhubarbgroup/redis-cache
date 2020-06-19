@@ -157,17 +157,17 @@ For replication use the `WP_REDIS_SERVERS` constant, for sharding the `WP_REDIS_
 
 For authentication use the `WP_REDIS_PASSWORD` constant.
 
-__Replication (Master-Slave):__
+__Replication (Master-Replica):__
 
     define( 'WP_REDIS_SERVERS', [
         'tcp://127.0.0.1:6379?database=5&alias=master',
-        'tcp://127.0.0.2:6379?database=5&alias=slave-01',
+        'tcp://127.0.0.2:6379?database=5&alias=replica-01',
     ] );
 
-__Replication (Redis Sentinel):__
+__Replication (Sentinel):__
 
     define( 'WP_REDIS_CLIENT', 'predis' );
-    define( 'WP_REDIS_SENTINEL', 'mymaster' );
+    define( 'WP_REDIS_SENTINEL', 'my-sentinel' );
     define( 'WP_REDIS_SERVERS', [
         'tcp://127.0.0.1:5380',
         'tcp://127.0.0.2:5381',
