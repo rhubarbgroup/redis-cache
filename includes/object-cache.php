@@ -1150,11 +1150,17 @@ LUA;
             return false;
         }
 
-        $cache = array();
-
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
+            $cache = array();
+
             foreach ( $keys as $key ) {
-                $cache[ $key ] = $this->get( $key, $group, $force );
+                $cache[ $key ] = $this->get_from_internal_cache( $this->build_key( $key, $group ) );
+
+                if ( $cache[ $key ] !== false ) {
+                    $this->cache_hits++;
+                } else {
+                    $this->cache_misses++;
+                }
             }
 
             return $cache;
