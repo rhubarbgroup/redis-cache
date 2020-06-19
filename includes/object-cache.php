@@ -618,9 +618,10 @@ class WP_Object_Cache {
             $parameters['read_write_timeout'] = $parameters['read_timeout'];
         }
 
-        if ( isset( $parameters['password'] ) ) {
-            foreach ( array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant ) {
-                if ( defined( $constant ) ) {
+        foreach (array('WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER') as $constant) {
+            if ( defined ( $constant ) ) {
+                $options['parameters']['database'] = $parameters['database'];
+                if ( isset( $parameters['password'] ) ) {
                     $options['parameters']['password'] = WP_REDIS_PASSWORD;
                 }
             }
