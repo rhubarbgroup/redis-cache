@@ -773,7 +773,16 @@ class WP_Object_Cache {
                     if ( $this->redis instanceof Predis\Client ) {
                         $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ), 'nx', 'ex', $expiration ) );
                     } else {
-                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ), [ 'nx', 'ex' => $expiration ] ) );
+                        $result = $this->parse_redis_response(
+                            $this->redis->set(
+                                $derived_key,
+                                $this->maybe_serialize( $value ),
+                                [
+                                    'nx',
+                                    'ex' => $expiration,
+                                ]
+                            )
+                        );
                     }
 
                     if ( ! $result ) {
@@ -1127,68 +1136,76 @@ LUA;
      *                      from the persistent cache. Default false.
      * @return array Array of values organized into groups.
      */
-    public function get_multiple($keys, $group = 'default', $force = false)
-    {
-        if (! is_array($keys)) {
+    public function get_multiple( $keys, $group = 'default', $force = false ) {
+        if ( ! is_array( $keys ) ) {
             return false;
         }
 
-        if ($this->is_ignored_group($group) || ! $this->redis_status()) {
-            return array_map(function ($key) use ($group) {
-                return $this->get_from_internal_cache(
-                    $this->build_key($key, $group),
-                    $group
-                );
-            }, $keys);
+        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
+            return array_map(
+                function ( $key ) use ( $group ) {
+                    return $this->get_from_internal_cache(
+                        $this->build_key( $key, $group ),
+                        $group
+                    );
+                },
+                $keys
+            );
         }
 
-        $start_time = microtime(true);
+        $start_time = microtime( true );
 
         $cache = [];
-        $derived_keys = array_map(function ($key) use ($group) {
-            return $this->build_key($key, $group);
-        }, $keys);
+        $derived_keys = array_map(
+            function ( $key ) use ( $group ) {
+                return $this->build_key( $key, $group );
+            },
+            $keys
+        );
 
         /**
          * Keep only keys that are not already cached.
          */
-        if ($force) {
-            $derived_keys = array_filter($derived_keys, function ($derived_key) use ($group) {
-                return $this->get_from_internal_cache($derived_key, $group) === false;
-            });
+        if ( $force ) {
+            $derived_keys = array_filter(
+                $derived_keys,
+                function ( $derived_key ) use ( $group ) {
+                    return $this->get_from_internal_cache( $derived_key, $group ) === false;
+                }
+            );
         }
 
         try {
-            $cache = $this->redis->mget(array_values($derived_keys))
+            $cache = $this->redis->mget( array_values( $derived_keys ) );
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
-            $cache = array_fill(0, count($derived_keys) - 1, false);
+            $cache = array_fill( 0, count( $derived_keys ) - 1, false );
         }
 
-        $cache = array_combine($keys, $cache);
+        $cache = array_combine( $keys, $cache );
 
-        foreach ($cache as $key => $value) {
+        foreach ( $cache as $key => $value ) {
             if ( $value ) {
                 $this->cache_hits++;
-                $this->add_to_internal_cache($derived_keys[$key], $value);
+                $this->add_to_internal_cache( $derived_keys[ $key ], $value );
             } else {
                 $this->cache_misses++;
             }
         }
 
-        $cache = array_map([$this, 'maybe_unserialize'], $cache);
+        $cache = array_map( [ $this, 'maybe_unserialize' ], $cache );
 
-        if (function_exists( 'do_action' )) {
-            $execute_time = microtime(true) - $start_time;
+        if ( function_exists( 'do_action' ) ) {
+            $execute_time = microtime( true ) - $start_time;
 
-            do_action('redis_object_cache_get_multi', $keys, $cache, $group, $force, $execute_time);
+            do_action( 'redis_object_cache_get_multi', $keys, $cache, $group, $force, $execute_time );
         }
 
-        if (function_exists( 'apply_filters') && function_exists('has_filter')) {
-            if (has_filter( 'redis_object_cache_get_value' )) {
-                foreach ($cache as $key => $value) {
-                    $cache[$key] = apply_filters('redis_object_cache_get_value', $value, $key, $group, $force);
+        if ( function_exists( 'apply_filters' ) && function_exists( 'has_filter' ) ) {
+            if ( has_filter( 'redis_object_cache_get_value' ) ) {
+                foreach ( $cache as $key => $value ) {
+                    $cache[ $key ] = apply_filters( 'redis_object_cache_get_value', $value, $key, $group, $force );
                 }
             }
         }
@@ -1331,9 +1348,7 @@ LUA;
      *
      * @return string
      */
-    public function stats()
-    {
-        ?>
+    public function stats() {         ?>
 
         <p>
             <strong>Redis Status:</strong> <?php echo $this->redis_status() ? 'Connected' : 'Not Connected'; ?><br />
@@ -1343,10 +1358,11 @@ LUA;
         </p>
 
         <ul>
-            <?php foreach ($this->cache as $group => $cache) : ?>
-                <li><?php printf('%s - %sk', strip_tags($group), number_format(strlen(serialize($cache)) / 1024, 2)); ?></li>
+            <?php foreach ( $this->cache as $group => $cache ) : ?>
+                <li><?php printf( '%s - %sk', strip_tags( $group ), number_format( strlen( serialize( $cache ) ) / 1024, 2 ) ); ?></li>
             <?php endforeach; ?>
-        </ul><?php
+        </ul>
+        <?php
     }
 
     /**
