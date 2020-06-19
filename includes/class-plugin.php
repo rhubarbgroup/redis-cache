@@ -242,8 +242,8 @@ class Plugin {
         }
     }
 
-    public function get_redis_cachekey_prefix() {
-        return defined( 'WP_CACHE_KEY_SALT' ) ? WP_CACHE_KEY_SALT : null;
+    public function get_redis_prefix() {
+        return defined( 'WP_REDIS_PREFIX' ) ? WP_REDIS_PREFIX : null;
     }
 
     public function get_redis_maxttl() {

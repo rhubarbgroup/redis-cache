@@ -82,7 +82,7 @@ function wp_cache_delete( $key, $group = '', $time = 0 ) {
 
 /**
  * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
- * only keys prefixed with the `WP_CACHE_KEY_SALT` are flushed.
+ * only keys prefixed with the `WP_REDIS_PREFIX` are flushed.
  *
  * @param int $delay  Number of seconds to wait before invalidating the items.
  *
@@ -150,7 +150,12 @@ function wp_cache_incr( $key, $offset = 1, $group = '' ) {
  * @return  void
  */
 function wp_cache_init() {
-     global $wp_object_cache;
+    global $wp_object_cache;
+
+    // backwards compatibility: map `WP_CACHE_KEY_SALT` constant to `WP_REDIS_PREFIX`
+    if ( defined( 'WP_CACHE_KEY_SALT' ) && ! defined( 'WP_REDIS_PREFIX' ) ) {
+        define( 'WP_REDIS_PREFIX', WP_CACHE_KEY_SALT );
+    }
 
     if ( ! ( $wp_object_cache instanceof WP_Object_Cache ) ) {
         $fail_gracefully = ! defined( 'WP_REDIS_GRACEFUL' ) || WP_REDIS_GRACEFUL;
@@ -855,7 +860,7 @@ class WP_Object_Cache {
 
     /**
      * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
-     * only keys prefixed with the `WP_CACHE_KEY_SALT` are flushed.
+     * only keys prefixed with the `WP_REDIS_PREFIX` are flushed.
      *
      * @param   int $delay      Number of seconds to wait before invalidating the items.
      * @return  bool            Returns TRUE on success or FALSE on failure.
@@ -871,7 +876,7 @@ class WP_Object_Cache {
         $this->cache = array();
 
         if ( $this->redis_status() ) {
-            $salt = defined( 'WP_CACHE_KEY_SALT' ) ? trim( WP_CACHE_KEY_SALT ) : null;
+            $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : null;
             $selective = defined( 'WP_REDIS_SELECTIVE_FLUSH' ) ? WP_REDIS_SELECTIVE_FLUSH : null;
 
             $start_time = microtime( true );
@@ -1365,7 +1370,7 @@ LUA;
             $group = 'default';
         }
 
-        $salt = defined( 'WP_CACHE_KEY_SALT' ) ? trim( WP_CACHE_KEY_SALT ) : '';
+        $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
         $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
 
         $key = $this->sanitize_key_part( $key );

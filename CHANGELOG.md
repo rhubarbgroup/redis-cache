@@ -22,6 +22,7 @@ The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `
 - Added `themes` as ignored group
 - Changed default connection and read timeout to 1 second
 - Prevent race condition in `add_or_replace()`
+- Renamed `WP_CACHE_KEY_SALT` to `WP_REDIS_PREFIX` for clarity
 
 ## 1.6.3
 

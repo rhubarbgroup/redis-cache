@@ -13,7 +13,7 @@
 
                 <?php $redisClient = $this->get_redis_client_name(); ?>
                 <?php $redisDropin = $this->validate_object_cache_dropin(); ?>
-                <?php $redisPrefix = $this->get_redis_cachekey_prefix(); ?>
+                <?php $redisPrefix = $this->get_redis_prefix(); ?>
                 <?php $redisMaxTTL = $this->get_redis_maxttl(); ?>
 
                 <?php if ( ! is_null( $redisClient ) ) : ?>
