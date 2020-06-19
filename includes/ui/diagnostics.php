@@ -70,8 +70,19 @@ foreach ( $constants as $constant ) {
     }
 }
 
-if ( defined( 'WP_REDIS_PASSWORD' ) && ! is_null( WP_REDIS_PASSWORD ) && WP_REDIS_PASSWORD !== '' ) {
-    $info['WP_REDIS_PASSWORD'] = str_repeat( '•', 8 );
+if ( defined( 'WP_REDIS_PASSWORD' ) ) {
+    $password = WP_REDIS_PASSWORD;
+
+    if ( is_array( $password ) ) {
+
+        if ( isset( $password[1] ) && ! is_null( $password[1] ) && $password[1] !== '' ) {
+            $password[1] = str_repeat( '•', 8 );
+        }
+
+        $info[ 'WP_REDIS_PASSWORD' ] = json_encode( $password );
+    } elseif ( ! is_null( $password ) && $password !== '' ) {
+        $info[ 'WP_REDIS_PASSWORD' ] = str_repeat( '•', 8 );
+    }
 }
 
 if ( $dropin ) {

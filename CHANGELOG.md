@@ -15,6 +15,7 @@ The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `
 - Added `redis_object_cache()` function to retrieve plugin instance
 - Added dropin warnings to network dashboard
 - Added support for setting Sentinel database numbers
+- Support Redis 6 ACL username and password authentication
 - Support overwriting existing dropin on setting screen
 - Use singleton pattern to instantiate plugin
 - Use Composer to install and load Predis

@@ -81,7 +81,7 @@ To adjust the connection parameters, define any of the following constants in yo
 
   * `WP_REDIS_PASSWORD` (default: _not set_)
 
-      Accepts a value used to authenticate with a Redis server protected by password with the `AUTH` command.
+      Accepts a value used to authenticate with a Redis server protected by password with the `AUTH` command. To use Redis 6's ACL, set this to a `['username', 'password']` array.
 
   * `WP_REDIS_TIMEOUT` (default: `5`)
 
