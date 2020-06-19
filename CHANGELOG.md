@@ -1,5 +1,28 @@
 # Changelog
 
+## [Unreleased]
+
+Version 2.0 is a significant rewrite. The plugin now requires PHP 5.6, just like WordPress 5.2 does.
+
+The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `rhubarbgroup/redis-cache`.
+
+- Require PHP 5.6
+- Plugin is now "network-only"
+- Switch to WPCS for code standards
+- Overhauled the settings screen
+- Added `Rhubarb\RedisCache` namespace to all files
+- Added support for WP 5.5's new `wp_cache_get_multi()` function
+- Added `redis_object_cache()` function to retrieve plugin instance
+- Added dropin warnings to network dashboard
+- Support overwriting existing dropin on setting screen
+- Use singleton pattern to instantiate plugin
+- Use Composer to install and load Predis
+- Use separate methods to connect with all clients
+- Removed `CUSTOM_USER_TABLE` and `CUSTOM_USER_META_TABLE` weirdness
+- Added `themes` as ignored group
+- Changed default connection and read timeout to 1 second
+- Prevent race condition in `add_or_replace()`
+
 ## 1.6.3
 
 - Improved registration of `shutdown` callback

@@ -4,7 +4,7 @@ Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, predis, phpredis, hhvm, pecl, caching, cache, object cache, performance, replication, clustering, keydb
 Requires at least: 3.3
 Tested up to: 5.4
-Requires PHP: 5.4
+Requires PHP: 5.6
 Stable tag: 1.6.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,12 +25,13 @@ Forked from Eric Mann's and Erick Hitter's [Redis Object Cache](https://github.c
 A **business class** Redis object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.
 
 * Rewritten for raw performance
-* WordPress object cache API compliant
+* 100% WordPress API compliant
+* Faster serialization and compression
 * Easy debugging & logging
 * Cache analytics and preloading
 * Fully unit tested (100% code coverage)
 * Secure connections with TLS
-* Health checks via WordPress, WP CLI & Debug Bar
+* Health checks via WordPress & WP CLI
 * Optimized for WooCommerce, Jetpack & Yoast SEO
 
 Learn more about [Redis Cache Pro](https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=readme).
@@ -56,7 +57,7 @@ To adjust the connection parameters, define any of the following constants in yo
 
   * `WP_REDIS_CLIENT` (default: _not set_)
 
-      Specifies the client used to communicate with Redis. Supports `hhvm`, `pecl` and `predis`.
+      Specifies the client used to communicate with Redis. Supports `predis`, `phpredis` and `hhvm`.
 
   * `WP_REDIS_SCHEME` (default: `tcp`)
 
@@ -146,6 +147,7 @@ To adjust the configuration, define any of the following constants in your `wp-c
   * `WP_REDIS_DISABLE_COMMENT` (default: _not set_)
 
     Set to `true` to disable the HTML footer comment and it's optional debugging information when `WP_DEBUG` is enabled.
+
 
 == Replication & Clustering ==
 
