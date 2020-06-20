@@ -757,7 +757,7 @@ class WP_Object_Cache {
         $this->redis->connect();
 
         $this->diagnostics = array_merge(
-            [ 'client' => $client ], // Sadly Credis provides no version information.
+            [ 'client' => $client . sprintf( ' (v%s)', Credis_Client::VERSION ) ],
             $args
         );
     }
