@@ -777,22 +777,32 @@ class WP_Object_Cache {
                 $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
 
                 if ( $add ) {
+                    $args = [
+                        $derived_key,
+                        $this->maybe_serialize( $value ),
+                    ];
+                    // Determine method call depending on library.
                     if ( $this->redis instanceof Predis\Client ) {
-                        $result = $this->parse_redis_response(
-                            $this->redis->set( $derived_key, $this->maybe_serialize( $value ), 'nx', 'ex', $expiration )
-                        );
+                        $args[] = 'nx';
+                        if ( $expiration ) {
+                            $args[] = 'ex';
+                            $args[] = $expiration;
+                        }
                     } else {
-                        $result = $this->parse_redis_response(
-                            $this->redis->set(
-                                $derived_key,
-                                $this->maybe_serialize( $value ),
-                                [
-                                    'nx',
-                                    'ex' => $expiration,
-                                ]
-                            )
-                        );
+                        $options = [
+                            'nx',
+                        ];
+                        if ( $expiration ) {
+                            $options['ex'] = $expiration;
+                        }
+                        $args[] = $options;
                     }
+                    $result = $this->parse_redis_response(
+                        call_user_func_array(
+                            [ $this->redis, 'set' ],
+                            $args
+                        )
+                    );
 
                     if ( ! $result ) {
                         return false;
