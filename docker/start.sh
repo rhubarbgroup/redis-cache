@@ -26,7 +26,10 @@ function stop {
 
 # Modifies the auto-prepend-file
 function apf {
-    echo $@
+    echo "APF-Constant $@"
+    if [ ! -f "$DIR/apf.php" ]; then
+        cp "$DIR/apf-template.php" "$DIR/apf.php"
+    fi
     TF=$(mktemp)
     sed '/\s*'\'$1\''\s*=>.*$/d' "$DIR/apf.php" > "$TF"
     if [[ '--remove' != $2 ]]; then
@@ -55,21 +58,29 @@ function dcip {
     echo $HIP | tr -d '\r'
 }
 
+# Restarts apache in the wordpress container
+function restart_apache {
+    echo "Restarting Apache"
+    compose exec wordpress apachectl restart
+}
+
 case $1 in
 
     ""|"-"|"simple"|"default"|"up"|"start")
         start 1 0 0 ${@:2}
         apf WP_REDIS_HOST redis-master
+        restart_apache
         ;;
 
     "replication"|"repl")
         start 1 3 0 ${@:2}
         apf WP_REDIS_HOST --remove
         apf WP_REDIS_SERVERS \
-            tcp://$(dcip redis-master):6379?alias=master \
+            tcp://redis-master:6379?alias=master \
             tcp://$(dcip redis-slave 1):6379?alias=slave-01 \
             tcp://$(dcip redis-slave 2):6379?alias=slave-02 \
             tcp://$(dcip redis-slave 3):6379?alias=slave-03
+        restart_apache
         ;;
 
     "sentinel"|"sent")
@@ -81,6 +92,7 @@ case $1 in
             tcp://$(dcip redis-sentinel 3):26379
         apf WP_REDIS_CLIENT predis
         apf WP_REDIS_SENTINEL master
+        restart_apache
         ;;
 
     "shard"|"sharding")
@@ -90,6 +102,7 @@ case $1 in
             tcp://$(dcip redis-master 1):6379?alias=shard-01 \
             tcp://$(dcip redis-master 2):6379?alias=shard-02 \
             tcp://$(dcip redis-master 3):6379?alias=shard-03
+        restart_apache
         ;;
 
     "cluster"|"clustering")
@@ -99,6 +112,7 @@ case $1 in
             tcp://$(dcip redis-master 1):6379?alias=node-01 \
             tcp://$(dcip redis-master 2):6379?alias=node-02 \
             tcp://$(dcip redis-master 3):6379?alias=node-03
+        restart_apache
         ;;
 
     "stop"|"down")
