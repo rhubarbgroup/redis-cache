@@ -1,5 +1,47 @@
 [
     {
+        "name": "colinmollenhour/credis",
+        "version": "1.11.2",
+        "version_normalized": "1.11.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/colinmollenhour/credis.git",
+            "reference": "b8b2bd6b87d2d4df67065f3510efb80d5f9c4e53"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/colinmollenhour/credis/zipball/b8b2bd6b87d2d4df67065f3510efb80d5f9c4e53",
+            "reference": "b8b2bd6b87d2d4df67065f3510efb80d5f9c4e53",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0"
+        },
+        "time": "2020-06-15T19:25:47+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "Client.php",
+                "Cluster.php",
+                "Sentinel.php",
+                "Module.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Colin Mollenhour",
+                "email": "colin@mollenhour.com"
+            }
+        ],
+        "description": "Credis is a lightweight interface to the Redis key-value store which wraps the phpredis library when available for better performance.",
+        "homepage": "https://github.com/colinmollenhour/credis"
+    },
+    {
         "name": "predis/predis",
         "version": "v1.1.1",
         "version_normalized": "1.1.1.0",

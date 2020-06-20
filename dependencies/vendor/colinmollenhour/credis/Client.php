@@ -168,12 +168,15 @@ class CredisException extends Exception
  */
 class Credis_Client {
 
+    const VERSION          = '1.11.2';
+
     const TYPE_STRING      = 'string';
     const TYPE_LIST        = 'list';
     const TYPE_SET         = 'set';
     const TYPE_ZSET        = 'zset';
     const TYPE_HASH        = 'hash';
     const TYPE_NONE        = 'none';
+
     const FREAD_BLOCK_SIZE = 8192;
 
     /**
