@@ -27,12 +27,22 @@ function stop {
 # Modifies the auto-prepend-file
 function apf {
     echo "APF-Constant $@"
-    if [ ! -f "$DIR/apf.php" ]; then
+    # --reset
+    if [[ '--reset' == $1 ]]; then
+        apf WP_REDIS_HOST --remove
+        apf WP_REDIS_CLIENT --remove
+        apf WP_REDIS_SERVERS --remove
+        apf WP_REDIS_SENTINEL --remove
+        apf WP_REDIS_SHARDS --remove
+        apf WP_REDIS_CLUSTER --remove
+        return
+    fi
+    if [[ ! -f "$DIR/apf.php" ]]; then
         cp "$DIR/apf-template.php" "$DIR/apf.php"
     fi
     TF=$(mktemp)
     sed '/\s*'\'$1\''\s*=>.*$/d' "$DIR/apf.php" > "$TF"
-    if [[ '--remove' != $2 ]]; then
+    if [[ '--remove' != "$2" ]]; then
         TF2=$(mktemp)
         REPL=\'"$2"\'
         if [ -n "$3" ]; then
@@ -52,10 +62,7 @@ function apf {
 
 # Retrieves the IP of a docker container using its name and optionally its index
 function dcip {
-    HIP=$(
-        compose exec --index="${2:-1}" "$1" hostname -i
-    )
-    echo $HIP | tr -d '\r'
+    echo $(compose exec --index="${2:-1}" "$1" hostname -i) | tr -d '\r'
 }
 
 # Restarts apache in the wordpress container
@@ -68,15 +75,17 @@ case $1 in
 
     ""|"-"|"simple"|"default"|"up"|"start")
         start 1 0 0 ${@:2}
+        apf --reset
         apf WP_REDIS_HOST redis-master
         restart_apache
         ;;
 
     "replication"|"repl")
         start 1 3 0 ${@:2}
-        apf WP_REDIS_HOST --remove
+        apf --reset
+        apf WP_REDIS_CLIENT predis
         apf WP_REDIS_SERVERS \
-            tcp://redis-master:6379?alias=master \
+            tcp://$(dcip redis-master):6379?alias=master \
             tcp://$(dcip redis-slave 1):6379?alias=slave-01 \
             tcp://$(dcip redis-slave 2):6379?alias=slave-02 \
             tcp://$(dcip redis-slave 3):6379?alias=slave-03
@@ -85,19 +94,19 @@ case $1 in
 
     "sentinel"|"sent")
         start 1 5 3 ${@:2}
-        apf WP_REDIS_HOST --remove
+        apf --reset
+        apf WP_REDIS_CLIENT predis
+        apf WP_REDIS_SENTINEL master
         apf WP_REDIS_SERVERS \
             tcp://$(dcip redis-sentinel 1):26379 \
             tcp://$(dcip redis-sentinel 2):26379 \
             tcp://$(dcip redis-sentinel 3):26379
-        apf WP_REDIS_CLIENT predis
-        apf WP_REDIS_SENTINEL master
         restart_apache
         ;;
 
     "shard"|"sharding")
         start 3 0 0 ${@:2}
-        apf WP_REDIS_HOST --remove
+        apf --reset
         apf WP_REDIS_SHARDS \
             tcp://$(dcip redis-master 1):6379?alias=shard-01 \
             tcp://$(dcip redis-master 2):6379?alias=shard-02 \
@@ -107,7 +116,6 @@ case $1 in
 
     "cluster"|"clustering")
         start 3 0 0 ${@:2}
-        apf WP_REDIS_HOST --remove
         apf WP_REDIS_CLUSTER \
             tcp://$(dcip redis-master 1):6379?alias=node-01 \
             tcp://$(dcip redis-master 2):6379?alias=node-02 \
@@ -117,12 +125,8 @@ case $1 in
 
     "stop"|"down")
         stop ${@:1}
+        apf --reset
         apf WP_REDIS_HOST redis-master
-        apf WP_REDIS_CLIENT --remove
-        apf WP_REDIS_SENTINEL --remove
-        apf WP_REDIS_SERVERS --remove
-        apf WP_REDIS_SHARDS --remove
-        apf WP_REDIS_CLUSTER --remove
         ;;
 
     *) echo "unrecognized command $1"
