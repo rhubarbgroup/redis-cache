@@ -401,7 +401,11 @@ class WP_Object_Cache {
                 $this->redis->ping();
             }
 
-            if ( ! isset( $options['replication'] ) || ! $options['replication'] ) {
+            $options = method_exists( $this->redis, 'getOptions' )
+                ? $this->redis->getOptions()
+                : new stdClass();
+
+            if ( ! isset( $options->replication ) || ! $options->replication ) {
                 if ( defined( 'WP_REDIS_CLUSTER' ) ) {
                     $info = $this->redis->info( current( array_values( WP_REDIS_CLUSTER ) ) );
                 } else {
