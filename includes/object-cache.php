@@ -781,22 +781,26 @@ class WP_Object_Cache {
                 $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
 
                 if ( $add ) {
+                    $args = [ $derived_key, $this->maybe_serialize( $value ) ];
+
                     if ( $this->redis instanceof Predis\Client ) {
-                        $result = $this->parse_redis_response(
-                            $this->redis->set( $derived_key, $this->maybe_serialize( $value ), 'nx', 'ex', $expiration )
-                        );
+                        $args[] = 'nx';
+
+                        if ( $expiration ) {
+                            $args[] = 'ex';
+                            $args[] = $expiration;
+                        }
                     } else {
-                        $result = $this->parse_redis_response(
-                            $this->redis->set(
-                                $derived_key,
-                                $this->maybe_serialize( $value ),
-                                [
-                                    'nx',
-                                    'ex' => $expiration,
-                                ]
-                            )
-                        );
+                        if ( $expiration ) {
+                            $args[] = [ 'nx', 'ex' => $expiration ];
+                        } else {
+                            $args[] = [ 'nx' ];
+                        }
                     }
+
+                    $result = $this->parse_redis_response(
+                        $this->redis->set( ...$args )
+                    );
 
                     if ( ! $result ) {
                         return false;
