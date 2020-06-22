@@ -649,7 +649,7 @@ class WP_Object_Cache {
         $this->redis->connect();
 
         $this->diagnostics = array_merge(
-            [ 'client' => $client . sprintf( ' (v%s)', Predis\Client::VERSION ) ],
+            [ 'client' => sprintf( '%s (v%s)', $client, Predis\Client::VERSION ) ],
             $parameters,
             $options
         );
@@ -757,7 +757,7 @@ class WP_Object_Cache {
         $this->redis->connect();
 
         $this->diagnostics = array_merge(
-            [ 'client' => $client . sprintf( ' (v%s)', Credis_Client::VERSION ) ],
+            [ 'client' => sprintf( '%s (v%s)', $client, Credis_Client::VERSION ) ],
             $args
         );
     }
