@@ -1,17 +1,14 @@
 <?php
 /*
-Plugin Name: Redis Object Cache Drop-In
-Plugin URI: http://wordpress.org/plugins/redis-cache/
-Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, HHVM, replication, clustering and WP-CLI.
-Version: 1.6.3
-Author: Till Krüss
-Author URI: https://till.im/
-License: GPLv3
-License URI: http://www.gnu.org/licenses/gpl-3.0.html
-
-Based on Eric Mann's and Erick Hitter's Redis Object Cache:
-https://github.com/ericmann/Redis-Object-Cache
-*/
+ * Plugin Name: Redis Object Cache Drop-In
+ * Plugin URI: http://wordpress.org/plugins/redis-cache/
+ * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Credis, HHVM, replication, clustering and WP-CLI.
+ * Version: 1.6.3
+ * Author: Till Krüss
+ * Author URI: https://wprediscache.com
+ * License: GPLv3
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ */
 
 if ( defined( 'WP_REDIS_DISABLED' ) && ! WP_REDIS_DISABLED ) {
     return;
