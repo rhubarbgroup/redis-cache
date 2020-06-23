@@ -33,6 +33,7 @@ class Plugin {
         $this->page = is_multisite() ? 'settings.php?page=redis-cache' : 'options-general.php?page=redis-cache';
 
         add_action( 'deactivate_plugin', array( $this, 'on_deactivation' ) );
+        add_action( 'upgrader_process_complete', array( $this, 'maybe_update_dropin' ), 10, 2 );
 
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', array( $this, 'add_admin_menu_page' ) );
 
@@ -526,6 +527,31 @@ class Plugin {
         }
 
         return true;
+    }
+
+    public function maybe_update_dropin( $upgrader, $options ) {
+        global $wp_filesystem;
+
+        if (
+            $options['action'] !== 'update' ||
+            $options['type'] !== 'plugin' ||
+            ! is_array( $options['plugins'] ) ||
+            ! in_array( WP_REDIS_BASENAME, $options['plugins'] )
+        ) {
+            return;
+        }
+
+        if ( ! $this->validate_object_cache_dropin() ) {
+            return;
+        }
+
+        if ( WP_Filesystem() ) {
+            $wp_filesystem->copy(
+                WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
+                WP_CONTENT_DIR . '/object-cache.php',
+                true
+            );
+        }
     }
 
     public function on_deactivation( $plugin ) {

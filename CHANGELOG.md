@@ -19,6 +19,7 @@ The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `
 - Support overwriting existing dropin on setting screen
 - Use singleton pattern to instantiate plugin
 - Use Composer to install and load Predis
+- Update object cache dropin during plugin update
 - Use separate methods to connect with all clients
 - Removed `CUSTOM_USER_TABLE` and `CUSTOM_USER_META_TABLE` weirdness
 - Added `themes` as ignored group
