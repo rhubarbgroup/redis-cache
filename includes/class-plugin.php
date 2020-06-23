@@ -169,7 +169,7 @@ class Plugin {
         $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
         $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
 
-        return ( strcmp( $dropin['PluginURI'], $plugin['PluginURI'] ) !== 0 );
+        return ( strcmp( $dropin['PluginURI'], $plugin['PluginURI'] ) === 0 );
     }
 
     public function get_status() {
