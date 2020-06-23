@@ -49,14 +49,8 @@ class Plugin {
         add_action( 'wp_head', array( $this, 'register_shutdown_hooks' ) );
         add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
 
-        add_filter(
-            sprintf(
-                '%splugin_action_links_%s',
-                is_multisite() ? 'network_admin_' : '',
-                WP_REDIS_BASENAME
-            ),
-            array( $this, 'add_plugin_actions_links' )
-        );
+        $links = sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME );
+        add_filter( $links, array( $this, 'add_plugin_actions_links' ) );
     }
 
     /**
