@@ -1363,22 +1363,33 @@ LUA;
      *
      * @return string
      */
-    public function stats()
-    {
+    public function stats() {
+        $bytes = array_map(
+            function ( $key ) {
+                return strlen( serialize( $key ) );
+            },
+            $this->cache
+        );
         ?>
-
         <p>
-            <strong>Redis Status:</strong> <?php echo $this->redis_status() ? 'Connected' : 'Not Connected'; ?><br />
-            <strong>Redis Client:</strong> <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?><br />
-            <strong>Cache Hits:</strong> <?php echo $this->cache_hits; ?><br />
-            <strong>Cache Misses:</strong> <?php echo $this->cache_misses; ?>
+            <strong>Redis Status:</strong>
+           <?php echo $this->redis_status() ? 'Connected' : 'Not Connected'; ?>
+            <br />
+            <strong>Redis Client:</strong>
+           <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
+            <br />
+            <strong>Cache Hits:</strong>
+           <?php echo $this->cache_hits; ?>
+            <br />
+            <strong>Cache Misses:</strong>
+           <?php echo $this->cache_misses; ?>
+            <br />
+            <strong>Cache Size:</strong>
+           <?php echo number_format( array_sum( $bytes ) / 1024, 2 ); ?> kB
         </p>
+        <?php
+    }
 
-        <ul>
-            <?php foreach ($this->cache as $group => $cache) : ?>
-                <li><?php printf('%s - %sk', strip_tags($group), number_format(strlen(serialize($cache)) / 1024, 2)); ?></li>
-            <?php endforeach; ?>
-        </ul><?php
     }
 
     /**
