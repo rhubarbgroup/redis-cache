@@ -1182,9 +1182,14 @@ LUA;
                 $cache[ $key ] = $this->get_from_internal_cache( $derived_keys[ $key ] );
             }
 
-            $keys = array_keys( array_filter( $cache, function ( $value ) {
-                return $value === false;
-            } ) );
+            $keys = array_keys(
+                array_filter(
+                    $cache,
+                    function ( $value ) {
+                        return $value === false;
+                    }
+                )
+            );
         }
 
         try {
