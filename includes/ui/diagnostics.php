@@ -115,5 +115,5 @@ foreach ( get_dropins() as $file => $details ) {
 }
 
 if ( ! empty( $dropins ) ) {
-    echo "Dropins: \r\n", implode( "\r\n", $dropins ), "\r\n";
+    echo "Drop-ins: \r\n", implode( "\r\n", $dropins ), "\r\n";
 }

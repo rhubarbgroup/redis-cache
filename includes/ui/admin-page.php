@@ -32,7 +32,7 @@
                 <?php endif; ?>
 
                 <tr>
-                    <th><?php esc_html_e( 'Dropin:', 'redis-cache' ); ?></th>
+                    <th><?php esc_html_e( 'Drop-in:', 'redis-cache' ); ?></th>
                     <td>
                         <code><?php echo esc_html( $redisDropin ? esc_html_e( 'Valid', 'redis-cache' ) : esc_html_e( 'Invalid', 'redis-cache' ) ); ?></code>
                     </td>
