@@ -270,7 +270,7 @@ class Plugin {
                     $message = sprintf( __( 'The Redis object cache drop-in is outdated. Please <a href="%s">update the drop-in</a>.', 'redis-cache' ), $url );
                 }
             } else {
-                $message = sprintf( __( 'An unknown object cache drop-in was found. To use Redis, <a href="%s">enable the drop-in</a>.', 'redis-cache' ), $url );
+                $message = sprintf( __( 'A foreign object cache drop-in was found. To use Redis for object caching, please <a href="%s">enable the drop-in</a>.', 'redis-cache' ), $url );
             }
 
             if ( isset( $message ) ) {

@@ -70,7 +70,7 @@ class Commands extends WP_CLI_Command {
             if ( $plugin->validate_object_cache_dropin() ) {
                 WP_CLI::line( __( 'Redis object cache already enabled.', 'redis-cache' ) );
             } else {
-                WP_CLI::error( __( 'An unknown object cache drop-in was found. To use Redis run: wp redis update-dropin.', 'redis-cache' ) );
+                WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
             }
         } else {
 
@@ -109,7 +109,7 @@ class Commands extends WP_CLI_Command {
 
             if ( ! $plugin->validate_object_cache_dropin() ) {
 
-                WP_CLI::error( __( 'An unknown object cache drop-in was found. To use Redis run: wp redis update-dropin.', 'redis-cache' ) );
+                WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
 
             } else {
 
