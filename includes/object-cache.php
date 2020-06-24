@@ -1397,6 +1397,37 @@ LUA;
         <?php
     }
 
+    /**
+     * Returns various information about the object cache.
+     *
+     * @return object
+     */
+    public function info() {
+        $total = $this->cache_hits + $this->cache_misses;
+
+        $bytes = array_map(
+            function ( $keys ) {
+                return strlen( serialize( $keys ) );
+            },
+            $this->cache
+        );
+
+        return (object) [
+            'hits' => $this->cache_hits,
+            'misses' => $this->cache_misses,
+            'ratio' => $total > 0 ? round( $this->cache_hits / ( $total / 100 ), 1 ) : 100,
+            'bytes' => array_sum( $bytes ),
+            'groups' => (object) [
+                'global' => $this->global_groups,
+                'non_persistent' => $this->ignored_groups,
+                'unflushable' => $this->unflushable_groups,
+            ],
+            'errors' => empty( $this->errors ) ? null : $this->errors,
+            'meta' => [
+                'Client' => $this->diagnostics['client'] ?: 'Unknown',
+                'Redis Version' => $this->redis_version,
+            ],
+        ];
     }
 
     /**

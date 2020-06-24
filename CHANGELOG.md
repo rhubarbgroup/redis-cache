@@ -10,6 +10,7 @@ The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `
 - Plugin is now "network-only"
 - Switch to WPCS for code standards
 - Overhauled the settings screen
+- Added support for Query Monitor
 - Added `Rhubarb\RedisCache` namespace to all files
 - Added support for WP 5.5's new `wp_cache_get_multi()` function
 - Added `redis_object_cache()` function to retrieve plugin instance

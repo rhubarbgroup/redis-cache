@@ -51,6 +51,9 @@ class Plugin {
 
         $links = sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME );
         add_filter( $links, array( $this, 'add_plugin_actions_links' ) );
+
+        add_filter( 'qm/collectors', array( $this, 'register_qm_collector' ), 25 );
+        add_filter( 'qm/outputter/html', array( $this, 'register_qm_output' ) );
     }
 
     /**
@@ -149,6 +152,18 @@ class Plugin {
             array( 'jquery' ),
             WP_REDIS_VERSION
         );
+    }
+
+    public function register_qm_collector( array $collectors ) {
+        $collectors['cache'] = new QM_Collector();
+
+        return $collectors;
+    }
+
+    public function register_qm_output( $output ) {
+        $output['cache'] = new QM_Output( \QM_Collectors::get( 'cache' ) );
+
+        return $output;
     }
 
     public function object_cache_dropin_exists() {
