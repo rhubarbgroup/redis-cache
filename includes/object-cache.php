@@ -284,6 +284,13 @@ class WP_Object_Cache {
     public $diagnostics = null;
 
     /**
+     * Holds the error messages.
+     *
+     * @var array
+     */
+    public $errors = array();
+
+    /**
      * List of global groups.
      *
      * @var array
@@ -1733,6 +1740,8 @@ LUA;
         if ( ! $this->fail_gracefully ) {
             throw $exception;
         }
+
+        $this->errors[] = $exception->getMessage();
 
         error_log( $exception );
 
