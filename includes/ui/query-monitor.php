@@ -1,4 +1,3 @@
-
 <?php echo $this->before_non_tabular_output(); ?>
 
     <section>

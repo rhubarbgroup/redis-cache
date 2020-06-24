@@ -796,7 +796,10 @@ class WP_Object_Cache {
                         }
                     } else {
                         if ( $expiration ) {
-                            $args[] = [ 'nx', 'ex' => $expiration ];
+                            $args[] = [
+                                'nx',
+                                'ex' => $expiration,
+                            ];
                         } else {
                             $args[] = [ 'nx' ];
                         }
@@ -1377,22 +1380,22 @@ LUA;
             },
             $this->cache
         );
-        ?>
-        <p>
+
+        ?> <p>
             <strong>Redis Status:</strong>
-           <?php echo $this->redis_status() ? 'Connected' : 'Not Connected'; ?>
+            <?php echo $this->redis_status() ? 'Connected' : 'Not Connected'; ?>
             <br />
             <strong>Redis Client:</strong>
-           <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
+            <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
             <br />
             <strong>Cache Hits:</strong>
-           <?php echo $this->cache_hits; ?>
+            <?php echo $this->cache_hits; ?>
             <br />
             <strong>Cache Misses:</strong>
-           <?php echo $this->cache_misses; ?>
+            <?php echo $this->cache_misses; ?>
             <br />
             <strong>Cache Size:</strong>
-           <?php echo number_format( array_sum( $bytes ) / 1024, 2 ); ?> kB
+            <?php echo number_format( array_sum( $bytes ) / 1024, 2 ); ?> kB
         </p>
         <?php
     }
