@@ -362,6 +362,20 @@ class WP_Object_Cache {
     public $cache_misses = 0;
 
     /**
+     * Track how long request took.
+     *
+     * @var int
+     */
+    public $cache_time = 0;
+
+    /**
+     * Track how may calls were made.
+     *
+     * @var int
+     */
+    public $cache_calls = 0;
+
+    /**
      * Instantiate the Redis class.
      *
      * @param bool $fail_gracefully
@@ -783,6 +797,7 @@ class WP_Object_Cache {
         if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
             try {
                 $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
+                $start_time = microtime( true );
 
                 if ( $add ) {
                     $args = [ $derived_key, $this->maybe_serialize( $value ) ];
@@ -817,6 +832,11 @@ class WP_Object_Cache {
                 } else {
                     $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
                 }
+
+                $execute_time = microtime( true ) - $start_time;
+
+                $this->cache_calls++;
+                $this->cache_time += $execute_time;
             } catch ( Exception $exception ) {
                 $this->handle_exception( $exception );
 
@@ -845,8 +865,6 @@ class WP_Object_Cache {
      * @return  bool               Returns TRUE on success or FALSE on failure.
      */
     public function delete( $key, $group = 'default' ) {
-        $start_time = microtime( true );
-
         $result = false;
         $derived_key = $this->build_key( $key, $group );
 
@@ -854,6 +872,8 @@ class WP_Object_Cache {
             unset( $this->cache[ $derived_key ] );
             $result = true;
         }
+
+        $start_time = microtime( true );
 
         if ( $this->redis_status() && ! $this->is_ignored_group( $group ) ) {
             try {
@@ -865,8 +885,12 @@ class WP_Object_Cache {
             }
         }
 
+        $execute_time = microtime( true ) - $start_time;
+
+        $this->cache_calls++;
+        $this->cache_time += $execute_time;
+
         if ( function_exists( 'do_action' ) ) {
-            $execute_time = microtime( true ) - $start_time;
             do_action( 'redis_object_cache_delete', $key, $group, $execute_time );
         }
 
@@ -1099,8 +1123,6 @@ LUA;
      * @return  bool|mixed         Cached object value.
      */
     public function get( $key, $group = 'default', $force = false, &$found = null ) {
-        $start_time = microtime( true );
-
         $derived_key = $this->build_key( $key, $group );
 
         if ( isset( $this->cache[ $derived_key ] ) && ! $force ) {
@@ -1115,6 +1137,8 @@ LUA;
             return false;
         }
 
+        $start_time = microtime( true );
+
         try {
             $result = $this->redis->get( $derived_key );
         } catch ( Exception $exception ) {
@@ -1122,6 +1146,11 @@ LUA;
 
             return false;
         }
+
+        $execute_time = microtime( true ) - $start_time;
+
+        $this->cache_calls++;
+        $this->cache_time += $execute_time;
 
         if ( $result === null || $result === false ) {
             $found = false;
@@ -1137,8 +1166,6 @@ LUA;
         $this->add_to_internal_cache( $derived_key, $value );
 
         if ( function_exists( 'do_action' ) ) {
-            $execute_time = microtime( true ) - $start_time;
-
             do_action( 'redis_object_cache_get', $key, $value, $group, $force, $found, $execute_time );
         }
 
@@ -1167,7 +1194,6 @@ LUA;
 
         $cache = array();
         $derived_keys = array();
-        $start_time = microtime( true );
 
         foreach ( $keys as $key ) {
             $derived_keys[ $key ] = $this->build_key( $key, $group );
@@ -1199,6 +1225,8 @@ LUA;
             );
         }
 
+        $start_time = microtime( true );
+
         try {
             $results = array_combine( $keys, $this->redis->mget( $keys ) );
         } catch ( Exception $exception ) {
@@ -1206,6 +1234,11 @@ LUA;
 
             $cache = array_fill( 0, count( $derived_keys ) - 1, false );
         }
+
+        $execute_time = microtime( true ) - $start_time;
+
+        $this->cache_calls++;
+        $this->cache_time += $execute_time;
 
         foreach ( $results as $key => $value ) {
             if ( $value === false ) {
@@ -1222,8 +1255,6 @@ LUA;
         $cache = array_map( array( $this, 'maybe_unserialize' ), $cache );
 
         if ( function_exists( 'do_action' ) ) {
-            $execute_time = microtime( true ) - $start_time;
-
             do_action( 'redis_object_cache_get_multi', $keys, $cache, $group, $force, $execute_time );
         }
 
@@ -1250,14 +1281,14 @@ LUA;
      * @return  bool               Returns TRUE on success or FALSE on failure.
      */
     public function set( $key, $value, $group = 'default', $expiration = 0 ) {
-        $start_time = microtime( true );
-
         $result = true;
         $derived_key = $this->build_key( $key, $group );
 
         // save if group not excluded from redis and redis is up
         if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
             $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
+
+            $start_time = microtime( true );
 
             try {
                 if ( $expiration ) {
@@ -1270,6 +1301,11 @@ LUA;
 
                 return false;
             }
+
+            $execute_time = microtime( true ) - $start_time;
+
+            $this->cache_calls++;
+            $this->cache_time += $execute_time;
         }
 
         // if the set was successful, or we didn't go to redis
@@ -1278,8 +1314,6 @@ LUA;
         }
 
         if ( function_exists( 'do_action' ) ) {
-            $execute_time = microtime( true ) - $start_time;
-
             do_action( 'redis_object_cache_set', $key, $value, $group, $expiration, $execute_time );
         }
 
@@ -1295,8 +1329,8 @@ LUA;
      * @return int|bool
      */
     public function increment( $key, $offset = 1, $group = 'default' ) {
-        $derived_key = $this->build_key( $key, $group );
         $offset = (int) $offset;
+        $derived_key = $this->build_key( $key, $group );
 
         // If group is a non-Redis group, save to internal cache, not Redis
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
@@ -1307,7 +1341,8 @@ LUA;
             return $value;
         }
 
-        // Save to Redis
+        $start_time = microtime( true );
+
         try {
             $result = $this->parse_redis_response( $this->redis->incrBy( $derived_key, $offset ) );
 
@@ -1317,6 +1352,11 @@ LUA;
 
             return false;
         }
+
+        $execute_time = microtime( true ) - $start_time;
+
+        $this->cache_calls += 2;
+        $this->cache_time += $execute_time;
 
         return $result;
     }
@@ -1354,6 +1394,8 @@ LUA;
             return $value;
         }
 
+        $start_time = microtime( true );
+
         try {
             // Save to Redis
             $result = $this->parse_redis_response( $this->redis->decrBy( $derived_key, $offset ) );
@@ -1364,6 +1406,11 @@ LUA;
 
             return false;
         }
+
+        $execute_time = microtime( true ) - $start_time;
+
+        $this->cache_calls += 2;
+        $this->cache_time += $execute_time;
 
         return $result;
     }
@@ -1420,6 +1467,8 @@ LUA;
             'misses' => $this->cache_misses,
             'ratio' => $total > 0 ? round( $this->cache_hits / ( $total / 100 ), 1 ) : 100,
             'bytes' => array_sum( $bytes ),
+            'time' => $this->cache_time,
+            'calls' => $this->cache_calls,
             'groups' => (object) [
                 'global' => $this->global_groups,
                 'non_persistent' => $this->ignored_groups,

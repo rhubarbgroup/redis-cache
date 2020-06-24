@@ -46,14 +46,21 @@ class Plugin {
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
         add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
 
-        add_action( 'wp_head', array( $this, 'register_shutdown_hooks' ) );
         add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
 
         $links = sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME );
         add_filter( $links, array( $this, 'add_plugin_actions_links' ) );
 
+        add_action( 'wp_head', array( $this, 'register_shutdown_hooks' ) );
+        add_action( 'shutdown', array( $this, 'record_metrics' ) );
+        add_action( 'rediscache_discard_metrics', array( $this, 'discard_metrics' ) );
+
         add_filter( 'qm/collectors', array( $this, 'register_qm_collector' ), 25 );
         add_filter( 'qm/outputter/html', array( $this, 'register_qm_output' ) );
+
+        if ( is_admin() && ! wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
+            wp_schedule_event( time(), 'hourly', 'rediscache_discard_metrics' );
+        }
     }
 
     /**
@@ -452,6 +459,53 @@ class Plugin {
         }
     }
 
+    public function record_metrics() {
+        global $wp_object_cache;
+
+        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
+            return;
+        }
+
+        if ( ! method_exists( $wp_object_cache, 'info' ) || ! method_exists( $wp_object_cache, 'redis_instance' ) ) {
+            return;
+        }
+
+        $info = $wp_object_cache->info();
+
+        $metrics = [
+            'hits' => $info->hits,
+            'misses' => $info->misses,
+            'ratio' => $info->ratio,
+            'bytes' => $info->bytes,
+            'time' => number_format($info->time, 5),
+            'commands' => $info->calls,
+        ];
+
+        $wp_object_cache->redis_instance()->zadd(
+            $wp_object_cache->build_key('metrics', 'redis-cache'),
+            time(),
+            implode(';', $metrics)
+        );
+    }
+
+    public function discard_metrics() {
+        global $wp_object_cache;
+
+        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
+            return;
+        }
+
+        if ( ! method_exists( $wp_object_cache, 'redis_instance' ) ) {
+            return;
+        }
+
+        $wp_object_cache->redis_instance()->zremrangebyscore(
+            $wp_object_cache->build_key('metrics', 'redis-cache'),
+            0,
+            time() - HOUR_IN_SECONDS
+        );
+    }
+
     public function maybe_print_comment() {
         global $wp_object_cache;
 
@@ -557,6 +611,9 @@ class Plugin {
         global $wp_filesystem;
 
         if ( $plugin === WP_REDIS_BASENAME ) {
+            $timestamp = wp_next_scheduled( 'rediscache_discard_metrics' );
+            wp_unschedule_event( $timestamp, 'rediscache_discard_metrics' );
+
             wp_cache_flush();
 
             if ( $this->validate_object_cache_dropin() && $this->initialize_filesystem( '', true ) ) {
