@@ -106,12 +106,6 @@ class Plugin {
         require_once WP_REDIS_PLUGIN_PATH . '/includes/ui/admin-page.php';
     }
 
-    public function show_servers_list() {
-        $table = new Servers_List();
-        $table->prepare_items();
-        $table->display();
-    }
-
     public function add_plugin_actions_links( $links ) {
         // add settings link to plugin actions
         return array_merge(
