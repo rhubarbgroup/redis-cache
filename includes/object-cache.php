@@ -256,7 +256,7 @@ class WP_Object_Cache {
     private $redis_version = null;
 
     /**
-     * Track if Redis is available
+     * Track if Redis is available.
      *
      * @var bool
      */
@@ -277,7 +277,7 @@ class WP_Object_Cache {
     public $cache = array();
 
     /**
-     * Holds the diagnostics values
+     * Holds the diagnostics values.
      *
      * @var array
      */
@@ -348,14 +348,14 @@ class WP_Object_Cache {
     public $blog_prefix = '';
 
     /**
-     * Track how many requests were found in cache
+     * Track how many requests were found in cache.
      *
      * @var int
      */
     public $cache_hits = 0;
 
     /**
-     * Track how may requests were not cached
+     * Track how may requests were not cached.
      *
      * @var int
      */
