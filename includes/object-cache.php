@@ -676,12 +676,14 @@ class WP_Object_Cache {
 
         $to_load = [];
 
-        // Load bundled Credis library.
         if ( ! class_exists( 'Credis_Client' ) ) {
             $to_load[] = 'Client.php';
         }
 
-        if ( ( defined( 'WP_REDIS_SHARDS' ) || defined( 'WP_REDIS_SENTINEL' ) || defined( 'WP_REDIS_SERVERS' ) || defined( 'WP_REDIS_CLUSTER' ) ) && ! class_exists( 'Credis_Cluster' ) ) {
+        if (
+            ( defined( 'WP_REDIS_SHARDS' ) || defined( 'WP_REDIS_SENTINEL' ) || defined( 'WP_REDIS_SERVERS' ) || defined( 'WP_REDIS_CLUSTER' ) ) &&
+            ! class_exists( 'Credis_Cluster' )
+        ) {
             $to_load[] = 'Cluster.php';
 
             if ( defined( 'WP_REDIS_SENTINEL' ) && ! class_exists( 'Credis_Sentinel' ) ) {
@@ -691,58 +693,64 @@ class WP_Object_Cache {
 
         foreach ( $to_load as $sub_path ) {
             $path = $creds_path . $sub_path;
+
             if ( file_exists( $path ) ) {
                 require_once $path;
             } else {
                 throw new Exception(
-                    sprintf(
-                        'Credis "%s" library not found. Re-install Redis Cache plugin or delete object-cache.php.',
-                        str_replace( '.php', '', $sub_path )
-                    )
+                    'Credis library not found. Re-install Redis Cache plugin or delete object-cache.php.'
                 );
             }
         }
 
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
-            throw new Exception( 'Sharding not supported by bundled credis library. Please review your Redis Cache configuration.' );
+            throw new Exception(
+                'Sharding not supported by bundled credis library. Please review your Redis Cache configuration.'
+            );
         }
         
         if ( defined( 'WP_REDIS_SENTINEL' ) ) {
             if ( is_array( WP_REDIS_SERVERS ) && count( WP_REDIS_SERVERS ) > 1 ) {
-                throw new Exception( 'Multipe sentinel servers are not supported by the bundled credis library. Please review your Redis Cache configurations.' );
+                throw new Exception(
+                    'Multipe sentinel servers are not supported by the bundled credis library. Please review your Redis Cache configurations.'
+                );
             }
+
             $connection_string = array_values( WP_REDIS_SERVERS )[0];
             $sentinel = new Credis_Sentinel( new Credis_Client( $connection_string ) );
             $this->redis = $sentinel->getCluster( WP_REDIS_SENTINEL );
             $args['is_sentinel'] = true;
-
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) || defined( 'WP_REDIS_SERVERS' ) ) {
             $parameters['db'] = $parameters['database'];
-            
+
             $is_cluster = defined( 'WP_REDIS_CLUSTER' );
             $clients = $is_cluster ? WP_REDIS_CLUSTER : WP_REDIS_SERVERS;
 
             foreach ( $clients as $index => &$connection_string ) {
                 $url_components = parse_url( $connection_string );
                 parse_str( $url_components['query'], $add_params );
+
                 if ( ! $is_cluster && isset( $add_params['alias'] ) ) {
                     $add_params['master'] = 'master' === $add_params['alias'];
                 }
+
                 $add_params['host'] = $url_components['host'];
+
                 if ( ! isset( $add_params['alias'] ) ) {
                     $add_params['alias'] = "redis-$index";
                 }
+
                 $connection_string = array_merge( $parameters, $add_params );
             }
 
             $this->redis = new Credis_Cluster( $clients );
 
-            // Supply diagnostic information.
             $args = $clients;
             $args[ $is_cluster ? 'is_cluster' : 'is_multi' ] = true;
-
         } else {
-            $host = 'unix' === $parameters['scheme'] ? $parameters['path'] : $parameters['host'];
+            $host = 'unix' === $parameters['scheme']
+                ? $parameters['path']
+                : $parameters['host'];
 
             $args = [
                 "{$parameters['scheme']}://{$host}",
@@ -752,6 +760,7 @@ class WP_Object_Cache {
                 isset( $parameters['database'] ) ? $parameters['database'] : 0,
                 isset( $parameters['password'] ) ? $parameters['password'] : null,
             ];
+
             $this->redis = new Credis_Client( ...$args );
         }
 
