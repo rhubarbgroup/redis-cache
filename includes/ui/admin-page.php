@@ -22,10 +22,16 @@
                         <td>
                             <code><?php echo esc_html( $redisClient ); ?></code>
 
-                            <?php if ( strpos( (string) $redisClient, 'predis' ) !== false ) : ?>
-                                <p class="description is-notice">
-                                    <?php esc_html_e( 'The Predis library is no longer maintained. Consider switching over to PhpRedis to avoid compatiblity issues in the future.', 'redis-cache' ); ?>
-                                </p>
+                            <?php if ( stripos( (string) $redisClient, 'predis' ) === 0 ) : ?>
+                                <?php if ( version_compare( phpversion(), '7.2', '<' ) ) : ?>
+                                    <p class="description is-notice">
+                                        <?php esc_html_e( 'The Predis library is no longer maintained. Consider switching over to Credis or PhpRedis to avoid compatiblity issues in the future.', 'redis-cache' ); ?>
+                                    </p>
+                                <?php else : ?>
+                                    <p class="description is-notice">
+                                        <?php esc_html_e( 'The Predis library is not reliable on PHP 7.2 and newer. Consider switching over to Credis or PhpRedis to avoid compatiblity issues.', 'redis-cache' ); ?>
+                                    </p>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </td>
                     </tr>
