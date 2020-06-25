@@ -408,7 +408,11 @@ class WP_Object_Cache {
                 case 'phpredis':
                     $this->connectUsingPhpRedis( $parameters );
                     break;
+                case 'credis':
+                    $this->connectUsingCredis( $parameters );
+                    break;
                 case 'predis':
+                default:
                     $this->connectUsingPredis( $parameters );
                     break;
             }
@@ -659,9 +663,129 @@ class WP_Object_Cache {
         $this->redis->connect();
 
         $this->diagnostics = array_merge(
-            [ 'client' => $client . sprintf( ' (v%s)', Predis\Client::VERSION ) ],
+            [ 'client' => sprintf( '%s (v%s)', $client, Predis\Client::VERSION ) ],
             $parameters,
             $options
+        );
+    }
+
+    /**
+     * Connect to Redis using the Credis library.
+     *
+     * @param  array $parameters
+     * @return void
+     */
+    protected function connectUsingCredis( $parameters ) {
+        $client = 'Credis';
+
+        // Require PHP 5.4 or greater
+        if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
+            throw new Exception( 'Predis requires PHP 5.4 or newer.' );
+        }
+
+        $creds_path = sprintf(
+            '%s/redis-cache/dependencies/vendor/colinmollenhour/credis/',
+            defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins'
+        );
+
+        $to_load = [];
+
+        if ( ! class_exists( 'Credis_Client' ) ) {
+            $to_load[] = 'Client.php';
+        }
+
+        if (
+            ( defined( 'WP_REDIS_SHARDS' ) || defined( 'WP_REDIS_SENTINEL' ) || defined( 'WP_REDIS_SERVERS' ) || defined( 'WP_REDIS_CLUSTER' ) ) &&
+            ! class_exists( 'Credis_Cluster' )
+        ) {
+            $to_load[] = 'Cluster.php';
+
+            if ( defined( 'WP_REDIS_SENTINEL' ) && ! class_exists( 'Credis_Sentinel' ) ) {
+                $to_load[] = 'Sentinel.php';
+            }
+        }
+
+        foreach ( $to_load as $sub_path ) {
+            $path = $creds_path . $sub_path;
+
+            if ( file_exists( $path ) ) {
+                require_once $path;
+            } else {
+                throw new Exception(
+                    'Credis library not found. Re-install Redis Cache plugin or delete object-cache.php.'
+                );
+            }
+        }
+
+        if ( defined( 'WP_REDIS_SHARDS' ) ) {
+            throw new Exception(
+                'Sharding not supported by bundled credis library. Please review your Redis Cache configuration.'
+            );
+        }
+        
+        if ( defined( 'WP_REDIS_SENTINEL' ) ) {
+            if ( is_array( WP_REDIS_SERVERS ) && count( WP_REDIS_SERVERS ) > 1 ) {
+                throw new Exception(
+                    'Multipe sentinel servers are not supported by the bundled credis library. Please review your Redis Cache configurations.'
+                );
+            }
+
+            $connection_string = array_values( WP_REDIS_SERVERS )[0];
+            $sentinel = new Credis_Sentinel( new Credis_Client( $connection_string ) );
+            $this->redis = $sentinel->getCluster( WP_REDIS_SENTINEL );
+            $args['is_sentinel'] = true;
+        } elseif ( defined( 'WP_REDIS_CLUSTER' ) || defined( 'WP_REDIS_SERVERS' ) ) {
+            $parameters['db'] = $parameters['database'];
+
+            $is_cluster = defined( 'WP_REDIS_CLUSTER' );
+            $clients = $is_cluster ? WP_REDIS_CLUSTER : WP_REDIS_SERVERS;
+
+            foreach ( $clients as $index => &$connection_string ) {
+                $url_components = parse_url( $connection_string );
+                parse_str( $url_components['query'], $add_params );
+
+                if ( ! $is_cluster && isset( $add_params['alias'] ) ) {
+                    $add_params['master'] = 'master' === $add_params['alias'];
+                }
+
+                $add_params['host'] = $url_components['host'];
+
+                if ( ! isset( $add_params['alias'] ) ) {
+                    $add_params['alias'] = "redis-$index";
+                }
+
+                $connection_string = array_merge( $parameters, $add_params );
+            }
+
+            $this->redis = new Credis_Cluster( $clients );
+
+            $args = $clients;
+            $args[ $is_cluster ? 'is_cluster' : 'is_multi' ] = true;
+        } else {
+            $host = 'unix' === $parameters['scheme']
+                ? $parameters['path']
+                : $parameters['host'];
+
+            $args = [
+                "{$parameters['scheme']}://{$host}",
+                $parameters['port'],
+                $parameters['timeout'],
+                '',
+                isset( $parameters['database'] ) ? $parameters['database'] : 0,
+                isset( $parameters['password'] ) ? $parameters['password'] : null,
+            ];
+
+            $this->redis = new Credis_Client( ...$args );
+        }
+
+        // Credis uses phpredis if it detects it unless we force it to run standalone.
+        $this->redis->forceStandalone();
+
+        $this->redis->connect();
+
+        $this->diagnostics = array_merge(
+            [ 'client' => sprintf( '%s (v%s)', $client, Credis_Client::VERSION ) ],
+            $args
         );
     }
 

@@ -1,0 +1,39 @@
+language: php
+
+matrix:
+  include:
+    - php: 5.6
+      env:
+        - PHPREDIS_VERSION=redis-4.3.0
+        - PHPUNIT_VERSION=^5.7
+    - php: 7.0
+      env:
+        - PHPREDIS_VERSION=redis-5.0.0
+        - PHPUNIT_VERSION=^6.4
+    - php: 7.1
+      env:
+        - PHPREDIS_VERSION=redis-5.0.0
+        - PHPUNIT_VERSION=^6.4
+    - php: 7.2
+      env:
+        - PHPREDIS_VERSION=redis-5.0.0
+        - PHPUNIT_VERSION=^7.5
+    - php: 7.3
+      env:
+        - PHPREDIS_VERSION=redis-5.0.0
+        - PHPUNIT_VERSION=^7.5
+
+install:
+  - yes '' | pecl install -f $PHPREDIS_VERSION
+  - wget http://download.redis.io/releases/redis-5.0.5.tar.gz
+  - tar -xzf redis-5.0.5.tar.gz
+  - make -s -C redis-5.0.5 -j4
+  - export PATH=$PATH:$PWD/redis-5.0.5/src/
+  - |
+    if [ ! -z "$PHPUNIT_VERSION" ]; then
+      composer require "phpunit/phpunit:${PHPUNIT_VERSION}" --dev --no-update -n
+      composer install --dev -n
+    fi
+
+script:
+  - vendor/bin/phpunit

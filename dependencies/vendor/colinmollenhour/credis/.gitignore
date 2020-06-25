@@ -1,0 +1,4 @@
+.idea
+vendor
+phpunit.phar
+phpunit_*.log
