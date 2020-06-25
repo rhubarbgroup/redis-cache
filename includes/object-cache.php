@@ -4,7 +4,7 @@
  * Plugin URI: http://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Credis, HHVM, replication, clustering and WP-CLI.
  * Version: 1.6.3
- * Author: Till Krüss
+ * Author: Till Krüss, Oliver Zieschang & Rhubarb Group
  * Author URI: https://wprediscache.com
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -719,14 +719,14 @@ class WP_Object_Cache {
 
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
             throw new Exception(
-                'Sharding not supported by bundled credis library. Please review your Redis Cache configuration.'
+                'Sharding not supported by bundled Credis library. Please review your Redis Cache configuration.'
             );
         }
-        
+
         if ( defined( 'WP_REDIS_SENTINEL' ) ) {
             if ( is_array( WP_REDIS_SERVERS ) && count( WP_REDIS_SERVERS ) > 1 ) {
                 throw new Exception(
-                    'Multipe sentinel servers are not supported by the bundled credis library. Please review your Redis Cache configurations.'
+                    'Multipe sentinel servers are not supported by the bundled Credis library. Please review your Redis Cache configurations.'
                 );
             }
 
