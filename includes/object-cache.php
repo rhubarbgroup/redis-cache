@@ -1408,11 +1408,11 @@ LUA;
         $result = true;
         $derived_key = $this->build_key( $key, $group );
 
+        $start_time = microtime( true );
+
         // save if group not excluded from redis and redis is up
         if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
             $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
-
-            $start_time = microtime( true );
 
             try {
                 if ( $expiration ) {
@@ -1426,10 +1426,8 @@ LUA;
                 return false;
             }
 
-            $execute_time = microtime( true ) - $start_time;
-
             $this->cache_calls++;
-            $this->cache_time += $execute_time;
+            $this->cache_time += ( microtime( true ) - $start_time );
         }
 
         // if the set was successful, or we didn't go to redis
@@ -1438,6 +1436,8 @@ LUA;
         }
 
         if ( function_exists( 'do_action' ) ) {
+            $execute_time = microtime( true ) - $start_time;
+
             do_action( 'redis_object_cache_set', $key, $value, $group, $expiration, $execute_time );
         }
 
