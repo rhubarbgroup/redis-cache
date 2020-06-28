@@ -221,6 +221,8 @@
 
     </div>
 
+    <?php if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS ) : ?>
+
     <div class="pro-version">
 
         <div class="card">
@@ -246,46 +248,49 @@
                     <?php esc_html_e( 'Learn more', 'redis-cache' ); ?>
                 </a>
             </p>
+
+            <?php $isPhp7 = version_compare( phpversion(), '7.0', '>=' ); ?>
+            <?php $isPhpRedis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
+            <?php $phpRedisInstalled = (bool) phpversion( 'redis' ); ?>
+
+            <?php if ( $isPhp7 && $isPhpRedis311 ) : ?>
+
+                <p class="compatiblity">
+                    <span class="dashicons dashicons-yes"></span>
+                    <span><?php esc_html_e( 'Your site meets the system requirements for the Pro version.', 'redis-cache' ); ?></span>
+                </p>
+
+            <?php else : ?>
+
+                <p class="compatiblity">
+                    <span class="dashicons dashicons-no"></span>
+                    <span><?php echo wp_kses_post( __( 'Your site <i>does not</i> meet the system requirements for the Pro version:', 'redis-cache' ) ); ?></span>
+                </p>
+
+                <ul>
+                    <?php if ( ! $isPhp7 ) : ?>
+                        <li>
+                            <?php printf( esc_html__( 'The current version of PHP (%s) is too old. PHP 7.0 or newer is required.', 'redis-cache' ), phpversion() ); ?>
+                        </li>
+                    <?php endif; ?>
+
+                    <?php if ( ! $phpRedisInstalled ) : ?>
+                        <li>
+                            <?php printf( esc_html__( 'The PhpRedis extension is not installed.', 'redis-cache' ), phpversion() ); ?>
+                        </li>
+                    <?php elseif ( ! $isPhpRedis311 ) : ?>
+                        <li>
+                            <?php printf( esc_html__( 'The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required.', 'redis-cache' ), phpversion( 'redis' ) ); ?>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+
+            <?php endif; ?>
+        
         </div>
 
-        <?php $isPhp7 = version_compare( phpversion(), '7.0', '>=' ); ?>
-        <?php $isPhpRedis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
-        <?php $phpRedisInstalled = (bool) phpversion( 'redis' ); ?>
-
-        <?php if ( $isPhp7 && $isPhpRedis311 ) : ?>
-
-            <p class="compatiblity">
-                <span class="dashicons dashicons-yes"></span>
-                <span><?php esc_html_e( 'Your site meets the system requirements for the Pro version.', 'redis-cache' ); ?></span>
-            </p>
-
-        <?php else : ?>
-
-            <p class="compatiblity">
-                <span class="dashicons dashicons-no"></span>
-                <span><?php echo wp_kses_post( __( 'Your site <i>does not</i> meet the system requirements for the Pro version:', 'redis-cache' ) ); ?></span>
-            </p>
-
-            <ul>
-                <?php if ( ! $isPhp7 ) : ?>
-                    <li>
-                        <?php printf( esc_html__( 'The current version of PHP (%s) is too old. PHP 7.0 or newer is required.', 'redis-cache' ), phpversion() ); ?>
-                    </li>
-                <?php endif; ?>
-
-                <?php if ( ! $phpRedisInstalled ) : ?>
-                    <li>
-                        <?php printf( esc_html__( 'The PhpRedis extension is not installed.', 'redis-cache' ), phpversion() ); ?>
-                    </li>
-                <?php elseif ( ! $isPhpRedis311 ) : ?>
-                    <li>
-                        <?php printf( esc_html__( 'The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required.', 'redis-cache' ), phpversion( 'redis' ) ); ?>
-                    </li>
-                <?php endif; ?>
-            </ul>
-
-        <?php endif; ?>
-
     </div>
+
+    <?php endif; ?>
 
 </div>
