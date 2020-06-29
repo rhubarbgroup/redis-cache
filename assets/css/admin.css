@@ -1,0 +1,112 @@
+
+.settings_page_redis-cache .form-table th,
+.settings_page_redis-cache .form-table td {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+.settings_page_redis-cache .form-table td ul {
+    margin: 0;
+}
+
+.settings_page_redis-cache .form-table .description.is-notice {
+    max-width: 25rem;
+    color: #d54e21;
+}
+
+.settings_page_redis-cache .card ul {
+    list-style: circle;
+    padding-left: 25px;
+}
+
+.settings_page_redis-cache .section-metrics .card {
+    min-width: auto;
+    max-width: 100%;
+    padding: 0;
+}
+
+.settings_page_redis-cache .section-metrics #redis-stats-chart {
+    height: 200px;
+}
+
+.settings_page_redis-cache .section-pro {
+    margin-top: 50px;
+}
+
+.settings_page_redis-cache .compatiblity {
+    display: flex;
+    max-width: 520px;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.settings_page_redis-cache .compatiblity + ul {
+    margin-top: 0;
+    padding-left: 50px;
+    list-style: circle;
+    max-width: 470px;
+    color: #666;
+}
+
+.settings_page_redis-cache .compatiblity .dashicons {
+    margin-right: 5px;
+}
+
+@media screen and (min-width: 1024px) {
+    .settings_page_redis-cache .sections {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        max-width: 1280px;
+    }
+
+    .settings_page_redis-cache .section-overview {
+        order: 1;
+        min-width: 40%;
+    }
+
+    .settings_page_redis-cache .section-metrics {
+        order: 3;
+        width: 100%;
+    }
+
+    .settings_page_redis-cache .section-diagnostics {
+        order: 4;
+    }
+
+    .settings_page_redis-cache .section-pro {
+        order: 2;
+        margin-top: 0;
+    }
+}
+
+#dashboard_rediscache .inside {
+    margin: 0;
+    padding: 0;
+}
+
+#widget-redis-stats ul {
+    margin: 11px 11px 0;
+    text-align: center;
+}
+
+#widget-redis-stats ul li {
+    display: inline;
+}
+
+#widget-redis-stats ul a {
+    padding: 0 5px;
+    color: #72777c;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+#widget-redis-stats ul a:hover,
+#widget-redis-stats ul a.active {
+    color: #444;
+}
+
+#redis-stats-chart .apexcharts-tooltip,
+#redis-stats-chart .apexcharts-tooltip-title {
+    font-size: 13px;
+}

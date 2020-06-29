@@ -42,9 +42,13 @@ class Plugin {
 
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_redis_metrics' ) );
 
         add_action( 'load-' . $this->screen, array( $this, 'do_admin_actions' ) );
         add_action( 'load-' . $this->screen, array( $this, 'add_admin_page_notices' ) );
+
+        add_action( 'wp_dashboard_setup', array( $this, 'setup_dashboard_widget' ) );
+        add_action( 'wp_network_dashboard_setup', array( $this, 'setup_dashboard_widget' ) );
 
         add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
 
@@ -110,7 +114,23 @@ class Plugin {
         }
 
         // show admin page
-        require_once WP_REDIS_PLUGIN_PATH . '/includes/ui/admin-page.php';
+        require_once WP_REDIS_PLUGIN_PATH . '/includes/ui/settings.php';
+    }
+
+    public function setup_dashboard_widget() {
+        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
+            return;
+        }
+
+        wp_add_dashboard_widget(
+            'dashboard_rediscache',
+            __( 'Redis Object Cache', 'redis-cache' ),
+            array( $this, 'show_dashboard_widget' )
+        );
+    }
+
+    public function show_dashboard_widget() {
+        require_once WP_REDIS_PLUGIN_PATH . '/includes/ui/widget.php';
     }
 
     public function add_plugin_actions_links( $links ) {
@@ -122,8 +142,8 @@ class Plugin {
     }
 
     public function enqueue_admin_styles( $hook_suffix ) {
-        if ( $hook_suffix === $this->screen ) {
-            wp_enqueue_style( 'redis-cache', WP_REDIS_DIR . '/assets/css/admin-page.css', null, WP_REDIS_VERSION );
+        if ( in_array( $hook_suffix, array( 'index.php', $this->screen ) ) ) {
+            wp_enqueue_style( 'redis-cache', WP_REDIS_DIR . '/assets/css/admin.css', null, WP_REDIS_VERSION );
         }
     }
 
@@ -134,23 +154,61 @@ class Plugin {
             return;
         }
 
-        if ( ! in_array(
-            $screen->id,
-            array(
-                'dashboard',
-                'edit-shop_order',
-                'edit-product',
-                'woocommerce_page_wc-admin',
-                $this->screen,
-            )
-        ) ) {
+        $screens = array(
+            $this->screen,
+            'dashboard',
+            'dashboard-network',
+            'edit-shop_order',
+            'edit-product',
+            'woocommerce_page_wc-admin',
+        );
+
+        if ( ! in_array( $screen->id, $screens ) ) {
             return;
         }
 
         wp_enqueue_script(
-            'roc-dismissible-notices',
-            plugins_url( 'assets/js/admin-page.js', WP_REDIS_FILE ),
+            'redis-cache',
+            plugins_url( 'assets/js/admin.js', WP_REDIS_FILE ),
             array( 'jquery' ),
+            WP_REDIS_VERSION
+        );
+    }
+
+    public function enqueue_redis_metrics() {
+        global $wp_object_cache;
+
+        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
+            return;
+        }
+
+        $screen = get_current_screen();
+
+        if ( ! isset( $screen->id ) ) {
+            return;
+        }
+
+        if ( ! in_array( $screen->id, array( $this->screen, 'dashboard', 'dashboard-network' ) ) ) {
+            return;
+        }
+
+        if ( ! method_exists( $wp_object_cache, 'redis_instance' ) ) {
+            return;
+        }
+
+        $metrics = $wp_object_cache->redis_instance()->zrangebyscore(
+            $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
+            time() - ( MINUTE_IN_SECONDS * 30 ),
+            time() - MINUTE_IN_SECONDS,
+            [ 'withscores' => true ]
+        );
+
+        wp_localize_script( 'redis-cache', 'rediscache_metrics', $metrics );
+
+        wp_enqueue_script(
+            'redis-cache-charts',
+            plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
+            null,
             WP_REDIS_VERSION
         );
     }
@@ -473,18 +531,19 @@ class Plugin {
         $info = $wp_object_cache->info();
 
         $metrics = [
-            'hits' => $info->hits,
-            'misses' => $info->misses,
-            'ratio' => $info->ratio,
-            'bytes' => $info->bytes,
-            'time' => number_format($info->time, 5),
-            'commands' => $info->calls,
+            'i' => substr( uniqid(), -7 ),
+            'h' => $info->hits,
+            'm' => $info->misses,
+            'r' => $info->ratio,
+            'b' => $info->bytes,
+            't' => number_format( $info->time, 5 ),
+            'c' => $info->calls,
         ];
 
         $wp_object_cache->redis_instance()->zadd(
-            $wp_object_cache->build_key('metrics', 'redis-cache'),
+            $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
             time(),
-            implode(';', $metrics)
+            http_build_query( $metrics, null, ';' )
         );
     }
 
@@ -500,7 +559,7 @@ class Plugin {
         }
 
         $wp_object_cache->redis_instance()->zremrangebyscore(
-            $wp_object_cache->build_key('metrics', 'redis-cache'),
+            $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
             0,
             time() - HOUR_IN_SECONDS
         );
