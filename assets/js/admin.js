@@ -203,6 +203,14 @@
             }
         );
 
+        var callsMedian = compute_median(
+            calls.map(
+                function ( entry ) {
+                    return entry[1];
+                }
+            )
+        );
+
         rediscache_charts.time.series = [{
             name: 'Time',
             type: 'area',
@@ -256,6 +264,8 @@
                 }
             ),
         } ];
+
+        rediscache_charts.calls.annotations.texts[0].text = Math.round( callsMedian );
     };
 } ( jQuery ) );
 
@@ -272,7 +282,7 @@ var rediscache_charts = {
             '#72777c',
         ],
         annotations: {
-            texts: [{ x: '95%', y: '20%', fontSize: '20px', fontFamily: 'inherit', foreColor: '#444', textAnchor: 'end' }],
+            texts: [{ x: '15%', y: '30%', fontSize: '20px', fontWeight: 600, fontFamily: 'inherit', foreColor: '#72777c' }],
         },
         chart: {
             type: 'line',
@@ -313,20 +323,28 @@ var rediscache_charts = {
         tooltip: {
             fixed: {
                 enabled: true,
-                position: 'topLeft', // topRight, topLeft, bottomRight, bottomLeft
-                offsetY: 0,
+                position: 'bottomLeft',
+                offsetY: 30,
                 offsetX: 0,
             },
             custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                 return '<div class="apexcharts-tooltip-title">'
                     + new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 )
                     + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group apexcharts-active" style="display: flex;">'
+                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
                     + '  <span class="apexcharts-tooltip-marker" style="background-color: rgb(0, 143, 251);"></span>'
                     + '  <div class="apexcharts-tooltip-text">'
                     + '    <div class="apexcharts-tooltip-y-group">'
                     + '      <span class="apexcharts-tooltip-text-label">' + w.globals.seriesNames[0] + ': </span>'
                     + '      <span class="apexcharts-tooltip-text-value">' + Math.round( series[0][dataPointIndex] * 100 ) / 100 + ' ms</span>'
+                    + '    </div>'
+                    + '  </div>'
+                    + '</div>'
+                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
+                    + '  <span class="apexcharts-tooltip-marker" style="background-color: #72777c;"></span>'
+                    + '  <div class="apexcharts-tooltip-text">'
+                    + '    <div class="apexcharts-tooltip-y-group">'
+                    + '      <span class="apexcharts-tooltip-text-label">Redis Cache Pro</span>'
                     + '    </div>'
                     + '  </div>'
                     + '</div>';
@@ -345,7 +363,7 @@ var rediscache_charts = {
             '#72777c',
         ],
         annotations: {
-            texts: [{ x: '95%', y: '20%', fontSize: '20px', foreColor: '#444', textAnchor: 'end' }],
+            texts: [{ x: '15%', y: '30%', fontSize: '20px', fontWeight: 600, fontFamily: 'inherit', foreColor: '#72777c' }],
         },
         chart: {
             type: 'line',
@@ -383,11 +401,17 @@ var rediscache_charts = {
             tooltip: { enabled: false },
         },
         tooltip: {
+            fixed: {
+                enabled: true,
+                position: 'bottomLeft',
+                offsetY: 30,
+                offsetX: 0,
+            },
             custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                 return '<div class="apexcharts-tooltip-title">'
                     + new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 )
                     + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group apexcharts-active" style="display: flex;">'
+                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
                     + '  <span class="apexcharts-tooltip-marker" style="background-color: #0096dd;"></span>'
                     + '  <div class="apexcharts-tooltip-text">'
                     + '    <div class="apexcharts-tooltip-y-group">'
@@ -396,12 +420,11 @@ var rediscache_charts = {
                     + '    </div>'
                     + '  </div>'
                     + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group apexcharts-active" style="display: flex;">'
+                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
                     + '  <span class="apexcharts-tooltip-marker" style="background-color: #72777c;"></span>'
                     + '  <div class="apexcharts-tooltip-text">'
                     + '    <div class="apexcharts-tooltip-y-group">'
-                    + '      <span class="apexcharts-tooltip-text-label">' + w.globals.seriesNames[1] + ': </span>'
-                    + '      <span class="apexcharts-tooltip-text-value">' + Math.round( series[1][dataPointIndex] / 1024 ) + ' KB</span>'
+                    + '      <span class="apexcharts-tooltip-text-label">Redis Cache Pro</span>'
                     + '    </div>'
                     + '  </div>'
                     + '</div>';
@@ -420,7 +443,7 @@ var rediscache_charts = {
             '#72777c',
         ],
         annotations: {
-            texts: [{ x: '95%', y: '20%', fontSize: '20px', foreColor: '#444', textAnchor: 'end' }],
+            texts: [{ x: '15%', y: '30%', fontSize: '20px', fontWeight: 600, fontFamily: 'inherit', foreColor: '#72777c' }],
         },
         chart: {
             type: 'line',
@@ -459,11 +482,17 @@ var rediscache_charts = {
             tooltip: { enabled: false },
         },
         tooltip: {
+            fixed: {
+                enabled: true,
+                position: 'bottomLeft',
+                offsetY: 30,
+                offsetX: 0,
+            },
             custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                 return '<div class="apexcharts-tooltip-title">'
                     + new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 )
                     + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group apexcharts-active" style="display: flex;">'
+                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
                     + '  <span class="apexcharts-tooltip-marker" style="background-color: rgb(0, 143, 251);"></span>'
                     + '  <div class="apexcharts-tooltip-text">'
                     + '    <div class="apexcharts-tooltip-y-group">'
@@ -487,7 +516,7 @@ var rediscache_charts = {
             '#72777c',
         ],
         annotations: {
-            texts: [{ x: '95%', y: '20%', fontSize: '20px', foreColor: '#444', textAnchor: 'end' }],
+            texts: [{ x: '15%', y: '30%', fontSize: '20px', fontWeight: 600, fontFamily: 'inherit', foreColor: '#72777c' }],
         },
         chart: {
             type: 'line',
@@ -525,16 +554,30 @@ var rediscache_charts = {
             tooltip: { enabled: false },
         },
         tooltip: {
+            fixed: {
+                enabled: true,
+                position: 'bottomLeft',
+                offsetY: 30,
+                offsetX: 0,
+            },
             custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                 return '<div class="apexcharts-tooltip-title">'
                     + new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 )
                     + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group apexcharts-active" style="display: flex;">'
-                    + '  <span class="apexcharts-tooltip-marker" style="background-color: rgb(0, 143, 251);"></span>'
+                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
+                    + '  <span class="apexcharts-tooltip-marker" style="background-color: #0096dd;"></span>'
                     + '  <div class="apexcharts-tooltip-text">'
                     + '    <div class="apexcharts-tooltip-y-group">'
                     + '      <span class="apexcharts-tooltip-text-label">' + w.globals.seriesNames[0] + ': </span>'
-                    + '      <span class="apexcharts-tooltip-text-value">' + Math.round( series[0][dataPointIndex] * 100 ) / 100 + '</span>'
+                    + '      <span class="apexcharts-tooltip-text-value">' + Math.round( series[0][dataPointIndex] ) + '</span>'
+                    + '    </div>'
+                    + '  </div>'
+                    + '</div>'
+                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
+                    + '  <span class="apexcharts-tooltip-marker" style="background-color: #72777c;"></span>'
+                    + '  <div class="apexcharts-tooltip-text">'
+                    + '    <div class="apexcharts-tooltip-y-group">'
+                    + '      <span class="apexcharts-tooltip-text-label">Redis Cache Pro</span>'
                     + '    </div>'
                     + '  </div>'
                     + '</div>';

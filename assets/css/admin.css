@@ -106,7 +106,41 @@
     color: #444;
 }
 
+#redis-stats-chart .apexcharts-annotations {
+    display: none;
+    opacity: 0.75;
+}
+
 #redis-stats-chart .apexcharts-tooltip,
 #redis-stats-chart .apexcharts-tooltip-title {
     font-size: 13px;
+}
+
+#redis-stats-chart .apexcharts-tooltip {
+    display: flex;
+    width: 100%;
+    border: none;
+    justify-content: center;
+    box-shadow: none;
+    background: #fff;
+}
+
+#redis-stats-chart .apexcharts-tooltip-title {
+    width: 60px;
+    background-color: transparent;
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+#redis-stats-chart .apexcharts-tooltip-series-group {
+    width: 150px;
+    padding-bottom: 0;
+}
+
+#redis-stats-chart .apexcharts-tooltip-y-group {
+    padding: 0;
+}
+
+#redis-stats-chart .apexcharts-tooltip-text-value {
+    font-variant-numeric: tabular-nums;
 }
