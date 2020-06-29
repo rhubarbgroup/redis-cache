@@ -58,7 +58,7 @@ To adjust the connection parameters, client, timeouts and intervals, please see 
 
 The plugin comes with quite a few configuration options, such as key prefixes, a maximum time-to-live for keys, ignored group and many more.
 
-Please see the [configuration options wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Connection-Parameters) for a full list.
+Please see the [configuration options wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Configuration-Options) for a full list.
 
 
 == Replication & Clustering ==
