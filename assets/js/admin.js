@@ -211,7 +211,7 @@
         // );
 
         rediscache_charts.time.series = [{
-            name: 'Time',
+            name: rediscache_l10n.time,
             type: 'area',
             data: time,
         }, {
@@ -227,7 +227,7 @@
         // rediscache_charts.time.annotations.texts[0].text = Math.round( timeMedian ) + ' ms';
 
         rediscache_charts.bytes.series = [{
-            name: 'Bytes',
+            name: rediscache_l10n.bytes,
             type: 'area',
             data: bytes,
         }, {
@@ -243,7 +243,7 @@
         // rediscache_charts.bytes.annotations.texts[0].text = Math.round( bytesMedian / 1024 ) + ' KB';
 
         rediscache_charts.ratio.series = [{
-            name: 'Ratio',
+            name: rediscache_l10n.ratio,
             type: 'area',
             data: ratio,
         }];
@@ -251,7 +251,7 @@
         // rediscache_charts.ratio.annotations.texts[0].text = Math.round( ratioMedian ) + '%';
 
         rediscache_charts.calls.series = [{
-            name: 'Calls',
+            name: rediscache_l10n.calls,
             type: 'area',
             data: calls,
         }, {
@@ -269,8 +269,18 @@
 } ( jQuery ) );
 
 var rediscache_charts = {
-
-    time: {
+    shared: {
+        noData: {
+            text: rediscache_l10n.no_data,
+            align: 'center',
+            verticalAlign: 'middle',
+            offsetY: -25,
+            style: {
+                color: '#72777c',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+            }
+        },
         stroke: {
             width: [2, 2],
             curve: 'smooth',
@@ -282,33 +292,6 @@ var rediscache_charts = {
         ],
         annotations: {
             texts: [{ x: '15%', y: '30%', fontSize: '20px', fontWeight: 600, fontFamily: 'inherit', foreColor: '#72777c' }],
-        },
-        chart: {
-            type: 'line',
-            height: '100%',
-            toolbar: { show: false },
-            zoom: { enabled: false },
-            animations: { enabled: false }
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        legend: {
-            show: false,
-        },
-        fill: {
-            opacity: [0.25, 1],
-        },
-        yaxis: {
-            type: 'numeric',
-            tickAmount: 4,
-            min: 0,
-            labels: {
-                style: { colors: '#72777c', fontSize: '13px', fontFamily: 'inherit' },
-                formatter: function ( value ) {
-                    return Math.round( value ) + ' ms';
-                },
-            },
         },
         xaxis: {
             type: 'datetime',
@@ -323,265 +306,223 @@ var rediscache_charts = {
             fixed: {
                 enabled: true,
                 position: 'bottomLeft',
-                offsetY: 30,
+                offsetY: 15,
                 offsetX: 0,
             },
-            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                return '<div class="apexcharts-tooltip-title">'
-                    + new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 )
-                    + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
-                    + '  <span class="apexcharts-tooltip-marker" style="background-color: rgb(0, 143, 251);"></span>'
-                    + '  <div class="apexcharts-tooltip-text">'
-                    + '    <div class="apexcharts-tooltip-y-group">'
-                    + '      <span class="apexcharts-tooltip-text-label">' + w.globals.seriesNames[0] + ': </span>'
-                    + '      <span class="apexcharts-tooltip-text-value">' + Math.round( series[0][dataPointIndex] * 100 ) / 100 + ' ms</span>'
-                    + '    </div>'
-                    + '  </div>'
-                    + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
-                    + '  <span class="apexcharts-tooltip-marker" style="background-color: #72777c;"></span>'
-                    + '  <div class="apexcharts-tooltip-text">'
-                    + '    <div class="apexcharts-tooltip-y-group">'
-                    + '      <span class="apexcharts-tooltip-text-label">Redis Cache Pro</span>'
-                    + '    </div>'
-                    + '  </div>'
-                    + '</div>';
+        },
+        templates: {
+            tooltip_title: _.template(
+                '<div class="apexcharts-tooltip-title"><%- title %></div>'
+            ),
+            series_group: _.template(
+                '<div class="apexcharts-tooltip-series-group">' +
+                '  <span class="apexcharts-tooltip-marker" style="background-color: <%- color %>;"></span>' +
+                '  <div class="apexcharts-tooltip-text">' +
+                '    <div class="apexcharts-tooltip-y-group">' +
+                '      <span class="apexcharts-tooltip-text-label"><%- name %>:</span>' +
+                '      <span class="apexcharts-tooltip-text-value"><%- value %></span>' +
+                '    </div>' +
+                '  </div>' +
+                '</div>'
+            ),
+            series_pro: _.template(
+                '<div class="apexcharts-tooltip-series-group">' +
+                '  <span class="apexcharts-tooltip-marker" style="background-color: <%- color %>;"></span>' +
+                '  <div class="apexcharts-tooltip-text">' +
+                '    <div class="apexcharts-tooltip-y-group">' +
+                '      <span class="apexcharts-tooltip-text-label"><%- name %></span>' +
+                '    </div>' +
+                '  </div>' +
+                '</div>'
+            ),
+        }
+    }
+};
+
+rediscache_charts.time = {
+    noData: rediscache_charts.shared.noData,
+    stroke: rediscache_charts.shared.stroke,
+    colors: rediscache_charts.shared.colors,
+    annotations: rediscache_charts.shared.annotations,
+    chart: {
+        type: 'line',
+        height: '100%',
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        animations: { enabled: false }
+    },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+    fill: { opacity: [0.25, 1] },
+    xaxis: rediscache_charts.shared.xaxis,
+    yaxis: {
+        type: 'numeric',
+        tickAmount: 4,
+        min: 0,
+        labels: {
+            style: rediscache_charts.shared.xaxis.labels.style,
+            formatter: function ( value ) {
+                return Math.round( value ) + ' ms';
             },
         },
     },
+    tooltip: {
+        fixed: rediscache_charts.shared.tooltip.fixed,
+        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+            return [
+                rediscache_charts.shared.templates.tooltip_title({
+                    title: new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 ),
+                }),
+                rediscache_charts.shared.templates.series_group({
+                    color: rediscache_charts.shared.colors[0],
+                    name: w.globals.seriesNames[0],
+                    value: series[0][dataPointIndex].toFixed(2) + ' ms',
+                }),
+                rediscache_charts.shared.templates.series_pro({
+                    color: rediscache_charts.shared.colors[1],
+                    name: rediscache_l10n.pro,
+                }),
+            ].join('');
+        },
+    },
+};
 
-    bytes: {
-        stroke: {
-            width: [2, 2],
-            curve: 'smooth',
-            dashArray: [0, 8]
-        },
-        colors: [
-            '#0096dd',
-            '#72777c',
-        ],
-        annotations: {
-            texts: [{ x: '15%', y: '30%', fontSize: '20px', fontWeight: 600, fontFamily: 'inherit', foreColor: '#72777c' }],
-        },
-        chart: {
-            type: 'line',
-            toolbar: { show: false },
-            zoom: { enabled: false },
-            animations: { enabled: false }
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        legend: {
-            show: false,
-        },
-        fill: {
-            opacity: [0.25, 1],
-        },
-        yaxis: {
-            type: 'numeric',
-            tickAmount: 4,
-            min: 0,
-            labels: {
-                style: { colors: '#72777c', fontSize: '13px', fontFamily: 'inherit' },
-                formatter: function ( value ) {
-                    return Math.round( value / 1024 ) + ' KB';
-                },
-            },
-        },
-        xaxis: {
-            type: 'datetime',
-            labels: {
-                format: 'HH:mm',
-                datetimeUTC: false,
-                style: { colors: '#72777c', fontSize: '13px', fontFamily: 'inherit' },
-            },
-            tooltip: { enabled: false },
-        },
-        tooltip: {
-            fixed: {
-                enabled: true,
-                position: 'bottomLeft',
-                offsetY: 30,
-                offsetX: 0,
-            },
-            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                return '<div class="apexcharts-tooltip-title">'
-                    + new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 )
-                    + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
-                    + '  <span class="apexcharts-tooltip-marker" style="background-color: #0096dd;"></span>'
-                    + '  <div class="apexcharts-tooltip-text">'
-                    + '    <div class="apexcharts-tooltip-y-group">'
-                    + '      <span class="apexcharts-tooltip-text-label">' + w.globals.seriesNames[0] + ': </span>'
-                    + '      <span class="apexcharts-tooltip-text-value">' + Math.round( series[0][dataPointIndex] / 1024 ) + ' KB</span>'
-                    + '    </div>'
-                    + '  </div>'
-                    + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
-                    + '  <span class="apexcharts-tooltip-marker" style="background-color: #72777c;"></span>'
-                    + '  <div class="apexcharts-tooltip-text">'
-                    + '    <div class="apexcharts-tooltip-y-group">'
-                    + '      <span class="apexcharts-tooltip-text-label">Redis Cache Pro</span>'
-                    + '    </div>'
-                    + '  </div>'
-                    + '</div>';
+rediscache_charts.bytes = {
+    noData: rediscache_charts.shared.noData,
+    noData: rediscache_charts.shared.noData,
+    stroke: rediscache_charts.shared.stroke,
+    colors: rediscache_charts.shared.colors,
+    annotations: rediscache_charts.shared.annotations,
+    chart: {
+        type: 'line',
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        animations: { enabled: false }
+    },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+    fill: { opacity: [0.25, 1] },
+    xaxis: rediscache_charts.shared.xaxis,
+    yaxis: {
+        type: 'numeric',
+        tickAmount: 4,
+        min: 0,
+        labels: {
+            style: rediscache_charts.shared.xaxis.labels.style,
+            formatter: function ( value ) {
+                return Math.round( value / 1024 ) + ' kb';
             },
         },
     },
+    tooltip: {
+        fixed: rediscache_charts.shared.tooltip.fixed,
+        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+            return [
+                rediscache_charts.shared.templates.tooltip_title({
+                    title: new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 ),
+                }),
+                rediscache_charts.shared.templates.series_group({
+                    color: rediscache_charts.shared.colors[0],
+                    name: w.globals.seriesNames[0],
+                    value: Math.round( series[0][dataPointIndex] / 1024 ) + ' kb',
+                }),
+                rediscache_charts.shared.templates.series_pro({
+                    color: rediscache_charts.shared.colors[1],
+                    name: rediscache_l10n.pro,
+                }),
+            ].join('');
+        },
+    },
+};
 
-    ratio: {
-        stroke: {
-            width: [2, 2],
-            curve: 'smooth',
-            dashArray: [0, 8]
-        },
-        colors: [
-            '#0096dd',
-            '#72777c',
-        ],
-        annotations: {
-            texts: [{ x: '15%', y: '30%', fontSize: '20px', fontWeight: 600, fontFamily: 'inherit', foreColor: '#72777c' }],
-        },
-        chart: {
-            type: 'line',
-            toolbar: { show: false },
-            zoom: { enabled: false },
-            animations: { enabled: false }
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        legend: {
-            show: false,
-        },
-        fill: {
-            opacity: [0.25, 1],
-        },
-        yaxis: {
-            type: 'numeric',
-            tickAmount: 4,
-            min: 0,
-            max: 100,
-            labels: {
-                style: { colors: '#72777c', fontSize: '13px', fontFamily: 'inherit' },
-                formatter: function ( value ) {
-                    return Math.round( value ) + '%';
-                },
-            },
-        },
-        xaxis: {
-            type: 'datetime',
-            labels: {
-                format: 'HH:mm',
-                datetimeUTC: false,
-                style: { colors: '#72777c', fontSize: '13px', fontFamily: 'inherit' },
-            },
-            tooltip: { enabled: false },
-        },
-        tooltip: {
-            fixed: {
-                enabled: true,
-                position: 'bottomLeft',
-                offsetY: 30,
-                offsetX: 0,
-            },
-            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                return '<div class="apexcharts-tooltip-title">'
-                    + new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 )
-                    + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
-                    + '  <span class="apexcharts-tooltip-marker" style="background-color: rgb(0, 143, 251);"></span>'
-                    + '  <div class="apexcharts-tooltip-text">'
-                    + '    <div class="apexcharts-tooltip-y-group">'
-                    + '      <span class="apexcharts-tooltip-text-label">' + w.globals.seriesNames[0] + ': </span>'
-                    + '      <span class="apexcharts-tooltip-text-value">' + Math.round( series[0][dataPointIndex] * 100 ) / 100 + '%</span>'
-                    + '    </div>'
-                    + '  </div>'
-                    + '</div>';
+rediscache_charts.ratio = {
+    noData: rediscache_charts.shared.noData,
+    stroke: rediscache_charts.shared.stroke,
+    colors: rediscache_charts.shared.colors,
+    annotations: rediscache_charts.shared.annotations,
+    chart: {
+        type: 'line',
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        animations: { enabled: false }
+    },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+    fill: { opacity: [0.25, 1] },
+    xaxis: rediscache_charts.shared.xaxis,
+    yaxis: {
+        type: 'numeric',
+        tickAmount: 4,
+        min: 0,
+        max: 100,
+        labels: {
+            style: rediscache_charts.shared.xaxis.labels.style,
+            formatter: function ( value ) {
+                return Math.round( value ) + '%';
             },
         },
     },
+    tooltip: {
+        fixed: rediscache_charts.shared.tooltip.fixed,
+        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+            return [
+                rediscache_charts.shared.templates.tooltip_title({
+                    title: new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 ),
+                }),
+                rediscache_charts.shared.templates.series_group({
+                    color: rediscache_charts.shared.colors[0],
+                    name: w.globals.seriesNames[0],
+                    value: Math.round( series[0][dataPointIndex] * 100 ) / 100 + '%',
+                }),
+            ].join('');
+        },
+    },
+};
 
-    calls: {
-        stroke: {
-            width: [2, 2],
-            curve: 'smooth',
-            dashArray: [0, 8]
-        },
-        colors: [
-            '#0096dd',
-            '#72777c',
-        ],
-        annotations: {
-            texts: [{ x: '15%', y: '30%', fontSize: '20px', fontWeight: 600, fontFamily: 'inherit', foreColor: '#72777c' }],
-        },
-        chart: {
-            type: 'line',
-            toolbar: { show: false },
-            zoom: { enabled: false },
-            animations: { enabled: false }
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        legend: {
-            show: false,
-        },
-        fill: {
-            opacity: [0.25, 1],
-        },
-        yaxis: {
-            type: 'numeric',
-            tickAmount: 4,
-            min: 0,
-            labels: {
-                style: { colors: '#72777c', fontSize: '13px', fontFamily: 'inherit' },
-                formatter: function ( value ) {
-                    return Math.round( value );
-                },
-            },
-        },
-        xaxis: {
-            type: 'datetime',
-            labels: {
-                format: 'HH:mm',
-                datetimeUTC: false,
-                style: { colors: '#72777c', fontSize: '13px', fontFamily: 'inherit' },
-            },
-            tooltip: { enabled: false },
-        },
-        tooltip: {
-            fixed: {
-                enabled: true,
-                position: 'bottomLeft',
-                offsetY: 30,
-                offsetX: 0,
-            },
-            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                return '<div class="apexcharts-tooltip-title">'
-                    + new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 )
-                    + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
-                    + '  <span class="apexcharts-tooltip-marker" style="background-color: #0096dd;"></span>'
-                    + '  <div class="apexcharts-tooltip-text">'
-                    + '    <div class="apexcharts-tooltip-y-group">'
-                    + '      <span class="apexcharts-tooltip-text-label">' + w.globals.seriesNames[0] + ': </span>'
-                    + '      <span class="apexcharts-tooltip-text-value">' + Math.round( series[0][dataPointIndex] ) + '</span>'
-                    + '    </div>'
-                    + '  </div>'
-                    + '</div>'
-                    + '<div class="apexcharts-tooltip-series-group" style="display: flex;">'
-                    + '  <span class="apexcharts-tooltip-marker" style="background-color: #72777c;"></span>'
-                    + '  <div class="apexcharts-tooltip-text">'
-                    + '    <div class="apexcharts-tooltip-y-group">'
-                    + '      <span class="apexcharts-tooltip-text-label">Redis Cache Pro</span>'
-                    + '    </div>'
-                    + '  </div>'
-                    + '</div>';
+rediscache_charts.calls = {
+    noData: rediscache_charts.shared.noData,
+    noData: rediscache_charts.shared.noData,
+    stroke: rediscache_charts.shared.stroke,
+    colors: rediscache_charts.shared.colors,
+    annotations: rediscache_charts.shared.annotations,
+    chart: {
+        type: 'line',
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        animations: { enabled: false }
+    },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+    fill: { opacity: [0.25, 1] },
+    xaxis: rediscache_charts.shared.xaxis,
+    yaxis: {
+        type: 'numeric',
+        tickAmount: 4,
+        min: 0,
+        labels: {
+            style: rediscache_charts.shared.xaxis.labels.style,
+            formatter: function ( value ) {
+                return Math.round( value );
             },
         },
     },
-
+    tooltip: {
+        fixed: rediscache_charts.shared.tooltip.fixed,
+        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+            return [
+                rediscache_charts.shared.templates.tooltip_title({
+                    title: new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 ),
+                }),
+                rediscache_charts.shared.templates.series_group({
+                    color: rediscache_charts.shared.colors[0],
+                    name: w.globals.seriesNames[0],
+                    value: Math.round( series[0][dataPointIndex] ),
+                }),
+                rediscache_charts.shared.templates.series_pro({
+                    color: rediscache_charts.shared.colors[1],
+                    name: rediscache_l10n.pro,
+                }),
+            ].join('');
+        },
+    },
 };

@@ -123,22 +123,25 @@
 #redis-stats-chart .apexcharts-tooltip {
     display: flex;
     width: 100%;
-    border: none;
     justify-content: center;
+    border: none;
     box-shadow: none;
     background: #fff;
 }
 
 #redis-stats-chart .apexcharts-tooltip-title {
-    width: 60px;
-    background-color: transparent;
     margin-bottom: 0;
+    padding: 0 15px;
     border-bottom: none;
+    background-color: transparent;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
 }
 
 #redis-stats-chart .apexcharts-tooltip-series-group {
-    width: 125px;
+    display: flex;
     padding-bottom: 0;
+    padding: 0 15px;
 }
 
 #redis-stats-chart .apexcharts-tooltip-y-group {
@@ -146,5 +149,6 @@
 }
 
 #redis-stats-chart .apexcharts-tooltip-text-value {
+    margin-left: 0;
     font-variant-numeric: tabular-nums;
 }

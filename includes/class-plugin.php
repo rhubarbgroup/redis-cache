@@ -170,8 +170,21 @@ class Plugin {
         wp_enqueue_script(
             'redis-cache',
             plugins_url( 'assets/js/admin.js', WP_REDIS_FILE ),
-            array( 'jquery' ),
+            array( 'jquery', 'underscore' ),
             WP_REDIS_VERSION
+        );
+
+        wp_localize_script(
+            'redis-cache',
+            'rediscache_l10n',
+            array(
+                'time' => __( 'Time', 'redis-cache' ),
+                'bytes' => __( 'Bytes', 'redis-cache' ),
+                'ratio' => __( 'Ratio', 'redis-cache' ),
+                'calls' => __( 'Calls', 'redis-cache' ),
+                'no_data' => __( 'Not enough data collected, yet.', 'redis-cache' ),
+                'pro' => 'Redis Cache Pro',
+            )
         );
     }
 
