@@ -4,7 +4,7 @@
 
 Version 2.0 is a significant rewrite. The plugin now requires PHP 5.6, just like WordPress 5.2 does.
 
-The GitHub and Composer repositories was moved from `tillkruss/redis-cache` to `rhubarbgroup/redis-cache`.
+The GitHub and Composer repository was moved from `tillkruss/redis-cache` to `rhubarbgroup/redis-cache`.
 
 - Require PHP 5.6
 - Plugin is now "network-only"
