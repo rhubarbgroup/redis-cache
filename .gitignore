@@ -1,3 +1,3 @@
-/vendor
 /docker/apf.php
+/vendor
 composer.lock
