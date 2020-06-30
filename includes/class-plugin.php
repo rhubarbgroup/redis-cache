@@ -669,9 +669,12 @@ class Plugin {
     public function on_deactivation( $plugin ) {
         global $wp_filesystem;
 
+        ob_start();
+
         if ( $plugin === WP_REDIS_BASENAME ) {
-            $timestamp = wp_next_scheduled( 'rediscache_discard_metrics' );
-            wp_unschedule_event( $timestamp, 'rediscache_discard_metrics' );
+            if ( $timestamp = wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
+                wp_unschedule_event( $timestamp, 'rediscache_discard_metrics' );
+            }
 
             wp_cache_flush();
 
@@ -679,5 +682,7 @@ class Plugin {
                 $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
             }
         }
+
+        ob_end_clean();
     }
 }
