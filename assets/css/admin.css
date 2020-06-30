@@ -33,6 +33,10 @@
     margin-top: 50px;
 }
 
+.settings_page_redis-cache .section-diagnostics {
+    width: 100%;
+}
+
 .settings_page_redis-cache .compatiblity {
     display: flex;
     max-width: 520px;
@@ -133,7 +137,7 @@
 }
 
 #redis-stats-chart .apexcharts-tooltip-series-group {
-    width: 150px;
+    width: 125px;
     padding-bottom: 0;
 }
 
