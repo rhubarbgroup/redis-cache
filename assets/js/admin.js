@@ -154,20 +154,19 @@
     };
 
     var setup_charts = function () {
-
         var time = rediscache.metrics.computed.map(
             function ( entry ) {
                 return [entry.date, entry.time];
             }
         );
 
-        var timeMedian = compute_median(
-            time.map(
-                function ( entry ) {
-                    return entry[1];
-                }
-            )
-        );
+        // var timeMedian = compute_median(
+        //     time.map(
+        //         function ( entry ) {
+        //             return entry[1];
+        //         }
+        //     )
+        // );
 
         var bytes = rediscache.metrics.computed.map(
             function ( entry ) {
@@ -175,13 +174,13 @@
             }
         )
 
-        var bytesMedian = compute_median(
-            bytes.map(
-                function ( entry ) {
-                    return entry[1];
-                }
-            )
-        );
+        // var bytesMedian = compute_median(
+        //     bytes.map(
+        //         function ( entry ) {
+        //             return entry[1];
+        //         }
+        //     )
+        // );
 
         var ratio = rediscache.metrics.computed.map(
             function ( entry ) {
@@ -189,13 +188,13 @@
             }
         );
 
-        var ratioMedian = compute_median(
-            ratio.map(
-                function ( entry ) {
-                    return entry[1];
-                }
-            )
-        );
+        // var ratioMedian = compute_median(
+        //     ratio.map(
+        //         function ( entry ) {
+        //             return entry[1];
+        //         }
+        //     )
+        // );
 
         var calls = rediscache.metrics.computed.map(
             function ( entry ) {
@@ -203,13 +202,13 @@
             }
         );
 
-        var callsMedian = compute_median(
-            calls.map(
-                function ( entry ) {
-                    return entry[1];
-                }
-            )
-        );
+        // var callsMedian = compute_median(
+        //     calls.map(
+        //         function ( entry ) {
+        //             return entry[1];
+        //         }
+        //     )
+        // );
 
         rediscache_charts.time.series = [{
             name: 'Time',
@@ -225,7 +224,7 @@
             ),
         } ];
 
-        rediscache_charts.time.annotations.texts[0].text = Math.round( timeMedian ) + ' ms';
+        // rediscache_charts.time.annotations.texts[0].text = Math.round( timeMedian ) + ' ms';
 
         rediscache_charts.bytes.series = [{
             name: 'Bytes',
@@ -241,7 +240,7 @@
             ),
         } ];
 
-        rediscache_charts.bytes.annotations.texts[0].text = Math.round( bytesMedian / 1024 ) + ' KB';
+        // rediscache_charts.bytes.annotations.texts[0].text = Math.round( bytesMedian / 1024 ) + ' KB';
 
         rediscache_charts.ratio.series = [{
             name: 'Ratio',
@@ -249,7 +248,7 @@
             data: ratio,
         }];
 
-        rediscache_charts.ratio.annotations.texts[0].text = Math.round( ratioMedian ) + '%';
+        // rediscache_charts.ratio.annotations.texts[0].text = Math.round( ratioMedian ) + '%';
 
         rediscache_charts.calls.series = [{
             name: 'Calls',
@@ -265,7 +264,7 @@
             ),
         } ];
 
-        rediscache_charts.calls.annotations.texts[0].text = Math.round( callsMedian );
+        // rediscache_charts.calls.annotations.texts[0].text = Math.round( callsMedian );
     };
 } ( jQuery ) );
 
