@@ -423,23 +423,7 @@ class WP_Object_Cache {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }
 
-            $options = method_exists( $this->redis, 'getOptions' )
-                ? $this->redis->getOptions()
-                : new stdClass();
-
-            if ( ! isset( $options->replication ) || ! $options->replication ) {
-                if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                    $info = $this->redis->info( current( array_values( WP_REDIS_CLUSTER ) ) );
-                } else {
-                    $info = $this->redis->info();
-                }
-
-                if ( isset( $info['redis_version'] ) ) {
-                    $this->redis_version = $info['redis_version'];
-                } elseif ( isset( $info['Server']['redis_version'] ) ) {
-                    $this->redis_version = $info['Server']['redis_version'];
-                }
-            }
+            $this->fetch_info();
 
             $this->redis_connected = true;
         } catch ( Exception $exception ) {
@@ -839,6 +823,33 @@ class WP_Object_Cache {
             [ 'client' => sprintf( 'HHVM Extension (v%s)', HHVM_VERSION ) ],
             $parameters
         );
+    }
+
+    /**
+     * Fetches Redis `INFO` mostly for server version.
+     *
+     * @return void
+     */
+    public function fetch_info() {
+        $options = method_exists( $this->redis, 'getOptions' )
+            ? $this->redis->getOptions()
+            : new stdClass();
+
+        if ( isset( $options->replication ) && $options->replication ) {
+            return;
+        }
+
+        if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+            $info = $this->redis->info( current( array_values( WP_REDIS_CLUSTER ) ) );
+        } else {
+            $info = $this->redis->info();
+        }
+
+        if ( isset( $info['redis_version'] ) ) {
+            $this->redis_version = $info['redis_version'];
+        } elseif ( isset( $info['Server']['redis_version'] ) ) {
+            $this->redis_version = $info['Server']['redis_version'];
+        }
     }
 
     /**
