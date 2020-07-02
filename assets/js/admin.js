@@ -273,7 +273,9 @@
 var rediscache_charts = {
     shared: {
         noData: {
-            text: rediscache_l10n.no_data,
+            text: window.rediscache_metrics
+                ? rediscache_l10n.no_data
+                : rediscache_l10n.no_cache,
             align: 'center',
             verticalAlign: 'middle',
             offsetY: -25,

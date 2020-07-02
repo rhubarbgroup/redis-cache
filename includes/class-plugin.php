@@ -183,6 +183,7 @@ class Plugin {
                 'ratio' => __( 'Ratio', 'redis-cache' ),
                 'calls' => __( 'Calls', 'redis-cache' ),
                 'no_data' => __( 'Not enough data collected, yet.', 'redis-cache' ),
+                'no_cache' => __( 'Enable object cache to collect data.', 'redis-cache' ),
                 'pro' => 'Redis Cache Pro',
             )
         );
