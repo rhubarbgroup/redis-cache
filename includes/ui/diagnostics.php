@@ -18,6 +18,11 @@ if ( $dropin && ! $disabled ) {
     } catch ( Exception $exception ) {
         $info[ 'Connection Exception' ] = sprintf( '%s (%s)', $exception->getMessage(), get_class( $exception ) );
     }
+
+    $info[ 'Errors' ] = json_encode(
+        array_values( $wp_object_cache->errors ),
+        JSON_PRETTY_PRINT
+    );
 }
 
 $info['Redis Extension'] = class_exists( 'Redis' ) ? phpversion( 'redis' ) : 'Not Found';
