@@ -29,6 +29,7 @@ The GitHub and Composer repository was moved from `tillkruss/redis-cache` to `rh
 - Prevent race condition in `add_or_replace()`
 - Renamed `WP_CACHE_KEY_SALT` to `WP_REDIS_PREFIX` for clarity
 - Replaced "slave" terminology with "replica"
+- Only `SELECT` database when it's not `0`
 
 ## 1.6.3
 

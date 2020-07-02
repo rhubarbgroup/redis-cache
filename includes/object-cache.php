@@ -590,7 +590,10 @@ class WP_Object_Cache {
                 }
 
                 $args['database'] = $parameters['database'];
-                $this->redis->select( $parameters['database'] );
+
+                if ( $parameters['database'] ) {
+                    $this->redis->select( $parameters['database'] );
+                }
             }
 
             $this->diagnostics += $args;
@@ -651,7 +654,9 @@ class WP_Object_Cache {
 
         foreach ( array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant ) {
             if ( defined( $constant ) ) {
-                $options['parameters']['database'] = $parameters['database'];
+                if ( $parameters['database'] ) {
+                    $options['parameters']['database'] = $parameters['database'];
+                }
 
                 if ( isset( $parameters['password'] ) ) {
                     $options['parameters']['password'] = WP_REDIS_PASSWORD;
@@ -825,7 +830,9 @@ class WP_Object_Cache {
                 $parameters['database'] = intval( $parameters['database'] );
             }
 
-            $this->redis->select( $parameters['database'] );
+            if ( $parameters['database'] ) {
+                $this->redis->select( $parameters['database'] );
+            }
         }
 
         $this->diagnostics = array_merge(
