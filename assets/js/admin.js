@@ -120,7 +120,9 @@
             }
         );
 
-        return computed;
+        console.log(computed.length);
+
+        return computed.length < 2 ? [] : computed;
     };
 
     var compute_median = function ( numbers ) {
