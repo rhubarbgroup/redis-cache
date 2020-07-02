@@ -12,9 +12,10 @@ $info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
 $info[ 'Disabled' ] = $disabled ? 'Yes' : 'No';
 
 if ( $dropin && ! $disabled ) {
+    $info[ 'Ping' ] = $wp_object_cache->diagnostics[ 'ping' ];
+
     try {
         $cache = new WP_Object_Cache( false );
-        $info[ 'Ping' ] = defined( 'WP_REDIS_CLUSTER' ) ? 'Not supported' : $cache->redis_instance()->ping();
     } catch ( Exception $exception ) {
         $info[ 'Connection Exception' ] = sprintf( '%s (%s)', $exception->getMessage(), get_class( $exception ) );
     }

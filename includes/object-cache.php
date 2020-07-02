@@ -418,9 +418,9 @@ class WP_Object_Cache {
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                $this->redis->ping( current( array_values( WP_REDIS_CLUSTER ) ) );
+                $this->diagnostics[ 'ping' ] = $this->redis->ping( current( array_values( WP_REDIS_CLUSTER ) ) );
             } else {
-                $this->redis->ping();
+                $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }
 
             $options = method_exists( $this->redis, 'getOptions' )
