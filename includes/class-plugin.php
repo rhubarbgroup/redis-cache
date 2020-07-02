@@ -205,6 +205,13 @@ class Plugin {
             return;
         }
 
+        wp_enqueue_script(
+            'redis-cache-charts',
+            plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
+            null,
+            WP_REDIS_VERSION
+        );
+
         if ( ! method_exists( $wp_object_cache, 'redis_instance' ) ) {
             return;
         }
@@ -217,13 +224,6 @@ class Plugin {
         );
 
         wp_localize_script( 'redis-cache', 'rediscache_metrics', $metrics );
-
-        wp_enqueue_script(
-            'redis-cache-charts',
-            plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
-            null,
-            WP_REDIS_VERSION
-        );
     }
 
     public function register_qm_collector( array $collectors ) {

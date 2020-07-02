@@ -17,7 +17,7 @@
     $( function () {
         if ( $( '#widget-redis-stats' ).length ) {
             rediscache.metrics.computed = compute_metrics(
-                rediscache_metrics,
+                window.rediscache_metrics || [],
                 rediscache.metrics.names
             );
 
