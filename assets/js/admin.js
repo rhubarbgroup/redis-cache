@@ -457,6 +457,17 @@
             }
         );
 
+        var tabHash = window.location.hash.replace('#top#', '');
+        if ( -1 !== tabHash.search('#top') ) {
+            tabHash = window.location.hash.replace('#top%23', '');
+        }
+        if ( '' !== tabHash && '#' !== tabHash.charAt(0) ) {
+            $tabs.find('a').removeClass('nav-tab-active');
+            $('.section').removeClass('active');
+            $('#' + tabHash).addClass('active');
+            $('#' + tabHash + '-tab').addClass('nav-tab-active').trigger('click.redis');
+        }
+
         if ($('#widget-redis-stats').length) {
             rediscache.metrics.computed = compute_metrics(
                 root.rediscache_metrics,

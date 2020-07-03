@@ -1,5 +1,9 @@
 <?php
 
+namespace Rhubarb\RedisCache\UI;
+
+use Rhubarb\RedisCache\UI;
+
 defined( '\\ABSPATH' ) || exit;
 
 ?>
@@ -12,37 +16,25 @@ defined( '\\ABSPATH' ) || exit;
         <div id="redis-main-container" class="redis-content-cell">
 
             <h2 class="nav-tab-wrapper" id="redis-tabs">
-                <a class="nav-tab nav-tab-active" data-target="#overview" href="#top#overview">
-                    <?php esc_html_e( 'Overview', 'redis-cache' ); ?>
-                </a>
-                <a class="nav-tab" data-target="#metrics" href="#top#metrics">
-                    <?php esc_html_e( 'Metrics', 'redis-cache' ); ?>
-                </a>
-                <a class="nav-tab" data-target="#diagnostics" href="#top#diagnostics">
-                    <?php esc_html_e( 'Diganostics', 'redis-cache' ); ?>
-                </a>
+                <?php foreach ( UI::get_tabs() as $tab ) : ?>
+                    <a class="nav-tab<?php echo $tab->default ? ' nav-tab-active' : ''; ?>"
+                        id="<?php echo esc_attr( $tab->slug ); ?>-tab"
+                        data-target="<?php echo esc_attr( $tab->target ); ?>"
+                        href="#top<?php echo esc_attr( $tab->target ); ?>"
+                    >
+                        <?php echo esc_html( $tab->label ); ?>
+                    </a>
+                <?php endforeach; ?>
             </h2>
 
             <div class="sections">
-
-                <div id="overview" class="section section-overview active">
-
-                    <?php include 'tabs/overview.php'; ?>
-
-                </div>
-
-                <div id="metrics" class="section section-metrics">
-
-                    <?php include 'tabs/metrics.php'; ?>
-
-                </div>
-
-                <div id="diagnostics" class="section section-diagnostics">
-
-                    <?php include 'tabs/diagnostics.php'; ?>
-
-                </div>
-
+                <?php foreach ( UI::get_tabs() as $tab ) : ?>
+                    <div id="<?php echo esc_attr( $tab->slug ); ?>"
+                        class="section section-<?php echo esc_attr( $tab->slug ); ?> <?php echo $tab->default ? ' active' : ''; ?>"
+                    >
+                        <?php include $tab->file; ?>
+                    </div>
+                <?php endforeach; ?>
             </div>
 
         </div>

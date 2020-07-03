@@ -153,19 +153,24 @@
     font-variant-numeric: tabular-nums;
 }
 
-.redis-content-wrap {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
+.redis-content-cell, .redis-content-wrap {
+    display: block;
+    height: auto;
 }
-
-.redis-content-cell {
-    display: table-cell;
-    height: 500px;
-    margin: 0;
-    padding: 0;
-    padding-left: 0px;
-    vertical-align: top;
+@media ( min-width: 1024px ) {
+    .redis-content-wrap {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+    .redis-content-cell {
+        display: table-cell;
+        height: 500px;
+        margin: 0;
+        padding: 0;
+        padding-left: 0px;
+        vertical-align: top;
+    }
 }
 
 #redis-main-container {
@@ -173,8 +178,14 @@
 }
 
 #redis-sidebar-container {
-    width: 300px;
-    padding-left: 20px;
+    width: auto;
+    padding: 0;
+}
+@media ( min-width: 1024px ) {
+    #redis-sidebar-container {
+        width: 300px;
+        padding-left: 20px;
+    }
 }
 
 .redis-sidebar__title {

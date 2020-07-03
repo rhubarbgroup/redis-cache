@@ -16,6 +16,9 @@ $dropin_validation = redis_object_cache()->validate_object_cache_dropin();
 $diagnostics = redis_object_cache()->get_diagnostics();
 
 ?>
+<h2 class="title">
+    <?php esc_html_e( 'Overview', 'redis-cache' ); ?>
+</h2>
 <table class="form-table">
 
     <?php if ( ! is_null( $redis_client ) ) : ?>
