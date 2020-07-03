@@ -442,6 +442,20 @@
 
     // executed on page load
     $(function () {
+    
+        var $tabs = $('#redis-tabs');
+        $tabs.find('a').on(
+            'click.redis',
+            function () {
+                var $this = $(this),
+                    $target = $($this.data('target'));
+                $tabs.find('a').removeClass('nav-tab-active');
+                $('.section').removeClass('active');
+                $target.addClass('active');
+                $this.addClass('nav-tab-active');
+                $(window).trigger('redis-tab-change', $target);
+            }
+        );
 
         if ($('#widget-redis-stats').length) {
             rediscache.metrics.computed = compute_metrics(

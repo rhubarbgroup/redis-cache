@@ -702,4 +702,11 @@ class Plugin {
 
         ob_end_clean();
     }
+
+    public function action_link( $action ) {
+        return wp_nonce_url(
+            network_admin_url( add_query_arg( 'action', $action, $this->page ) ),
+            $action
+        );
+    }
 }
