@@ -1,4 +1,9 @@
 
+<?php
+
+defined( '\\ABSPATH' ) || exit;
+
+?>
 <div class="wrap">
 
     <h1><?php esc_html_e( 'Redis Object Cache', 'redis-cache' ); ?></h1>

@@ -1,5 +1,7 @@
 <?php
 
+defined( '\\ABSPATH' ) || exit;
+
 global $wp_object_cache;
 
 $info = $plugins = $dropins = array();
