@@ -1,27 +1,27 @@
 <?php echo $this->before_non_tabular_output(); ?>
 
     <section>
-        <h3>Status</h3>
+        <h3><?php esc_html_e( 'Status', 'redis-cache' ); ?></h3>
         <p class="qm-ltr"><code><?php echo esc_html( $data['status'] ); ?></code></p>
     </section>
 
     <section>
-        <h3>Hit Ratio</h3>
+        <h3><?php esc_html_e( 'Hit Ratio', 'redis-cache' ); ?></h3>
         <p class="qm-ltr"><code><?php echo $data['ratio']; ?>%</code></p>
     </section>
 
     <section>
-        <h3>Hits</h3>
+        <h3><?php esc_html_e( 'Hits', 'redis-cache' ); ?></h3>
         <p class="qm-ltr"><code><?php echo $data['hits']; ?></code></p>
     </section>
 
     <section>
-        <h3>Misses</h3>
+        <h3><?php esc_html_e( 'Misses', 'redis-cache' ); ?></h3>
         <p class="qm-ltr"><code><?php echo $data['misses']; ?></code></p>
     </section>
 
     <section>
-        <h3>Size</h3>
+        <h3><?php esc_html_e( 'Size', 'redis-cache' ); ?></h3>
         <p class="qm-ltr"><code><?php echo size_format( $data['bytes'], 2 ); ?></code></p>
     </section>
 
@@ -31,7 +31,7 @@
     <div class="qm-boxed qm-boxed-wrap">
 
         <section>
-            <h3>Errors</h3>
+            <h3><?php esc_html_e( 'Errors', 'redis-cache' ); ?></h3>
 
             <table>
                 <tbody>
@@ -54,7 +54,7 @@
 
     <?php if ( ! empty( $data['groups']['global'] ) ) : ?>
         <section>
-            <h3>Global Groups</h3>
+            <h3><?php esc_html_e( 'Global Groups', 'redis-cache' ); ?></h3>
 
             <ul class="qm-ltr">
                 <?php foreach ( $data['groups']['global'] as $group ) : ?>
@@ -68,7 +68,7 @@
 
     <?php if ( ! empty( $data['groups']['non_persistent'] ) ) : ?>
         <section>
-            <h3>Non-persistent Groups</h3>
+            <h3><?php esc_html_e( 'Non-persistent Groups', 'redis-cache' ); ?></h3>
 
             <ul class="qm-ltr">
                 <?php foreach ( $data['groups']['non_persistent'] as $group ) : ?>
@@ -82,7 +82,7 @@
 
     <?php if ( ! empty( $data['groups']['unflushable'] ) ) : ?>
         <section>
-            <h3>Unflushable Groups</h3>
+            <h3><?php esc_html_e( 'Unflushable Groups', 'redis-cache' ); ?></h3>
 
             <ul class="qm-ltr">
                 <?php foreach ( $data['groups']['unflushable'] as $group ) : ?>
@@ -96,7 +96,7 @@
 
     <?php if ( ! empty( $data['meta'] ) ) : ?>
         <section>
-            <h3>Metadata</h3>
+            <h3><?php esc_html_e( 'Metadata', 'redis-cache' ); ?></h3>
 
             <table>
                 <tbody>
