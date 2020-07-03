@@ -4,6 +4,8 @@ namespace Rhubarb\RedisCache;
 
 use QM_Collector as Base_Collector;
 
+defined( '\\ABSPATH' ) || exit;
+
 class QM_Collector extends Base_Collector {
 
     public $id = 'cache';

@@ -1,4 +1,9 @@
 
+<?php
+
+defined( '\\ABSPATH' ) || exit;
+
+?>
 <div id="widget-redis-stats">
 
     <ul>

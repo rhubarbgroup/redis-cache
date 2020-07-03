@@ -4,6 +4,8 @@ namespace Rhubarb\RedisCache;
 
 use QM_Output_Html;
 
+defined( '\\ABSPATH' ) || exit;
+
 class QM_Output extends QM_Output_Html {
 
     public function __construct( QM_Collector $collector ) {
