@@ -73,7 +73,7 @@
                 labels: {
                     style: { colors: '#72777c', fontSize: '13px', fontFamily: 'inherit' },
                     formatter: function (value) {
-                        return Math.round(value) + ' ms';
+                        return Math.round(value);
                     },
                 },
             },
@@ -114,9 +114,17 @@
         }
     } );
 
+    // Build the charts by deep extending the chart defaults
     $.extend( rediscache, {
         charts: {
             time: $.extend( true, {}, rediscache.chart_defaults, {
+                yaxis: {
+                    labels: {
+                        formatter: function ( value ) {
+                            return Math.round(value) + ' ms';
+                        },
+                    },
+                },
                 tooltip: {
                     custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                         return [
@@ -194,13 +202,6 @@
                 },
             } ),
             calls: $.extend( true, {}, rediscache.chart_defaults, {
-                yaxis: {
-                    labels: {
-                        formatter: function ( value ) {
-                            return Math.round( value );
-                        },
-                    },
-                },
                 tooltip: {
                     custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                         return [
