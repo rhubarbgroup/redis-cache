@@ -26,6 +26,8 @@ services:
             ALLOW_EMPTY_PASSWORD: "yes"
     redis-master:
         build: docker/redis
+        ports:
+            - '6379:6379'
     redis-slave:
         build: docker/redis
         command: 'redis-server --slaveof redis-master 6379'
