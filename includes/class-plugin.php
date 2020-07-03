@@ -176,15 +176,18 @@ class Plugin {
 
         wp_localize_script(
             'redis-cache',
-            'rediscache_l10n',
+            'rediscache',
             array(
-                'time' => __( 'Time', 'redis-cache' ),
-                'bytes' => __( 'Bytes', 'redis-cache' ),
-                'ratio' => __( 'Ratio', 'redis-cache' ),
-                'calls' => __( 'Calls', 'redis-cache' ),
-                'no_data' => __( 'Not enough data collected, yet.', 'redis-cache' ),
-                'no_cache' => __( 'Enable object cache to collect data.', 'redis-cache' ),
-                'pro' => 'Redis Cache Pro',
+                'jQuery' => 'jQuery',
+                'l10n' => array(
+                    'time' => __( 'Time', 'redis-cache' ),
+                    'bytes' => __( 'Bytes', 'redis-cache' ),
+                    'ratio' => __( 'Ratio', 'redis-cache' ),
+                    'calls' => __( 'Calls', 'redis-cache' ),
+                    'no_data' => __( 'Not enough data collected, yet.', 'redis-cache' ),
+                    'no_cache' => __( 'Enable object cache to collect data.', 'redis-cache' ),
+                    'pro' => 'Redis Cache Pro',
+                ),
             )
         );
     }
@@ -698,5 +701,12 @@ class Plugin {
         }
 
         ob_end_clean();
+    }
+
+    public function action_link( $action ) {
+        return wp_nonce_url(
+            network_admin_url( add_query_arg( 'action', $action, $this->page ) ),
+            $action
+        );
     }
 }
