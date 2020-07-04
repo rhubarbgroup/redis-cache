@@ -285,8 +285,6 @@
             }
         );
 
-        console.log(computed.length);
-
         return computed.length < 2 ? [] : computed;
     };
 
@@ -396,7 +394,7 @@
 
     // executed on page load
     $(function () {
-    
+
         var $tabs = $('#redis-tabs');
         $tabs.find('a').on(
             'click.redis',
