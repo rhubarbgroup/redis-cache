@@ -333,27 +333,11 @@
             }
         );
 
-        // var timeMedian = compute_median(
-        //     time.map(
-        //         function ( entry ) {
-        //             return entry[1];
-        //         }
-        //     )
-        // );
-
         var bytes = rediscache.metrics.computed.map(
             function ( entry ) {
                 return [entry.date, entry.bytes];
             }
         )
-
-        // var bytesMedian = compute_median(
-        //     bytes.map(
-        //         function ( entry ) {
-        //             return entry[1];
-        //         }
-        //     )
-        // );
 
         var ratio = rediscache.metrics.computed.map(
             function ( entry ) {
@@ -361,27 +345,11 @@
             }
         );
 
-        // var ratioMedian = compute_median(
-        //     ratio.map(
-        //         function ( entry ) {
-        //             return entry[1];
-        //         }
-        //     )
-        // );
-
         var calls = rediscache.metrics.computed.map(
             function ( entry ) {
                 return [entry.date, entry.calls];
             }
         );
-
-        // var callsMedian = compute_median(
-        //     calls.map(
-        //         function ( entry ) {
-        //             return entry[1];
-        //         }
-        //     )
-        // );
 
         rediscache.charts.time.series = [{
             name: 'Time',
@@ -397,8 +365,6 @@
             ),
         } ];
 
-        // rediscache.charts.time.annotations.texts[0].text = Math.round( timeMedian ) + ' ms';
-
         rediscache.charts.bytes.series = [{
             name: rediscache.l10n.bytes,
             type: 'area',
@@ -413,15 +379,11 @@
             ),
         } ];
 
-        // rediscache.charts.bytes.annotations.texts[0].text = Math.round( bytesMedian / 1024 ) + ' KB';
-
         rediscache.charts.ratio.series = [{
             name: rediscache.l10n.ratio,
             type: 'area',
             data: ratio,
         }];
-
-        // rediscache.charts.ratio.annotations.texts[0].text = Math.round( ratioMedian ) + '%';
 
         rediscache.charts.calls.series = [{
             name: rediscache.l10n.calls,
@@ -436,8 +398,6 @@
                 }
             ),
         } ];
-
-        // rediscache.charts.calls.annotations.texts[0].text = Math.round( callsMedian );
     };
 
     // executed on page load
