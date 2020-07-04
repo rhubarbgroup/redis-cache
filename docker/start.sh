@@ -37,27 +37,33 @@ function apf {
         apf WP_REDIS_CLUSTER --remove
         return
     fi
-    if [[ ! -f "$DIR/apf.php" ]]; then
-        cp "$DIR/apf-template.php" "$DIR/apf.php"
+    FILE="$DIR/apf.php"
+    # Test if apf.php exists or if it is empty
+    if [[ ! -f "$FILE" || ! -s "$FILE" ]]; then
+        cp "$DIR/apf-template.php" "$FILE"
     fi
     TF=$(mktemp)
-    sed '/\s*'\'$1\''\s*=>.*$/d' "$DIR/apf.php" > "$TF"
+    sed '/\s*'\'$1\''\s*=>.*$/d' "$FILE" > "$TF"
     if [[ '--remove' != "$2" ]]; then
         TF2=$(mktemp)
-        REPL=\'"$2"\'
         if [ -n "$3" ]; then
-            REPL='['
+            REPL="["
             for var in "${@:2}"; do
-                REPL="$REPL"\'"$var"\'','
+                REPL="$REPL'$var',"
             done
-            REPL="$REPL"']'
+            REPL="$REPL]"
+        else
+            REPL="'$2'"
         fi
-        REPL=$(printf '%s\n' "$REPL" | sed -e 's/[]\/$*.^[]/\\&/g');
-        sed '/constant-definition end/i \    '\'$1\'' => '"$REPL"',' \
+        # Escape SEARCH and REPL to be used by sed
+        SEARCH=$(echo "\    '$1'" | sed -e 's/[]\/$*.^[]/\\&/g')
+        REPL=$(printf '%s\n' "$REPL" | sed -e 's/[]\/$*.^[]/\\&/g')
+        # Add constructed line before the insertion indicator end comment
+        sed "/constant-definition end/i $SEARCH => $REPL," \
             "$TF" > "$TF2"
         mv "$TF2" "$TF"
     fi
-    mv "$TF" "$DIR/apf.php"
+    mv "$TF" "$FILE"
 }
 
 # Retrieves the IP of a docker container using its name and optionally its index
