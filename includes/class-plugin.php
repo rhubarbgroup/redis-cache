@@ -113,6 +113,10 @@ class Plugin {
             wp_clear_scheduled_hook( 'redis_gather_metrics' );
         }
 
+        UI::register_tab( 'overview', __( 'Overview', 'redis-cache' ), [ 'default' => true ] );
+        UI::register_tab( 'metrics', __( 'Metrics', 'redis-cache' ) );
+        UI::register_tab( 'diagnostics', __( 'Diagnostics', 'redis-cache' ) );
+
         // show admin page
         require_once WP_REDIS_PLUGIN_PATH . '/includes/ui/settings.php';
     }
@@ -701,5 +705,12 @@ class Plugin {
         }
 
         ob_end_clean();
+    }
+
+    public function action_link( $action ) {
+        return wp_nonce_url(
+            network_admin_url( add_query_arg( 'action', $action, $this->page ) ),
+            $action
+        );
     }
 }

@@ -152,3 +152,55 @@
     margin-left: 0;
     font-variant-numeric: tabular-nums;
 }
+
+.redis-content-cell, .redis-content-wrap {
+    display: block;
+    height: auto;
+}
+@media ( min-width: 1024px ) {
+    .redis-content-wrap {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+    .redis-content-cell {
+        display: table-cell;
+        height: 500px;
+        margin: 0;
+        padding: 0;
+        padding-left: 0px;
+        vertical-align: top;
+    }
+}
+
+#redis-main-container {
+    width: 100%;
+}
+
+#redis-sidebar-container {
+    width: auto;
+    padding: 0;
+}
+@media ( min-width: 1024px ) {
+    #redis-sidebar-container {
+        width: 300px;
+        padding-left: 20px;
+    }
+}
+
+.redis-sidebar__title {
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px 0;
+    text-align: left;
+    box-sizing: border-box;
+    line-height: 19px;
+    border-bottom: 1px solid #ccc;
+}
+
+.section {
+    display: none;
+}
+.section.active {
+    display: block;
+}
