@@ -81,7 +81,7 @@
                 fixed: {
                     enabled: true,
                     position: 'bottomLeft',
-                    offsetY: 30,
+                    offsetY: 15,
                     offsetX: 0,
                 },
             }
@@ -145,12 +145,6 @@
                 },
             } ),
             bytes: $.extend( true, {}, rediscache.chart_defaults, {
-                dataLabels: {
-                    enabled: true,
-                },
-                legend: {
-                    show: true,
-                },
                 yaxis: {
                     labels: {
                         formatter: function ( value ) {
