@@ -3,15 +3,12 @@
 defined( '\\ABSPATH' ) || exit;
 
 ?>
-<h2 class="title">
-    <?php esc_html_e( 'Metrics', 'redis-cache' ); ?>
-</h2>
 
 <div id="widget-redis-stats" class="card">
 
     <ul>
         <li>
-            <a class="active" href="#" data-chart="time">
+            <a href="#" class="active" data-chart="time">
                 <?php esc_html_e( 'Time', 'redis-cache' ); ?>
             </a>
         </li>

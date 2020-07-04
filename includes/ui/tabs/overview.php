@@ -2,23 +2,27 @@
 
 defined( '\\ABSPATH' ) || exit;
 
-$plugin_status = redis_object_cache()->get_status();
+$plugin = redis_object_cache();
 
-$redis_client = redis_object_cache()->get_redis_client_name();
-$redis_dropin = redis_object_cache()->validate_object_cache_dropin();
-$redis_prefix = redis_object_cache()->get_redis_prefix();
-$redis_maxttl = redis_object_cache()->get_redis_maxttl();
-$redis_version = redis_object_cache()->get_redis_version();
-$redis_status = redis_object_cache()->get_redis_status();
+$plugin_status = $plugin->get_status();
 
-$dropin_validation = redis_object_cache()->validate_object_cache_dropin();
+$redis_client = $plugin->get_redis_client_name();
+$redis_dropin = $plugin->validate_object_cache_dropin();
+$redis_prefix = $plugin->get_redis_prefix();
+$redis_maxttl = $plugin->get_redis_maxttl();
+$redis_version = $plugin->get_redis_version();
+$redis_status = $plugin->get_redis_status();
 
-$diagnostics = redis_object_cache()->get_diagnostics();
+$dropin_validation = $plugin->validate_object_cache_dropin();
+
+$diagnostics = $plugin->get_diagnostics();
 
 ?>
+
 <h2 class="title">
     <?php esc_html_e( 'Overview', 'redis-cache' ); ?>
 </h2>
+
 <table class="form-table">
 
     <?php if ( ! is_null( $redis_client ) ) : ?>
@@ -84,7 +88,9 @@ $diagnostics = redis_object_cache()->get_diagnostics();
 
 </table>
 
-<h2 class="title"><?php esc_html_e( 'Connection', 'redis-cache' ); ?></h2>
+<h2 class="title">
+    <?php esc_html_e( 'Connection', 'redis-cache' ); ?>
+</h2>
 
 <table class="form-table">
 

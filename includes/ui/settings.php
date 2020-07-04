@@ -7,17 +7,19 @@ use Rhubarb\RedisCache\UI;
 defined( '\\ABSPATH' ) || exit;
 
 ?>
-<div class="wrap">
+<div id="rediscache" class="wrap">
 
-    <h1><?php esc_html_e( 'Redis Object Cache', 'redis-cache' ); ?></h1>
+    <h1>
+        <?php esc_html_e( 'Redis Object Cache', 'redis-cache' ); ?>
+    </h1>
 
-    <div class="redis-content-wrap">
+    <div class="columns">
 
-        <div id="redis-main-container" class="redis-content-cell">
+        <div class="content-column">
 
             <h2 class="nav-tab-wrapper" id="redis-tabs">
                 <?php foreach ( UI::get_tabs() as $tab ) : ?>
-                    <a class="nav-tab<?php echo $tab->default ? ' nav-tab-active' : ''; ?>"
+                    <a class="nav-tab <?php echo $tab->default ? 'nav-tab-active' : ''; ?>"
                         id="<?php echo esc_attr( $tab->slug ); ?>-tab"
                         data-target="<?php echo esc_attr( $tab->target ); ?>"
                         href="#top<?php echo esc_attr( $tab->target ); ?>"
@@ -39,13 +41,13 @@ defined( '\\ABSPATH' ) || exit;
 
         </div>
 
-        <div id="redis-sidebar-container" class="redis-content-cell">
+        <div class="sidebar-column">
+
+            <h6>
+                <?php esc_html_e( 'Recommendations', 'redis-cache' ); ?>
+            </h6>
 
             <div class="section-pro">
-
-                <div class="redis-sidebar__title">
-                    Get more out of your Redis server
-                </div>
 
                 <div class="card">
                     <h2 class="title">
