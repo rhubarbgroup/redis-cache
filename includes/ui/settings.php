@@ -44,7 +44,7 @@ defined( '\\ABSPATH' ) || exit;
         <div class="sidebar-column">
 
             <h6>
-                <?php esc_html_e( 'Recommendations', 'redis-cache' ); ?>
+                <?php esc_html_e( 'Resources', 'redis-cache' ); ?>
             </h6>
 
             <div class="section-pro">
@@ -89,7 +89,7 @@ defined( '\\ABSPATH' ) || exit;
 
                     <p class="compatiblity">
                         <span class="dashicons dashicons-no"></span>
-                        <span><?php echo wp_kses_post( __( 'Your site <i>does not</i> meet the system requirements for the Pro version:', 'redis-cache' ) ); ?></span>
+                        <span><?php echo wp_kses_post( __( 'Your site <i>does not</i> meet the requirements for the Pro version:', 'redis-cache' ) ); ?></span>
                     </p>
 
                     <ul>
@@ -113,6 +113,7 @@ defined( '\\ABSPATH' ) || exit;
                 <?php endif; ?>
 
             </div>
+
         </div>
 
     </div>
