@@ -42,29 +42,31 @@ function apf {
     if [[ ! -f "$FILE" || ! -s "$FILE" ]]; then
         cp "$DIR/apf-template.php" "$FILE"
     fi
-    TF=$(mktemp)
-    sed '/\s*'\'$1\''\s*=>.*$/d' "$FILE" > "$TF"
+    TMP1=$(mktemp)
+    sed "/\s*'$1'\s*=>.*$/d" "$FILE" > "$TMP1"
     if [[ '--remove' != "$2" ]]; then
-        TF2=$(mktemp)
+        TMP2=$(mktemp)
         if [ -n "$3" ]; then
-            REPL="["
+            VALUE="["
             for var in "${@:2}"; do
-                REPL="$REPL'$var',"
+                VALUE="$VALUE'$var',"
             done
-            REPL="$REPL]"
+            VALUE="$VALUE]"
         else
-            REPL="'$2'"
+            VALUE="'$2'"
         fi
-        # Escape SEARCH and REPL to be used by sed
-        SEARCH=$(echo "'$1'" | sed -e 's/[]\/$*.^[]/\\&/g')
-        REPL=$(echo "$REPL" | sed -e 's/[]\/$*.^[]/\\&/g')
-        INSAFTER=$(echo "// constant-definition end" | sed -e 's/[]\/$*.^[]/\\&/g')
+        # Escape strings to be used by sed
+        ESCAPE='s/[]\/$*.^[]/\\&/g'
+        CONST=$(echo "'$1'" | sed "$ESCAPE")
+        VALUE=$(echo "$VALUE" | sed "$ESCAPE")
+        INSAFTER=$(echo "// constant-definition end" | sed "$ESCAPE")
         # Add constructed line before the insertion indicator end comment
-        sed -e "s/^[ ]*$INSAFTER.*$/    $SEARCH => $REPL,\n&/g" \
-            "$TF" > "$TF2"
-        mv "$TF2" "$TF"
+        REPL=$(printf '    %s => %s,' "$CONST" "$VALUE")
+        sed 's/^[ ]*'"$INSAFTER"'.*$/'"$REPL"'\'$'\n&/g' \
+            "$TMP1" > "$TMP2"
+        mv "$TMP2" "$TMP1"
     fi
-    mv "$TF" "$FILE"
+    mv "$TMP1" "$FILE"
 }
 
 # Retrieves the IP of a docker container using its name and optionally its index
