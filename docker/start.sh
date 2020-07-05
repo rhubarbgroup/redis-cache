@@ -37,27 +37,36 @@ function apf {
         apf WP_REDIS_CLUSTER --remove
         return
     fi
-    if [[ ! -f "$DIR/apf.php" ]]; then
-        cp "$DIR/apf-template.php" "$DIR/apf.php"
+    FILE="$DIR/apf.php"
+    # Test if apf.php exists or if it is empty
+    if [[ ! -f "$FILE" || ! -s "$FILE" ]]; then
+        cp "$DIR/apf-template.php" "$FILE"
     fi
-    TF=$(mktemp)
-    sed '/\s*'\'$1\''\s*=>.*$/d' "$DIR/apf.php" > "$TF"
+    TMP1=$(mktemp)
+    sed "/\s*'$1'\s*=>.*$/d" "$FILE" > "$TMP1"
     if [[ '--remove' != "$2" ]]; then
-        TF2=$(mktemp)
-        REPL=\'"$2"\'
+        TMP2=$(mktemp)
         if [ -n "$3" ]; then
-            REPL='['
+            VALUE="["
             for var in "${@:2}"; do
-                REPL="$REPL"\'"$var"\'','
+                VALUE="$VALUE'$var',"
             done
-            REPL="$REPL"']'
+            VALUE="$VALUE]"
+        else
+            VALUE="'$2'"
         fi
-        REPL=$(printf '%s\n' "$REPL" | sed -e 's/[]\/$*.^[]/\\&/g');
-        sed '/constant-definition end/i \    '\'$1\'' => '"$REPL"',' \
-            "$TF" > "$TF2"
-        mv "$TF2" "$TF"
+        # Escape strings to be used by sed
+        ESCAPE='s/[]\/$*.^[]/\\&/g'
+        CONST=$(echo "'$1'" | sed "$ESCAPE")
+        VALUE=$(echo "$VALUE" | sed "$ESCAPE")
+        INSAFTER=$(echo "// constant-definition end" | sed "$ESCAPE")
+        # Add constructed line before the insertion indicator end comment
+        REPL=$(printf '    %s => %s,' "$CONST" "$VALUE")
+        sed 's/^[ ]*'"$INSAFTER"'.*$/'"$REPL"'\'$'\n&/g' \
+            "$TMP1" > "$TMP2"
+        mv "$TMP2" "$TMP1"
     fi
-    mv "$TF" "$DIR/apf.php"
+    mv "$TMP1" "$FILE"
 }
 
 # Retrieves the IP of a docker container using its name and optionally its index
