@@ -56,10 +56,11 @@ function apf {
             REPL="'$2'"
         fi
         # Escape SEARCH and REPL to be used by sed
-        SEARCH=$(echo "\    '$1'" | sed -e 's/[]\/$*.^[]/\\&/g')
-        REPL=$(printf '%s\n' "$REPL" | sed -e 's/[]\/$*.^[]/\\&/g')
+        SEARCH=$(echo "'$1'" | sed -e 's/[]\/$*.^[]/\\&/g')
+        REPL=$(echo "$REPL" | sed -e 's/[]\/$*.^[]/\\&/g')
+        INSAFTER=$(echo "// constant-definition end" | sed -e 's/[]\/$*.^[]/\\&/g')
         # Add constructed line before the insertion indicator end comment
-        sed "/constant-definition end/i $SEARCH => $REPL," \
+        sed -e "s/^[ ]*$INSAFTER.*$/    $SEARCH => $REPL,\n&/g" \
             "$TF" > "$TF2"
         mv "$TF2" "$TF"
     fi
