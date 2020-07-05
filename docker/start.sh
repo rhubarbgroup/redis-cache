@@ -27,6 +27,7 @@ function stop {
 # Modifies the auto-prepend-file
 function apf {
     echo "APF-Constant $@"
+    ESCAPE='s/[]\/$*.^[]/\\&/g'
     # --reset
     if [[ '--reset' == $1 ]]; then
         apf WP_REDIS_HOST --remove
@@ -43,7 +44,8 @@ function apf {
         cp "$DIR/apf-template.php" "$FILE"
     fi
     TMP1=$(mktemp)
-    sed "/\s*'$1'\s*=>.*$/d" "$FILE" > "$TMP1"
+    CONST=$(echo "'$1'" | sed "$ESCAPE")
+    sed -n "/$CONST/!p" "$FILE" > "$TMP1"
     if [[ '--remove' != "$2" ]]; then
         TMP2=$(mktemp)
         if [ -n "$3" ]; then
@@ -55,9 +57,6 @@ function apf {
         else
             VALUE="'$2'"
         fi
-        # Escape strings to be used by sed
-        ESCAPE='s/[]\/$*.^[]/\\&/g'
-        CONST=$(echo "'$1'" | sed "$ESCAPE")
         VALUE=$(echo "$VALUE" | sed "$ESCAPE")
         INSAFTER=$(echo "// constant-definition end" | sed "$ESCAPE")
         # Add constructed line before the insertion indicator end comment
