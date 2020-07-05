@@ -76,8 +76,9 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 == Screenshots ==
 
 1. Plugin settings, connected to a single Redis server.
-
-2. Plugin settings, not connected to a Redis cluster.
+2. Plugin settings, displaying recent response time metrics.
+3. Plugin settings, showing diagnostic information.
+4. Dashboard widget, displaying recent response time metrics.
 
 
 == Changelog ==
