@@ -79,11 +79,11 @@ defined( '\\ABSPATH' ) || exit;
                     </p>
                 </div>
 
-                <?php $isPhp7 = version_compare( phpversion(), '7.0', '>=' ); ?>
-                <?php $isPhpRedis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
-                <?php $phpRedisInstalled = (bool) phpversion( 'redis' ); ?>
+                <?php $is_php7 = version_compare( phpversion(), '7.0', '>=' ); ?>
+                <?php $is_phpredis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
+                <?php $phpredis_installed = (bool) phpversion( 'redis' ); ?>
 
-                <?php if ( $isPhp7 && $isPhpRedis311 ) : ?>
+                <?php if ( $is_php7 && $is_phpredis311 ) : ?>
 
                     <p class="compatiblity">
                         <span class="dashicons dashicons-yes"></span>
@@ -98,17 +98,17 @@ defined( '\\ABSPATH' ) || exit;
                     </p>
 
                     <ul>
-                        <?php if ( ! $isPhp7 ) : ?>
+                        <?php if ( ! $is_php7 ) : ?>
                             <li>
                                 <?php printf( esc_html__( 'The current version of PHP (%s) is too old. PHP 7.0 or newer is required.', 'redis-cache' ), phpversion() ); ?>
                             </li>
                         <?php endif; ?>
 
-                        <?php if ( ! $phpRedisInstalled ) : ?>
+                        <?php if ( ! $phpredis_installed ) : ?>
                             <li>
                                 <?php printf( esc_html__( 'The PhpRedis extension is not installed.', 'redis-cache' ), phpversion() ); ?>
                             </li>
-                        <?php elseif ( ! $isPhpRedis311 ) : ?>
+                        <?php elseif ( ! $is_phpredis311 ) : ?>
                             <li>
                                 <?php printf( esc_html__( 'The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required.', 'redis-cache' ), phpversion( 'redis' ) ); ?>
                             </li>
