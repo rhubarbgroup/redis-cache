@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Plugin Name: Redis Object Cache
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Credis, HHVM, replication, clustering and WP-CLI.
@@ -13,9 +13,11 @@
  * GitHub Plugin URI: https://github.com/rhubarbgroup/redis-cache
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * @package RhubarbGroup/RedisCache
  */
 
-defined( 'ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit( 'direct access forbidden' );
 
 define( 'WP_REDIS_FILE', __FILE__ );
 define( 'WP_REDIS_PLUGIN_PATH', __DIR__ );

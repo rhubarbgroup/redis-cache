@@ -1,4 +1,9 @@
 <?php
+/**
+ * WP CLI command class
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 namespace Rhubarb\RedisCache\CLI;
 

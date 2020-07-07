@@ -1,4 +1,9 @@
 <?php
+/**
+ * Diagnostics template file
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 defined( '\\ABSPATH' ) || exit;
 

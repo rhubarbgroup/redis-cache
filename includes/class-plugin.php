@@ -1,4 +1,9 @@
 <?php
+/**
+ * Main plugin class
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 namespace Rhubarb\RedisCache;
 

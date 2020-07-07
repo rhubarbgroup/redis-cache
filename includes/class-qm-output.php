@@ -1,4 +1,9 @@
 <?php
+/**
+ * Query Monitor output logic
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 namespace Rhubarb\RedisCache;
 

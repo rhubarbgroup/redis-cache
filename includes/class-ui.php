@@ -1,4 +1,9 @@
 <?php
+/**
+ * UI utility class
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 namespace Rhubarb\RedisCache;
 

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin settings page template
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 namespace Rhubarb\RedisCache\UI;
 
