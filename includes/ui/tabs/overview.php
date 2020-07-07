@@ -168,21 +168,51 @@ $diagnostics = $roc->get_diagnostics();
     <?php if ( isset( $diagnostics['timeout'] ) ) : ?>
         <tr>
             <th><?php esc_html_e( 'Connection Timeout:', 'redis-cache' ); ?></th>
-            <td><code><?php echo sprintf( esc_html__( '%ss', 'redis-cache' ), $diagnostics['timeout'] ); ?></code></td>
+            <td>
+                <code>
+                    <?php
+                        echo sprintf(
+                            // translators: %s = Redis connection timeout in seconds.
+                            esc_html__( '%ss', 'redis-cache' ),
+                            $diagnostics['timeout']
+                        );
+                    ?>
+                </code>
+            </td>
         </tr>
     <?php endif; ?>
 
     <?php if ( isset( $diagnostics['read_timeout'] ) ) : ?>
         <tr>
             <th><?php esc_html_e( 'Read Timeout:', 'redis-cache' ); ?></th>
-            <td><code><?php echo sprintf( esc_html__( '%ss', 'redis-cache' ), $diagnostics['read_timeout'] ); ?></code></td>
+            <td>
+                <code>
+                    <?php
+                        echo sprintf(
+                            // translators: %s = Redis read timeout in seconds.
+                            esc_html__( '%ss', 'redis-cache' ),
+                            $diagnostics['read_timeout']
+                        );
+                    ?>
+                </code>
+            </td>
         </tr>
     <?php endif; ?>
 
     <?php if ( isset( $diagnostics['retry_interval'] ) ) : ?>
         <tr>
             <th><?php esc_html_e( 'Retry Interval:', 'redis-cache' ); ?></th>
-            <td><code><?php echo sprintf( esc_html__( '%sms', 'redis-cache' ), $diagnostics['retry_interval'] ); ?></code></td>
+            <td>
+                <code>
+                    <?php
+                        echo sprintf(
+                            // translators: %s = Redis retry interval in milliseconds.
+                            esc_html__( '%sms', 'redis-cache' ),
+                            $diagnostics['retry_interval']
+                        );
+                    ?>
+                </code>
+            </td>
         </tr>
     <?php endif; ?>
 
