@@ -1,6 +1,6 @@
 <?php
 /**
- * Query Monitor output logic
+ * Query Monitor output logic class
  *
  * @package Rhubarb\RedisCache
  */
