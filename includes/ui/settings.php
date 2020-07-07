@@ -100,17 +100,17 @@ defined( '\\ABSPATH' ) || exit;
                     <ul>
                         <?php if ( ! $is_php7 ) : ?>
                             <li>
-                                <?php printf( esc_html__( 'The current version of PHP (%s) is too old. PHP 7.0 or newer is required.', 'redis-cache' ), phpversion() ); ?>
+                                <?php printf( esc_html__( 'The current version of PHP (%s) is too old. PHP 7.0 or newer is required.', 'redis-cache' ), esc_html( phpversion() ) ); ?>
                             </li>
                         <?php endif; ?>
 
                         <?php if ( ! $phpredis_installed ) : ?>
                             <li>
-                                <?php printf( esc_html__( 'The PhpRedis extension is not installed.', 'redis-cache' ), phpversion() ); ?>
+                                <?php printf( esc_html__( 'The PhpRedis extension is not installed.', 'redis-cache' ), esc_html( phpversion() ) ); ?>
                             </li>
                         <?php elseif ( ! $is_phpredis311 ) : ?>
                             <li>
-                                <?php printf( esc_html__( 'The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required.', 'redis-cache' ), phpversion( 'redis' ) ); ?>
+                                <?php printf( esc_html__( 'The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required.', 'redis-cache' ), esc_html( phpversion( 'redis' ) ) ); ?>
                             </li>
                         <?php endif; ?>
                     </ul>
