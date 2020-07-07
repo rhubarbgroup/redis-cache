@@ -46,11 +46,11 @@ echo $this->before_non_tabular_output();
 
             <table>
                 <tbody>
-                    <?php foreach ( $data['errors'] as $error ) : ?>
+                    <?php foreach ( $data['errors'] as $err ) : ?>
                         <tr class="qm-warn">
                             <td class="qm-ltr qm-wrap">
                                 <span class="dashicons dashicons-warning" aria-hidden="true"></span>
-                                <?php echo esc_html( $error ); ?>
+                                <?php echo esc_html( $err ); ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
