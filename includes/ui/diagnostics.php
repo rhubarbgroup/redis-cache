@@ -88,12 +88,12 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
     $password = WP_REDIS_PASSWORD;
 
     if ( is_array( $password ) ) {
-        if ( isset( $password[1] ) && ! empty( $password[1] ) ) {
+        if ( isset( $password[1] ) && ! is_null( $password[1] ) && '' !== $password[1] ) {
             $password[1] = str_repeat( '•', 8 );
         }
 
         $info['WP_REDIS_PASSWORD'] = wp_json_encode( $password );
-    } elseif ( ! empty( $password ) ) {
+    } elseif ( ! is_null( $password ) && '' !== $password ) {
         $info['WP_REDIS_PASSWORD'] = str_repeat( '•', 8 );
     }
 }
