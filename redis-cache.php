@@ -17,7 +17,7 @@
  * @package RhubarbGroup/RedisCache
  */
 
-defined( 'ABSPATH' ) || exit( 'direct access forbidden' );
+defined( 'ABSPATH' ) || exit;
 
 define( 'WP_REDIS_FILE', __FILE__ );
 define( 'WP_REDIS_PLUGIN_PATH', __DIR__ );
