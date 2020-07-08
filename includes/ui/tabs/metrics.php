@@ -1,4 +1,9 @@
 <?php
+/**
+ * Metrics tab template
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 defined( '\\ABSPATH' ) || exit;
 

@@ -1,21 +1,20 @@
 <?php
+/**
+ * Overview tab template
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 defined( '\\ABSPATH' ) || exit;
 
-$plugin = redis_object_cache();
+$roc = redis_object_cache();
 
-$plugin_status = $plugin->get_status();
+$redis_client = $roc->get_redis_client_name();
+$redis_prefix = $roc->get_redis_prefix();
+$redis_maxttl = $roc->get_redis_maxttl();
+$redis_version = $roc->get_redis_version();
 
-$redis_client = $plugin->get_redis_client_name();
-$redis_dropin = $plugin->validate_object_cache_dropin();
-$redis_prefix = $plugin->get_redis_prefix();
-$redis_maxttl = $plugin->get_redis_maxttl();
-$redis_version = $plugin->get_redis_version();
-$redis_status = $plugin->get_redis_status();
-
-$dropin_validation = $plugin->validate_object_cache_dropin();
-
-$diagnostics = $plugin->get_diagnostics();
+$diagnostics = $roc->get_diagnostics();
 
 ?>
 
@@ -49,7 +48,7 @@ $diagnostics = $plugin->get_diagnostics();
     <tr>
         <th><?php esc_html_e( 'Drop-in:', 'redis-cache' ); ?></th>
         <td>
-            <code><?php echo esc_html( $redis_dropin ? esc_html_e( 'Valid', 'redis-cache' ) : esc_html_e( 'Invalid', 'redis-cache' ) ); ?></code>
+            <code><?php echo esc_html( $roc->validate_object_cache_dropin() ? esc_html_e( 'Valid', 'redis-cache' ) : esc_html_e( 'Invalid', 'redis-cache' ) ); ?></code>
         </td>
     </tr>
 
@@ -96,7 +95,7 @@ $diagnostics = $plugin->get_diagnostics();
 
     <tr>
         <th><?php esc_html_e( 'Status:', 'redis-cache' ); ?></th>
-        <td><code><?php echo $plugin_status ?></code></td>
+        <td><code><?php echo esc_html( $roc->get_status() ); ?></code></td>
     </tr>
 
     <?php if ( ! empty( $diagnostics['host'] ) ) : ?>
@@ -155,7 +154,14 @@ $diagnostics = $plugin->get_diagnostics();
     <?php if ( isset( $diagnostics['password'] ) ) : ?>
         <tr>
             <th><?php esc_html_e( 'Password:', 'redis-cache' ); ?></th>
-            <td><code><?php echo str_repeat( '&#8226;', 8 ); ?></code></td>
+            <td>
+                <code>
+                    <?php
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                        echo str_repeat( '&#8226;', 8 );
+                    ?>
+                </code>
+            </td>
         </tr>
     <?php endif; ?>
 
@@ -169,41 +175,71 @@ $diagnostics = $plugin->get_diagnostics();
     <?php if ( isset( $diagnostics['timeout'] ) ) : ?>
         <tr>
             <th><?php esc_html_e( 'Connection Timeout:', 'redis-cache' ); ?></th>
-            <td><code><?php echo sprintf( esc_html__( '%ss', 'redis-cache' ), $diagnostics['timeout'] ); ?></code></td>
+            <td>
+                <code>
+                    <?php
+                        echo sprintf(
+                            // translators: %s = Redis connection timeout in seconds.
+                            esc_html__( '%ss', 'redis-cache' ),
+                            esc_html( $diagnostics['timeout'] )
+                        );
+                    ?>
+                </code>
+            </td>
         </tr>
     <?php endif; ?>
 
     <?php if ( isset( $diagnostics['read_timeout'] ) ) : ?>
         <tr>
             <th><?php esc_html_e( 'Read Timeout:', 'redis-cache' ); ?></th>
-            <td><code><?php echo sprintf( esc_html__( '%ss', 'redis-cache' ), $diagnostics['read_timeout'] ); ?></code></td>
+            <td>
+                <code>
+                    <?php
+                        echo sprintf(
+                            // translators: %s = Redis read timeout in seconds.
+                            esc_html__( '%ss', 'redis-cache' ),
+                            esc_html( $diagnostics['read_timeout'] )
+                        );
+                    ?>
+                </code>
+            </td>
         </tr>
     <?php endif; ?>
 
     <?php if ( isset( $diagnostics['retry_interval'] ) ) : ?>
         <tr>
             <th><?php esc_html_e( 'Retry Interval:', 'redis-cache' ); ?></th>
-            <td><code><?php echo sprintf( esc_html__( '%sms', 'redis-cache' ), $diagnostics['retry_interval'] ); ?></code></td>
+            <td>
+                <code>
+                    <?php
+                        echo sprintf(
+                            // translators: %s = Redis retry interval in milliseconds.
+                            esc_html__( '%sms', 'redis-cache' ),
+                            esc_html( $diagnostics['retry_interval'] )
+                        );
+                    ?>
+                </code>
+            </td>
         </tr>
     <?php endif; ?>
 
     <tr>
         <th><?php esc_html_e( 'Redis Version:', 'redis-cache' ); ?></th>
-        <td><code><?php echo $redis_version ?: esc_html_e( 'Unknown', 'redis-cache' ); ?></code></td>
+        <td><code><?php echo esc_html( $redis_version ) ?: esc_html_e( 'Unknown', 'redis-cache' ); ?></code></td>
     </tr>
 
 </table>
 
 <p class="submit">
 
-    <?php if ( $redis_status ) : ?>
-        <a href="<?php echo redis_object_cache()->action_link( 'flush-cache' ); ?>" class="button button-primary button-large"><?php esc_html_e( 'Flush Cache', 'redis-cache' ); ?></a> &nbsp;
+    <?php if ( $roc->get_redis_status() ) : ?>
+        <a href="<?php echo esc_attr( redis_object_cache()->action_link( 'flush-cache' ) ); ?>" class="button button-primary button-large"><?php esc_html_e( 'Flush Cache', 'redis-cache' ); ?></a> &nbsp;
     <?php endif; ?>
 
-    <?php if ( $dropin_validation ) : ?>
-        <a href="<?php echo redis_object_cache()->action_link( 'disable-cache' ); ?>" class="button button-secondary button-large"><?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?></a>
+    <?php if ( $roc->validate_object_cache_dropin() ) : ?>
+        <a href="<?php echo esc_attr( redis_object_cache()->action_link( 'disable-cache' ) ); ?>" class="button button-secondary button-large"><?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?></a>
     <?php else : ?>
-        <a href="<?php echo redis_object_cache()->action_link( 'enable-cache' ); ?>" class="button button-primary button-large"><?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?></a>
+        <a href="<?php echo esc_attr( redis_object_cache()->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large"><?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?></a>
     <?php endif; ?>
 
 </p>

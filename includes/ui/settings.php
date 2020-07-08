@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin settings page template
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 namespace Rhubarb\RedisCache\UI;
 
@@ -18,23 +23,23 @@ defined( '\\ABSPATH' ) || exit;
         <div class="content-column">
 
             <h2 class="nav-tab-wrapper" id="redis-tabs">
-                <?php foreach ( UI::get_tabs() as $tab ) : ?>
-                    <a class="nav-tab <?php echo $tab->default ? 'nav-tab-active' : ''; ?>"
-                        id="<?php echo esc_attr( $tab->slug ); ?>-tab"
-                        data-target="<?php echo esc_attr( $tab->target ); ?>"
-                        href="#top<?php echo esc_attr( $tab->target ); ?>"
+                <?php foreach ( UI::get_tabs() as $ui_tab ) : ?>
+                    <a class="nav-tab <?php echo $ui_tab->default ? 'nav-tab-active' : ''; ?>"
+                        id="<?php echo esc_attr( $ui_tab->slug ); ?>-tab"
+                        data-target="<?php echo esc_attr( $ui_tab->target ); ?>"
+                        href="#top<?php echo esc_attr( $ui_tab->target ); ?>"
                     >
-                        <?php echo esc_html( $tab->label ); ?>
+                        <?php echo esc_html( $ui_tab->label ); ?>
                     </a>
                 <?php endforeach; ?>
             </h2>
 
             <div class="sections">
-                <?php foreach ( UI::get_tabs() as $tab ) : ?>
-                    <div id="<?php echo esc_attr( $tab->slug ); ?>"
-                        class="section section-<?php echo esc_attr( $tab->slug ); ?> <?php echo $tab->default ? ' active' : ''; ?>"
+                <?php foreach ( UI::get_tabs() as $ui_tab ) : ?>
+                    <div id="<?php echo esc_attr( $ui_tab->slug ); ?>"
+                        class="section section-<?php echo esc_attr( $ui_tab->slug ); ?> <?php echo $ui_tab->default ? ' active' : ''; ?>"
                     >
-                        <?php include $tab->file; ?>
+                        <?php include $ui_tab->file; ?>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -74,11 +79,11 @@ defined( '\\ABSPATH' ) || exit;
                     </p>
                 </div>
 
-                <?php $isPhp7 = version_compare( phpversion(), '7.0', '>=' ); ?>
-                <?php $isPhpRedis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
-                <?php $phpRedisInstalled = (bool) phpversion( 'redis' ); ?>
+                <?php $is_php7 = version_compare( phpversion(), '7.0', '>=' ); ?>
+                <?php $is_phpredis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
+                <?php $phpredis_installed = (bool) phpversion( 'redis' ); ?>
 
-                <?php if ( $isPhp7 && $isPhpRedis311 ) : ?>
+                <?php if ( $is_php7 && $is_phpredis311 ) : ?>
 
                     <p class="compatiblity">
                         <span class="dashicons dashicons-yes"></span>
@@ -93,19 +98,31 @@ defined( '\\ABSPATH' ) || exit;
                     </p>
 
                     <ul>
-                        <?php if ( ! $isPhp7 ) : ?>
+                        <?php if ( ! $is_php7 ) : ?>
                             <li>
-                                <?php printf( esc_html__( 'The current version of PHP (%s) is too old. PHP 7.0 or newer is required.', 'redis-cache' ), phpversion() ); ?>
+                                <?php
+                                    printf(
+                                        // translators: %s = PHP Version.
+                                        esc_html__( 'The current version of PHP (%s) is too old. PHP 7.0 or newer is required.', 'redis-cache' ),
+                                        esc_html( phpversion() )
+                                    );
+                                ?>
                             </li>
                         <?php endif; ?>
 
-                        <?php if ( ! $phpRedisInstalled ) : ?>
+                        <?php if ( ! $phpredis_installed ) : ?>
                             <li>
-                                <?php printf( esc_html__( 'The PhpRedis extension is not installed.', 'redis-cache' ), phpversion() ); ?>
+                                <?php esc_html_e( 'The PhpRedis extension is not installed.', 'redis-cache' ); ?>
                             </li>
-                        <?php elseif ( ! $isPhpRedis311 ) : ?>
+                        <?php elseif ( ! $is_phpredis311 ) : ?>
                             <li>
-                                <?php printf( esc_html__( 'The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required.', 'redis-cache' ), phpversion( 'redis' ) ); ?>
+                                <?php
+                                    printf(
+                                        // translators: %s = Version of the PhpRedis extension.
+                                        esc_html__( 'The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required.', 'redis-cache' ),
+                                        esc_html( phpversion( 'redis' ) )
+                                    );
+                                ?>
                             </li>
                         <?php endif; ?>
                     </ul>

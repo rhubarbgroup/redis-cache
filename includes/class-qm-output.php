@@ -1,4 +1,9 @@
 <?php
+/**
+ * Query Monitor output logic class
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 namespace Rhubarb\RedisCache;
 
@@ -16,7 +21,7 @@ class QM_Output extends QM_Output_Html {
     }
 
     public function name() {
-         return __( 'Object Cache', 'redis cache' );
+        return __( 'Object Cache', 'redis cache' );
     }
 
     public function admin_menu( array $menu ) {
@@ -45,8 +50,8 @@ class QM_Output extends QM_Output_Html {
 
     public function panel_menu( array $menu ) {
         $ids = array_keys( $menu );
-        $request = array_search( 'qm-request', $ids );
-        $position = $request === false ? count( $menu ) : $request;
+        $request = array_search( 'qm-request', $ids, true );
+        $position = false === $request ? count( $menu ) : $request;
 
         $item = [
             $this->collector->id() => $this->menu( [ 'title' => $this->name() ] ),

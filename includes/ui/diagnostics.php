@@ -1,17 +1,23 @@
 <?php
+/**
+ * Diagnostics template file
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 defined( '\\ABSPATH' ) || exit;
 
 global $wp_object_cache;
 
-$info = $plugins = $dropins = array();
+$info = [];
+$dropins = [];
 $dropin = $this->validate_object_cache_dropin();
 $disabled = defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED;
 
-$info[ 'Status' ] = $this->get_status();
-$info[ 'Client' ] = $this->get_redis_client_name();
-$info[ 'Drop-in' ] = $dropin ? 'Valid' : 'Invalid';
-$info[ 'Disabled' ] = $disabled ? 'Yes' : 'No';
+$info['Status'] = $this->get_status();
+$info['Client'] = $this->get_redis_client_name();
+$info['Drop-in'] = $dropin ? 'Valid' : 'Invalid';
+$info['Disabled'] = $disabled ? 'Yes' : 'No';
 
 if ( $dropin && ! $disabled ) {
     $info[ 'Ping' ] = $wp_object_cache->diagnostics[ 'ping' ];
@@ -22,7 +28,7 @@ if ( $dropin && ! $disabled ) {
         $info[ 'Connection Exception' ] = sprintf( '%s (%s)', $exception->getMessage(), get_class( $exception ) );
     }
 
-    $info[ 'Errors' ] = json_encode(
+    $info[ 'Errors' ] = wp_json_encode(
         array_values( $wp_object_cache->errors ),
         JSON_PRETTY_PRINT
     );
@@ -44,8 +50,8 @@ $info['Redis Version'] = $this->get_redis_version() ?: 'Unknown';
 $info['Multisite'] = is_multisite() ? 'Yes' : 'No';
 
 if ( $dropin ) {
-    $info[ 'Global Prefix' ] = json_encode( $wp_object_cache->global_prefix );
-    $info[ 'Blog Prefix' ] = json_encode( $wp_object_cache->blog_prefix );
+    $info['Global Prefix'] = wp_json_encode( $wp_object_cache->global_prefix );
+    $info['Blog Prefix'] = wp_json_encode( $wp_object_cache->blog_prefix );
 }
 
 $constants = array(
@@ -74,7 +80,7 @@ $constants = array(
 
 foreach ( $constants as $constant ) {
     if ( defined( $constant ) ) {
-        $info[ $constant ] = json_encode( constant( $constant ) );
+        $info[ $constant ] = wp_json_encode( constant( $constant ) );
     }
 }
 
@@ -82,34 +88,35 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
     $password = WP_REDIS_PASSWORD;
 
     if ( is_array( $password ) ) {
-        if ( isset( $password[1] ) && ! is_null( $password[1] ) && $password[1] !== '' ) {
+        if ( isset( $password[1] ) && ! is_null( $password[1] ) && '' !== $password[1] ) {
             $password[1] = str_repeat( '•', 8 );
         }
 
-        $info[ 'WP_REDIS_PASSWORD' ] = json_encode( $password );
-    } elseif ( ! is_null( $password ) && $password !== '' ) {
-        $info[ 'WP_REDIS_PASSWORD' ] = str_repeat( '•', 8 );
+        $info['WP_REDIS_PASSWORD'] = wp_json_encode( $password );
+    } elseif ( ! is_null( $password ) && '' !== $password ) {
+        $info['WP_REDIS_PASSWORD'] = str_repeat( '•', 8 );
     }
 }
 
 if ( $dropin ) {
-    $info[ 'Global Groups' ] = json_encode(
+    $info['Global Groups'] = wp_json_encode(
         array_values( $wp_object_cache->global_groups ),
         JSON_PRETTY_PRINT
     );
 
-    $info[ 'Ignored Groups' ] = json_encode(
+    $info['Ignored Groups'] = wp_json_encode(
         array_values( $wp_object_cache->ignored_groups ),
         JSON_PRETTY_PRINT
     );
 
-    $info[ 'Unflushable Groups' ] = json_encode(
+    $info['Unflushable Groups'] = wp_json_encode(
         array_values( $wp_object_cache->unflushable_groups ),
         JSON_PRETTY_PRINT
     );
 }
 
 foreach ( $info as $name => $value ) {
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     echo "{$name}: {$value}\r\n";
 }
 
@@ -123,5 +130,6 @@ foreach ( get_dropins() as $file => $details ) {
 }
 
 if ( ! empty( $dropins ) ) {
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     echo "Drop-ins: \r\n", implode( "\r\n", $dropins ), "\r\n";
 }

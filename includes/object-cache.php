@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: http://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Credis, HHVM, replication, clustering and WP-CLI.
@@ -8,6 +8,8 @@
  * Author URI: https://wprediscache.com
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * @package Rhubarb\RedisCache
  */
 
 defined( '\\ABSPATH' ) || exit;

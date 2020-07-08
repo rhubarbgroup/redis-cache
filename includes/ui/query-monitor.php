@@ -1,9 +1,15 @@
 <?php
+/**
+ * Query Montior output template
+ *
+ * @package Rhubarb\RedisCache
+ */
 
 defined( '\\ABSPATH' ) || exit;
 
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+echo $this->before_non_tabular_output();
 ?>
-<?php echo $this->before_non_tabular_output(); ?>
 
     <section>
         <h3><?php esc_html_e( 'Status', 'redis-cache' ); ?></h3>
@@ -12,22 +18,22 @@ defined( '\\ABSPATH' ) || exit;
 
     <section>
         <h3><?php esc_html_e( 'Hit Ratio', 'redis-cache' ); ?></h3>
-        <p class="qm-ltr"><code><?php echo $data['ratio']; ?>%</code></p>
+        <p class="qm-ltr"><code><?php echo esc_html( $data['ratio'] ); ?>%</code></p>
     </section>
 
     <section>
         <h3><?php esc_html_e( 'Hits', 'redis-cache' ); ?></h3>
-        <p class="qm-ltr"><code><?php echo $data['hits']; ?></code></p>
+        <p class="qm-ltr"><code><?php echo intval( $data['hits'] ); ?></code></p>
     </section>
 
     <section>
         <h3><?php esc_html_e( 'Misses', 'redis-cache' ); ?></h3>
-        <p class="qm-ltr"><code><?php echo $data['misses']; ?></code></p>
+        <p class="qm-ltr"><code><?php echo intval( $data['misses'] ); ?></code></p>
     </section>
 
     <section>
         <h3><?php esc_html_e( 'Size', 'redis-cache' ); ?></h3>
-        <p class="qm-ltr"><code><?php echo size_format( $data['bytes'], 2 ); ?></code></p>
+        <p class="qm-ltr"><code><?php echo esc_html( size_format( $data['bytes'], 2 ) ); ?></code></p>
     </section>
 
 </div>
@@ -40,11 +46,11 @@ defined( '\\ABSPATH' ) || exit;
 
             <table>
                 <tbody>
-                    <?php foreach ( $data['errors'] as $error ) : ?>
+                    <?php foreach ( $data['errors'] as $err ) : ?>
                         <tr class="qm-warn">
                             <td class="qm-ltr qm-wrap">
                                 <span class="dashicons dashicons-warning" aria-hidden="true"></span>
-                                <?php echo esc_html( $error ); ?>
+                                <?php echo esc_html( $err ); ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -116,4 +122,7 @@ defined( '\\ABSPATH' ) || exit;
         </section>
     <?php endif; ?>
 
-<?php echo $this->after_non_tabular_output(); ?>
+<?php
+
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+echo $this->after_non_tabular_output();
