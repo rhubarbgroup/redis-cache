@@ -112,7 +112,7 @@ defined( '\\ABSPATH' ) || exit;
 
                         <?php if ( ! $phpredis_installed ) : ?>
                             <li>
-                                <?php printf( esc_html__( 'The PhpRedis extension is not installed.', 'redis-cache' ), esc_html( phpversion() ) ); ?>
+                                <?php esc_html_e( 'The PhpRedis extension is not installed.', 'redis-cache' ); ?>
                             </li>
                         <?php elseif ( ! $is_phpredis311 ) : ?>
                             <li>
