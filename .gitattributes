@@ -1,5 +1,5 @@
-includes/admin-page.php linguist-language=HTML+PHP
-includes/servers-list.php linguist-language=HTML+PHP
+dependencies/* linguist-vendored
+includes/ui/* linguist-language=HTML+PHP
 
 /.github export-ignore
 /.wordpress-org export-ignore
