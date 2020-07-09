@@ -11,11 +11,20 @@
         }
     ],
     "require": {
-        "composer/installers": "~1.0"
+        "composer/installers": "~1.0",
+        "mnsami/composer-custom-directory-installer": "1.1.*",
+        "predis/predis": "^1.1",
+        "colinmollenhour/credis": "^1.11.1"
     },
     "require-dev": {
         "wp-coding-standards/wpcs": "^2.3",
         "phpcompatibility/phpcompatibility-wp": "^2.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0"
+    },
+    "extra": {
+        "installer-paths": {
+            "dependencies/vendor/predis/predis": [ "predis/predis" ],
+            "dependencies/vendor/colinmollenhour/credis": [ "colinmollenhour/credis" ]
+        }
     }
 }
