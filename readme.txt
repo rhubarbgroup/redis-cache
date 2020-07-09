@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, caching, cache, object cache,
 Requires at least: 3.3
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 1.6.3
+Stable tag: 2.0.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,37 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.0 =
+
+Version 2.0 is a significant rewrite. The plugin now requires PHP 5.6, just like WordPress 5.2 does.
+
+The GitHub and Composer repository was moved from `tillkruss/redis-cache` to `rhubarbgroup/redis-cache`.
+
+- Require PHP 5.6
+- Plugin is now "network-only"
+- Switch to WPCS for code standards
+- Overhauled the settings screen
+- Added object cache metrics (on dashboard widget and settings)
+- Added support for Query Monitor
+- Added `Rhubarb\RedisCache` namespace to all files
+- Added support for WP 5.5's new `wp_cache_get_multi()` function
+- Added `redis_object_cache()` function to retrieve plugin instance
+- Added dropin warnings to network dashboard
+- Added support for setting Sentinel database numbers
+- Support Redis 6 ACL username and password authentication
+- Support overwriting existing dropin on setting screen
+- Use singleton pattern to instantiate plugin
+- Use Composer to install and load Predis
+- Update object cache dropin during plugin update
+- Use separate methods to connect with all clients
+- Removed `CUSTOM_USER_TABLE` and `CUSTOM_USER_META_TABLE` weirdness
+- Added `themes` as ignored group
+- Changed default connection and read timeout to 1 second
+- Prevent race condition in `add_or_replace()`
+- Renamed `WP_CACHE_KEY_SALT` to `WP_REDIS_PREFIX` for clarity
+- Replaced "slave" terminology with "replica"
+- Only `SELECT` database when it's not `0`
 
 = 1.6.1 =
 
