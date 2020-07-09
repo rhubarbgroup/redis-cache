@@ -23,8 +23,8 @@
     },
     "extra": {
         "installer-paths": {
-            "dependencies/vendor/predis/predis": [ "predis/predis" ],
-            "dependencies/vendor/colinmollenhour/credis": [ "colinmollenhour/credis" ]
+            "dependencies/predis/predis": [ "predis/predis" ],
+            "dependencies/colinmollenhour/credis": [ "colinmollenhour/credis" ]
         }
     }
 }
