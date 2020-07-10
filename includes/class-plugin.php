@@ -246,7 +246,11 @@ class Plugin {
     }
 
     public function register_qm_output( $output ) {
-        $output['cache'] = new QM_Output( \QM_Collectors::get( 'cache' ) );
+        $collector = \QM_Collectors::get( 'cache' );
+
+        if ( $collector instanceof QM_Collector ) {
+            $output['cache'] = new QM_Output( $collector );
+        }
 
         return $output;
     }

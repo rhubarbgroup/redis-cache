@@ -2,7 +2,8 @@
 
 ## 2.0.1
 
-- Fixed settings link in plugin list
+- Fixed link to settings in plugin list
+- Prevent `QM_Collector` conflicts
 
 ## 2.0.0
 
