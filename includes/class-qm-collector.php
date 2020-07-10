@@ -15,6 +15,10 @@ class QM_Collector extends Base_Collector {
 
     public $id = 'cache';
 
+    public function name() {
+        return __( 'Object Cache', 'redis-cache' );
+    }
+
     public function process() {
          global $wp_object_cache;
 
@@ -89,5 +93,8 @@ class QM_Collector extends Base_Collector {
 
         $this->data['has_object_cache'] = (bool) wp_using_ext_object_cache();
         $this->data['has_opcode_cache'] = array_filter( $this->data['opcode_cache_extensions'] ) ? true : false;
+
+        $this->data['display_hit_rate_warning'] = false;
+        $this->data['ext_object_cache'] = $this->data['has_object_cache'];
     }
 }

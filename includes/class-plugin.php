@@ -248,7 +248,10 @@ class Plugin {
     public function register_qm_output( $output ) {
         $collector = \QM_Collectors::get( 'cache' );
 
-        if ( $collector instanceof QM_Collector ) {
+        if (
+            $collector instanceof QM_Collector &&
+            method_exists( 'QM_Output_Html', 'before_non_tabular_output' )
+        ) {
             $output['cache'] = new QM_Output( $collector );
         }
 

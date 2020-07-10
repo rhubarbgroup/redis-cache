@@ -3,7 +3,8 @@
 ## 2.0.1
 
 - Fixed link to settings in plugin list
-- Prevent `QM_Collector` conflicts
+- Prevent `QM_Collector` conflicts with other plugins
+- Support older versions of Query Monitor
 
 ## 2.0.0
 
