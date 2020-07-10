@@ -145,7 +145,7 @@ class Plugin {
     public function add_plugin_actions_links( $links ) {
         // add settings link to plugin actions
         return array_merge(
-            [ sprintf( '<a href="%s">$s</a>', network_admin_url( $this->page ), esc_html__( 'Settings', 'redis-cache' ) ) ],
+            [ sprintf( '<a href="%s">%s</a>', network_admin_url( $this->page ), esc_html__( 'Settings', 'redis-cache' ) ) ],
             $links
         );
     }
