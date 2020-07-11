@@ -131,6 +131,10 @@ class Plugin {
             return;
         }
 
+        if ( ! $this->get_redis_status() ) {
+            return;
+        }
+
         wp_add_dashboard_widget(
             'dashboard_rediscache',
             __( 'Redis Object Cache', 'redis-cache' ),
@@ -205,6 +209,10 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
+            return;
+        }
+
+        if ( ! $this->get_redis_status() ) {
             return;
         }
 
@@ -557,6 +565,10 @@ class Plugin {
             return;
         }
 
+        if ( ! $this->get_redis_status() ) {
+            return;
+        }
+
         if ( ! method_exists( $wp_object_cache, 'info' ) || ! method_exists( $wp_object_cache, 'redis_instance' ) ) {
             return;
         }
@@ -584,6 +596,10 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
+            return;
+        }
+
+        if ( ! $this->get_redis_status() ) {
             return;
         }
 
