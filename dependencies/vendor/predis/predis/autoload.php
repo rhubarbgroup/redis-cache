@@ -1,9 +1,8 @@
 <?php
 /**
- * Compatiblity file to avoid WSOD/recovery-mode updating from 2.0.0 as
- * `require_once` was defined by a condition in this specific version.
+ * Compatiblity file to avoid WSOD/recovery-mode when updating from 2.0.0 to 2.0.1.
  *
- * Simply returning false will promt the admin to update his `object-cache.php`
+ * Returning `false` will force the plugin to update the `object-cache.php` dropin.
  */
 
 return false;
