@@ -311,14 +311,14 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
-            return null;
+            return;
         }
 
         if ( $this->validate_object_cache_dropin() && method_exists( $wp_object_cache, 'redis_status' ) ) {
             return $wp_object_cache->redis_status();
         }
 
-        return null;
+        return;
     }
 
     public function get_redis_version() {
