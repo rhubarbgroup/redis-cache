@@ -302,18 +302,23 @@ class Plugin {
         return __( 'Unknown', 'redis-cache' );
     }
 
+    /**
+     * Retrieves the Redis connection status
+     *
+     * @return bool|null Boolean Redis connection status if available, null otherwise.
+     */
     public function get_redis_status() {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
-            return;
+            return null;
         }
 
         if ( $this->validate_object_cache_dropin() && method_exists( $wp_object_cache, 'redis_status' ) ) {
             return $wp_object_cache->redis_status();
         }
 
-        return;
+        return null;
     }
 
     public function get_redis_version() {
