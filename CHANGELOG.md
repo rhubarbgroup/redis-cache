@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Hide "Metrics" tab when metrics are disabled
+
 ## 2.0.2
 
 - Updated POT file and comments for translators
