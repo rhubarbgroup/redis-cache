@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2
+
+- Updated POT file and comments for translators
+
 ## 2.0.1
 
 - Support older versions of Query Monitor
