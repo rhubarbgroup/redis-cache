@@ -34,8 +34,8 @@ if ( $dropin && ! $disabled ) {
     );
 }
 
-$info['Redis Extension'] = class_exists( 'Redis' ) ? phpversion( 'redis' ) : 'Not Found';
-$info['Predis Client'] = class_exists( 'Predis\Client' ) ? Predis\Client::VERSION : 'Not Found';
+$info['Redis Extension'] = class_exists( 'Redis' ) ? phpversion( 'redis' ) : 'Not found';
+$info['Predis Client'] = class_exists( 'Predis\Client' ) ? Predis\Client::VERSION : 'Not found';
 
 if ( defined( 'PHP_VERSION' ) ) {
     $info['PHP Version'] = PHP_VERSION;
