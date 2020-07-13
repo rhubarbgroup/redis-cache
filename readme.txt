@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, caching, cache, object cache,
 Requires at least: 3.3
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,17 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.1 =
+
+- Support older versions of Query Monitor
+- Made "Dropin" status more helpful
+- Hide Redis version in settings when it isn't available
+- Collapsed dependency paths using `composer-custom-directory-installer` package
+- Prevent `QM_Collector` conflicts with other plugins
+- Prevent metric issues when cache is not available
+- Fixed "Settings" link in plugin list
+- Fixed `WP_REDIS_DISABLED` logic
 
 = 2.0.0 =
 
