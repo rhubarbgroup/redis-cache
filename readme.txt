@@ -83,7 +83,15 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 == Changelog ==
 
+= 2.0.2 =
+
+Version 2.0 is a significant rewrite. Please read the v2.0.0 release notes.
+
+- Updated POT file and comments for translators
+
 = 2.0.1 =
+
+Version 2.0 is a significant rewrite. Please read the v2.0.0 release notes.
 
 - Support older versions of Query Monitor
 - Made "Dropin" status more helpful
