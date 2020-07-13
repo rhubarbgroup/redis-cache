@@ -48,7 +48,18 @@ $diagnostics = $roc->get_diagnostics();
     <tr>
         <th><?php esc_html_e( 'Drop-in:', 'redis-cache' ); ?></th>
         <td>
-            <code><?php echo esc_html( $roc->validate_object_cache_dropin() ? esc_html_e( 'Valid', 'redis-cache' ) : esc_html_e( 'Invalid', 'redis-cache' ) ); ?></code>
+            <code>
+                <?php if ( ! $roc->object_cache_dropin_exists() ) : ?>
+                    <?php esc_html_e( 'Missing', 'redis-cache' ); ?>
+                <?php elseif ( $roc->object_cache_dropin_outdated() ) : ?>
+                    <?php esc_html_e( 'Outdated', 'redis-cache' ); ?>
+                <?php else : ?>
+                    <?php $roc->validate_object_cache_dropin()
+                        ? esc_html_e( 'Valid', 'redis-cache' )
+                        : esc_html_e( 'Invalid', 'redis-cache' );
+                    ?>
+                <?php endif; ?>
+            </code>
         </td>
     </tr>
 

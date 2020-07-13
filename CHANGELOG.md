@@ -3,10 +3,11 @@
 ## 2.0.1
 
 - Support older versions of Query Monitor
-- Prevent `QM_Collector` conflicts with other plugins
-- Prevent metric issues when cache is not available
+- Made "Dropin" status more helpful
 - Hide Redis version in settings when it isn't available
 - Collapsed dependency paths using `composer-custom-directory-installer` package
+- Prevent `QM_Collector` conflicts with other plugins
+- Prevent metric issues when cache is not available
 - Fixed "Settings" link in plugin list
 - Fixed `WP_REDIS_DISABLED` logic
 
