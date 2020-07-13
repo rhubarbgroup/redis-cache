@@ -651,7 +651,7 @@ class Plugin {
         }
 
         $message = sprintf(
-            __( 'Performance optimized by Redis Object Cache. Learn more: %s', 'redis-cache' ),
+            'Performance optimized by Redis Object Cache. Learn more: %s',
             'https://wprediscache.com'
         );
 
