@@ -190,7 +190,7 @@ $diagnostics = $roc->get_diagnostics();
                 <code>
                     <?php
                         echo sprintf(
-                            // translators: %s = Redis connection timeout in seconds.
+                            // translators: %s = Redis connection/read timeout in seconds.
                             esc_html__( '%ss', 'redis-cache' ),
                             esc_html( $diagnostics['timeout'] )
                         );
@@ -207,7 +207,7 @@ $diagnostics = $roc->get_diagnostics();
                 <code>
                     <?php
                         echo sprintf(
-                            // translators: %s = Redis read timeout in seconds.
+                            // translators: %s = Redis connection/read timeout in seconds.
                             esc_html__( '%ss', 'redis-cache' ),
                             esc_html( $diagnostics['read_timeout'] )
                         );

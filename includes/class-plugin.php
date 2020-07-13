@@ -381,9 +381,11 @@ class Plugin {
 
             if ( $this->validate_object_cache_dropin() ) {
                 if ( $this->object_cache_dropin_outdated() ) {
+                    // translators: %s = Action link to update the drop-in
                     $message = sprintf( __( 'The Redis object cache drop-in is outdated. Please <a href="%s">update the drop-in</a>.', 'redis-cache' ), $url );
                 }
             } else {
+                // translators: %s = Action link to update the drop-in
                 $message = sprintf( __( 'A foreign object cache drop-in was found. To use Redis for object caching, please <a href="%s">enable the drop-in</a>.', 'redis-cache' ), $url );
             }
 
@@ -518,7 +520,8 @@ class Plugin {
             '<div class="notice notice-info is-dismissible" data-dismissible="pro_release_notice"><p><strong>%s</strong> %s</p></div>',
             __( 'Redis Cache Pro is out!', 'redis-cache' ),
             sprintf(
-                __( 'A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href="%1$s">Learn more »</a>', 'redis-cache' ),
+                // translators: %s = Link to the plugin setting screen
+                __( 'A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href="%s">Learn more »</a>', 'redis-cache' ),
                 network_admin_url( $this->page )
             )
         );
@@ -551,7 +554,8 @@ class Plugin {
             '<div class="notice woocommerce-message woocommerce-admin-promo-messages is-dismissible" data-dismissible="wc_pro_notice"><p><strong>%s</strong></p><p>%s</p></div>',
             __( 'Redis Cache Pro + WooCommerce = ❤️', 'redis-cache' ),
             sprintf(
-                __( 'Redis Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style="color: #bb77ae;" href="%1$s">Learn more »</a>', 'redis-cache' ),
+                // translators: %s = Link to the plugin's settings screen
+                __( 'Redis Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style="color: #bb77ae;" href="%s">Learn more »</a>', 'redis-cache' ),
                 network_admin_url( $this->page )
             )
         );
@@ -660,6 +664,7 @@ class Plugin {
         $bytes = strlen( serialize( $wp_object_cache->cache ) );
 
         $debug = sprintf(
+            // translators: %1$d = number of objects. %2$s = human-readable size of cache. %3$s = name of the used client.
             __( 'Retrieved %1$d objects (%2$s) from Redis using %3$s.', 'redis-cache' ),
             $wp_object_cache->cache_hits,
             function_exists( 'size_format' ) ? size_format( $bytes ) : "{$bytes} bytes",
