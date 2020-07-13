@@ -14,9 +14,7 @@
 
 defined( '\\ABSPATH' ) || exit;
 
-if ( defined( 'WP_REDIS_DISABLED' ) && ! WP_REDIS_DISABLED ) {
-    return;
-}
+if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
 
 /**
  * Adds a value to cache.
@@ -1982,3 +1980,5 @@ LUA;
         }
     }
 }
+
+endif;

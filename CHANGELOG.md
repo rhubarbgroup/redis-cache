@@ -6,6 +6,7 @@
 - Prevent `QM_Collector` conflicts with other plugins
 - Prevent metric issues when cache is not available
 - Fixed "Settings" link in plugin list
+- Fixed `WP_REDIS_DISABLED` logic
 - Collapsed dependency paths using `composer-custom-directory-installer` package
 
 ## 2.0.0
