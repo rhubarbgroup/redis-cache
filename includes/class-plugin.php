@@ -273,6 +273,17 @@ class Plugin {
         return ( strcmp( $dropin['PluginURI'], $plugin['PluginURI'] ) === 0 );
     }
 
+    public function object_cache_dropin_outdated() {
+        if ( ! $this->object_cache_dropin_exists() ) {
+            return false;
+        }
+
+        $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
+        $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
+
+        return version_compare( $dropin['Version'], $plugin['Version'], '<' );
+    }
+
     public function get_status() {
         if (
             ! $this->object_cache_dropin_exists() ||
@@ -369,10 +380,7 @@ class Plugin {
             $url = wp_nonce_url( network_admin_url( add_query_arg( 'action', 'update-dropin', $this->page ) ), 'update-dropin' );
 
             if ( $this->validate_object_cache_dropin() ) {
-                $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
-                $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
-
-                if ( version_compare( $dropin['Version'], $plugin['Version'], '<' ) ) {
+                if ( $this->object_cache_dropin_outdated() ) {
                     $message = sprintf( __( 'The Redis object cache drop-in is outdated. Please <a href="%s">update the drop-in</a>.', 'redis-cache' ), $url );
                 }
             } else {
