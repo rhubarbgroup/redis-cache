@@ -2,9 +2,11 @@
 
 ## 2.0.1
 
-- Fixed link to settings in plugin list
-- Prevent `QM_Collector` conflicts with other plugins
 - Support older versions of Query Monitor
+- Prevent `QM_Collector` conflicts with other plugins
+- Prevent metric issues when cache is not available
+- Fixed "Settings" link in plugin list
+- Collapsed dependency paths using `composer-custom-directory-installer` package
 
 ## 2.0.0
 
