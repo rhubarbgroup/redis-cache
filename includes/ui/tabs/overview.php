@@ -223,10 +223,12 @@ $diagnostics = $roc->get_diagnostics();
         </tr>
     <?php endif; ?>
 
-    <tr>
-        <th><?php esc_html_e( 'Redis Version:', 'redis-cache' ); ?></th>
-        <td><code><?php echo esc_html( $redis_version ) ?: esc_html_e( 'Unknown', 'redis-cache' ); ?></code></td>
-    </tr>
+    <?php if ( ! is_null( $redis_version ) ) : ?>
+        <tr>
+            <th><?php esc_html_e( 'Redis Version:', 'redis-cache' ); ?></th>
+            <td><code><?php echo esc_html( $redis_version ) ?: esc_html_e( 'Unknown', 'redis-cache' ); ?></code></td>
+        </tr>
+    <?php endif; ?>
 
 </table>
 
