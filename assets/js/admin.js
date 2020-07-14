@@ -419,13 +419,9 @@
             }
         );
 
-        var tabHash = window.location.hash.replace( '#top#', '' );
+        var tabHash = window.location.hash.replace( '#', '' );
 
-        if ( tabHash.search('#top') !== -1 ) {
-            tabHash = window.location.hash.replace( '#top%23', '' );
-        }
-
-        if ( tabHash !== '' && tabHash.charAt(0) !== '#' ) {
+        if ( tabHash !== '' ) {
             $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
             $( '.section' ).removeClass( 'active' );
             $( '#' + tabHash ).addClass( 'active' );
