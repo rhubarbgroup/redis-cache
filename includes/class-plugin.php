@@ -13,7 +13,7 @@ class Plugin {
 
     private $page;
 
-    private $screen = 'settings_page_redis-cache';
+    private $screen = '';
 
     private $actions = array(
         'enable-cache',
@@ -35,7 +35,13 @@ class Plugin {
         load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
         register_activation_hook( WP_REDIS_FILE, 'wp_cache_flush' );
 
-        $this->page = is_multisite() ? 'settings.php?page=redis-cache' : 'options-general.php?page=redis-cache';
+        if ( is_multisite() ) {
+            $this->page = 'settings.php?page=redis-cache';
+            $this->screen = 'settings_page_redis-cache-network';
+        } else {
+            $this->page = 'options-general.php?page=redis-cache';
+            $this->screen = 'settings_page_redis-cache';
+        }
 
         add_action( 'deactivate_plugin', array( $this, 'on_deactivation' ) );
         add_action( 'upgrader_process_complete', array( $this, 'maybe_update_dropin' ), 10, 2 );

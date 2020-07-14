@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - Hide "Metrics" tab when metrics are disabled
+- Fixed `admin.js` not loading in multisite environments
 
 ## 2.0.2
 
