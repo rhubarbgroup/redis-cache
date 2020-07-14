@@ -7,6 +7,8 @@
 
 namespace Rhubarb\RedisCache;
 
+use Exception;
+
 defined( '\\ABSPATH' ) || exit;
 
 class Plugin {
@@ -257,14 +259,18 @@ class Plugin {
             return;
         }
 
-        $metrics = $wp_object_cache->redis_instance()->zrangebyscore(
-            $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
-            time() - ( MINUTE_IN_SECONDS * 30 ),
-            time() - MINUTE_IN_SECONDS,
-            [ 'withscores' => true ]
-        );
+        try {
+            $metrics = $wp_object_cache->redis_instance()->zrangebyscore(
+                $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
+                time() - ( MINUTE_IN_SECONDS * 30 ),
+                time() - MINUTE_IN_SECONDS,
+                [ 'withscores' => true ]
+            );
 
-        wp_localize_script( 'redis-cache', 'rediscache_metrics', $metrics );
+            wp_localize_script( 'redis-cache', 'rediscache_metrics', $metrics );
+        } catch (Exception $e) {
+            //
+        }
     }
 
     public function register_qm_collector( array $collectors ) {

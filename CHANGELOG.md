@@ -4,6 +4,7 @@
 
 - Hide "Metrics" tab when metrics are disabled
 - Fixed `admin.js` not loading in multisite environments
+- Avoid fatal error when Redis went away and trying to fetch metrics
 
 ## 2.0.2
 
