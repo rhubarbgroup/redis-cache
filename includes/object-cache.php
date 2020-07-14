@@ -1979,6 +1979,16 @@ LUA;
             do_action( 'redis_object_cache_error', $exception );
         }
     }
+
+    /**
+     * Allows access to private properties for backwards compatibility.
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public function __get( $name ) {
+        return isset($this->{$name}) ? $this->{$name} : null;
+    }
 }
 
 endif;
