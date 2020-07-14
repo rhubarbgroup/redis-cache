@@ -39,14 +39,21 @@
                 '#72777c',
             ],
             annotations: {
-                texts: [{ x: '15%', y: '30%', fontSize: '20px', fontWeight: 600, fontFamily: 'inherit', foreColor: '#72777c' }],
+                texts: [{
+                    x: '15%',
+                    y: '30%',
+                    fontSize: '20px',
+                    fontWeight: 600,
+                    fontFamily: 'inherit',
+                    foreColor: '#72777c',
+                }],
             },
             chart: {
                 type: 'line',
                 height: '100%',
                 toolbar: { show: false },
                 zoom: { enabled: false },
-                animations: { enabled: false }
+                animations: { enabled: false },
             },
             dataLabels: {
                 enabled: false,
@@ -72,8 +79,8 @@
                 min: 0,
                 labels: {
                     style: { colors: '#72777c', fontSize: '13px', fontFamily: 'inherit' },
-                    formatter: function (value) {
-                        return Math.round(value);
+                    formatter: function ( value ) {
+                        return Math.round( value );
                     },
                 },
             },
@@ -121,7 +128,7 @@
                 yaxis: {
                     labels: {
                         formatter: function ( value ) {
-                            return Math.round(value) + ' ms';
+                            return Math.round( value ) + ' ms';
                         },
                     },
                 },
@@ -129,12 +136,13 @@
                     custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                         return [
                             rediscache.templates.tooltip_title({
-                                title: new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 ),
+                                title: new Date( w.globals.seriesX[ seriesIndex ][ dataPointIndex ] )
+                                    .toTimeString().slice( 0, 5 ),
                             }),
                             rediscache.templates.series_group({
                                 color: rediscache.chart_defaults.colors[0],
                                 name: w.globals.seriesNames[0],
-                                value: series[0][dataPointIndex].toFixed(2) + ' ms',
+                                value: series[0][ dataPointIndex ].toFixed(2) + ' ms',
                             }),
                             rediscache.templates.series_pro({
                                 color: rediscache.chart_defaults.colors[1],
@@ -156,12 +164,12 @@
                     custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                         return [
                             rediscache.templates.tooltip_title({
-                                title: new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 ),
+                                title: new Date( w.globals.seriesX[ seriesIndex ][ dataPointIndex ] ).toTimeString().slice( 0, 5 ),
                             }),
                             rediscache.templates.series_group({
                                 color: rediscache.chart_defaults.colors[0],
                                 name: w.globals.seriesNames[0],
-                                value: Math.round( series[0][dataPointIndex] / 1024 ) + ' kb',
+                                value: Math.round( series[0][ dataPointIndex ] / 1024 ) + ' kb',
                             }),
                             rediscache.templates.series_pro({
                                 color: rediscache.chart_defaults.colors[1],
@@ -184,12 +192,13 @@
                     custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                         return [
                             rediscache.templates.tooltip_title({
-                                title: new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 ),
+                                title: new Date( w.globals.seriesX[ seriesIndex ][ dataPointIndex ] )
+                                    .toTimeString().slice( 0, 5 ),
                             }),
                             rediscache.templates.series_group({
                                 color: rediscache.chart_defaults.colors[0],
                                 name: w.globals.seriesNames[0],
-                                value: Math.round( series[0][dataPointIndex] * 100 ) / 100 + '%',
+                                value: Math.round( series[0][ dataPointIndex ] * 100 ) / 100 + '%',
                             }),
                         ].join('');
                     },
@@ -200,12 +209,13 @@
                     custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                         return [
                             rediscache.templates.tooltip_title({
-                                title: new Date( w.globals.seriesX[seriesIndex][dataPointIndex] ).toTimeString().slice( 0, 5 ),
+                                title: new Date( w.globals.seriesX[ seriesIndex ][ dataPointIndex ] )
+                                    .toTimeString().slice( 0, 5 ),
                             }),
                             rediscache.templates.series_group({
                                 color: rediscache.chart_defaults.colors[0],
                                 name: w.globals.seriesNames[0],
-                                value: Math.round( series[0][dataPointIndex] ),
+                                value: Math.round( series[0][ dataPointIndex ] ),
                             }),
                             rediscache.templates.series_pro({
                                 color: rediscache.chart_defaults.colors[1],
@@ -305,13 +315,13 @@
 
     var render_chart = function ( id ) {
         if ( rediscache.chart ) {
-            rediscache.chart.updateOptions( rediscache.charts[id] );
+            rediscache.chart.updateOptions( rediscache.charts[ id ] );
             return;
         }
 
         var chart = new ApexCharts(
             document.querySelector( '#redis-stats-chart' ),
-            rediscache.charts[id]
+            rediscache.charts[ id ]
         );
 
         chart.render();
@@ -321,25 +331,25 @@
     var setup_charts = function () {
         var time = rediscache.metrics.computed.map(
             function ( entry ) {
-                return [entry.date, entry.time];
+                return [ entry.date, entry.time ];
             }
         );
 
         var bytes = rediscache.metrics.computed.map(
             function ( entry ) {
-                return [entry.date, entry.bytes];
+                return [ entry.date, entry.bytes ];
             }
         )
 
         var ratio = rediscache.metrics.computed.map(
             function ( entry ) {
-                return [entry.date, entry.ratio];
+                return [ entry.date, entry.ratio ];
             }
         );
 
         var calls = rediscache.metrics.computed.map(
             function ( entry ) {
-                return [entry.date, entry.calls];
+                return [ entry.date, entry.calls ];
             }
         );
 
@@ -352,7 +362,7 @@
             type: 'line',
             data: time.map(
                 function ( entry ) {
-                    return [entry[0], entry[1] * 0.5];
+                    return [ entry[0], entry[1] * 0.5 ];
                 }
             ),
         } ];
@@ -366,7 +376,7 @@
             type: 'line',
             data: bytes.map(
                 function ( entry ) {
-                    return [entry[0], entry[1] * 0.3];
+                    return [ entry[0], entry[1] * 0.3 ];
                 }
             ),
         } ];
@@ -386,7 +396,7 @@
             type: 'line',
             data: calls.map(
                 function ( entry ) {
-                    return [entry[0], Math.round( entry[1] / 50 ) + 5];
+                    return [ entry[0], Math.round( entry[1] / 50 ) + 5 ];
                 }
             ),
         } ];
@@ -394,68 +404,70 @@
 
     // executed on page load
     $(function () {
+        var $tabs = $( '#redis-tabs' );
 
-        var $tabs = $('#redis-tabs');
-        $tabs.find('a').on(
+        $tabs.find( 'a' ).on(
             'click.redis',
             function () {
-                var $this = $(this),
-                    $target = $($this.data('target'));
-                $tabs.find('a').removeClass('nav-tab-active');
-                $('.section').removeClass('active');
-                $target.addClass('active');
-                $this.addClass('nav-tab-active');
-                $(window).trigger('redis-tab-change', $target);
+                var $this = $( this );
+                var $target = $( $this.data( 'target' ) );
+
+                $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
+                $( '.section' ).removeClass( 'active' );
+                $target.addClass( 'active' );
+                $this.addClass( 'nav-tab-active' );
             }
         );
 
-        var tabHash = window.location.hash.replace('#top#', '');
-        if ( -1 !== tabHash.search('#top') ) {
-            tabHash = window.location.hash.replace('#top%23', '');
-        }
-        if ( '' !== tabHash && '#' !== tabHash.charAt(0) ) {
-            $tabs.find('a').removeClass('nav-tab-active');
-            $('.section').removeClass('active');
-            $('#' + tabHash).addClass('active');
-            $('#' + tabHash + '-tab').addClass('nav-tab-active').trigger('click.redis');
+        var tabHash = window.location.hash.replace( '#top#', '' );
+
+        if ( tabHash.search('#top') !== -1 ) {
+            tabHash = window.location.hash.replace( '#top%23', '' );
         }
 
-        if ($('#widget-redis-stats').length) {
+        if ( tabHash !== '' && tabHash.charAt(0) !== '#' ) {
+            $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
+            $( '.section' ).removeClass( 'active' );
+            $( '#' + tabHash ).addClass( 'active' );
+            $( '#' + tabHash + '-tab' ).addClass( 'nav-tab-active' ).trigger( 'click.redis' );
+        }
+
+        if ( $( '#widget-redis-stats' ).length ) {
             rediscache.metrics.computed = compute_metrics(
                 root.rediscache_metrics,
                 rediscache.metrics.names
             );
 
             setup_charts();
-            render_chart('time');
+            render_chart( 'time' );
         }
 
-        $('#widget-redis-stats ul a').on(
+        $( '#widget-redis-stats ul a' ).on(
             'click.redis',
-            function (event) {
+            function ( event ) {
                 event.preventDefault();
 
-                $('#widget-redis-stats .active').removeClass('active');
-                $(this).blur().addClass('active');
+                $( '#widget-redis-stats .active' ).removeClass( 'active' );
+                $( this ).blur().addClass( 'active' );
 
                 render_chart(
-                    $(event.target).data('chart')
+                    $( event.target ).data( 'chart' )
                 );
             }
         );
 
-        $('.notice.is-dismissible[data-dismissible]').on(
+        $( '.notice.is-dismissible[data-dismissible]' ).on(
             'click.roc-dismiss-notice',
             '.notice-dismiss',
-            function (event) {
+            function ( event ) {
                 event.preventDefault();
 
-                $.post(ajaxurl, {
-                    notice: $(this).parent().attr('data-dismissible'),
+                $.post( ajaxurl, {
+                    notice: $( this ).parent().attr( 'data-dismissible' ),
                     action: 'roc_dismiss_notice',
-                });
+                } );
             }
         );
     });
 
-} ( window[rediscache.jQuery], window ) );
+} ( window[ rediscache.jQuery ], window ) );
