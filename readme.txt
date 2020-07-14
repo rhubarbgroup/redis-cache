@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, caching, cache, object cache,
 Requires at least: 3.3
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,13 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.3 =
+
+- Hide "Metrics" tab when metrics are disabled
+- Fixed `admin.js` not loading in multisite environments
+- Avoid fatal error when interacting with metrics but Redis went away
+- Added `WP_Object_Cache::__get()` for backwards compatibility
 
 = 2.0.2 =
 
