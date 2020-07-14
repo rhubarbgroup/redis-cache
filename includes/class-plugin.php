@@ -117,7 +117,7 @@ class Plugin {
             foreach ( $this->actions as $name ) {
                 // verify nonce
                 if ( $action === $name && wp_verify_nonce( $_GET['_wpnonce'], $action ) ) {
-                    $url = wp_nonce_url( network_admin_url( add_query_arg( 'action', $action, $this->page ) ), $action );
+                    $url = $this->action_link( $action );
 
                     if ( $this->initialize_filesystem( $url ) === false ) {
                         return; // request filesystem credentials
@@ -410,8 +410,7 @@ class Plugin {
         }
 
         if ( $this->object_cache_dropin_exists() ) {
-
-            $url = wp_nonce_url( network_admin_url( add_query_arg( 'action', 'update-dropin', $this->page ) ), 'update-dropin' );
+            $url = $this->action_link( 'update-dropin' );
 
             if ( $this->validate_object_cache_dropin() ) {
                 if ( $this->object_cache_dropin_outdated() ) {
@@ -482,7 +481,7 @@ class Plugin {
             }
 
             if ( in_array( $action, $this->actions ) ) {
-                $url = wp_nonce_url( network_admin_url( add_query_arg( 'action', $action, $this->page ) ), $action );
+                $url = $this->action_link( $action );
 
                 if ( $action === 'flush-cache' ) {
                     $message = wp_cache_flush() ? 'cache-flushed' : 'flush-cache-failed';
