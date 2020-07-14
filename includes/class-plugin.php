@@ -164,10 +164,24 @@ class Plugin {
         );
     }
 
-    public function enqueue_admin_styles( $hook_suffix ) {
-        if ( in_array( $hook_suffix, array( 'index.php', $this->screen ) ) ) {
-            wp_enqueue_style( 'redis-cache', WP_REDIS_DIR . '/assets/css/admin.css', null, WP_REDIS_VERSION );
+    public function enqueue_admin_styles() {
+        $screen = get_current_screen();
+
+        if ( ! isset( $screen->id ) ) {
+            return;
         }
+
+        $screens = array(
+            $this->screen,
+            'dashboard',
+            'dashboard-network',
+        );
+
+        if ( ! in_array( $screen->id, $screens ) ) {
+            return;
+        }
+
+        wp_enqueue_style( 'redis-cache', WP_REDIS_DIR . '/assets/css/admin.css', null, WP_REDIS_VERSION );
     }
 
     public function enqueue_admin_scripts() {
