@@ -4,7 +4,7 @@
 
 - Hide "Metrics" tab when metrics are disabled
 - Fixed `admin.js` not loading in multisite environments
-- Avoid fatal error when Redis went away and trying to fetch metrics
+- Avoid fatal error when interacting with metrics but Redis went away 
 - Added `WP_Object_Cache::__get()` for backwards compatibility
 
 ## 2.0.2

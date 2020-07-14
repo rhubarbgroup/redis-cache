@@ -268,8 +268,8 @@ class Plugin {
             );
 
             wp_localize_script( 'redis-cache', 'rediscache_metrics', $metrics );
-        } catch (Exception $e) {
-            //
+        } catch (Exception $exception) {
+            error_log($exception);
         }
     }
 
@@ -628,11 +628,15 @@ class Plugin {
             'c' => $info->calls,
         ];
 
-        $wp_object_cache->redis_instance()->zadd(
-            $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
-            time(),
-            http_build_query( $metrics, null, ';' )
-        );
+        try {
+            $wp_object_cache->redis_instance()->zadd(
+                $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
+                time(),
+                http_build_query( $metrics, null, ';' )
+            );
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
     }
 
     public function discard_metrics() {
@@ -650,11 +654,15 @@ class Plugin {
             return;
         }
 
-        $wp_object_cache->redis_instance()->zremrangebyscore(
-            $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
-            0,
-            time() - HOUR_IN_SECONDS
-        );
+        try {
+            $wp_object_cache->redis_instance()->zremrangebyscore(
+                $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
+                0,
+                time() - HOUR_IN_SECONDS
+            );
+        } catch (Exception $exception) {
+            error_log($exception);
+        }
     }
 
     public function maybe_print_comment() {
