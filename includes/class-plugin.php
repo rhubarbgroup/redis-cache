@@ -29,6 +29,19 @@ class Plugin {
      */
     private static $instance;
 
+    /**
+     * Plugin instanciation method.
+     *
+     * @return Plugin
+     */
+    public static function instance() {
+        if ( ! isset( self::$instance ) ) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
     private function __construct() {
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
@@ -43,6 +56,14 @@ class Plugin {
             $this->screen = 'settings_page_redis-cache';
         }
 
+        $this->add_actions_and_filters();
+
+        if ( is_admin() && ! wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
+            wp_schedule_event( time(), 'hourly', 'rediscache_discard_metrics' );
+        }
+    }
+
+    public function add_actions_and_filters() {
         add_action( 'deactivate_plugin', array( $this, 'on_deactivation' ) );
         add_action( 'upgrader_process_complete', array( $this, 'maybe_update_dropin' ), 10, 2 );
 
@@ -72,23 +93,6 @@ class Plugin {
 
         add_filter( 'qm/collectors', array( $this, 'register_qm_collector' ), 25 );
         add_filter( 'qm/outputter/html', array( $this, 'register_qm_output' ) );
-
-        if ( is_admin() && ! wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
-            wp_schedule_event( time(), 'hourly', 'rediscache_discard_metrics' );
-        }
-    }
-
-    /**
-     * Plugin instanciation method.
-     *
-     * @return Plugin
-     */
-    public static function instance() {
-        if ( ! isset( self::$instance ) ) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
     }
 
     public function add_admin_menu_page() {
