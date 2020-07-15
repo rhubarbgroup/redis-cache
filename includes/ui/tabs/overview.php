@@ -162,16 +162,18 @@ $diagnostics = $roc->get_diagnostics();
         </tr>
     <?php endif; ?>
 
+    <?php if ( isset( $diagnostics['password'][0] ) ) : ?>
+        <tr>
+            <th><?php esc_html_e( 'Username:', 'redis-cache' ); ?></th>
+            <td><code><?php echo esc_html( $diagnostics['password'][0] ); ?></code></td>
+        </tr>
+    <?php endif; ?>
+
     <?php if ( isset( $diagnostics['password'] ) ) : ?>
         <tr>
             <th><?php esc_html_e( 'Password:', 'redis-cache' ); ?></th>
             <td>
-                <code>
-                    <?php
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                        echo str_repeat( '&#8226;', 8 );
-                    ?>
-                </code>
+                <code><?php echo str_repeat( '&#8226;', 8 ); ?></code>
             </td>
         </tr>
     <?php endif; ?>

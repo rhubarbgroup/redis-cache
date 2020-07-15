@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-
+- Show ACL username on settings screen
 - Don't encode bullets in password diagnostics
 
 ## 2.0.3
