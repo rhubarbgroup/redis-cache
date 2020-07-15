@@ -92,7 +92,7 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
             $password[1] = str_repeat( '•', 8 );
         }
 
-        $info['WP_REDIS_PASSWORD'] = wp_json_encode( $password );
+        $info['WP_REDIS_PASSWORD'] = wp_json_encode( $password, JSON_UNESCAPED_UNICODE );
     } elseif ( ! is_null( $password ) && '' !== $password ) {
         $info['WP_REDIS_PASSWORD'] = str_repeat( '•', 8 );
     }

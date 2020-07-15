@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+
+- Don't encode bullets in password diagnostics
+
 ## 2.0.3
 
 - Hide "Metrics" tab when metrics are disabled
