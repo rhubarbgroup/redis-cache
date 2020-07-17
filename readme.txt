@@ -113,6 +113,8 @@ Version 2.0 is a significant rewrite. The plugin now requires PHP 5.6, just like
 
 The GitHub and Composer repository was moved from `tillkruss/redis-cache` to `rhubarbgroup/redis-cache`.
 
+On multisite networks, be sure to "Network Activate" the plugin after upgrading to v2.x.
+
 - Require PHP 5.6
 - Plugin is now "network-only"
 - Switch to WPCS for code standards
