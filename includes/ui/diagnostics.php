@@ -80,7 +80,10 @@ $constants = array(
 
 foreach ( $constants as $constant ) {
     if ( defined( $constant ) ) {
-        $info[ $constant ] = wp_json_encode( constant( $constant ) );
+        $info[ $constant ] = wp_json_encode(
+            constant( $constant ),
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        );
     }
 }
 
