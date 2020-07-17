@@ -6,6 +6,7 @@
 - Don't encode bullets in password diagnostics
 - Use reliable filesystem when updating dropin
 - Show full diagnostics with `wp redis status`
+- Always set `FS_CHMOD_FILE` when copying the `object-cache.php`
 
 ## 2.0.3
 

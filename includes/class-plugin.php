@@ -491,7 +491,12 @@ class Plugin {
                 if ( $this->initialize_filesystem( $url, true ) ) {
                     switch ( $action ) {
                         case 'enable-cache':
-                            $result = $wp_filesystem->copy( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php', WP_CONTENT_DIR . '/object-cache.php', true );
+                            $result = $wp_filesystem->copy(
+                                WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
+                                WP_CONTENT_DIR . '/object-cache.php',
+                                true,
+                                FS_CHMOD_FILE
+                            );
                             do_action( 'redis_object_cache_enable', $result );
                             $message = $result ? 'cache-enabled' : 'enable-cache-failed';
                             break;
@@ -503,7 +508,12 @@ class Plugin {
                             break;
 
                         case 'update-dropin':
-                            $result = $wp_filesystem->copy( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php', WP_CONTENT_DIR . '/object-cache.php', true );
+                            $result = $wp_filesystem->copy(
+                                WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
+                                WP_CONTENT_DIR . '/object-cache.php',
+                                true,
+                                FS_CHMOD_FILE
+                            );
                             do_action( 'redis_object_cache_update_dropin', $result );
                             $message = $result ? 'dropin-updated' : 'update-dropin-failed';
                             break;
@@ -758,10 +768,11 @@ class Plugin {
         }
 
         if ( $this->initialize_filesystem( '', true ) ) {
-            $wp_filesystem->copy(
+            $result = $wp_filesystem->copy(
                 WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
                 WP_CONTENT_DIR . '/object-cache.php',
-                true
+                true,
+                FS_CHMOD_FILE
             );
         }
     }
