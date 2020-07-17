@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## 2.0.4
 
 - Attempt to reliably update the dropin when it's outdated
 - Show ACL username on settings screen

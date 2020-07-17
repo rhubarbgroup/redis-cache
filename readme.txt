@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, caching, cache, object cache,
 Requires at least: 3.3
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,9 +83,18 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 == Changelog ==
 
-= 2.0.3 =
+= 2.0.4 =
 
 Version 2.0 is a significant rewrite of the plugin. Please read the v2.0.0 release notes.
+
+- Attempt to reliably update the dropin when it's outdated
+- Show ACL username on settings screen
+- Show full diagnostics with `wp redis status`
+- Always set `FS_CHMOD_FILE` when copying the `object-cache.php`
+- Don't encode bullets in password diagnostics
+- Call `redis_object_cache_update_dropin` during dropin update
+
+= 2.0.3 =
 
 - Hide "Metrics" tab when metrics are disabled
 - Fixed `admin.js` not loading in multisite environments
@@ -391,7 +400,7 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.3 =
+= 2.0.4 =
 
 Version 2.0 is a significant rewrite of the plugin. Please read the v2.0.0 release notes.
 
