@@ -36,18 +36,6 @@ class Commands extends WP_CLI_Command {
         $status = $plugin->get_status();
         $client = $plugin->get_redis_client_name();
 
-        switch ( $status ) {
-            case __( 'Disabled', 'redis-cache' ):
-                $status = WP_CLI::colorize( "%y{$status}%n" );
-                break;
-            case __( 'Connected', 'redis-cache' ):
-                $status = WP_CLI::colorize( "%g{$status}%n" );
-                break;
-            case __( 'Not Connected', 'redis-cache' ):
-                $status = WP_CLI::colorize( "%r{$status}%n" );
-                break;
-        }
-
         WP_CLI::line( 'Status: ' . $status );
 
         if ( ! is_null( $client ) ) {
