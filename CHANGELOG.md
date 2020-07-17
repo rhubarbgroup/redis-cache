@@ -4,6 +4,7 @@
 
 - Show ACL username on settings screen
 - Don't encode bullets in password diagnostics
+- Use reliable filesystem when updating dropin
 
 ## 2.0.3
 

@@ -757,7 +757,7 @@ class Plugin {
             return;
         }
 
-        if ( WP_Filesystem() ) {
+        if ( $this->initialize_filesystem( '', true ) ) {
             $wp_filesystem->copy(
                 WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
                 WP_CONTENT_DIR . '/object-cache.php',
