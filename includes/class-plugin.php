@@ -67,7 +67,7 @@ class Plugin {
 
     public function add_actions_and_filters() {
         add_action( 'deactivate_plugin', array( $this, 'on_deactivation' ) );
-        add_action( 'upgrader_process_complete', array( $this, 'maybe_update_dropin' ), 10, 2 );
+        add_action( 'admin_init', array( $this, 'maybe_update_dropin' ) );
 
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', array( $this, 'add_admin_menu_page' ) );
 
@@ -304,7 +304,7 @@ class Plugin {
         $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
         $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
 
-        return ( strcmp( $dropin['PluginURI'], $plugin['PluginURI'] ) === 0 );
+        return $dropin['PluginURI'] === $plugin['PluginURI'];
     }
 
     public function object_cache_dropin_outdated() {
@@ -315,7 +315,11 @@ class Plugin {
         $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
         $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
 
-        return version_compare( $dropin['Version'], $plugin['Version'], '<' );
+        if ( $dropin['PluginURI'] === $plugin['PluginURI'] ) {
+            return version_compare( $dropin['Version'], $plugin['Version'], '<' );
+        }
+
+        return false;
     }
 
     public function get_status() {
@@ -751,17 +755,18 @@ class Plugin {
         return true;
     }
 
-    public function maybe_update_dropin( $upgrader, $options ) {
-        global $wp_filesystem;
-
-        if (
-            $options['action'] !== 'update' ||
-            $options['type'] !== 'plugin' ||
-            ! is_array( $options['plugins'] ) ||
-            ! in_array( WP_REDIS_BASENAME, $options['plugins'] )
-        ) {
+    public function maybe_update_dropin() {
+        if ( defined( 'WP_REDIS_DISABLE_DROPIN_AUTOUPDATE' ) && WP_REDIS_DISABLE_DROPIN_AUTOUPDATE ) {
             return;
         }
+
+        if ( $this->object_cache_dropin_outdated() ) {
+            add_action( 'shutdown', [ $this, 'update_dropin' ] );
+        }
+    }
+
+    public function update_dropin() {
+        global $wp_filesystem;
 
         if ( ! $this->validate_object_cache_dropin() ) {
             return;

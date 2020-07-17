@@ -2,12 +2,12 @@
 
 ## [Unreleased]
 
+- Attempt to reliably update the dropin when it's outdated
 - Show ACL username on settings screen
-- Don't encode bullets in password diagnostics
-- Use reliable filesystem when updating dropin
 - Show full diagnostics with `wp redis status`
 - Always set `FS_CHMOD_FILE` when copying the `object-cache.php`
-- Call `redis_object_cache_update_dropin` during plugin update
+- Don't encode bullets in password diagnostics
+- Call `redis_object_cache_update_dropin` during dropin update
 
 ## 2.0.3
 
