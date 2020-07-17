@@ -774,6 +774,8 @@ class Plugin {
                 true,
                 FS_CHMOD_FILE
             );
+
+            do_action( 'redis_object_cache_update_dropin', $result );
         }
     }
 
