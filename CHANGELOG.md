@@ -5,6 +5,7 @@
 - Show ACL username on settings screen
 - Don't encode bullets in password diagnostics
 - Use reliable filesystem when updating dropin
+- Show full diagnostics with `wp redis status`
 
 ## 2.0.3
 

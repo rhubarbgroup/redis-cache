@@ -31,17 +31,9 @@ class Commands extends WP_CLI_Command {
      *     wp redis status
      */
     public function status() {
-
         $plugin = Plugin::instance();
-        $status = $plugin->get_status();
-        $client = $plugin->get_redis_client_name();
 
-        WP_CLI::line( 'Status: ' . $status );
-
-        if ( ! is_null( $client ) ) {
-            WP_CLI::line( 'Client: ' . $client );
-        }
-
+        require_once __DIR__ . '/../ui/diagnostics.php';
     }
 
     /**
