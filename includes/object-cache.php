@@ -753,23 +753,18 @@ class WP_Object_Cache {
 
             $this->redis = new Credis_Cluster( $clients );
 
-            $args = $clients;
-            $args[ $is_cluster ? 'is_cluster' : 'is_multi' ] = true;
+            $args['servers'] = $clients;
         } else {
-            $host = 'unix' === $parameters['scheme']
-                ? $parameters['path']
-                : $parameters['host'];
-
             $args = [
-                "{$parameters['scheme']}://{$host}",
-                $parameters['port'],
-                $parameters['timeout'],
-                '',
-                isset( $parameters['database'] ) ? $parameters['database'] : 0,
-                isset( $parameters['password'] ) ? $parameters['password'] : null,
+                'host' => $parameters['scheme'] === 'unix' ? $parameters['path'] : $parameters['host'],
+                'port' => $parameters['port'],
+                'timeout' => $parameters['timeout'],
+                'persistent' => null,
+                'database' => $parameters['database'],
+                'password' => isset( $parameters['password'] ) ? $parameters['password'] : null,
             ];
 
-            $this->redis = new Credis_Client( ...$args );
+            $this->redis = new Credis_Client( ...array_values( $args ) );
         }
 
         // Don't use PhpRedis
