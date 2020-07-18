@@ -33,8 +33,9 @@ if ( $dropin && ! $disabled ) {
     );
 }
 
-$info['Redis Extension'] = class_exists( 'Redis' ) ? phpversion( 'redis' ) : 'Not loaded';
-$info['Predis Client'] = class_exists( 'Predis\Client' ) ? Predis\Client::VERSION : 'Not loaded';
+$info['PhpRedis'] = class_exists( 'Redis' ) ? phpversion( 'redis' ) : 'Not loaded';
+$info['Predis'] = class_exists( 'Predis\Client' ) ? Predis\Client::VERSION : 'Not loaded';
+$info['Credis'] = class_exists( 'Credis_Client' ) ? Credis_Client::VERSION : 'Not loaded';
 
 if ( defined( 'PHP_VERSION' ) ) {
     $info['PHP Version'] = PHP_VERSION;
