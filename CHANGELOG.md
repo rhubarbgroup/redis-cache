@@ -4,6 +4,7 @@
 
 - Fixed multisite action buttons not working
 - Removed outdated PHP 5.4 warning
+- Added `read_timeout` support to Credis
 
 ## 2.0.4
 

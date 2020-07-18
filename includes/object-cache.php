@@ -772,10 +772,15 @@ class WP_Object_Cache {
             $this->redis = new Credis_Client( ...$args );
         }
 
-        // Credis uses phpredis if it detects it unless we force it to run standalone.
+        // Don't use PhpRedis
         $this->redis->forceStandalone();
 
         $this->redis->connect();
+
+        if ( $parameters['read_timeout'] ) {
+            $args['read_timeout'] = $parameters['read_timeout'];
+            $this->redis->setReadTimeout( $parameters['read_timeout'] );
+        }
 
         $this->diagnostics = array_merge(
             [ 'client' => sprintf( '%s (v%s)', $client, Credis_Client::VERSION ) ],
