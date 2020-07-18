@@ -761,7 +761,7 @@ class WP_Object_Cache {
                 : $parameters['host'];
 
             $args = [
-                "{$parameters['scheme']}://{$host}",
+                "{$parameters['scheme']}://{$host}:{$parameters['port']}",
                 $parameters['port'],
                 $parameters['timeout'],
                 '',
