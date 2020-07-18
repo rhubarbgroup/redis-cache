@@ -48,6 +48,7 @@ $info['Plugin Version'] = WP_REDIS_VERSION;
 $info['Redis Version'] = $plugin->get_redis_version() ?: 'Unknown';
 
 $info['Multisite'] = is_multisite() ? 'Yes' : 'No';
+$info['Filesystem'] = $plugin->initialize_filesystem( '', true ) ? 'Yes' : 'No';
 
 if ( $dropin ) {
     $info['Global Prefix'] = wp_json_encode( $wp_object_cache->global_prefix );
