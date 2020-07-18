@@ -18,6 +18,8 @@ defined( '\\ABSPATH' ) || exit;
         <?php esc_html_e( 'Redis Object Cache', 'redis-cache' ); ?>
     </h1>
 
+    <?php is_network_admin() && settings_errors(); ?>
+
     <div class="columns">
 
         <div class="content-column">

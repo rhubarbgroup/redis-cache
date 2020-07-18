@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+- Fixed multisite action buttons not working
+- Removed outdated PHP 5.4 warning
+
 ## 2.0.4
 
 - Attempt to reliably update the dropin when it's outdated
