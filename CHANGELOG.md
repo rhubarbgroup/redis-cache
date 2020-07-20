@@ -6,6 +6,7 @@
 - Removed outdated PHP 5.4 warning
 - Added `read_timeout` support to Credis
 - Display connection parameters when using Credis
+- Added wiki link to Predis upgrade notice 
 
 ## 2.0.4
 
