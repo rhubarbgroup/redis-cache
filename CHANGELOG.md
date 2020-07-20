@@ -1,12 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## 2.0.5
 
 - Fixed multisite action buttons not working
 - Removed outdated PHP 5.4 warning
 - Added `read_timeout` support to Credis
 - Display connection parameters when using Credis
-- Added wiki link to Predis upgrade notice 
+- Added wiki link to Predis upgrade notice
 
 ## 2.0.4
 

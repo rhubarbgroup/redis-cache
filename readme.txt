@@ -83,9 +83,17 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 == Changelog ==
 
-= 2.0.4 =
+= 2.0.5 =
 
 Version 2.0 is a significant rewrite of the plugin. Please read the v2.0.0 release notes.
+
+- Fixed multisite action buttons not working
+- Removed outdated PHP 5.4 warning
+- Added `read_timeout` support to Credis
+- Display connection parameters when using Credis
+- Added wiki link to Predis upgrade notice
+
+= 2.0.4 =
 
 - Attempt to reliably update the dropin when it's outdated
 - Show ACL username on settings screen
@@ -400,7 +408,7 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.4 =
+= 2.0.5 =
 
 Version 2.0 is a significant rewrite of the plugin. Please read the v2.0.0 release notes.
 
