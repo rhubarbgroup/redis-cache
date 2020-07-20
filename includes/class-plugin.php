@@ -7,6 +7,7 @@
 
 namespace Rhubarb\RedisCache;
 
+use WP_Error;
 use Exception;
 
 defined( '\\ABSPATH' ) || exit;
@@ -767,6 +768,48 @@ class Plugin {
             }
 
             return false;
+        }
+
+        return true;
+    }
+
+    public function test_filesystem_writing()
+    {
+        global $wp_filesystem;
+
+        if ( ! $this->initialize_filesystem( '', true ) ) {
+            return new WP_Error( 'fs', __( 'Could not initialize filesystem.', 'redis-cache' ) );
+        }
+
+        $cachefile = WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php';
+        $testfile = WP_CONTENT_DIR . '/.redis-write-test.tmp';
+
+        if ( ! $wp_filesystem->exists( $cachefile ) ) {
+            return new WP_Error( 'exists', __( 'Object cache file doesn’t exist.', 'redis-cache' ) );
+        }
+
+        if ( $wp_filesystem->exists( $testfile ) ) {
+            if ( ! $wp_filesystem->delete( $testfile ) ) {
+                return new WP_Error( 'delete', __( 'Test file exists, but couldn’t be deleted.', 'redis-cache' ) );
+            }
+        }
+
+        if ( ! $wp_filesystem->copy( $cachefile, $testfile, true, FS_CHMOD_FILE ) ) {
+            return new WP_Error( 'copy', __( 'Failed to copy test file.', 'redis-cache' ) );
+        }
+
+        if ( ! $wp_filesystem->exists( $testfile ) ) {
+            return new WP_Error( 'exists', __( 'Copied test file doesn’t exist.', 'redis-cache' ) );
+        }
+
+        $meta = get_file_data( $testfile, [ 'Version' => 'Version' ] );
+
+        if ( $meta['Version'] !== WP_REDIS_VERSION ) {
+            return new WP_Error( 'version', __( 'Couldn’t verify test file contents.', 'redis-cache' ) );
+        }
+
+        if ( ! $wp_filesystem->delete( $testfile ) ) {
+            return new WP_Error( 'delete', __( 'Copied test file couldn’t be deleted.', 'redis-cache' ) );
         }
 
         return true;

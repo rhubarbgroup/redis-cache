@@ -10,6 +10,7 @@ defined( '\\ABSPATH' ) || exit;
 global $wp_object_cache;
 
 $info = [];
+$filesystem = $plugin->test_filesystem_writing();
 $dropin = $plugin->validate_object_cache_dropin();
 $disabled = defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED;
 
@@ -17,6 +18,7 @@ $info['Status'] = $plugin->get_status();
 $info['Client'] = $plugin->get_redis_client_name();
 $info['Drop-in'] = $dropin ? 'Valid' : 'Invalid';
 $info['Disabled'] = $disabled ? 'Yes' : 'No';
+$info['Filesystem'] = is_wp_error( $filesystem ) ? $filesystem->get_error_message() : 'Working';
 
 if ( $dropin && ! $disabled ) {
     $info[ 'Ping' ] = $wp_object_cache->diagnostics[ 'ping' ];
@@ -49,7 +51,6 @@ $info['Plugin Version'] = WP_REDIS_VERSION;
 $info['Redis Version'] = $plugin->get_redis_version() ?: 'Unknown';
 
 $info['Multisite'] = is_multisite() ? 'Yes' : 'No';
-$info['Filesystem'] = $plugin->initialize_filesystem( '', true ) ? 'Yes' : 'No';
 
 if ( $dropin ) {
     $info['Global Prefix'] = wp_json_encode( $wp_object_cache->global_prefix );

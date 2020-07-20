@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added experimental filesystem test to diagnostics
+
 ## 2.0.5
 
 - Fixed multisite action buttons not working
