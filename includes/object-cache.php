@@ -727,7 +727,7 @@ class WP_Object_Cache {
             $connection_string = array_values( WP_REDIS_SERVERS )[0];
             $sentinel = new Credis_Sentinel( new Credis_Client( $connection_string ) );
             $this->redis = $sentinel->getCluster( WP_REDIS_SENTINEL );
-            $args['is_sentinel'] = true;
+            $args['servers'] = WP_REDIS_SERVERS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) || defined( 'WP_REDIS_SERVERS' ) ) {
             $parameters['db'] = $parameters['database'];
 
