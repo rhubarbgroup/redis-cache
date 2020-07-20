@@ -41,7 +41,7 @@ $diagnostics = $roc->get_diagnostics();
                         <?php
                             printf(
                                 // translators: %s = Link to the help article
-                                __( 'Consider <a href="%s" target="_blank">switching over to Credis or PhpRedis</a> to avoid compatiblity issues in the future.', 'redis-cache' ),
+                                __( 'Learn more about <a href="%s" target="_blank">migrating to Credis or PhpRedis</a> to avoid compatiblity issues in the future.', 'redis-cache' ),
                                 'https://github.com/rhubarbgroup/redis-cache/wiki/Predis'
                             );
                         ?>

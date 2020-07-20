@@ -33,6 +33,10 @@
     color: #d54e21;
 }
 
+#rediscache .form-table .description.is-notice a {
+    color: #d54e21;
+}
+
 #rediscache .card ul {
     list-style: circle;
     padding-left: 25px;
