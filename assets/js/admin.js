@@ -329,85 +329,43 @@
     };
 
     var setup_charts = function () {
-        var time = rediscache.metrics.computed.map(
-            function ( entry ) {
-                return [ entry.date, entry.time ];
+
+        var metrics = {};
+
+        for ( var type in rediscache.charts ) {
+            if ( ! rediscache.charts.hasOwnProperty( type ) ) {
+                continue;
             }
-        );
-
-        var bytes = rediscache.metrics.computed.map(
-            function ( entry ) {
-                return [ entry.date, entry.bytes ];
-            }
-        )
-
-        var ratio = rediscache.metrics.computed.map(
-            function ( entry ) {
-                return [ entry.date, entry.ratio ];
-            }
-        );
-
-        var calls = rediscache.metrics.computed.map(
-            function ( entry ) {
-                return [ entry.date, entry.calls ];
-            }
-        );
-
-        rediscache.charts.time.series = [{
-            name: 'Time',
-            type: 'area',
-            data: time,
-        }];
-
-        rediscache.charts.bytes.series = [{
-            name: rediscache.l10n.bytes,
-            type: 'area',
-            data: bytes,
-        }];
-
-        rediscache.charts.ratio.series = [{
-            name: rediscache.l10n.ratio,
-            type: 'area',
-            data: ratio,
-        }];
-
-        rediscache.charts.calls.series = [{
-            name: rediscache.l10n.calls,
-            type: 'area',
-            data: calls,
-        }];
+            metrics[type] = rediscache.metrics.computed.map(
+                function ( entry ) {
+                    return [ entry.date, entry[type] ];
+                }
+            );
+            rediscache.charts[type].series = [{
+                name: rediscache.l10n[type],
+                type: 'area',
+                data: metrics[type],
+            }];
+        }
 
         if ( rediscache.on_settings_page || ! rediscache.disable_banners ) {
 
-            rediscache.charts.time.series.push({
-                name: 'Pro',
-                type: 'line',
-                data: time.map(
-                    function (entry) {
-                        return [entry[0], entry[1] * 0.5];
-                    }
-                ),
-            });
+            var pro_charts = {
+                time: function( entry ) { return [ entry[0], entry[1] * 0.5 ] },
+                ratio: function( entry ) { return [ entry[0], entry[1] * 0.3 ] },
+                calls: function( entry ) { return [ entry[0], Math.round(entry[1] / 50) + 5 ] },
+            };
 
-            rediscache.charts.ratio.series.push({
-                name: 'Pro',
-                type: 'line',
-                data: bytes.map(
-                    function (entry) {
-                        return [entry[0], entry[1] * 0.3];
-                    }
-                ),
-            });
-
-            rediscache.charts.calls.series.push({
-                name: 'Pro',
-                type: 'line',
-                data: calls.map(
-                    function (entry) {
-                        return [entry[0], Math.round(entry[1] / 50) + 5];
-                    }
-                ),
-            });
+            for ( var type in pro_charts ) {
+                if ( ! rediscache.charts[type] ) {
+                    continue;
+                }
+                rediscache.charts[type].series.push({
+                    name: 'Pro',
+                    type: 'line',
+                    data: metrics[type].map( pro_charts[type] ),
+                });
+            }
 
         }
     };
