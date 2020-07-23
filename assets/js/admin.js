@@ -421,13 +421,11 @@
 
                 // If there is no hash set: set default hash.
                 if ( ! root.location.hash && history.pushState ) {
-                    console.log('default case set default');
                     history.replaceState( 'overview', null, '#top#overview' );
                     return;
                 }
 
                 var tabHash = ( target || root.location.hash ).replace( '#top', '' ).replace( '#', '' );
-                console.log(target, fromNavigation, tabHash, root.location.hash);
 
                 // If the current hash is the hash to be switched to do nothing.
                 if ( fromNavigation && root.location.hash === '#top#' + tabHash ) {
@@ -436,7 +434,6 @@
 
                 // If there is a target, the history API is present and a push should be made: push the new state.
                 if ( fromNavigation && target && history.pushState ) {
-                    console.log('push state', tabHash)
                     history.pushState(
                         tabHash,
                         null,
