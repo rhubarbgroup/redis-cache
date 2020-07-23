@@ -408,9 +408,15 @@
 
         $tabs.find( 'a' ).on(
             'click.redis',
-            function () {
+            function ( event ) {
+                event.preventDefault();
+
                 var $this = $( this );
                 var $target = $( $this.data( 'target' ) );
+
+                if ( history.pushState ) {
+                    history.pushState( null, null, $this.data( 'target' ) );
+                }
 
                 $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
                 $( '.section' ).removeClass( 'active' );
