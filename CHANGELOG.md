@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added experimental filesystem test to diagnostics
+- Fixed jumping on settings screen
 
 ## 2.0.5
 
