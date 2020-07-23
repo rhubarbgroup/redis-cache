@@ -406,32 +406,61 @@
     $(function () {
         var $tabs = $( '#redis-tabs' );
 
-        $tabs.find( 'a' ).on(
-            'click.redis',
-            function ( event ) {
-                event.preventDefault();
+        if ( $tabs.length ) {
 
-                var $this = $( this );
-                var $target = $( $this.data( 'target' ) );
+            $tabs.find( 'a' ).on(
+                'click.redis',
+                function() {
+                    fn_switchTab( $( this ).data( 'target' ) );
+                    return false;
+                }
+            );
 
-                if ( history.pushState ) {
-                    history.pushState( null, null, $this.data( 'target' ) );
+            var fn_switchTab = function( target, fromNavigation ) {
+                fromNavigation = undefined === fromNavigation;
+
+                // If there is no hash set: set default hash.
+                if ( ! root.location.hash && history.pushState ) {
+                    console.log('default case set default');
+                    history.replaceState( 'overview', null, '#top#overview' );
+                    return;
                 }
 
-                $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
-                $( '.section' ).removeClass( 'active' );
-                $target.addClass( 'active' );
-                $this.addClass( 'nav-tab-active' );
-            }
-        );
+                var tabHash = ( target || root.location.hash ).replace( '#top', '' ).replace( '#', '' );
+                console.log(target, fromNavigation, tabHash, root.location.hash);
 
-        var tabHash = window.location.hash.replace( '#', '' );
+                // If the current hash is the hash to be switched to do nothing.
+                if ( fromNavigation && root.location.hash === '#top#' + tabHash ) {
+                    return;
+                }
 
-        if ( tabHash !== '' ) {
-            $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
-            $( '.section' ).removeClass( 'active' );
-            $( '#' + tabHash ).addClass( 'active' );
-            $( '#' + tabHash + '-tab' ).addClass( 'nav-tab-active' ).trigger( 'click.redis' );
+                // If there is a target, the history API is present and a push should be made: push the new state.
+                if ( fromNavigation && target && history.pushState ) {
+                    console.log('push state', tabHash)
+                    history.pushState(
+                        tabHash,
+                        null,
+                        '#top#' + tabHash
+                    );
+                }
+
+                // Switch the tab if possible
+                if ( tabHash !== '' ) {
+                    $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
+                    $( '.section' ).removeClass( 'active' );
+                    $( '#' + tabHash ).addClass( 'active' );
+                    $('#' + tabHash + '-tab').addClass( 'nav-tab-active' ).trigger( 'focus' );
+                }
+            };
+            fn_switchTab( null, true );
+
+            $(root).on(
+                'popstate.redis',
+                function( e ) {
+                    fn_switchTab( e.originalEvent.state, true );
+                }
+            );
+
         }
 
         if ( $( '#widget-redis-stats' ).length ) {

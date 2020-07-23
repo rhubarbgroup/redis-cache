@@ -29,7 +29,7 @@ defined( '\\ABSPATH' ) || exit;
                     <a class="nav-tab <?php echo $ui_tab->default ? 'nav-tab-active' : ''; ?>"
                         id="<?php echo esc_attr( $ui_tab->slug ); ?>-tab"
                         data-target="<?php echo esc_attr( $ui_tab->target ); ?>"
-                        href="<?php echo esc_attr( $ui_tab->target ); ?>"
+                        href="#top<?php echo esc_attr( $ui_tab->target ); ?>"
                     >
                         <?php echo esc_html( $ui_tab->label ); ?>
                     </a>
