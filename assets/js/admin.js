@@ -361,7 +361,7 @@
                     continue;
                 }
                 rediscache.charts[type].series.push({
-                    name: 'Pro',
+                    name: rediscache.l10n.pro,
                     type: 'line',
                     data: metrics[type].map( pro_charts[type] ),
                 });
