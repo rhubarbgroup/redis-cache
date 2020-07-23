@@ -1,6 +1,9 @@
 <?php
 
 $constants = [
+    'WP_DEBUG' => true,
+    'SCRIPT_DEBUG' => true,
+    'CONCATENATE_SCRIPTS' => false,
     // constant-definition start
     'WP_REDIS_HOST' => 'redis-master',
     // constant-definition end
