@@ -357,29 +357,13 @@
             name: 'Time',
             type: 'area',
             data: time,
-        }, {
-            name: 'Pro',
-            type: 'line',
-            data: time.map(
-                function ( entry ) {
-                    return [ entry[0], entry[1] * 0.5 ];
-                }
-            ),
-        } ];
+        }];
 
         rediscache.charts.bytes.series = [{
             name: rediscache.l10n.bytes,
             type: 'area',
             data: bytes,
-        }, {
-            name: 'Pro',
-            type: 'line',
-            data: bytes.map(
-                function ( entry ) {
-                    return [ entry[0], entry[1] * 0.3 ];
-                }
-            ),
-        } ];
+        }];
 
         rediscache.charts.ratio.series = [{
             name: rediscache.l10n.ratio,
@@ -391,15 +375,41 @@
             name: rediscache.l10n.calls,
             type: 'area',
             data: calls,
-        }, {
-            name: 'Pro',
-            type: 'line',
-            data: calls.map(
-                function ( entry ) {
-                    return [ entry[0], Math.round( entry[1] / 50 ) + 5 ];
-                }
-            ),
-        } ];
+        }];
+
+        if ( rediscache.on_settings_page || ! rediscache.disable_banners ) {
+
+            rediscache.charts.time.series.push({
+                name: 'Pro',
+                type: 'line',
+                data: time.map(
+                    function (entry) {
+                        return [entry[0], entry[1] * 0.5];
+                    }
+                ),
+            });
+
+            rediscache.charts.ratio.series.push({
+                name: 'Pro',
+                type: 'line',
+                data: bytes.map(
+                    function (entry) {
+                        return [entry[0], entry[1] * 0.3];
+                    }
+                ),
+            });
+
+            rediscache.charts.calls.series.push({
+                name: 'Pro',
+                type: 'line',
+                data: calls.map(
+                    function (entry) {
+                        return [entry[0], Math.round(entry[1] / 50) + 5];
+                    }
+                ),
+            });
+
+        }
     };
 
     // executed on page load
