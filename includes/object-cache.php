@@ -1041,7 +1041,7 @@ class WP_Object_Cache {
             do_action( 'redis_object_cache_delete', $key, $group, $execute_time );
         }
 
-        return $result;
+        return (bool) $result;
     }
 
     /**

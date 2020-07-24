@@ -7,6 +7,7 @@
 - Hide Pro line in widget when banners are disabled
 - Switch tabs when navigation events occur
 - Fixed issues with `wp_cache_get_multiple()`
+- Return boolean from `wp_cache_delete()`
 
 ## 2.0.5
 
