@@ -1359,7 +1359,9 @@ LUA;
 
         if ( ! $force ) {
             foreach ( $keys as $key ) {
-                $cache[ $key ] = $this->get_from_internal_cache( $derived_keys[ $key ] );
+                if ( isset( $this->cache[ $derived_key ] ) ) {
+                    $cache[ $key ] = $this->get_from_internal_cache( $derived_keys[ $key ] );
+                }
             }
 
             $keys = array_keys(

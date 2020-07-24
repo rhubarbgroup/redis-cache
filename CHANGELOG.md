@@ -6,6 +6,7 @@
 - Fixed jumping on settings screen
 - Hide Pro line in widget when banners are disabled
 - Switch tabs when navigation events occur
+- Fixed issues with `wp_cache_get_multiple()`
 
 ## 2.0.5
 
@@ -61,7 +62,7 @@ On multisite networks, be sure to "Network Activate" the plugin after upgrading 
 - Added object cache metrics (on dashboard widget and settings)
 - Added support for Query Monitor
 - Added `Rhubarb\RedisCache` namespace to all files
-- Added support for WP 5.5's new `wp_cache_get_multi()` function
+- Added support for WP 5.5's new `wp_cache_get_multiple()` function
 - Added `redis_object_cache()` function to retrieve plugin instance
 - Added dropin warnings to network dashboard
 - Added support for setting Sentinel database numbers
