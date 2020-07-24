@@ -218,7 +218,7 @@ class Plugin {
             'rediscache',
             array(
                 'jQuery' => 'jQuery',
-                'on_settings_page' => $screen->id === $this->screen,
+                'disable_pro' => $screen->id !== $this->screen,
                 'disable_banners' => defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS,
                 'l10n' => array(
                     'time' => __( 'Time', 'redis-cache' ),

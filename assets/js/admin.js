@@ -329,18 +329,19 @@
     };
 
     var setup_charts = function () {
-
         var metrics = {};
 
         for ( var type in rediscache.charts ) {
             if ( ! rediscache.charts.hasOwnProperty( type ) ) {
                 continue;
             }
+
             metrics[type] = rediscache.metrics.computed.map(
                 function ( entry ) {
                     return [ entry.date, entry[type] ];
                 }
             );
+
             rediscache.charts[type].series = [{
                 name: rediscache.l10n[type],
                 type: 'area',
@@ -348,18 +349,24 @@
             }];
         }
 
-        if ( rediscache.on_settings_page || ! rediscache.disable_banners ) {
-
+        if ( ! rediscache.disable_pro || ! rediscache.disable_banners ) {
             var pro_charts = {
-                time: function( entry ) { return [ entry[0], entry[1] * 0.5 ] },
-                ratio: function( entry ) { return [ entry[0], entry[1] * 0.3 ] },
-                calls: function( entry ) { return [ entry[0], Math.round(entry[1] / 50) + 5 ] },
+                time: function ( entry ) {
+                    return [ entry[0], entry[1] * 0.5 ]
+                },
+                ratio: function ( entry ) {
+                    return [ entry[0], entry[1] * 0.3 ]
+                },
+                calls: function ( entry ) {
+                    return [ entry[0], Math.round( entry[1] / 50 ) + 5 ]
+                },
             };
 
             for ( var type in pro_charts ) {
                 if ( ! rediscache.charts[type] ) {
                     continue;
                 }
+
                 rediscache.charts[type].series.push({
                     name: rediscache.l10n.pro,
                     type: 'line',
