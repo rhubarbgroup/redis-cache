@@ -400,14 +400,20 @@
             }
         );
 
-        var tabHash = window.location.hash.replace( '#', '' );
+        var show_current_tab = function () {
+            var tabHash = window.location.hash.replace( '#', '' );
 
-        if ( tabHash !== '' ) {
-            $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
-            $( '.section' ).removeClass( 'active' );
-            $( '#' + tabHash ).addClass( 'active' );
-            $( '#' + tabHash + '-tab' ).addClass( 'nav-tab-active' ).trigger( 'click.redis' );
-        }
+            if ( tabHash !== '' && document.getElementById( tabHash ) ) {
+                $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
+                $( '.section' ).removeClass( 'active' );
+                $( '#' + tabHash ).addClass( 'active' );
+                $( '#' + tabHash + '-tab' ).addClass( 'nav-tab-active' ).trigger( 'click.redis' );
+            }
+        };
+
+        show_current_tab();
+
+        window.addEventListener( 'hashchange', show_current_tab, false );
 
         if ( $( '#widget-redis-stats' ).length ) {
             rediscache.metrics.computed = compute_metrics(

@@ -4,6 +4,8 @@
 
 - Added experimental filesystem test to diagnostics
 - Fixed jumping on settings screen
+- Hide Pro line in widget when banners are disabled
+- Switch tabs when navigation events occur
 
 ## 2.0.5
 
