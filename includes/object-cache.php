@@ -1355,34 +1355,38 @@ LUA;
             return $cache;
         }
 
-        $keys = array_values( $derived_keys );
-
         if ( ! $force ) {
             foreach ( $keys as $key ) {
-                if ( isset( $this->cache[ $derived_key ] ) ) {
-                    $cache[ $key ] = $this->get_from_internal_cache( $derived_keys[ $key ] );
+                $value = $this->get_from_internal_cache( $derived_keys[ $key ] );
+
+                if ( $value === false ) {
+                    $this->cache_misses++;
+                } else {
+                    $cache[ $key ] = $value;
+                    $this->cache_hits++;
                 }
             }
+        }
 
-            $keys = array_keys(
-                array_filter(
-                    $cache,
-                    function ( $value ) {
-                        return $value === false;
-                    }
-                )
-            );
+        $remaining_keys = array_filter( $keys, function ( $key ) use ( $cache ) {
+            return ! isset( $cache[ $key ] );
+        } );
+
+        if ( empty( $remaining_keys ) ) {
+            return $cache;
         }
 
         $start_time = microtime( true );
 
         try {
-            $results = array_combine( $keys, $this->redis->mget( $keys ) );
+            $results = array_combine( $keys, $this->redis->mget( $remaining_keys ) );
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
             $cache = array_fill( 0, count( $derived_keys ) - 1, false );
         }
+
+        var_dump($results);
 
         $execute_time = microtime( true ) - $start_time;
 
@@ -1390,21 +1394,21 @@ LUA;
         $this->cache_time += $execute_time;
 
         foreach ( $results as $key => $value ) {
+            $cache[ $key ] = $value;
+
             if ( $value === false ) {
                 $this->cache_misses++;
-                continue;
+            } else {
+                $this->cache_hits++;
+
+                $this->add_to_internal_cache( $derived_keys[ $key ], $value );
             }
-
-            $this->cache_hits++;
-
-            $cache[ $key ] = $value;
-            $this->add_to_internal_cache( $derived_keys[ $key ], $value );
         }
 
         $cache = array_map( array( $this, 'maybe_unserialize' ), $cache );
 
         if ( function_exists( 'do_action' ) ) {
-            do_action( 'redis_object_cache_get_multi', $keys, $cache, $group, $force, $execute_time );
+            do_action( 'redis_object_cache_get_multiple', $keys, $cache, $group, $force, $execute_time );
         }
 
         if ( function_exists( 'apply_filters' ) && function_exists( 'has_filter' ) ) {

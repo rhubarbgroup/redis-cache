@@ -3,11 +3,12 @@
 ## Unreleased
 
 - Added experimental filesystem test to diagnostics
-- Fixed jumping on settings screen
-- Hide Pro line in widget when banners are disabled
-- Switch tabs when navigation events occur
+- Refactored settings tab logic (fixed jumping, too)
 - Fixed issues with `wp_cache_get_multiple()`
 - Return boolean from `wp_cache_delete()`
+- Use `redis-cache` as JS event namespace
+- Hide Pro line in widget when banners are disabled
+- Renamed `redis_object_cache_get_multi` action to `redis_object_cache_get_multiple`
 
 ## 2.0.5
 
