@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.6
 
 - Added experimental filesystem test to diagnostics
 - Refactored settings tab logic (fixed jumping, too)

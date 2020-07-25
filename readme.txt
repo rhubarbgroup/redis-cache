@@ -3,9 +3,9 @@ Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, predis, phpredis, credis, hhvm, pecl, caching, cache, object cache, performance, replication, clustering, keydb
 Requires at least: 3.3
-Tested up to: 5.4
+Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 2.0.5
+Stable tag: 2.0.6
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,16 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.6 =
+
+- Added experimental filesystem test to diagnostics
+- Refactored settings tab logic (fixed jumping, too)
+- Fixed issues with `wp_cache_get_multiple()`
+- Return boolean from `wp_cache_delete()`
+- Use `redis-cache` as JS event namespace
+- Hide Pro line in widget when banners are disabled
+- Renamed `redis_object_cache_get_multi` action to `redis_object_cache_get_multiple`
 
 = 2.0.5 =
 
@@ -408,7 +418,7 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.5 =
+= 2.0.6 =
 
 Version 2.0 is a significant rewrite of the plugin. Please read the v2.0.0 release notes.
 
