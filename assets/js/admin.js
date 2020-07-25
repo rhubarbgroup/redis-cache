@@ -383,7 +383,7 @@
         var $panes = $( '#rediscache .content-column .tab-content' );
 
         $tabs.find( 'a' ).on(
-            'click.redis',
+            'click.redis-cache',
             function ( event ) {
                 var toggle = $( this ).data( 'toggle' );
 
@@ -430,7 +430,7 @@
         }
 
         $( '#widget-redis-stats ul a' ).on(
-            'click.redis',
+            'click.redis-cache',
             function ( event ) {
                 event.preventDefault();
 
