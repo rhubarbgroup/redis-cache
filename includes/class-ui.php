@@ -36,7 +36,6 @@ class UI {
                 'label' => $label,
                 'file' => WP_REDIS_PLUGIN_PATH . "/includes/ui/tabs/{$slug}.php",
                 'slug' => $slug,
-                'target' => "#{$slug}",
                 'default' => false,
             ]
         );

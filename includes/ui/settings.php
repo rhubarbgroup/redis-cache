@@ -24,22 +24,22 @@ defined( '\\ABSPATH' ) || exit;
 
         <div class="content-column">
 
-            <h2 class="nav-tab-wrapper" id="redis-tabs">
+            <h2 class="nav-tab-wrapper">
                 <?php foreach ( UI::get_tabs() as $ui_tab ) : ?>
                     <a class="nav-tab <?php echo $ui_tab->default ? 'nav-tab-active' : ''; ?>"
                         id="<?php echo esc_attr( $ui_tab->slug ); ?>-tab"
-                        data-target="<?php echo esc_attr( $ui_tab->target ); ?>"
-                        href="<?php echo esc_attr( $ui_tab->target ); ?>"
+                        data-toggle="<?php echo esc_attr( $ui_tab->slug ); ?>"
+                        href="<?php echo esc_attr( $ui_tab->slug ); ?>"
                     >
                         <?php echo esc_html( $ui_tab->label ); ?>
                     </a>
                 <?php endforeach; ?>
             </h2>
 
-            <div class="sections">
+            <div class="tab-content">
                 <?php foreach ( UI::get_tabs() as $ui_tab ) : ?>
-                    <div id="<?php echo esc_attr( $ui_tab->slug ); ?>"
-                        class="section section-<?php echo esc_attr( $ui_tab->slug ); ?> <?php echo $ui_tab->default ? ' active' : ''; ?>"
+                    <div id="<?php echo esc_attr( $ui_tab->slug ); ?>-pane"
+                        class="tab-pane tab-pane-<?php echo esc_attr( $ui_tab->slug ); ?> <?php echo $ui_tab->default ? 'active' : ''; ?>"
                     >
                         <?php include $ui_tab->file; ?>
                     </div>

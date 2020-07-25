@@ -379,35 +379,39 @@
 
     // executed on page load
     $(function () {
-        var $tabs = $( '#redis-tabs' );
+        var $tabs = $( '#rediscache .nav-tab-wrapper' );
+        var $panes = $( '#rediscache .content-column .tab-content' );
 
         $tabs.find( 'a' ).on(
             'click.redis',
             function ( event ) {
-                event.preventDefault();
+                var toggle = $( this ).data( 'toggle' );
 
-                var $this = $( this );
-                var $target = $( $this.data( 'target' ) );
+                $( this ).blur();
+
+                show_tab( toggle );
 
                 if ( history.pushState ) {
-                    history.pushState( null, null, $this.data( 'target' ) );
+                    history.pushState( null, null, '#' + toggle );
                 }
 
-                $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
-                $( '.section' ).removeClass( 'active' );
-                $target.addClass( 'active' );
-                $this.addClass( 'nav-tab-active' );
+                return false;
             }
         );
+
+        var show_tab = function ( name ) {
+            $tabs.find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );
+            $panes.find( '.tab-pane.active' ).removeClass( 'active' );
+
+            $( '#' + name + '-tab' ).addClass( 'nav-tab-active' );
+            $( '#' + name + '-pane' ).addClass( 'active' );
+        };
 
         var show_current_tab = function () {
             var tabHash = window.location.hash.replace( '#', '' );
 
-            if ( tabHash !== '' && document.getElementById( tabHash ) ) {
-                $tabs.find( 'a' ).removeClass( 'nav-tab-active' );
-                $( '.section' ).removeClass( 'active' );
-                $( '#' + tabHash ).addClass( 'active' );
-                $( '#' + tabHash + '-tab' ).addClass( 'nav-tab-active' ).trigger( 'click.redis' );
+            if ( tabHash !== '' && $( '#' + tabHash + '-tab' ) ) {
+                show_tab( tabHash );
             }
         };
 
