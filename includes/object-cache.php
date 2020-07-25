@@ -1386,8 +1386,6 @@ LUA;
             $cache = array_fill( 0, count( $derived_keys ) - 1, false );
         }
 
-        var_dump($results);
-
         $execute_time = microtime( true ) - $start_time;
 
         $this->cache_calls++;
