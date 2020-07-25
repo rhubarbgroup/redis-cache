@@ -417,7 +417,7 @@
 
         show_current_tab();
 
-        window.addEventListener( 'hashchange', show_current_tab, false );
+        $( window ).on( 'hashchange', show_current_tab );
 
         if ( $( '#widget-redis-stats' ).length ) {
             rediscache.metrics.computed = compute_metrics(
