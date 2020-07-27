@@ -1379,7 +1379,7 @@ LUA;
         $start_time = microtime( true );
 
         try {
-            $results = array_combine( $keys, $this->redis->mget( $remaining_keys ) );
+            $results = array_combine( $remaining_keys, $this->redis->mget( $remaining_keys ) );
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
