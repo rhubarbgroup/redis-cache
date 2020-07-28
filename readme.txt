@@ -83,6 +83,10 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 == Changelog ==
 
+= 2.0.7 =
+
+- Fixed issue with `wp_cache_get_multiple()`
+
 = 2.0.6 =
 
 - Added experimental filesystem test to diagnostics
@@ -418,82 +422,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.6 =
+= 2.0.7 =
 
 Version 2.0 is a significant rewrite of the plugin. Please read the v2.0.0 release notes.
-
-= 1.4.2 =
-
-This update renames the `redis_object_cache_get` filter to avoid conflicts. Update your code if necessary.
-
-= 1.4.0 =
-
-This update adds support for igbinary and `wp_suspend_cache_addition()`.
-
-= 1.3.9 =
-
-This update contains fixes for sharding.
-
-= 1.3.8 =
-
-This update contains a critical fix for Predis.
-
-= 1.3.7 =
-
-This update fixes an issue with Predis in some environments.
-
-= 1.3.6 =
-
-This update contains various improvements.
-
-= 1.3.5 =
-
-This update contains various changes, including performance improvements and better Batcache compatibility.
-
-= 1.3.4 =
-
-This update contains several improvements, including WP CLI and WordPress 4.6 support.
-
-= 1.3.3 =
-
-This update contains several improvements.
-
-= 1.3.2 =
-
-This update includes a critical fix for PhpRedis.
-
-= 1.3.1 =
-
-This update includes a critical connection issue fix.
-
-= 1.3 =
-
-This update includes a new admin interface and support for clustering and replication with Predis.
-
-= 1.2.3 =
-
-This updated includes several UI improvements.
-
-= 1.2.2 =
-
-This updated includes several bug fixes and improvements.
-
-= 1.2.1 =
-
-This update includes several improvements and compatibility fixes.
-
-= 1.1.1 =
-
-This update fixes critical bugs with the HHVM extension
-
-= 1.1 =
-
-This update includes bug fixes and adds supports for HHVM/PECL Redis extensions.
-
-= 1.0.2 =
-
-This update includes significant speed improvements and support for UNIX domain sockets.
-
-= 1.0.1 =
-
-This update includes several security, user interface and general code improvements.

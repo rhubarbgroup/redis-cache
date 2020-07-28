@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.7
+
+- Fixed issue with `wp_cache_get_multiple()` 
+
 ## 2.0.6
 
 - Added experimental filesystem test to diagnostics
