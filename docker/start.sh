@@ -118,14 +118,12 @@ for i in "$@"; do
   index=index+1;
 done;
 
-: ${client-phpredis}
-
 case ${options[0]} in
 
     ""|"-"|"simple"|"default"|"up"|"start")
         start 1 0 0 ${options[@]:1}
         apf --reset
-        apf WP_REDIS_CLIENT "$client"
+        apf WP_REDIS_CLIENT "${client-phpredis}"
         apf WP_REDIS_HOST redis-master
         restart_apache
         ;;
@@ -133,7 +131,7 @@ case ${options[0]} in
     "replication"|"repl")
         start 1 3 0 ${options[@]:1}
         apf --reset
-        apf WP_REDIS_CLIENT "$client"
+        apf WP_REDIS_CLIENT "${client-phpredis}"
         apf WP_REDIS_SERVERS \
             tcp://$(dcip redis-master):6379?alias=master \
             tcp://$(dcip redis-slave 1):6379?alias=slave-01 \
@@ -145,7 +143,7 @@ case ${options[0]} in
     "sentinel"|"sent")
         start 1 5 3 ${options[@]:1}
         apf --reset
-        apf WP_REDIS_CLIENT "$client"
+        apf WP_REDIS_CLIENT "${client-predis}"
         apf WP_REDIS_SENTINEL master
         apf WP_REDIS_SERVERS \
             tcp://$(dcip redis-sentinel 1):26379 \
@@ -157,7 +155,7 @@ case ${options[0]} in
     "shard"|"sharding")
         start 3 0 0 ${options[@]:1}
         apf --reset
-        apf WP_REDIS_CLIENT "$client"
+        apf WP_REDIS_CLIENT "${client-predis}"
         apf WP_REDIS_SHARDS \
             tcp://$(dcip redis-master 1):6379?alias=shard-01 \
             tcp://$(dcip redis-master 2):6379?alias=shard-02 \
@@ -167,7 +165,7 @@ case ${options[0]} in
 
     "cluster"|"clustering")
         start 3 0 0 ${options[@]:1}
-        apf WP_REDIS_CLIENT "$client"
+        apf WP_REDIS_CLIENT "${client-predis}"
         apf WP_REDIS_CLUSTER \
             tcp://$(dcip redis-master 1):6379?alias=node-01 \
             tcp://$(dcip redis-master 2):6379?alias=node-02 \
@@ -178,7 +176,7 @@ case ${options[0]} in
     "stop"|"down")
         stop ${options[@]:0}
         apf --reset
-        apf WP_REDIS_CLIENT "$client"
+        apf WP_REDIS_CLIENT "${client-phpredis}"
         apf WP_REDIS_HOST redis-master
         ;;
 
