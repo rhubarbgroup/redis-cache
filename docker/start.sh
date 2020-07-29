@@ -79,19 +79,59 @@ function restart_apache {
     compose exec wordpress apachectl restart
 }
 
-case $1 in
+# Get command arguments
+# Reference https://stackoverflow.com/questions/7069682/how-to-get-arguments-with-flags-in-bash
+declare -A arguments=();
+declare -A variables=();
+declare options=();
+declare -i index=1;
+
+variables["-c"]="client";
+variables["--client"]="client";
+
+for i in "$@"; do
+  arguments[$index]=$i;
+  prev_index="$(expr $index - 1)";
+
+  # this if block does something akin to "where $i contains ="
+  # "%=*" here strips out everything from the = to the end of the argument leaving only the label
+  if [[ $i == *"="* ]]
+    then argument_label=${i%=*}
+    else argument_label=${arguments[$prev_index]}
+  fi
+
+  if [[ -n $argument_label ]] ; then
+    # this if block only evaluates to true if the argument label exists in the variables array
+    if [[ -n ${variables[$argument_label]} ]] ; then
+      # dynamically creating variables names using declare
+      # "#$argument_label=" here strips out the label leaving only the value
+      if [[ $i == *"="* ]]
+        then declare ${variables[$argument_label]}=${i#$argument_label=} 
+        else declare ${variables[$argument_label]}=${arguments[$index]}
+      fi
+    else
+      # if the argument was not found store it in order
+      options+=(${arguments[$index]})
+    fi
+  fi
+
+  index=index+1;
+done;
+
+case ${options[0]} in
 
     ""|"-"|"simple"|"default"|"up"|"start")
-        start 1 0 0 ${@:2}
+        start 1 0 0 ${options[@]:1}
         apf --reset
+        apf WP_REDIS_CLIENT "${client-phpredis}"
         apf WP_REDIS_HOST redis-master
         restart_apache
         ;;
 
     "replication"|"repl")
-        start 1 3 0 ${@:2}
+        start 1 3 0 ${options[@]:1}
         apf --reset
-        apf WP_REDIS_CLIENT predis
+        apf WP_REDIS_CLIENT "${client-phpredis}"
         apf WP_REDIS_SERVERS \
             tcp://$(dcip redis-master):6379?alias=master \
             tcp://$(dcip redis-slave 1):6379?alias=slave-01 \
@@ -101,9 +141,9 @@ case $1 in
         ;;
 
     "sentinel"|"sent")
-        start 1 5 3 ${@:2}
+        start 1 5 3 ${options[@]:1}
         apf --reset
-        apf WP_REDIS_CLIENT predis
+        apf WP_REDIS_CLIENT "${client-predis}"
         apf WP_REDIS_SENTINEL master
         apf WP_REDIS_SERVERS \
             tcp://$(dcip redis-sentinel 1):26379 \
@@ -113,8 +153,9 @@ case $1 in
         ;;
 
     "shard"|"sharding")
-        start 3 0 0 ${@:2}
+        start 3 0 0 ${options[@]:1}
         apf --reset
+        apf WP_REDIS_CLIENT "${client-predis}"
         apf WP_REDIS_SHARDS \
             tcp://$(dcip redis-master 1):6379?alias=shard-01 \
             tcp://$(dcip redis-master 2):6379?alias=shard-02 \
@@ -123,7 +164,8 @@ case $1 in
         ;;
 
     "cluster"|"clustering")
-        start 3 0 0 ${@:2}
+        start 3 0 0 ${options[@]:1}
+        apf WP_REDIS_CLIENT "${client-predis}"
         apf WP_REDIS_CLUSTER \
             tcp://$(dcip redis-master 1):6379?alias=node-01 \
             tcp://$(dcip redis-master 2):6379?alias=node-02 \
@@ -132,12 +174,13 @@ case $1 in
         ;;
 
     "stop"|"down")
-        stop ${@:1}
+        stop ${options[@]:0}
         apf --reset
+        apf WP_REDIS_CLIENT "${client-phpredis}"
         apf WP_REDIS_HOST redis-master
         ;;
 
-    *) echo "unrecognized command $1"
+    *) echo "unrecognized command ${options[@]:1}"
         exit
         ;;
 
