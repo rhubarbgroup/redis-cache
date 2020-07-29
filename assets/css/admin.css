@@ -48,6 +48,10 @@
     padding: 0;
 }
 
+#rediscache .button.disabled {
+    pointer-events: none;
+}
+
 #rediscache #redis-stats-chart {
     height: 300px;
 }
