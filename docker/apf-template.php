@@ -1,6 +1,7 @@
 <?php
 
 $constants = [
+    'WP_ENVIRONMENT_TYPE' => 'development',
     'WP_DEBUG' => true,
     'SCRIPT_DEBUG' => true,
     'CONCATENATE_SCRIPTS' => false,
