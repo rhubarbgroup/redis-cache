@@ -1,8 +1,12 @@
 # Changelog
 
+## 2.0.8
+
+- Fixed tabs not working in 2.0.6 and 2.0.7 due to WP.org SVN issue
+
 ## 2.0.7
 
-- Fixed issue with `wp_cache_get_multiple()` 
+- Fixed issue with `wp_cache_get_multiple()`
 
 ## 2.0.6
 
