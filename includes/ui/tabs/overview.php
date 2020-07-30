@@ -7,14 +7,14 @@
 
 defined( '\\ABSPATH' ) || exit;
 
-$roc = redis_object_cache();
+$plugin = redis_object_cache();
 
-$redis_client = $roc->get_redis_client_name();
-$redis_prefix = $roc->get_redis_prefix();
-$redis_maxttl = $roc->get_redis_maxttl();
-$redis_version = $roc->get_redis_version();
+$redis_client = $plugin->get_redis_client_name();
+$redis_prefix = $plugin->get_redis_prefix();
+$redis_maxttl = $plugin->get_redis_maxttl();
+$redis_version = $plugin->get_redis_version();
 
-$diagnostics = $roc->get_diagnostics();
+$diagnostics = $plugin->get_diagnostics();
 
 ?>
 
@@ -55,12 +55,12 @@ $diagnostics = $roc->get_diagnostics();
         <th><?php esc_html_e( 'Drop-in:', 'redis-cache' ); ?></th>
         <td>
             <code>
-                <?php if ( ! $roc->object_cache_dropin_exists() ) : ?>
+                <?php if ( ! $plugin->object_cache_dropin_exists() ) : ?>
                     <?php esc_html_e( 'Missing', 'redis-cache' ); ?>
-                <?php elseif ( $roc->object_cache_dropin_outdated() ) : ?>
+                <?php elseif ( $plugin->object_cache_dropin_outdated() ) : ?>
                     <?php esc_html_e( 'Outdated', 'redis-cache' ); ?>
                 <?php else : ?>
-                    <?php $roc->validate_object_cache_dropin()
+                    <?php $plugin->validate_object_cache_dropin()
                         ? esc_html_e( 'Valid', 'redis-cache' )
                         : esc_html_e( 'Invalid', 'redis-cache' );
                     ?>
@@ -112,7 +112,7 @@ $diagnostics = $roc->get_diagnostics();
 
     <tr>
         <th><?php esc_html_e( 'Status:', 'redis-cache' ); ?></th>
-        <td><code><?php echo esc_html( $roc->get_status() ); ?></code></td>
+        <td><code><?php echo esc_html( $plugin->get_status() ); ?></code></td>
     </tr>
 
     <?php if ( ! empty( $diagnostics['host'] ) ) : ?>
@@ -253,14 +253,20 @@ $diagnostics = $roc->get_diagnostics();
 
 <p class="submit">
 
-    <?php if ( $roc->get_redis_status() ) : ?>
-        <a href="<?php echo esc_attr( redis_object_cache()->action_link( 'flush-cache' ) ); ?>" class="button button-primary button-large"><?php esc_html_e( 'Flush Cache', 'redis-cache' ); ?></a> &nbsp;
+    <?php if ( $plugin->get_redis_status() ) : ?>
+        <a href="<?php echo esc_attr( $plugin->action_link( 'flush-cache' ) ); ?>" class="button button-primary button-large">
+            <?php esc_html_e( 'Flush Cache', 'redis-cache' ); ?>
+        </a> &nbsp;
     <?php endif; ?>
 
-    <?php if ( $roc->validate_object_cache_dropin() ) : ?>
-        <a href="<?php echo esc_attr( redis_object_cache()->action_link( 'disable-cache' ) ); ?>" class="button button-secondary button-large"><?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?></a>
+    <?php if ( $plugin->validate_object_cache_dropin() ) : ?>
+        <a href="<?php echo esc_attr( $plugin->action_link( 'disable-cache' ) ); ?>" class="button button-secondary button-large">
+            <?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?>
+        </a>
     <?php else : ?>
-        <a href="<?php echo esc_attr( redis_object_cache()->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large"><?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?></a>
+        <a href="<?php echo esc_attr( $plugin->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">
+            <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
+        </a>
     <?php endif; ?>
 
 </p>
