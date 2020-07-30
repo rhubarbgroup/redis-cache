@@ -16,7 +16,9 @@ $disabled = defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED;
 
 $info['Status'] = $plugin->get_status();
 $info['Client'] = $plugin->get_redis_client_name();
-$info['Drop-in'] = $dropin ? 'Valid' : 'Invalid';
+$info['Drop-in'] = $plugin->object_cache_dropin_exists()
+    ? ($dropin ? 'Valid' : 'Invalid')
+    : 'Not installed';
 $info['Disabled'] = $disabled ? 'Yes' : 'No';
 $info['Filesystem'] = is_wp_error( $filesystem ) ? $filesystem->get_error_message() : 'Working';
 

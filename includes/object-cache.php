@@ -863,7 +863,7 @@ class WP_Object_Cache {
      * @return bool
      */
     public function redis_status() {
-         return $this->redis_connected;
+         return (bool) $this->redis_connected;
     }
 
     /**

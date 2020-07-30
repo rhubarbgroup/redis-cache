@@ -4,6 +4,7 @@
 
 - Highlight current metric type using color
 - Show "Metrics" tab when metrics are disabled
+- Refactored connection and Redis status logic
 
 ## 2.0.8
 
