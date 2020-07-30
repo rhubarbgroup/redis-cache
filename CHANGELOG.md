@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Highlight current metric type using color
+
 ## 2.0.8
 
 - Fixed tabs not working in 2.0.6 and 2.0.7 due to WP.org SVN issue

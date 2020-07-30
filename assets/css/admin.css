@@ -117,7 +117,7 @@
 
 #widget-redis-stats ul a:hover,
 #widget-redis-stats ul a.active {
-    color: #444;
+    color: #0073aa;
 }
 
 #redis-stats-chart .apexcharts-annotations {
