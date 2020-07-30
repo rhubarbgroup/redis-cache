@@ -26,23 +26,43 @@ defined( '\\ABSPATH' ) || exit;
 
             <h2 class="nav-tab-wrapper">
                 <?php foreach ( UI::get_tabs() as $ui_tab ) : ?>
-                    <a class="nav-tab <?php echo $ui_tab->default ? 'nav-tab-active' : ''; ?>"
-                        id="<?php echo esc_attr( $ui_tab->slug ); ?>-tab"
-                        data-toggle="<?php echo esc_attr( $ui_tab->slug ); ?>"
-                        href="<?php echo esc_attr( $ui_tab->slug ); ?>"
-                    >
-                        <?php echo esc_html( $ui_tab->label ); ?>
-                    </a>
+                    <?php if ( $ui_tab->disabled ) : ?>
+
+                        <span
+                            class="nav-tab nav-tab-disabled"
+                            title="<?php printf(
+                                // translators: %s = Tab label
+                                esc_html__( '%s are disabled for this site.', 'redis-cache' ),
+                                esc_html( $ui_tab->label )
+                            ) ?>"
+                        >
+                            <?php echo esc_html( $ui_tab->label ); ?>
+                        </span>
+
+                    <?php else : ?>
+
+                        <a
+                            id="<?php echo esc_attr( $ui_tab->slug ); ?>-tab"
+                            class="nav-tab <?php echo $ui_tab->default ? 'nav-tab-active' : ''; ?>"
+                            data-toggle="<?php echo esc_attr( $ui_tab->slug ); ?>"
+                            href="#<?php echo esc_attr( $ui_tab->slug ); ?>"
+                        >
+                            <?php echo esc_html( $ui_tab->label ); ?>
+                        </a>
+
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </h2>
 
             <div class="tab-content">
                 <?php foreach ( UI::get_tabs() as $ui_tab ) : ?>
-                    <div id="<?php echo esc_attr( $ui_tab->slug ); ?>-pane"
-                        class="tab-pane tab-pane-<?php echo esc_attr( $ui_tab->slug ); ?> <?php echo $ui_tab->default ? 'active' : ''; ?>"
-                    >
-                        <?php include $ui_tab->file; ?>
-                    </div>
+                    <?php if ( ! $ui_tab->disabled ) : ?>
+                        <div id="<?php echo esc_attr( $ui_tab->slug ); ?>-pane"
+                            class="tab-pane tab-pane-<?php echo esc_attr( $ui_tab->slug ); ?> <?php echo $ui_tab->default ? 'active' : ''; ?>"
+                        >
+                            <?php include $ui_tab->file; ?>
+                        </div>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </div>
 

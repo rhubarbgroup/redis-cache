@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Highlight current metric type using color
+- Show "Metrics" tab when metrics are disabled
 
 ## 2.0.8
 
