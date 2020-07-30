@@ -56,7 +56,7 @@ $diagnostics = $plugin->get_diagnostics();
         <td>
             <code>
                 <?php if ( ! $plugin->object_cache_dropin_exists() ) : ?>
-                    <?php esc_html_e( 'Missing', 'redis-cache' ); ?>
+                    <?php esc_html_e( 'Not installed', 'redis-cache' ); ?>
                 <?php elseif ( $plugin->object_cache_dropin_outdated() ) : ?>
                     <?php esc_html_e( 'Outdated', 'redis-cache' ); ?>
                 <?php else : ?>
