@@ -347,7 +347,7 @@ class Plugin {
             }
 
             if ( $this->get_redis_status() === false ) {
-                return __( 'Not Connected', 'redis-cache' );
+                return __( 'Not connected', 'redis-cache' );
             }
         }
 

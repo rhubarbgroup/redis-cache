@@ -1581,7 +1581,7 @@ LUA;
 
         ?> <p>
             <strong>Redis Status:</strong>
-            <?php echo $this->redis_status() ? 'Connected' : 'Not Connected'; ?>
+            <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?>
             <br />
             <strong>Redis Client:</strong>
             <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
