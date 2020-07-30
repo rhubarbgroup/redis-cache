@@ -18,7 +18,7 @@ A persistent object cache backend powered by Redis. Supports [Predis](https://gi
 
 To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [Other Notes](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
 
-= Redis Cache Pro =
+= Object Cache Pro =
 
 A **business class** Redis object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.
 
@@ -32,7 +32,7 @@ A **business class** Redis object cache backend. Truly reliable, highly optimize
 * Health checks via WordPress & WP CLI
 * Optimized for WooCommerce, Jetpack & Yoast SEO
 
-Learn more about [Redis Cache Pro](https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=readme).
+Learn more about [Object Cache Pro](https://objectcache.pro/?utm_source=wp-plugin&amp;utm_medium=readme).
 
 
 == Installation ==
@@ -242,7 +242,7 @@ Please flush the object cache after updating the drop to v1.5.5 to avoid dead ke
 = 1.5.1 =
 
 This plugin turned 5 years today (Nov 14th) and its only fitting to release the business edition today as well.
-[Redis Cache Pro](https://wprediscache.com/) is a truly reliable, highly optimized and easy to debug rewrite of this plugin for SMBs.
+[Object Cache Pro](https://objectcache.pro/) is a truly reliable, highly optimized and easy to debug rewrite of this plugin for SMBs.
 
   * Added execution times to actions
   * Added `WP_REDIS_VERSION` constant

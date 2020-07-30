@@ -4,7 +4,7 @@ A persistent object cache backend powered by Redis. Supports [Predis](https://gi
 
 [![Redis Object Cache screenshots](/.wordpress-org/collage-sm.jpg?raw=true)](/.wordpress-org/collage.png?raw=true)
 
-## Redis Cache Pro
+## Object Cache Pro
 
 A **business class** Redis object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.
 
@@ -18,7 +18,7 @@ A **business class** Redis object cache backend. Truly reliable, highly optimize
 * Health checks via WordPress & WP CLI
 * Optimized for WooCommerce, Jetpack & Yoast SEO
 
-Learn more about [Redis Cache Pro](https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=readme).
+Learn more about [Object Cache Pro](https://objectcache.pro/?utm_source=wp-plugin&amp;utm_medium=readme).
 
 ## Installation
 

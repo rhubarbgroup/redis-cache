@@ -9,7 +9,7 @@
  * Network: true
  * Requires PHP: 5.6
  * Author: Till Krüss
- * Author URI: https://wprediscache.com
+ * Author URI: https://objectcache.pro
  * GitHub Plugin URI: https://github.com/rhubarbgroup/redis-cache
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html

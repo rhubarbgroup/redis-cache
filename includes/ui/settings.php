@@ -58,7 +58,7 @@ defined( '\\ABSPATH' ) || exit;
 
                 <div class="card">
                     <h2 class="title">
-                        Redis Cache Pro
+                        Object Cache Pro
                     </h2>
                     <p>
                         <b>A business class object cache backend.</b> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.
@@ -75,8 +75,8 @@ defined( '\\ABSPATH' ) || exit;
                         <li>Optimized for WooCommerce, Jetpack &amp; Yoast SEO</li>
                     </ul>
                     <p>
-                        <a class="button button-primary" target="_blank" rel="noopener" href="https://wprediscache.com/?utm_source=wp-plugin&amp;utm_medium=settings">
                             <?php esc_html_e( 'Learn more', 'redis-cache' ); ?>
+                        <a class="button button-primary" target="_blank" rel="noopener" href="https://objectcache.pro/?utm_source=wp-plugin&amp;utm_medium=settings">
                         </a>
                     </p>
                 </div>

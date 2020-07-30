@@ -227,7 +227,7 @@ class Plugin {
                     'calls' => __( 'Calls', 'redis-cache' ),
                     'no_data' => __( 'Not enough data collected, yet.', 'redis-cache' ),
                     'no_cache' => __( 'Enable object cache to collect data.', 'redis-cache' ),
-                    'pro' => 'Redis Cache Pro',
+                    'pro' => 'Object Cache Pro',
                 ),
             )
         );
@@ -585,7 +585,7 @@ class Plugin {
 
         printf(
             '<div class="notice notice-info is-dismissible" data-dismissible="pro_release_notice"><p><strong>%s</strong> %s</p></div>',
-            __( 'Redis Cache Pro is out!', 'redis-cache' ),
+            __( 'Object Cache Pro is out!', 'redis-cache' ),
             sprintf(
                 // translators: %s = Link to the plugin setting screen
                 __( 'A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href="%s">Learn more »</a>', 'redis-cache' ),
@@ -619,10 +619,10 @@ class Plugin {
 
         printf(
             '<div class="notice woocommerce-message woocommerce-admin-promo-messages is-dismissible" data-dismissible="wc_pro_notice"><p><strong>%s</strong></p><p>%s</p></div>',
-            __( 'Redis Cache Pro + WooCommerce = ❤️', 'redis-cache' ),
+            __( 'Object Cache Pro + WooCommerce = ❤️', 'redis-cache' ),
             sprintf(
                 // translators: %s = Link to the plugin's settings screen
-                __( 'Redis Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style="color: #bb77ae;" href="%s">Learn more »</a>', 'redis-cache' ),
+                __( 'Object Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style="color: #bb77ae;" href="%s">Learn more »</a>', 'redis-cache' ),
                 network_admin_url( $this->page )
             )
         );
