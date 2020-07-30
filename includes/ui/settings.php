@@ -75,8 +75,8 @@ defined( '\\ABSPATH' ) || exit;
                         <li>Optimized for WooCommerce, Jetpack &amp; Yoast SEO</li>
                     </ul>
                     <p>
-                            <?php esc_html_e( 'Learn more', 'redis-cache' ); ?>
                         <a class="button button-primary" target="_blank" rel="noopener" href="https://objectcache.pro/?utm_source=wp-plugin&amp;utm_medium=settings">
+                            Learn more
                         </a>
                     </p>
                 </div>
