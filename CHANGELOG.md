@@ -7,6 +7,7 @@
 - Refactored connection and Redis status logic
 - Updated Predis to v1.1.2
 - Remove Predis deprecation notice
+- Fixed fetching derived keys in `wp_cache_get_multiple()`
 
 ## 2.0.8
 
