@@ -29,24 +29,6 @@ $diagnostics = $plugin->get_diagnostics();
             <th><?php esc_html_e( 'Client:', 'redis-cache' ); ?></th>
             <td>
                 <code><?php echo esc_html( $redis_client ); ?></code>
-
-                <?php if ( stripos( (string) $redis_client, 'predis' ) === 0 ) : ?>
-                    <p class="description is-notice">
-                        <?php if ( version_compare( phpversion(), '7.2', '<' ) ) : ?>
-                            <?php _e( 'The Predis library is no longer maintained.', 'redis-cache' ); ?>
-                        <?php else : ?>
-                            <?php _e( 'The Predis library is not reliable on PHP 7.2 and newer.', 'redis-cache' ); ?>
-                        <?php endif; ?>
-
-                        <?php
-                            printf(
-                                // translators: %s = Link to the help article
-                                __( 'Learn more about <a href="%s" target="_blank">migrating to Credis or PhpRedis</a> to avoid compatiblity issues in the future.', 'redis-cache' ),
-                                'https://github.com/rhubarbgroup/redis-cache/wiki/Predis'
-                            );
-                        ?>
-                    </p>
-                <?php endif; ?>
             </td>
         </tr>
     <?php endif; ?>

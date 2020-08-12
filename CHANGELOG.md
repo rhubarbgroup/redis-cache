@@ -6,6 +6,7 @@
 - Show "Metrics" tab when metrics are disabled
 - Refactored connection and Redis status logic
 - Updated Predis to v1.1.2
+- Remove Predis deprecation notice
 
 ## 2.0.8
 
