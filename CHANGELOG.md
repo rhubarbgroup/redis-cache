@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.10
+
+- Fixed unserializing values in `wp_cache_get_multiple()`
+
 ## 2.0.9
 
 - Highlight current metric type using color

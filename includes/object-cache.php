@@ -1399,6 +1399,7 @@ LUA;
         $this->cache_time += $execute_time;
 
         foreach ( $results as $key => $value ) {
+            $value = $this->maybe_unserialize($value);
             $cache[ $key ] = $value;
 
             if ( $value === false ) {
@@ -1409,8 +1410,6 @@ LUA;
                 $this->add_to_internal_cache( $derived_keys[ $key ], $value );
             }
         }
-
-        $cache = array_map( array( $this, 'maybe_unserialize' ), $cache );
 
         if ( function_exists( 'do_action' ) ) {
             do_action( 'redis_object_cache_get_multiple', $keys, $cache, $group, $force, $execute_time );
