@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, caching, cache, object cache,
 Requires at least: 3.3
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 2.0.8
+Stable tag: 2.0.9
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,15 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.9 =
+
+- Highlight current metric type using color
+- Show "Metrics" tab when metrics are disabled
+- Refactored connection and Redis status logic
+- Updated Predis to v1.1.2
+- Remove Predis deprecation notice
+- Fixed fetching derived keys in `wp_cache_get_multiple()`
 
 = 2.0.8 =
 
@@ -426,6 +435,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.8 =
+= 2.0.9 =
 
 Version 2.0 is a significant rewrite of the plugin. Please read the v2.0.0 release notes.

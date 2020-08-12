@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.9
 
 - Highlight current metric type using color
 - Show "Metrics" tab when metrics are disabled
