@@ -2,21 +2,21 @@
 # This file is distributed under the GPLv3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Redis Object Cache 2.0.7\n"
+"Project-Id-Version: Redis Object Cache 2.0.9\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/redis-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2020-07-28T14:33:53+00:00\n"
+"POT-Creation-Date: 2020-08-12T20:22:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: redis-cache\n"
 
 #. Plugin Name of the plugin
-#: includes/class-plugin.php:106
-#: includes/class-plugin.php:177
+#: includes/class-plugin.php:104
+#: includes/class-plugin.php:161
 #: includes/ui/settings.php:18
 msgid "Redis Object Cache"
 msgstr ""
@@ -34,184 +34,184 @@ msgid "Till Krüss"
 msgstr ""
 
 #. Author URI of the plugin
-msgid "https://wprediscache.com"
+msgid "https://objectcache.pro"
 msgstr ""
 
-#: includes/class-plugin.php:107
+#: includes/class-plugin.php:105
 msgid "Redis"
 msgstr ""
 
-#: includes/class-plugin.php:129
-msgid "Flush Object Cache"
-msgstr ""
-
-#: includes/class-plugin.php:132
-msgid "Flush the Redis object cache"
-msgstr ""
-
-#: includes/class-plugin.php:158
+#: includes/class-plugin.php:135
 #: includes/ui/tabs/overview.php:22
 msgid "Overview"
 msgstr ""
 
-#: includes/class-plugin.php:161
+#: includes/class-plugin.php:141
 msgid "Metrics"
 msgstr ""
 
-#: includes/class-plugin.php:164
+#: includes/class-plugin.php:147
 msgid "Diagnostics"
 msgstr ""
 
-#: includes/class-plugin.php:189
+#: includes/class-plugin.php:173
 msgid "Settings"
 msgstr ""
 
-#: includes/class-plugin.php:249
+#: includes/class-plugin.php:233
 #: includes/ui/tabs/metrics.php:17
 #: includes/ui/widget.php:16
 msgid "Time"
 msgstr ""
 
-#: includes/class-plugin.php:250
+#: includes/class-plugin.php:234
 #: includes/ui/tabs/metrics.php:22
 #: includes/ui/widget.php:21
 msgid "Bytes"
 msgstr ""
 
-#: includes/class-plugin.php:251
+#: includes/class-plugin.php:235
 #: includes/ui/tabs/metrics.php:27
 #: includes/ui/widget.php:26
 msgid "Ratio"
 msgstr ""
 
-#: includes/class-plugin.php:252
+#: includes/class-plugin.php:236
 #: includes/ui/tabs/metrics.php:32
 #: includes/ui/widget.php:31
 msgid "Calls"
 msgstr ""
 
-#: includes/class-plugin.php:253
+#: includes/class-plugin.php:237
 msgid "Not enough data collected, yet."
 msgstr ""
 
-#: includes/class-plugin.php:254
+#: includes/class-plugin.php:238
 msgid "Enable object cache to collect data."
 msgstr ""
 
-#: includes/class-plugin.php:357
+#: includes/class-plugin.php:340
 #: includes/class-qm-collector.php:48
 msgid "Disabled"
 msgstr ""
 
-#: includes/class-plugin.php:362
+#: includes/class-plugin.php:344
+msgid "Drop-in not installed"
+msgstr ""
+
+#: includes/class-plugin.php:348
+msgid "Drop-in is invalid"
+msgstr ""
+
+#: includes/class-plugin.php:353
 msgid "Connected"
 msgstr ""
 
-#: includes/class-plugin.php:366
-msgid "Not Connected"
+#: includes/class-plugin.php:354
+msgid "Not connected"
 msgstr ""
 
-#: includes/class-plugin.php:370
-#: includes/ui/tabs/overview.php:248
+#: includes/class-plugin.php:357
+#: includes/ui/tabs/overview.php:230
 msgid "Unknown"
 msgstr ""
 
 #. translators: %s = Action link to update the drop-in
-#: includes/class-plugin.php:449
+#: includes/class-plugin.php:440
 msgid "The Redis object cache drop-in is outdated. Please <a href=\"%s\">update the drop-in</a>."
 msgstr ""
 
 #. translators: %s = Action link to update the drop-in
-#: includes/class-plugin.php:453
+#: includes/class-plugin.php:444
 msgid "A foreign object cache drop-in was found. To use Redis for object caching, please <a href=\"%s\">enable the drop-in</a>."
 msgstr ""
 
-#: includes/class-plugin.php:483
+#: includes/class-plugin.php:474
 msgid "Object cache flushed."
 msgstr ""
 
-#: includes/class-plugin.php:489
+#: includes/class-plugin.php:480
 msgid "Object cache could not be flushed."
 msgstr ""
 
-#: includes/class-plugin.php:511
+#: includes/class-plugin.php:502
 #: includes/cli/class-commands.php:74
 msgid "Object cache enabled."
 msgstr ""
 
-#: includes/class-plugin.php:517
+#: includes/class-plugin.php:508
 #: includes/cli/class-commands.php:76
 msgid "Object cache could not be enabled."
 msgstr ""
 
-#: includes/class-plugin.php:530
+#: includes/class-plugin.php:521
 #: includes/cli/class-commands.php:113
 msgid "Object cache disabled."
 msgstr ""
 
-#: includes/class-plugin.php:535
+#: includes/class-plugin.php:526
 #: includes/cli/class-commands.php:115
 msgid "Object cache could not be disabled."
 msgstr ""
 
-#: includes/class-plugin.php:554
+#: includes/class-plugin.php:545
 #: includes/cli/class-commands.php:147
 msgid "Updated object cache drop-in and enabled Redis object cache."
 msgstr ""
 
-#: includes/class-plugin.php:560
+#: includes/class-plugin.php:551
 #: includes/cli/class-commands.php:149
 msgid "Object cache drop-in could not be updated."
 msgstr ""
 
-#: includes/class-plugin.php:613
-msgid "Redis Cache Pro is out!"
+#: includes/class-plugin.php:604
+msgid "Object Cache Pro is out!"
 msgstr ""
 
 #. translators: %s = Link to the plugin setting screen
-#: includes/class-plugin.php:616
+#: includes/class-plugin.php:607
 msgid "A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href=\"%s\">Learn more »</a>"
 msgstr ""
 
-#: includes/class-plugin.php:647
-msgid "Redis Cache Pro + WooCommerce = ❤️"
+#: includes/class-plugin.php:638
+msgid "Object Cache Pro + WooCommerce = ❤️"
 msgstr ""
 
 #. translators: %s = Link to the plugin's settings screen
-#: includes/class-plugin.php:650
-msgid "Redis Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style=\"color: #bb77ae;\" href=\"%s\">Learn more »</a>"
+#: includes/class-plugin.php:641
+msgid "Object Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style=\"color: #bb77ae;\" href=\"%s\">Learn more »</a>"
 msgstr ""
 
 #. translators: %1$d = number of objects. %2$s = human-readable size of cache. %3$s = name of the used client.
-#: includes/class-plugin.php:768
+#: includes/class-plugin.php:759
 msgid "Retrieved %1$d objects (%2$s) from Redis using %3$s."
 msgstr ""
 
-#: includes/class-plugin.php:808
+#: includes/class-plugin.php:799
 msgid "Could not initialize filesystem."
 msgstr ""
 
-#: includes/class-plugin.php:815
+#: includes/class-plugin.php:806
 msgid "Object cache file doesn’t exist."
 msgstr ""
 
-#: includes/class-plugin.php:820
+#: includes/class-plugin.php:811
 msgid "Test file exists, but couldn’t be deleted."
 msgstr ""
 
-#: includes/class-plugin.php:825
+#: includes/class-plugin.php:816
 msgid "Failed to copy test file."
 msgstr ""
 
-#: includes/class-plugin.php:829
+#: includes/class-plugin.php:820
 msgid "Copied test file doesn’t exist."
 msgstr ""
 
-#: includes/class-plugin.php:835
+#: includes/class-plugin.php:826
 msgid "Couldn’t verify test file contents."
 msgstr ""
 
-#: includes/class-plugin.php:839
+#: includes/class-plugin.php:830
 msgid "Copied test file couldn’t be deleted."
 msgstr ""
 
@@ -220,7 +220,7 @@ msgid "Object Cache"
 msgstr ""
 
 #: includes/class-qm-collector.php:48
-#: includes/ui/tabs/overview.php:76
+#: includes/ui/tabs/overview.php:58
 msgid "Yes"
 msgstr ""
 
@@ -285,176 +285,152 @@ msgstr ""
 msgid "Metadata"
 msgstr ""
 
-#: includes/ui/settings.php:54
+#. translators: %s = Tab label
+#: includes/ui/settings.php:35
+msgid "%s are disabled for this site."
+msgstr ""
+
+#: includes/ui/settings.php:74
 msgid "Resources"
 msgstr ""
 
-#: includes/ui/settings.php:79
-msgid "Learn more"
-msgstr ""
-
-#: includes/ui/settings.php:92
+#: includes/ui/settings.php:112
 msgid "Your site meets the system requirements for the Pro version."
 msgstr ""
 
-#: includes/ui/settings.php:99
+#: includes/ui/settings.php:119
 msgid "Your site <i>does not</i> meet the requirements for the Pro version:"
 msgstr ""
 
 #. translators: %s = PHP Version.
-#: includes/ui/settings.php:108
+#: includes/ui/settings.php:128
 msgid "The current version of PHP (%s) is too old. PHP 7.0 or newer is required."
 msgstr ""
 
-#: includes/ui/settings.php:117
+#: includes/ui/settings.php:137
 msgid "The PhpRedis extension is not installed."
 msgstr ""
 
 #. translators: %s = Version of the PhpRedis extension.
-#: includes/ui/settings.php:124
+#: includes/ui/settings.php:144
 msgid "The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required."
-msgstr ""
-
-#: includes/ui/settings.php:140
-msgid "Support & Updates"
-msgstr ""
-
-#: includes/ui/settings.php:154
-msgid "Documentation"
-msgstr ""
-
-#: includes/ui/settings.php:160
-msgid "Support"
 msgstr ""
 
 #: includes/ui/tabs/overview.php:29
 msgid "Client:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:36
-msgid "The Predis library is no longer maintained."
-msgstr ""
-
-#: includes/ui/tabs/overview.php:38
-msgid "The Predis library is not reliable on PHP 7.2 and newer."
-msgstr ""
-
-#. translators: %s = Link to the help article
-#: includes/ui/tabs/overview.php:44
-msgid "Learn more about <a href=\"%s\" target=\"_blank\">migrating to Credis or PhpRedis</a> to avoid compatiblity issues in the future."
-msgstr ""
-
-#: includes/ui/tabs/overview.php:55
+#: includes/ui/tabs/overview.php:37
 msgid "Drop-in:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:59
-msgid "Missing"
+#: includes/ui/tabs/overview.php:41
+msgid "Not installed"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:61
+#: includes/ui/tabs/overview.php:43
 msgid "Outdated"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:64
+#: includes/ui/tabs/overview.php:46
 msgid "Valid"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:65
+#: includes/ui/tabs/overview.php:47
 msgid "Invalid"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:74
+#: includes/ui/tabs/overview.php:56
 msgid "Disabled:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:83
+#: includes/ui/tabs/overview.php:65
 msgid "Key Prefix:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:92
+#: includes/ui/tabs/overview.php:74
 msgid "Max. TTL:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:98
+#: includes/ui/tabs/overview.php:80
 msgid "This doesn’t appear to be a valid number."
 msgstr ""
 
-#: includes/ui/tabs/overview.php:108
+#: includes/ui/tabs/overview.php:90
 msgid "Connection"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:114
+#: includes/ui/tabs/overview.php:96
 msgid "Status:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:120
+#: includes/ui/tabs/overview.php:102
 msgid "Host:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:127
+#: includes/ui/tabs/overview.php:109
 msgid "Cluster:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:140
+#: includes/ui/tabs/overview.php:122
 msgid "Shards:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:153
+#: includes/ui/tabs/overview.php:135
 msgid "Servers:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:166
+#: includes/ui/tabs/overview.php:148
 msgid "Port:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:173
+#: includes/ui/tabs/overview.php:155
 msgid "Username:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:180
+#: includes/ui/tabs/overview.php:162
 msgid "Password:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:189
+#: includes/ui/tabs/overview.php:171
 msgid "Database:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:196
+#: includes/ui/tabs/overview.php:178
 msgid "Connection Timeout:"
 msgstr ""
 
 #. translators: %s = Redis connection/read timeout in seconds.
-#: includes/ui/tabs/overview.php:202
-#: includes/ui/tabs/overview.php:219
+#: includes/ui/tabs/overview.php:184
+#: includes/ui/tabs/overview.php:201
 msgid "%ss"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:213
+#: includes/ui/tabs/overview.php:195
 msgid "Read Timeout:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:230
+#: includes/ui/tabs/overview.php:212
 msgid "Retry Interval:"
 msgstr ""
 
 #. translators: %s = Redis retry interval in milliseconds.
-#: includes/ui/tabs/overview.php:236
+#: includes/ui/tabs/overview.php:218
 msgid "%sms"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:247
+#: includes/ui/tabs/overview.php:229
 msgid "Redis Version:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:257
+#: includes/ui/tabs/overview.php:240
 msgid "Flush Cache"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:261
+#: includes/ui/tabs/overview.php:246
 msgid "Disable Object Cache"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:263
+#: includes/ui/tabs/overview.php:250
 msgid "Enable Object Cache"
 msgstr ""
