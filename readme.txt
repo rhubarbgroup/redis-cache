@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, caching, cache, object cache,
 Requires at least: 3.3
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 2.0.9
+Stable tag: 2.0.10
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -439,6 +439,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.9 =
+= 2.0.10 =
 
 Version 2.0 is a significant rewrite of the plugin. Please read the v2.0.0 release notes.
