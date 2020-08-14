@@ -23,7 +23,9 @@ $info['Disabled'] = $disabled ? 'Yes' : 'No';
 $info['Filesystem'] = is_wp_error( $filesystem ) ? $filesystem->get_error_message() : 'Working';
 
 if ( $dropin && ! $disabled ) {
-    $info[ 'Ping' ] = $wp_object_cache->diagnostics[ 'ping' ];
+    $info[ 'Ping' ] = isset( $wp_object_cache->diagnostics[ 'ping' ] )
+        ? $wp_object_cache->diagnostics[ 'ping' ]
+        : false;
 
     try {
         $cache = new WP_Object_Cache( false );
