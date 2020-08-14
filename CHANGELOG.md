@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.11
+
+- Fixed an issue in `wp_cache_get_multiple()` when using Predis
+- Prevent undefined index notice in diagnostics
+
 ## 2.0.10
 
 - Fixed unserializing values in `wp_cache_get_multiple()`
