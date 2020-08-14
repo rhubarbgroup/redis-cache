@@ -1400,14 +1400,15 @@ LUA;
 
         foreach ( $results as $key => $value ) {
             $value = $this->maybe_unserialize($value);
-            $cache[ $key ] = $value;
 
-            if ( $value === false ) {
+            if ( $value === null || $value === false ) {
+                $cache[ $key ] = false;
                 $this->cache_misses++;
             } else {
-                $this->cache_hits++;
-
+                $cache[ $key ] = $value;
                 $this->add_to_internal_cache( $derived_keys[ $key ], $value );
+
+                $this->cache_hits++;
             }
         }
 
