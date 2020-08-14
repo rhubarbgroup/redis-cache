@@ -1399,14 +1399,12 @@ LUA;
         $this->cache_time += $execute_time;
 
         foreach ( $results as $key => $value ) {
-            $value = $this->maybe_unserialize($value);
-
             if ( $value === null || $value === false ) {
                 $cache[ $key ] = false;
                 $this->cache_misses++;
             } else {
-                $cache[ $key ] = $value;
-                $this->add_to_internal_cache( $derived_keys[ $key ], $value );
+                $cache[ $key ] = $this->maybe_unserialize( $value );
+                $this->add_to_internal_cache( $derived_keys[ $key ], $cache[ $key ] );
 
                 $this->cache_hits++;
             }
