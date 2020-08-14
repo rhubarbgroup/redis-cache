@@ -1379,13 +1379,13 @@ LUA;
         $start_time = microtime( true );
 
         try {
+            $remaining_ids = array_map( function ( $key ) use ( $derived_keys ) {
+                return $derived_keys[ $key ];
+            }, $remaining_keys );
+
             $results = array_combine(
                 $remaining_keys,
-                $this->redis->mget(
-                    array_map( function ( $key ) use ( $derived_keys ) {
-                        return $derived_keys[ $key ];
-                    }, $remaining_keys )
-                )
+                $this->redis->mget( $remaining_ids )
             );
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
