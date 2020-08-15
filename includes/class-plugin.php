@@ -1076,6 +1076,7 @@ class Plugin {
 
         if ( WP_REDIS_BASENAME === $plugin ) {
             $timestamp = wp_next_scheduled( 'rediscache_discard_metrics' );
+
             if ( $timestamp ) {
                 wp_unschedule_event( $timestamp, 'rediscache_discard_metrics' );
             }
