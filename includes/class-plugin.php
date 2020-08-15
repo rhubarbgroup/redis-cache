@@ -946,7 +946,8 @@ class Plugin {
             ob_start();
         }
 
-        if ( ( $credentials = request_filesystem_credentials( $url ) ) === false ) {
+        $credentials = request_filesystem_credentials( $url );
+        if ( false === $credentials ) {
             if ( $silent ) {
                 ob_end_clean();
             }
@@ -1064,7 +1065,8 @@ class Plugin {
         ob_start();
 
         if ( WP_REDIS_BASENAME === $plugin ) {
-            if ( $timestamp = wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
+            $timestamp = wp_next_scheduled( 'rediscache_discard_metrics' );
+            if ( $timestamp ) {
                 wp_unschedule_event( $timestamp, 'rediscache_discard_metrics' );
             }
 
