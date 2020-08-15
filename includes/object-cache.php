@@ -1586,8 +1586,8 @@ LUA;
 
     /**
      * Render data about current cache requests
+     * Used by the Debug bar plugin
      *
-     * @deprecated No longer used by the plugin.
      * @return void
      */
     public function stats() {
