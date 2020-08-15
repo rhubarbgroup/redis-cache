@@ -1004,7 +1004,7 @@ class WP_Object_Cache {
 
         $exists = isset( $this->cache[ $derived_key ] );
 
-        if ( $add == $exists ) {
+        if ( (bool) $add === $exists ) {
             return false;
         }
 
@@ -1925,7 +1925,7 @@ LUA;
 
         $data = trim( $data );
 
-        if ( 'N;' == $data ) {
+        if ( 'N;' === $data ) {
             return true;
         }
 
