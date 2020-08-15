@@ -161,6 +161,8 @@ function wp_cache_init() {
     if ( ! ( $wp_object_cache instanceof WP_Object_Cache ) ) {
         $fail_gracefully = ! defined( 'WP_REDIS_GRACEFUL' ) || WP_REDIS_GRACEFUL;
 
+        // We need to override this WordPress global in order to inject our cache.
+        // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
         $wp_object_cache = new WP_Object_Cache( $fail_gracefully );
     }
 }
@@ -1595,6 +1597,7 @@ LUA;
     public function stats() {
         $bytes = array_map(
             function ( $key ) {
+                // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
                 return strlen( serialize( $key ) );
             },
             $this->cache
@@ -1629,6 +1632,7 @@ LUA;
 
         $bytes = array_map(
             function ( $keys ) {
+                // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
                 return strlen( serialize( $keys ) );
             },
             $this->cache
@@ -1862,6 +1866,7 @@ LUA;
 
         // Don't attempt to unserialize data that wasn't serialized going in.
         if ( $this->is_serialized( $original ) ) {
+            // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
             $value = @unserialize( $original );
 
             return is_object( $value ) ? clone $value : $value;
@@ -1890,10 +1895,12 @@ LUA;
         }
 
         if ( is_array( $data ) || is_object( $data ) ) {
+            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
             return serialize( $data );
         }
 
         if ( $this->is_serialized( $data, false ) ) {
+            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
             return serialize( $data );
         }
 
@@ -2000,7 +2007,7 @@ LUA;
 
         $this->errors[] = $exception->getMessage();
 
-        error_log( $exception );
+        error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
         if ( function_exists( 'do_action' ) ) {
             do_action( 'redis_object_cache_error', $exception );
