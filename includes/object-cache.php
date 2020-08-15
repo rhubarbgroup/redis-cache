@@ -1587,6 +1587,7 @@ LUA;
     /**
      * Render data about current cache requests
      *
+     * @deprecated No longer used by the plugin.
      * @return void
      */
     public function stats() {
