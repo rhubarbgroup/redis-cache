@@ -450,6 +450,7 @@
                 event.preventDefault();
 
                 var $parent = $( this ).parent();
+
                 $.post( ajaxurl, {
                     notice: $parent.data( 'dismissible' ),
                     action: 'roc_dismiss_notice',
