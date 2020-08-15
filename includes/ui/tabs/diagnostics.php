@@ -7,8 +7,6 @@
 
 defined( '\\ABSPATH' ) || exit;
 
-$plugin = $this;
-
 ?>
 
 <p>
