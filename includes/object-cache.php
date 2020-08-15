@@ -1617,10 +1617,10 @@ LUA;
             <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
             <br />
             <strong>Cache Hits:</strong>
-            <?php echo $this->cache_hits; ?>
+            <?php echo intval( $this->cache_hits ); ?>
             <br />
             <strong>Cache Misses:</strong>
-            <?php echo $this->cache_misses; ?>
+            <?php echo intval( $this->cache_misses ); ?>
             <br />
             <strong>Cache Size:</strong>
             <?php echo number_format( array_sum( $bytes ) / 1024, 2 ); ?> kB
