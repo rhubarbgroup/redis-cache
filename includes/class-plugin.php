@@ -925,7 +925,8 @@ class Plugin {
         );
 
         if ( ! WP_DEBUG ) {
-            printf( "\n<!-- %s -->\n", esc_html( $message ) );
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            printf( "\n<!-- %s -->\n", $message );
 
             return;
         }
@@ -941,7 +942,11 @@ class Plugin {
             $wp_object_cache->diagnostics['client']
         );
 
-        printf( "<!--\n%s\n\n%s\n-->\n", esc_html( $message ), esc_html( $debug ) );
+        printf(
+            "<!--\n%s\n\n%s\n-->\n",
+            $message, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            esc_html( $debug )
+        );
     }
 
     /**
