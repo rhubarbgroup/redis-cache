@@ -243,7 +243,7 @@ class Plugin {
             'dashboard-network',
         );
 
-        if ( ! in_array( $screen->id, $screens ) ) {
+        if ( ! in_array( $screen->id, $screens, true ) ) {
             return;
         }
 
@@ -271,7 +271,7 @@ class Plugin {
             'woocommerce_page_wc-admin',
         );
 
-        if ( ! in_array( $screen->id, $screens ) ) {
+        if ( ! in_array( $screen->id, $screens, true ) ) {
             return;
         }
 
@@ -320,7 +320,7 @@ class Plugin {
             return;
         }
 
-        if ( ! in_array( $screen->id, array( $this->screen, 'dashboard', 'dashboard-network' ) ) ) {
+        if ( ! in_array( $screen->id, array( $this->screen, 'dashboard', 'dashboard-network' ), true ) ) {
             return;
         }
 
@@ -596,7 +596,7 @@ class Plugin {
                 }
             }
 
-            if ( in_array( $action, $this->actions ) ) {
+            if ( in_array( $action, $this->actions, true ) ) {
                 $url = $this->action_link( $action );
 
                 if ( 'flush-cache' === $action ) {
@@ -731,7 +731,7 @@ class Plugin {
             return;
         }
 
-        if ( ! in_array( $screen->id, array( 'dashboard', 'dashboard-network' ) ) ) {
+        if ( ! in_array( $screen->id, array( 'dashboard', 'dashboard-network' ), true ) ) {
             return;
         }
 
@@ -770,7 +770,7 @@ class Plugin {
             return;
         }
 
-        if ( ! in_array( $screen->id, array( 'edit-shop_order', 'edit-product', 'woocommerce_page_wc-admin' ) ) ) {
+        if ( ! in_array( $screen->id, array( 'edit-shop_order', 'edit-product', 'woocommerce_page_wc-admin' ), true ) ) {
             return;
         }
 
