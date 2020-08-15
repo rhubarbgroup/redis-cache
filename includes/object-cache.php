@@ -48,7 +48,7 @@ function wp_cache_add( $key, $value, $group = '', $expiration = 0 ) {
  * @return  bool    Always returns True
  */
 function wp_cache_close() {
-     return true;
+    return true;
 }
 
 /**
@@ -865,7 +865,7 @@ class WP_Object_Cache {
      * @return bool
      */
     public function redis_status() {
-         return (bool) $this->redis_connected;
+        return (bool) $this->redis_connected;
     }
 
     /**
@@ -874,7 +874,7 @@ class WP_Object_Cache {
      * @return mixed
      */
     public function redis_instance() {
-         return $this->redis;
+        return $this->redis;
     }
 
     /**
@@ -883,7 +883,7 @@ class WP_Object_Cache {
      * @return null|string
      */
     public function redis_version() {
-         return $this->redis_version;
+        return $this->redis_version;
     }
 
     /**
@@ -1671,7 +1671,7 @@ LUA;
      * @return  string        Sanitized string.
      */
     protected function sanitize_key_part( $part ) {
-         return str_replace( ':', '-', $part );
+        return str_replace( ':', '-', $part );
     }
 
     /**
