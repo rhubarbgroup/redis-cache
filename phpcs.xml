@@ -18,6 +18,7 @@
         <exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned" />
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
         <!--exclude name="WordPress.Files.FileName.InvalidClassFileName" /-->
+        <exclude name="WordPress.PHP.YodaConditions.NotYoda" />
     </rule>
     <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
 </ruleset>
