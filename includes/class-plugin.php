@@ -279,8 +279,8 @@ class Plugin {
             );
 
             wp_localize_script( 'redis-cache', 'rediscache_metrics', $metrics );
-        } catch (Exception $exception) {
-            error_log($exception);
+        } catch ( Exception $exception ) {
+            error_log( $exception );
         }
     }
 
@@ -518,12 +518,14 @@ class Plugin {
                         $result
                             ? add_settings_error(
                                 'redis-cache',
-                                'dropin', __( 'Object cache disabled.', 'redis-cache' ),
+                                'dropin',
+                                __( 'Object cache disabled.', 'redis-cache' ),
                                 'updated'
                             )
                             : add_settings_error(
                                 'redis-cache',
-                                'dropin', __( 'Object cache could not be disabled.', 'redis-cache' ),
+                                'dropin',
+                                __( 'Object cache could not be disabled.', 'redis-cache' ),
                                 'error'
                             );
                     }
@@ -552,7 +554,6 @@ class Plugin {
                                 'error'
                             );
                     }
-
                 }
 
                 $messages = get_settings_errors( 'redis-cache' );
@@ -683,8 +684,8 @@ class Plugin {
                 time(),
                 http_build_query( $metrics, null, ';' )
             );
-        } catch (Exception $exception) {
-            error_log($exception);
+        } catch ( Exception $exception ) {
+            error_log( $exception );
         }
     }
 
@@ -709,8 +710,8 @@ class Plugin {
                 0,
                 time() - HOUR_IN_SECONDS
             );
-        } catch (Exception $exception) {
-            error_log($exception);
+        } catch ( Exception $exception ) {
+            error_log( $exception );
         }
     }
 
@@ -791,9 +792,8 @@ class Plugin {
         return true;
     }
 
-    public function test_filesystem_writing()
-    {
-        global $wp_filesystem;
+    public function test_filesystem_writing() {
+         global $wp_filesystem;
 
         if ( ! $this->initialize_filesystem( '', true ) ) {
             return new WP_Error( 'fs', __( 'Could not initialize filesystem.', 'redis-cache' ) );
