@@ -1590,13 +1590,7 @@ LUA;
      * @return void
      */
     public function stats() {
-        $bytes = array_map(
-            function ( $key ) {
-                // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-                return strlen( serialize( $key ) );
-            },
-            $this->cache
-        );
+        $bytes = strlen( serialize( $wp_object_cache->cache ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 
         ?>
         <p>

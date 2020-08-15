@@ -931,7 +931,6 @@ class Plugin {
             return;
         }
 
-        // TODO: find a better method to determine cache size as using `serialize` is discouraged.
         $bytes = strlen( serialize( $wp_object_cache->cache ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 
         $debug = sprintf(
