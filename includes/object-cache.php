@@ -412,17 +412,17 @@ class WP_Object_Cache {
         try {
             switch ( $client ) {
                 case 'hhvm':
-                    $this->connectUsingHHVM( $parameters );
+                    $this->connect_using_hhvm( $parameters );
                     break;
                 case 'phpredis':
-                    $this->connectUsingPhpRedis( $parameters );
+                    $this->connect_using_phpredis( $parameters );
                     break;
                 case 'credis':
-                    $this->connectUsingCredis( $parameters );
+                    $this->connect_using_credis( $parameters );
                     break;
                 case 'predis':
                 default:
-                    $this->connectUsingPredis( $parameters );
+                    $this->connect_using_predis( $parameters );
                     break;
             }
 
@@ -519,7 +519,7 @@ class WP_Object_Cache {
      * @param  array $parameters Connection parameters built by the `build_parameters` method.
      * @return void
      */
-    protected function connectUsingPhpRedis( $parameters ) {
+    protected function connect_using_phpredis( $parameters ) {
         $version = phpversion( 'redis' );
 
         $this->diagnostics[ 'client' ] = sprintf( 'PhpRedis (v%s)', $version );
@@ -604,7 +604,7 @@ class WP_Object_Cache {
      * @throws \Exception If the Predis library was not found or is unreadable.
      * @return void
      */
-    protected function connectUsingPredis( $parameters ) {
+    protected function connect_using_predis( $parameters ) {
         $client = 'Predis';
 
         // Require PHP 5.4 or greater
@@ -680,7 +680,7 @@ class WP_Object_Cache {
      * @throws \Exception If more than one seninel is configured as Credis does not support multiple sentinel servers.
      * @return void
      */
-    protected function connectUsingCredis( $parameters ) {
+    protected function connect_using_credis( $parameters ) {
         $client = 'Credis';
 
         // Require PHP 5.4 or greater
@@ -800,7 +800,7 @@ class WP_Object_Cache {
      * @param  array $parameters Connection parameters built by the `build_parameters` method.
      * @return void
      */
-    protected function connectUsingHHVM( $parameters ) {
+    protected function connect_using_hhvm( $parameters ) {
         $this->redis = new Redis();
 
         // Adjust host and port if the scheme is `unix`.
