@@ -573,7 +573,7 @@ class Plugin {
             }
 
             if ( isset( $message ) ) {
-                printf( '<div class="update-nag">%s</div>', $message );
+                printf( '<div class="update-nag">%s</div>', wp_kses_post( $message ) );
             }
         }
     }
@@ -745,11 +745,11 @@ class Plugin {
 
         printf(
             '<div class="notice notice-info is-dismissible" data-dismissible="pro_release_notice"><p><strong>%s</strong> %s</p></div>',
-            __( 'Object Cache Pro is out!', 'redis-cache' ),
+            esc_html__( 'Object Cache Pro is out!', 'redis-cache' ),
             sprintf(
                 // translators: %s = Link to the plugin setting screen.
-                __( 'A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href="%s">Learn more »</a>', 'redis-cache' ),
-                network_admin_url( $this->page )
+                wp_kses_post( __( 'A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href="%s">Learn more »</a>', 'redis-cache' ) ),
+                esc_url( network_admin_url( $this->page ) )
             )
         );
     }
@@ -784,11 +784,11 @@ class Plugin {
 
         printf(
             '<div class="notice woocommerce-message woocommerce-admin-promo-messages is-dismissible" data-dismissible="wc_pro_notice"><p><strong>%s</strong></p><p>%s</p></div>',
-            __( 'Object Cache Pro + WooCommerce = ❤️', 'redis-cache' ),
+            esc_html__( 'Object Cache Pro + WooCommerce = ❤️', 'redis-cache' ),
             sprintf(
                 // translators: %s = Link to the plugin's settings screen.
-                __( 'Object Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style="color: #bb77ae;" href="%s">Learn more »</a>', 'redis-cache' ),
-                network_admin_url( $this->page )
+                wp_kses_post( __( 'Object Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style="color: #bb77ae;" href="%s">Learn more »</a>', 'redis-cache' ) ),
+                esc_url( network_admin_url( $this->page ) )
             )
         );
     }
