@@ -97,7 +97,10 @@ class QM_Output extends QM_Output_Html {
 
         if ( ! $data['has_dropin'] ) {
             $this->before_non_tabular_output();
-            echo $this->build_notice( __( 'The Redis Object Cache drop-in is not installed. Use WP CLI or go to "Settings -> Redis" to enable drop-in.', 'redis-cache' ) );
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $this->build_notice(
+                esc_html__( 'The Redis Object Cache drop-in is not installed. Use WP CLI or go to "Settings -> Redis" to enable drop-in.', 'redis-cache' )
+            );
             $this->after_non_tabular_output();
 
             return;
@@ -105,7 +108,10 @@ class QM_Output extends QM_Output_Html {
 
         if ( ! $data['valid_dropin'] ) {
             $this->before_non_tabular_output();
-            echo $this->build_notice( __( 'WordPress is using a foreign object cache drop-in and Redis Object Cache is not being used. Use WP CLI or go to "Settings -> Redis" to enable drop-in.', 'redis-cache' ) );
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $this->build_notice(
+                esc_html__( 'WordPress is using a foreign object cache drop-in and Redis Object Cache is not being used. Use WP CLI or go to "Settings -> Redis" to enable drop-in.', 'redis-cache' )
+            );
             $this->after_non_tabular_output();
 
             return;
