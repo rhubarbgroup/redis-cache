@@ -505,7 +505,7 @@ class WP_Object_Cache {
         if ( isset( $parameters['password'] ) ) {
             $password = $parameters['password'];
 
-            if ( is_null( $password ) || $password === '' ) {
+            if ( is_null( $password ) || '' === $password ) {
                 unset( $parameters['password'] );
             }
         }
@@ -767,7 +767,7 @@ class WP_Object_Cache {
             $args['servers'] = $clients;
         } else {
             $args = [
-                'host' => $parameters['scheme'] === 'unix' ? $parameters['path'] : $parameters['host'],
+                'host' => 'unix' === $parameters['scheme'] ? $parameters['path'] : $parameters['host'],
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
                 'persistent' => null,
@@ -1316,7 +1316,7 @@ LUA;
         $this->cache_calls++;
         $this->cache_time += $execute_time;
 
-        if ( $result === null || $result === false ) {
+        if ( null === $result || false === $result ) {
             $found = false;
             $this->cache_misses++;
 
@@ -1366,7 +1366,7 @@ LUA;
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             foreach ( $keys as $key ) {
                 $cache[ $key ] = $this->get_from_internal_cache( $derived_keys[ $key ] );
-                $cache[ $key ] === false ? $this->cache_misses++ : $this->cache_hits++;
+                false === $cache[ $key ] ? $this->cache_misses++ : $this->cache_hits++;
             }
 
             return $cache;
@@ -1376,7 +1376,7 @@ LUA;
             foreach ( $keys as $key ) {
                 $value = $this->get_from_internal_cache( $derived_keys[ $key ] );
 
-                if ( $value === false ) {
+                if ( false === $value ) {
                     $this->cache_misses++;
                 } else {
                     $cache[ $key ] = $value;
@@ -1416,7 +1416,7 @@ LUA;
         $this->cache_time += $execute_time;
 
         foreach ( $results as $key => $value ) {
-            if ( $value === null || $value === false ) {
+            if ( null === $value || false === $value ) {
                 $cache[ $key ] = false;
                 $this->cache_misses++;
             } else {
@@ -1841,7 +1841,7 @@ LUA;
         if ( defined( 'WP_REDIS_MAXTTL' ) ) {
             $max = (int) WP_REDIS_MAXTTL;
 
-            if ( $expiration === 0 || $expiration > $max ) {
+            if ( 0 === $expiration || $expiration > $max ) {
                 $expiration = $max;
             }
         }
