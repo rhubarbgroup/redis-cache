@@ -279,7 +279,8 @@ class Plugin {
             'redis-cache',
             plugins_url( 'assets/js/admin.js', WP_REDIS_FILE ),
             array( 'jquery', 'underscore' ),
-            WP_REDIS_VERSION
+            WP_REDIS_VERSION,
+            true
         );
 
         wp_localize_script(
@@ -328,7 +329,8 @@ class Plugin {
             'redis-cache-charts',
             plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
             null,
-            WP_REDIS_VERSION
+            WP_REDIS_VERSION,
+            true
         );
 
         if ( ! method_exists( $wp_object_cache, 'redis_instance' ) ) {
