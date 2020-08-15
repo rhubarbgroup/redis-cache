@@ -354,7 +354,7 @@
                 time: function ( entry ) {
                     return [ entry[0], entry[1] * 0.5 ]
                 },
-                ratio: function ( entry ) {
+                bytes: function ( entry ) {
                     return [ entry[0], entry[1] * 0.3 ]
                 },
                 calls: function ( entry ) {
