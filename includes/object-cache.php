@@ -1597,7 +1597,7 @@ LUA;
     /**
      * Render data about current cache requests
      *
-     * @return string
+     * @return void
      */
     public function stats() {
         $bytes = array_map(
