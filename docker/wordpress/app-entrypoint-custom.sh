@@ -27,7 +27,7 @@ fi
 if [ -f "/redis-cache/docker/apf.php" ]; then
     cp "$PHP_INI_PATH" "$PHP_INI_PATH-original"
     TF=$(mktemp)
-    awk '{gsub(/^auto_prepend_file =/,"& \"/redis-cache/docker/apf.php\"",$0)}1' "$PHP_INI_PATH" \
+    awk '{gsub(/^(auto_prepend_file\s*=\s*).+/,"& \"/redis-cache/docker/apf.php\"",$1)}1' "$PHP_INI_PATH" \
         > "$TF" \
         && mv "$TF" "$PHP_INI_PATH"
     info "Set PHP auto prepend file"
