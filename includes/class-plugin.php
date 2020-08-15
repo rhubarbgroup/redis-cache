@@ -603,7 +603,7 @@ class Plugin {
             if ( in_array( $action, $this->actions, true ) ) {
                 $url = $this->action_link( $action );
 
-                if ( 'flush-cache' === $action ) {
+                if ( $action === 'flush-cache' ) {
                     wp_cache_flush()
                         ? add_settings_error(
                             'redis-cache',
@@ -622,7 +622,7 @@ class Plugin {
                 // do we have filesystem credentials?
                 if ( $this->initialize_filesystem( $url, true ) ) {
 
-                    if ( 'enable-cache' === $action ) {
+                    if ( $action === 'enable-cache' ) {
                         $result = $wp_filesystem->copy(
                             WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
                             WP_CONTENT_DIR . '/object-cache.php',
@@ -647,7 +647,7 @@ class Plugin {
                             );
                     }
 
-                    if ( 'disable-cache' === $action ) {
+                    if ( $action === 'disable-cache' ) {
                         $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
 
                         do_action( 'redis_object_cache_disable', $result );
@@ -667,7 +667,7 @@ class Plugin {
                             );
                     }
 
-                    if ( 'update-dropin' === $action ) {
+                    if ( $action === 'update-dropin' ) {
                         $result = $wp_filesystem->copy(
                             WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
                             WP_CONTENT_DIR . '/object-cache.php',
@@ -1017,7 +1017,7 @@ class Plugin {
 
         $meta = get_file_data( $testfile, [ 'Version' => 'Version' ] );
 
-        if ( WP_REDIS_VERSION !== $meta['Version'] ) {
+        if ( $meta['Version'] !== WP_REDIS_VERSION ) {
             return new WP_Error( 'version', __( 'Couldn’t verify test file contents.', 'redis-cache' ) );
         }
 
@@ -1078,7 +1078,7 @@ class Plugin {
 
         ob_start();
 
-        if ( WP_REDIS_BASENAME === $plugin ) {
+        if ( $plugin === WP_REDIS_BASENAME ) {
             $timestamp = wp_next_scheduled( 'rediscache_discard_metrics' );
 
             if ( $timestamp ) {
