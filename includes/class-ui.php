@@ -30,13 +30,16 @@ class UI {
      * @return void
      */
     public static function register_tab( $slug, $label, $args = [] ) {
-        self::$tabs[ $slug ] = (object) wp_parse_args( $args, [
-            'label' => $label,
-            'file' => WP_REDIS_PLUGIN_PATH . "/includes/ui/tabs/{$slug}.php",
-            'slug' => $slug,
-            'default' => false,
-            'disabled' => false,
-        ] );
+        self::$tabs[ $slug ] = (object) wp_parse_args(
+            $args,
+            [
+                'label' => $label,
+                'file' => WP_REDIS_PLUGIN_PATH . "/includes/ui/tabs/{$slug}.php",
+                'slug' => $slug,
+                'default' => false,
+                'disabled' => false,
+            ]
+        );
     }
 
     /**
