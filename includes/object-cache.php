@@ -619,7 +619,6 @@ class WP_Object_Cache {
                 defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins'
             );
 
-
             if ( is_readable( $predis ) ) {
                 require_once $predis;
             } else {
@@ -1385,9 +1384,12 @@ LUA;
             }
         }
 
-        $remaining_keys = array_filter( $keys, function ( $key ) use ( $cache ) {
-            return ! isset( $cache[ $key ] );
-        } );
+        $remaining_keys = array_filter(
+            $keys,
+            function ( $key ) use ( $cache ) {
+                return ! isset( $cache[ $key ] );
+            }
+        );
 
         if ( empty( $remaining_keys ) ) {
             return $cache;
@@ -1396,9 +1398,12 @@ LUA;
         $start_time = microtime( true );
 
         try {
-            $remaining_ids = array_map( function ( $key ) use ( $derived_keys ) {
-                return $derived_keys[ $key ];
-            }, $remaining_keys );
+            $remaining_ids = array_map(
+                function ( $key ) use ( $derived_keys ) {
+                    return $derived_keys[ $key ];
+                },
+                $remaining_keys
+            );
 
             $results = array_combine(
                 $remaining_keys,
@@ -1603,7 +1608,8 @@ LUA;
             $this->cache
         );
 
-        ?> <p>
+        ?>
+        <p>
             <strong>Redis Status:</strong>
             <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?>
             <br />
@@ -2021,6 +2027,6 @@ LUA;
      * @return mixed
      */
     public function __get( $name ) {
-        return isset($this->{$name}) ? $this->{$name} : null;
+        return isset( $this->{$name} ) ? $this->{$name} : null;
     }
 }
