@@ -147,11 +147,12 @@ class Plugin {
     public function show_admin_page() {
         // Request filesystem credentials?
         if ( isset( $_GET['_wpnonce'], $_GET['action'] ) ) {
-            $action = $_GET['action'];
+            $action = sanitize_key( $_GET['action'] );
+            $nonce = sanitize_key( $_GET['_wpnonce'] );
 
             foreach ( $this->actions as $name ) {
                 // Nonce verification.
-                if ( $action === $name && wp_verify_nonce( $_GET['_wpnonce'], $action ) ) {
+                if ( $action === $name && wp_verify_nonce( $nonce, $action ) ) {
                     $url = $this->action_link( $action );
 
                     if ( $this->initialize_filesystem( $url ) === false ) {
@@ -589,11 +590,12 @@ class Plugin {
         global $wp_filesystem;
 
         if ( isset( $_GET['_wpnonce'], $_GET['action'] ) ) {
-            $action = $_GET['action'];
+            $action = sanitize_key( $_GET['action'] );
+            $nonce = sanitize_key( $_GET['_wpnonce'] );
 
             // Nonce verification.
             foreach ( $this->actions as $name ) {
-                if ( $action === $name && ! wp_verify_nonce( $_GET['_wpnonce'], $action ) ) {
+                if ( $action === $name && ! wp_verify_nonce( $nonce, $action ) ) {
                     return;
                 }
             }
@@ -711,12 +713,15 @@ class Plugin {
      * @return void
      */
     public function dismiss_notice() {
-        $notice = sprintf(
-            'roc_dismissed_%s',
-            sanitize_key( $_POST['notice'] )
-        );
+        if ( isset( $_POST['notice'] ) ) {
+            check_ajax_referer( 'roc_dismiss_notice' );
+            $notice = sprintf(
+                'roc_dismissed_%s',
+                sanitize_key( $_POST['notice'] )
+            );
 
-        update_user_meta( get_current_user_id(), $notice, '1' );
+            update_user_meta( get_current_user_id(), $notice, '1' );
+        }
 
         wp_die();
     }
@@ -746,7 +751,8 @@ class Plugin {
         }
 
         printf(
-            '<div class="notice notice-info is-dismissible" data-dismissible="pro_release_notice"><p><strong>%s</strong> %s</p></div>',
+            '<div class="notice notice-info is-dismissible" data-dismissible="pro_release_notice" data-nonce="%s"><p><strong>%s</strong> %s</p></div>',
+            esc_attr( wp_create_nonce( 'roc_dismiss_notice' ) ),
             esc_html__( 'Object Cache Pro is out!', 'redis-cache' ),
             sprintf(
                 // translators: %s = Link to the plugin setting screen.
@@ -785,7 +791,8 @@ class Plugin {
         }
 
         printf(
-            '<div class="notice woocommerce-message woocommerce-admin-promo-messages is-dismissible" data-dismissible="wc_pro_notice"><p><strong>%s</strong></p><p>%s</p></div>',
+            '<div class="notice woocommerce-message woocommerce-admin-promo-messages is-dismissible" data-dismissible="wc_pro_notice" data-nonce="%s"><p><strong>%s</strong></p><p>%s</p></div>',
+            esc_attr( wp_create_nonce( 'roc_dismiss_notice' ) ),
             esc_html__( 'Object Cache Pro + WooCommerce = ❤️', 'redis-cache' ),
             sprintf(
                 // translators: %s = Link to the plugin's settings screen.
@@ -1085,10 +1092,13 @@ class Plugin {
     /**
      * Helper method to retrieve a nonced plugin action link
      *
-     * @param string $action The action to be executed once the link is followed
+     * @param string $action The action to be executed once the link is followed.
      * @return string
      */
     public function action_link( $action ) {
+        if ( ! in_array( $action, $this->actions, true ) ) {
+            return '';
+        }
         return wp_nonce_url(
             network_admin_url( add_query_arg( 'action', $action, $this->page ) ),
             $action
