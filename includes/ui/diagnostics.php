@@ -140,6 +140,6 @@ foreach ( $info as $name => $value ) {
     if ( defined( 'WP_CLI' ) && WP_CLI ) {
         WP_CLI::line( "{$name}: $value" );
     } else {
-        echo "{$name}: {$value}\r\n";
+        echo esc_html( "{$name}: {$value}\r\n" );
     }
 }
