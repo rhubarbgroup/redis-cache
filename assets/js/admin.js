@@ -449,9 +449,11 @@
             function ( event ) {
                 event.preventDefault();
 
+                var $parent = $( this ).parent();
                 $.post( ajaxurl, {
-                    notice: $( this ).parent().attr( 'data-dismissible' ),
+                    notice: $parent.data( 'dismissible' ),
                     action: 'roc_dismiss_notice',
+                    _ajax_nonce: $parent.data( 'nonce' ),
                 } );
             }
         );
