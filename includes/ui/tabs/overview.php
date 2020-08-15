@@ -160,12 +160,7 @@ $diagnostics = $roc->get_diagnostics();
         <tr>
             <th><?php esc_html_e( 'Password:', 'redis-cache' ); ?></th>
             <td>
-                <code>
-                    <?php
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                        echo str_repeat( '&#8226;', 8 );
-                    ?>
-                </code>
+                <code>••••••••</code>
             </td>
         </tr>
     <?php endif; ?>
