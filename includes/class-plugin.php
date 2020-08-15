@@ -345,7 +345,7 @@ class Plugin {
 
             wp_localize_script( 'redis-cache', 'rediscache_metrics', $metrics );
         } catch ( Exception $exception ) {
-            error_log( $exception );
+            error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
         }
     }
 
@@ -843,7 +843,7 @@ class Plugin {
                 http_build_query( $metrics, null, ';' )
             );
         } catch ( Exception $exception ) {
-            error_log( $exception );
+            error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
         }
     }
 
@@ -874,7 +874,7 @@ class Plugin {
                 time() - HOUR_IN_SECONDS
             );
         } catch ( Exception $exception ) {
-            error_log( $exception );
+            error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
         }
     }
 
