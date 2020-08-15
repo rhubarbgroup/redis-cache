@@ -607,11 +607,6 @@ class WP_Object_Cache {
     protected function connect_using_predis( $parameters ) {
         $client = 'Predis';
 
-        // Require PHP 5.4 or greater
-        if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
-            throw new Exception( 'Predis requires PHP 5.4 or newer.' );
-        }
-
         // Load bundled Predis library.
         if ( ! class_exists( 'Predis\Client' ) ) {
             $predis = sprintf(
@@ -681,11 +676,6 @@ class WP_Object_Cache {
      */
     protected function connect_using_credis( $parameters ) {
         $client = 'Credis';
-
-        // Require PHP 5.4 or greater
-        if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
-            throw new Exception( 'Predis requires PHP 5.4 or newer.' );
-        }
 
         $creds_path = sprintf(
             '%s/redis-cache/dependencies/colinmollenhour/credis/',
