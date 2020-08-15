@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: http://wordpress.org/plugins/redis-cache/
