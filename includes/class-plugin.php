@@ -930,7 +930,8 @@ class Plugin {
             return;
         }
 
-        $bytes = strlen( serialize( $wp_object_cache->cache ) );
+        // TODO: find a better method to determine cache size as using `serialize` is discouraged.
+        $bytes = strlen( serialize( $wp_object_cache->cache ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 
         $debug = sprintf(
             // translators: %1$d = number of objects. %2$s = human-readable size of cache. %3$s = name of the used client.
