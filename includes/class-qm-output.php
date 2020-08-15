@@ -11,8 +11,16 @@ use QM_Output_Html;
 
 defined( '\\ABSPATH' ) || exit;
 
+/**
+ * Query Monitor output logic class definition
+ */
 class QM_Output extends QM_Output_Html {
 
+    /**
+     * Contructor
+     *
+     * @param QM_Collector $collector The corresponding collector instance.
+     */
     public function __construct( QM_Collector $collector ) {
         parent::__construct( $collector );
 
@@ -20,10 +28,20 @@ class QM_Output extends QM_Output_Html {
         add_filter( 'qm/output/panel_menus', [ $this, 'panel_menu' ] );
     }
 
+    /**
+     * Output class name
+     *
+     * @return string
+     */
     public function name() {
         return __( 'Object Cache', 'redis cache' );
     }
 
+    /**
+     * Adds a menu to the panel navigation menu in Query Monitor's output
+     *
+     * @param array $menu Array of menus.
+     */
     public function admin_menu( array $menu ) {
         $data = $this->collector->get_data();
 
@@ -48,6 +66,11 @@ class QM_Output extends QM_Output_Html {
         return $menu;
     }
 
+    /**
+     * Adds a menu item in the panel navigation menu in Query Monitor's output.
+     *
+     * @param array $menu Array of menus.
+     */
     public function panel_menu( array $menu ) {
         $ids = array_keys( $menu );
         $request = array_search( 'qm-request', $ids, true );
@@ -64,6 +87,11 @@ class QM_Output extends QM_Output_Html {
         );
     }
 
+    /**
+     * Renders the output
+     *
+     * @return void
+     */
     public function output() {
         $data = $this->collector->get_data();
 
