@@ -687,10 +687,12 @@ class WP_Object_Cache {
             $to_load[] = 'Client.php';
         }
 
-        if (
-        ( defined( 'WP_REDIS_SHARDS' ) || defined( 'WP_REDIS_SENTINEL' ) || defined( 'WP_REDIS_SERVERS' ) || defined( 'WP_REDIS_CLUSTER' ) ) &&
-        ! class_exists( 'Credis_Cluster' )
-        ) {
+        $has_shards = defined( 'WP_REDIS_SHARDS' );
+        $has_sentinel = defined( 'WP_REDIS_SENTINEL' );
+        $has_servers = defined( 'WP_REDIS_SERVERS' );
+        $has_cluster = defined( 'WP_REDIS_CLUSTER' );
+
+        if ( ( $has_shards || $has_sentinel || $has_servers || $has_cluster ) && ! class_exists( 'Credis_Cluster' ) ) {
             $to_load[] = 'Cluster.php';
 
             if ( defined( 'WP_REDIS_SENTINEL' ) && ! class_exists( 'Credis_Sentinel' ) ) {
