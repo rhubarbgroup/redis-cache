@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Fixed bytes metrics calculation
+- WordPress Coding Standards
+
 ## 2.0.11
 
 - Fixed an issue in `wp_cache_get_multiple()` when using Predis
