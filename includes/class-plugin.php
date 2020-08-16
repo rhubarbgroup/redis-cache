@@ -962,6 +962,7 @@ class Plugin {
         }
 
         $credentials = request_filesystem_credentials( $url );
+
         if ( false === $credentials ) {
             if ( $silent ) {
                 ob_end_clean();
