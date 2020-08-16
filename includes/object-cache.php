@@ -1590,8 +1590,6 @@ LUA;
      * @return void
      */
     public function stats() {
-        $bytes = strlen( serialize( $wp_object_cache->cache ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-
         ?>
     <p>
         <strong>Redis Status:</strong>
@@ -1607,7 +1605,7 @@ LUA;
         <?php echo intval( $this->cache_misses ); ?>
         <br />
         <strong>Cache Size:</strong>
-        <?php echo number_format( array_sum( $bytes ) / 1024, 2 ); ?> kB
+        <?php echo number_format( strlen( serialize( $this->cache ) ) / 1024, 2 ); ?> kB
     </p>
         <?php
     }
