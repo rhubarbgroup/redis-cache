@@ -715,6 +715,7 @@ class Plugin {
     public function dismiss_notice() {
         if ( isset( $_POST['notice'] ) ) {
             check_ajax_referer( 'roc_dismiss_notice' );
+
             $notice = sprintf(
                 'roc_dismissed_%s',
                 sanitize_key( $_POST['notice'] )
