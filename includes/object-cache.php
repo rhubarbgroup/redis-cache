@@ -836,8 +836,8 @@ class WP_Object_Cache {
      */
     public function fetch_info() {
         $options = method_exists( $this->redis, 'getOptions' )
-        ? $this->redis->getOptions()
-        : new stdClass();
+            ? $this->redis->getOptions()
+            : new stdClass();
 
         if ( isset( $options->replication ) && $options->replication ) {
             return;
@@ -929,8 +929,8 @@ class WP_Object_Cache {
      */
     protected function add_or_replace( $add, $key, $value, $group = 'default', $expiration = 0 ) {
         $cache_addition_suspended = function_exists( 'wp_suspend_cache_addition' )
-        ? wp_suspend_cache_addition()
-        : false;
+            ? wp_suspend_cache_addition()
+            : false;
 
         if ( $add && $cache_addition_suspended ) {
             return false;
@@ -1200,8 +1200,8 @@ LUA;
             }
 
             $args = ( $this->redis instanceof Predis\Client )
-            ? [ $script, 0 ]
-            : [ $script ];
+                ? [ $script, 0 ]
+                : [ $script ];
 
             return call_user_func_array( [ $this->redis, 'eval' ], $args );
         };
@@ -1254,8 +1254,8 @@ LUA;
             }
 
             $args = ( $this->redis instanceof Predis\Client )
-            ? array_merge( [ $script, count( $unflushable ) ], $unflushable )
-            : [ $script, $unflushable, count( $unflushable ) ];
+                ? array_merge( [ $script, count( $unflushable ) ], $unflushable )
+                : [ $script, $unflushable, count( $unflushable ) ];
 
             return call_user_func_array( [ $this->redis, 'eval' ], $args );
         };
