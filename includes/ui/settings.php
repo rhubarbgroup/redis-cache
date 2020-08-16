@@ -26,28 +26,24 @@ defined( '\\ABSPATH' ) || exit;
 
             <h2 class="nav-tab-wrapper">
                 <?php foreach ( UI::get_tabs() as $ui_tab ) : ?>
-                    <?php if ( $ui_tab->disabled ) : ?>
+                    <?php if ( $ui_tab->is_disabled() ) : ?>
 
                         <span
-                            class="nav-tab nav-tab-disabled"
-                            title="<?php printf(
-                                // translators: %s = Tab label
-                                esc_html__( '%s are disabled for this site.', 'redis-cache' ),
-                                esc_html( $ui_tab->label )
-                            ) ?>"
+                            class="<?php echo esc_attr( $ui_tab->nav_classes() ); ?>"
+                            title="<?php echo esc_attr( $ui_tab->disabled_notice() ); ?>"
                         >
-                            <?php echo esc_html( $ui_tab->label ); ?>
+                            <?php echo esc_html( $ui_tab->label() ); ?>
                         </span>
 
                     <?php else : ?>
 
                         <a
-                            id="<?php echo esc_attr( $ui_tab->slug ); ?>-tab"
-                            class="nav-tab <?php echo $ui_tab->default ? 'nav-tab-active' : ''; ?>"
-                            data-toggle="<?php echo esc_attr( $ui_tab->slug ); ?>"
-                            href="#<?php echo esc_attr( $ui_tab->slug ); ?>"
+                            id="<?php echo esc_attr( $ui_tab->nav_id() ); ?>"
+                            class="<?php echo esc_attr( $ui_tab->nav_classes() ); ?>"
+                            data-toggle="<?php echo esc_attr( $ui_tab->slug() ); ?>"
+                            href="#<?php echo esc_attr( $ui_tab->slug() ); ?>"
                         >
-                            <?php echo esc_html( $ui_tab->label ); ?>
+                            <?php echo esc_html( $ui_tab->label() ); ?>
                         </a>
 
                     <?php endif; ?>
@@ -56,11 +52,11 @@ defined( '\\ABSPATH' ) || exit;
 
             <div class="tab-content">
                 <?php foreach ( UI::get_tabs() as $ui_tab ) : ?>
-                    <?php if ( ! $ui_tab->disabled ) : ?>
-                        <div id="<?php echo esc_attr( $ui_tab->slug ); ?>-pane"
-                            class="tab-pane tab-pane-<?php echo esc_attr( $ui_tab->slug ); ?> <?php echo $ui_tab->default ? 'active' : ''; ?>"
+                    <?php if ( ! $ui_tab->is_disabled() ) : ?>
+                        <div id="<?php echo esc_attr( $ui_tab->id() ); ?>"
+                            class="<?php echo esc_attr( $ui_tab->classes() ); ?>"
                         >
-                            <?php include $ui_tab->file; ?>
+                            <?php $ui_tab->display(); ?>
                         </div>
                     <?php endif; ?>
                 <?php endforeach; ?>

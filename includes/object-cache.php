@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: http://wordpress.org/plugins/redis-cache/
@@ -14,6 +14,7 @@
 
 defined( '\\ABSPATH' ) || exit;
 
+// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact, Generic.WhiteSpace.ScopeIndent.Incorrect
 if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
 
 /**
@@ -46,7 +47,7 @@ function wp_cache_add( $key, $value, $group = '', $expiration = 0 ) {
  * @return  bool    Always returns True
  */
 function wp_cache_close() {
-     return true;
+    return true;
 }
 
 /**
@@ -102,7 +103,7 @@ function wp_cache_flush( $delay = 0 ) {
  * @param string $group      The group value appended to the $key.
  * @param bool   $force      Optional. Whether to force an update of the local cache from the persistent
  *                           cache. Default false.
- * @param bool   &$found     Optional. Whether the key was found in the cache. Disambiguates a return of false,
+ * @param bool   $found      Optional. Whether the key was found in the cache. Disambiguates a return of false,
  *                           a storable value. Passed by reference. Default null.
  *
  * @return bool|mixed        Cached object value.
@@ -151,7 +152,7 @@ function wp_cache_incr( $key, $offset = 1, $group = '' ) {
 function wp_cache_init() {
     global $wp_object_cache;
 
-    // backwards compatibility: map `WP_CACHE_KEY_SALT` constant to `WP_REDIS_PREFIX`
+    // Backwards compatibility: map `WP_CACHE_KEY_SALT` constant to `WP_REDIS_PREFIX`.
     if ( defined( 'WP_CACHE_KEY_SALT' ) && ! defined( 'WP_REDIS_PREFIX' ) ) {
         define( 'WP_REDIS_PREFIX', WP_CACHE_KEY_SALT );
     }
@@ -159,6 +160,8 @@ function wp_cache_init() {
     if ( ! ( $wp_object_cache instanceof WP_Object_Cache ) ) {
         $fail_gracefully = ! defined( 'WP_REDIS_GRACEFUL' ) || WP_REDIS_GRACEFUL;
 
+        // We need to override this WordPress global in order to inject our cache.
+        // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
         $wp_object_cache = new WP_Object_Cache( $fail_gracefully );
     }
 }
@@ -205,7 +208,7 @@ function wp_cache_set( $key, $value, $group = '', $expiration = 0 ) {
  *
  * This changes the blog id used to create keys in blog specific groups.
  *
- * @param  int $_blog_id Blog ID
+ * @param  int $_blog_id The blog ID.
  *
  * @return bool
  */
@@ -241,6 +244,9 @@ function wp_cache_add_non_persistent_groups( $groups ) {
     $wp_object_cache->add_non_persistent_groups( $groups );
 }
 
+/**
+ * Object cache class definition
+ */
 class WP_Object_Cache {
 
     /**
@@ -380,7 +386,7 @@ class WP_Object_Cache {
     /**
      * Instantiate the Redis class.
      *
-     * @param bool $fail_gracefully
+     * @param bool $fail_gracefully Handles and logs errors if true throws exceptions otherwise.
      */
     public function __construct( $fail_gracefully = true ) {
         global $blog_id, $table_prefix;
@@ -405,17 +411,17 @@ class WP_Object_Cache {
         try {
             switch ( $client ) {
                 case 'hhvm':
-                    $this->connectUsingHHVM( $parameters );
+                    $this->connect_using_hhvm( $parameters );
                     break;
                 case 'phpredis':
-                    $this->connectUsingPhpRedis( $parameters );
+                    $this->connect_using_phpredis( $parameters );
                     break;
                 case 'credis':
-                    $this->connectUsingCredis( $parameters );
+                    $this->connect_using_credis( $parameters );
                     break;
                 case 'predis':
                 default:
-                    $this->connectUsingPredis( $parameters );
+                    $this->connect_using_predis( $parameters );
                     break;
             }
 
@@ -432,7 +438,7 @@ class WP_Object_Cache {
             $this->handle_exception( $exception );
         }
 
-        // Assign global and blog prefixes for use with keys
+        // Assign global and blog prefixes for use with keys.
         if ( function_exists( 'is_multisite' ) ) {
             $this->global_prefix = is_multisite() ? '' : $table_prefix;
             $this->blog_prefix = is_multisite() ? $blog_id : $table_prefix;
@@ -509,10 +515,10 @@ class WP_Object_Cache {
     /**
      * Connect to Redis using the PhpRedis (PECL) extention.
      *
-     * @param  array $parameters
+     * @param  array $parameters Connection parameters built by the `build_parameters` method.
      * @return void
      */
-    protected function connectUsingPhpRedis( $parameters ) {
+    protected function connect_using_phpredis( $parameters ) {
         $version = phpversion( 'redis' );
 
         $this->diagnostics[ 'client' ] = sprintf( 'PhpRedis (v%s)', $version );
@@ -593,24 +599,19 @@ class WP_Object_Cache {
     /**
      * Connect to Redis using the Predis library.
      *
-     * @param  array $parameters
+     * @param  array $parameters Connection parameters built by the `build_parameters` method.
+     * @throws \Exception If the Predis library was not found or is unreadable.
      * @return void
      */
-    protected function connectUsingPredis( $parameters ) {
+    protected function connect_using_predis( $parameters ) {
         $client = 'Predis';
 
-        // Require PHP 5.4 or greater
-        if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
-            throw new Exception( 'Predis requires PHP 5.4 or newer.' );
-        }
-
-        // Load bundled Predis library
+        // Load bundled Predis library.
         if ( ! class_exists( 'Predis\Client' ) ) {
             $predis = sprintf(
                 '%s/redis-cache/dependencies/predis/predis/autoload.php',
                 defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins'
             );
-
 
             if ( is_readable( $predis ) ) {
                 require_once $predis;
@@ -666,16 +667,14 @@ class WP_Object_Cache {
     /**
      * Connect to Redis using the Credis library.
      *
-     * @param  array $parameters
+     * @param  array $parameters Connection parameters built by the `build_parameters` method.
+     * @throws \Exception If the Credis library was not found or is unreadable.
+     * @throws \Exception If redis sharding should be configured as Credis does not support sharding.
+     * @throws \Exception If more than one seninel is configured as Credis does not support multiple sentinel servers.
      * @return void
      */
-    protected function connectUsingCredis( $parameters ) {
+    protected function connect_using_credis( $parameters ) {
         $client = 'Credis';
-
-        // Require PHP 5.4 or greater
-        if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
-            throw new Exception( 'Predis requires PHP 5.4 or newer.' );
-        }
 
         $creds_path = sprintf(
             '%s/redis-cache/dependencies/colinmollenhour/credis/',
@@ -689,8 +688,8 @@ class WP_Object_Cache {
         }
 
         if (
-            ( defined( 'WP_REDIS_SHARDS' ) || defined( 'WP_REDIS_SENTINEL' ) || defined( 'WP_REDIS_SERVERS' ) || defined( 'WP_REDIS_CLUSTER' ) ) &&
-            ! class_exists( 'Credis_Cluster' )
+        ( defined( 'WP_REDIS_SHARDS' ) || defined( 'WP_REDIS_SENTINEL' ) || defined( 'WP_REDIS_SERVERS' ) || defined( 'WP_REDIS_CLUSTER' ) ) &&
+        ! class_exists( 'Credis_Cluster' )
         ) {
             $to_load[] = 'Cluster.php';
 
@@ -720,7 +719,7 @@ class WP_Object_Cache {
         if ( defined( 'WP_REDIS_SENTINEL' ) ) {
             if ( is_array( WP_REDIS_SERVERS ) && count( WP_REDIS_SERVERS ) > 1 ) {
                 throw new Exception(
-                    'Multipe sentinel servers are not supported by the bundled Credis library. Please review your Redis Cache configurations.'
+                    'Multipe sentinel servers are not supported by the bundled Credis library. Please review your Redis Cache configuration.'
                 );
             }
 
@@ -735,7 +734,7 @@ class WP_Object_Cache {
             $clients = $is_cluster ? WP_REDIS_CLUSTER : WP_REDIS_SERVERS;
 
             foreach ( $clients as $index => &$connection_string ) {
-                $url_components = parse_url( $connection_string );
+                $url_components = wp_parse_url( $connection_string );
                 parse_str( $url_components['query'], $add_params );
 
                 if ( ! $is_cluster && isset( $add_params['alias'] ) ) {
@@ -767,7 +766,7 @@ class WP_Object_Cache {
             $this->redis = new Credis_Client( ...array_values( $args ) );
         }
 
-        // Don't use PhpRedis
+        // Don't use PhpRedis if it is available.
         $this->redis->forceStandalone();
 
         $this->redis->connect();
@@ -786,13 +785,13 @@ class WP_Object_Cache {
     /**
      * Connect to Redis using HHVM's Redis extention.
      *
-     * @param  array $parameters
+     * @param  array $parameters Connection parameters built by the `build_parameters` method.
      * @return void
      */
-    protected function connectUsingHHVM( $parameters ) {
+    protected function connect_using_hhvm( $parameters ) {
         $this->redis = new Redis();
 
-        // Adjust host and port, if the scheme is `unix`
+        // Adjust host and port if the scheme is `unix`.
         if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
             $parameters['host'] = 'unix://' . $parameters['path'];
             $parameters['port'] = 0;
@@ -863,7 +862,7 @@ class WP_Object_Cache {
      * @return bool
      */
     public function redis_status() {
-         return (bool) $this->redis_connected;
+        return (bool) $this->redis_connected;
     }
 
     /**
@@ -872,7 +871,7 @@ class WP_Object_Cache {
      * @return mixed
      */
     public function redis_instance() {
-         return $this->redis;
+        return $this->redis;
     }
 
     /**
@@ -881,7 +880,7 @@ class WP_Object_Cache {
      * @return null|string
      */
     public function redis_version() {
-         return $this->redis_version;
+        return $this->redis_version;
     }
 
     /**
@@ -921,7 +920,7 @@ class WP_Object_Cache {
      *
      * Add does not set the value if the key exists; replace does not replace if the value doesn't exist.
      *
-     * @param   bool   $add            True if should only add if value doesn't exist, false to only add when value already exists
+     * @param   bool   $add            True if should only add if value doesn't exist, false to only add when value already exists.
      * @param   string $key            The key under which to store the value.
      * @param   mixed  $value          The value to store.
      * @param   string $group          The group value appended to the $key.
@@ -940,7 +939,7 @@ class WP_Object_Cache {
         $result = true;
         $derived_key = $this->build_key( $key, $group );
 
-        // save if group not excluded and redis is up
+        // Save if group not excluded and redis is up.
         if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
             try {
                 $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
@@ -993,7 +992,7 @@ class WP_Object_Cache {
 
         $exists = isset( $this->cache[ $derived_key ] );
 
-        if ( $add == $exists ) {
+        if ( (bool) $add === $exists ) {
             return false;
         }
 
@@ -1148,6 +1147,12 @@ class WP_Object_Cache {
         }
     }
 
+    /**
+     * Quotes a string for usage in the `glob` function
+     *
+     * @param string $string The string to quote.
+     * @return string
+     */
     protected function glob_quote( $string ) {
         $characters = [ '*', '+', '?', '!', '{', '}', '[', ']', '(', ')', '|', '@' ];
 
@@ -1174,20 +1179,20 @@ class WP_Object_Cache {
 
         return function () use ( $salt ) {
             $script = <<<LUA
-                local cur = 0
-                local i = 0
-                local tmp
-                repeat
-                    tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
-                    cur = tonumber(tmp[1])
-                    if tmp[2] then
-                        for _, v in pairs(tmp[2]) do
-                            redis.call('del', v)
-                            i = i + 1
-                        end
+            local cur = 0
+            local i = 0
+            local tmp
+            repeat
+                tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
+                cur = tonumber(tmp[1])
+                if tmp[2] then
+                    for _, v in pairs(tmp[2]) do
+                        redis.call('del', v)
+                        i = i + 1
                     end
-                until 0 == cur
-                return i
+                end
+            until 0 == cur
+            return i
 LUA;
 
             if ( version_compare( $this->redis_version(), '5', '<' ) && version_compare( $this->redis_version(), '3.2', '>=' ) ) {
@@ -1222,27 +1227,27 @@ LUA;
             );
 
             $script = <<<LUA
-                local cur = 0
-                local i = 0
-                local d, tmp
-                repeat
-                    tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
-                    cur = tonumber(tmp[1])
-                    if tmp[2] then
-                        for _, v in pairs(tmp[2]) do
-                            d = true
-                            for _, s in pairs(KEYS) do
-                                d = d and not v:find(s, {$salt_length})
-                                if not d then break end
-                            end
-                            if d then
-                                redis.call('del', v)
-                                i = i + 1
-                            end
+            local cur = 0
+            local i = 0
+            local d, tmp
+            repeat
+                tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
+                cur = tonumber(tmp[1])
+                if tmp[2] then
+                    for _, v in pairs(tmp[2]) do
+                        d = true
+                        for _, s in pairs(KEYS) do
+                            d = d and not v:find(s, {$salt_length})
+                            if not d then break end
+                        end
+                        if d then
+                            redis.call('del', v)
+                            i = i + 1
                         end
                     end
-                until 0 == cur
-                return i
+                end
+            until 0 == cur
+            return i
 LUA;
             if ( version_compare( $this->redis_version(), '5', '<' ) && version_compare( $this->redis_version(), '3.2', '>=' ) ) {
                 $script = 'redis.replicate_commands()' . "\n" . $script;
@@ -1265,7 +1270,7 @@ LUA;
      * @param   string $group      The group value appended to the $key.
      * @param   string $force      Optional. Whether to force a refetch rather than relying on the local
      *                             cache. Default false.
-     * @param   bool   &$found     Optional. Whether the key was found in the cache. Disambiguates a return of
+     * @param   bool   $found      Optional. Whether the key was found in the cache. Disambiguates a return of
      *                             false, a storable value. Passed by reference. Default null.
      * @return  bool|mixed         Cached object value.
      */
@@ -1368,9 +1373,12 @@ LUA;
             }
         }
 
-        $remaining_keys = array_filter( $keys, function ( $key ) use ( $cache ) {
-            return ! isset( $cache[ $key ] );
-        } );
+        $remaining_keys = array_filter(
+            $keys,
+            function ( $key ) use ( $cache ) {
+                return ! isset( $cache[ $key ] );
+            }
+        );
 
         if ( empty( $remaining_keys ) ) {
             return $cache;
@@ -1379,9 +1387,12 @@ LUA;
         $start_time = microtime( true );
 
         try {
-            $remaining_ids = array_map( function ( $key ) use ( $derived_keys ) {
-                return $derived_keys[ $key ];
-            }, $remaining_keys );
+            $remaining_ids = array_map(
+                function ( $key ) use ( $derived_keys ) {
+                    return $derived_keys[ $key ];
+                },
+                $remaining_keys
+            );
 
             $results = array_combine(
                 $remaining_keys,
@@ -1442,7 +1453,7 @@ LUA;
 
         $start_time = microtime( true );
 
-        // save if group not excluded from redis and redis is up
+        // Save if group not excluded from redis and redis is up.
         if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
             $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
 
@@ -1462,7 +1473,7 @@ LUA;
             $this->cache_time += ( microtime( true ) - $start_time );
         }
 
-        // if the set was successful, or we didn't go to redis
+        // If the set was successful, or we didn't go to redis.
         if ( $result ) {
             $this->add_to_internal_cache( $derived_key, $value );
         }
@@ -1479,16 +1490,16 @@ LUA;
     /**
      * Increment a Redis counter by the amount specified
      *
-     * @param  string $key
-     * @param  int    $offset
-     * @param  string $group
+     * @param  string $key    The key name.
+     * @param  int    $offset Optional. The increment. Defaults to 1.
+     * @param  string $group  Optional. The key group. Default is 'default'.
      * @return int|bool
      */
     public function increment( $key, $offset = 1, $group = 'default' ) {
         $offset = (int) $offset;
         $derived_key = $this->build_key( $key, $group );
 
-        // If group is a non-Redis group, save to internal cache, not Redis
+        // If group is a non-Redis group, save to internal cache, not Redis.
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             $value = $this->get_from_internal_cache( $derived_key );
             $value += $offset;
@@ -1520,10 +1531,11 @@ LUA;
     /**
      * Alias of `increment()`.
      *
-     * @param  string $key
-     * @param  int    $offset
-     * @param  string $group
-     * @return bool
+     * @see self::increment()
+     * @param  string $key    The key name.
+     * @param  int    $offset Optional. The increment. Defaults to 1.
+     * @param  string $group  Optional. The key group. Default is 'default'.
+     * @return int|bool
      */
     public function incr( $key, $offset = 1, $group = 'default' ) {
         return $this->increment( $key, $offset, $group );
@@ -1532,16 +1544,16 @@ LUA;
     /**
      * Decrement a Redis counter by the amount specified
      *
-     * @param  string $key
-     * @param  int    $offset
-     * @param  string $group
+     * @param  string $key    The key name.
+     * @param  int    $offset Optional. The decrement. Defaults to 1.
+     * @param  string $group  Optional. The key group. Default is 'default'.
      * @return int|bool
      */
     public function decrement( $key, $offset = 1, $group = 'default' ) {
         $derived_key = $this->build_key( $key, $group );
         $offset = (int) $offset;
 
-        // If group is a non-Redis group, save to internal cache, not Redis
+        // If group is a non-Redis group, save to internal cache, not Redis.
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             $value = $this->get_from_internal_cache( $derived_key );
             $value -= $offset;
@@ -1553,7 +1565,7 @@ LUA;
         $start_time = microtime( true );
 
         try {
-            // Save to Redis
+            // Save to Redis.
             $result = $this->parse_redis_response( $this->redis->decrBy( $derived_key, $offset ) );
 
             $this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
@@ -1573,33 +1585,30 @@ LUA;
 
     /**
      * Render data about current cache requests
+     * Used by the Debug bar plugin
      *
-     * @return string
+     * @return void
      */
     public function stats() {
-        $bytes = array_map(
-            function ( $key ) {
-                return strlen( serialize( $key ) );
-            },
-            $this->cache
-        );
+        $bytes = strlen( serialize( $wp_object_cache->cache ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 
-        ?> <p>
-            <strong>Redis Status:</strong>
-            <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?>
-            <br />
-            <strong>Redis Client:</strong>
-            <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
-            <br />
-            <strong>Cache Hits:</strong>
-            <?php echo $this->cache_hits; ?>
-            <br />
-            <strong>Cache Misses:</strong>
-            <?php echo $this->cache_misses; ?>
-            <br />
-            <strong>Cache Size:</strong>
-            <?php echo number_format( array_sum( $bytes ) / 1024, 2 ); ?> kB
-        </p>
+        ?>
+    <p>
+        <strong>Redis Status:</strong>
+        <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?>
+        <br />
+        <strong>Redis Client:</strong>
+        <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
+        <br />
+        <strong>Cache Hits:</strong>
+        <?php echo intval( $this->cache_hits ); ?>
+        <br />
+        <strong>Cache Misses:</strong>
+        <?php echo intval( $this->cache_misses ); ?>
+        <br />
+        <strong>Cache Size:</strong>
+        <?php echo number_format( array_sum( $bytes ) / 1024, 2 ); ?> kB
+    </p>
         <?php
     }
 
@@ -1613,6 +1622,7 @@ LUA;
 
         $bytes = array_map(
             function ( $keys ) {
+                // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
                 return strlen( serialize( $keys ) );
             },
             $this->cache
@@ -1669,13 +1679,13 @@ LUA;
      * @return  string        Sanitized string.
      */
     protected function sanitize_key_part( $part ) {
-         return str_replace( ':', '-', $part );
+        return str_replace( ':', '-', $part );
     }
 
     /**
      * Checks if the given group is part the ignored group array
      *
-     * @param string $group  Name of the group to check
+     * @param string $group  Name of the group to check.
      * @return bool
      */
     protected function is_ignored_group( $group ) {
@@ -1685,7 +1695,7 @@ LUA;
     /**
      * Checks if the given group is part the global group array
      *
-     * @param string $group  Name of the group to check
+     * @param string $group  Name of the group to check.
      * @return bool
      */
     protected function is_global_group( $group ) {
@@ -1695,7 +1705,7 @@ LUA;
     /**
      * Checks if the given group is part the unflushable group array
      *
-     * @param string $group  Name of the group to check
+     * @param string $group  Name of the group to check.
      * @return bool
      */
     protected function is_unflushable_group( $group ) {
@@ -1705,7 +1715,7 @@ LUA;
     /**
      * Convert Redis responses into something meaningful
      *
-     * @param mixed $response
+     * @param mixed $response Response sent from the redis instance.
      * @return mixed
      */
     protected function parse_redis_response( $response ) {
@@ -1760,7 +1770,7 @@ LUA;
     /**
      * In multisite, switch blog prefix when switching blogs
      *
-     * @param int $_blog_id
+     * @param int $_blog_id Blog ID.
      * @return bool
      */
     public function switch_to_blog( $_blog_id ) {
@@ -1813,7 +1823,7 @@ LUA;
     /**
      * Wrapper to validate the cache keys expiration value
      *
-     * @param mixed $expiration  Incoming expiration value (whatever it is)
+     * @param mixed $expiration  Incoming expiration value (whatever it is).
      */
     protected function validate_expiration( $expiration ) {
         $expiration = is_int( $expiration ) || ctype_digit( $expiration ) ? (int) $expiration : 0;
@@ -1844,8 +1854,9 @@ LUA;
             return igbinary_unserialize( $original );
         }
 
-        // don't attempt to unserialize data that wasn't serialized going in
+        // Don't attempt to unserialize data that wasn't serialized going in.
         if ( $this->is_serialized( $original ) ) {
+            // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
             $value = @unserialize( $original );
 
             return is_object( $value ) ? clone $value : $value;
@@ -1874,10 +1885,12 @@ LUA;
         }
 
         if ( is_array( $data ) || is_object( $data ) ) {
+            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
             return serialize( $data );
         }
 
         if ( $this->is_serialized( $data, false ) ) {
+            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
             return serialize( $data );
         }
 
@@ -1902,7 +1915,7 @@ LUA;
 
         $data = trim( $data );
 
-        if ( 'N;' == $data ) {
+        if ( 'N;' === $data ) {
             return true;
         }
 
@@ -1949,8 +1962,8 @@ LUA;
                 } elseif ( false === strpos( $data, '"' ) ) {
                     return false;
                 }
-                // or else fall through
-                // no break
+                // Or else fall through.
+                // No break!
             case 'a':
             case 'O':
                 return (bool) preg_match( "/^{$token}:[0-9]+:/s", $data );
@@ -1969,11 +1982,13 @@ LUA;
      * Handle the redis failure gracefully or throw an exception.
      *
      * @param \Exception $exception  Exception thrown.
+     * @throws \Exception If `fail_gracefully` flag is set to a falsy value.
+     * @return void
      */
     protected function handle_exception( $exception ) {
         $this->redis_connected = false;
 
-        // When Redis is unavailable, fall back to the internal cache by forcing all groups to be "no redis" groups
+        // When Redis is unavailable, fall back to the internal cache by forcing all groups to be "no redis" groups.
         $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $this->global_groups ) );
 
         if ( ! $this->fail_gracefully ) {
@@ -1982,7 +1997,7 @@ LUA;
 
         $this->errors[] = $exception->getMessage();
 
-        error_log( $exception );
+        error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
         if ( function_exists( 'do_action' ) ) {
             do_action( 'redis_object_cache_error', $exception );
@@ -1992,12 +2007,13 @@ LUA;
     /**
      * Allows access to private properties for backwards compatibility.
      *
-     * @param string $name
+     * @param string $name Name of the property.
      * @return mixed
      */
     public function __get( $name ) {
-        return isset($this->{$name}) ? $this->{$name} : null;
+        return isset( $this->{$name} ) ? $this->{$name} : null;
     }
 }
 
 endif;
+// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact, Generic.WhiteSpace.ScopeIndent.Incorrect

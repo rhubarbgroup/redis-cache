@@ -11,24 +11,42 @@ use QM_Collector as Base_Collector;
 
 defined( '\\ABSPATH' ) || exit;
 
+/**
+ * Query Monitor data collector class definition
+ */
 class QM_Collector extends Base_Collector {
 
+    /**
+     * Collector id
+     *
+     * @var string $id
+     */
     public $id = 'cache';
 
+    /**
+     * Retrieves the collector name
+     *
+     * @return string
+     */
     public function name() {
         return __( 'Object Cache', 'redis-cache' );
     }
 
+    /**
+     * Fills the collector with data
+     *
+     * @return void
+     */
     public function process() {
-         global $wp_object_cache;
+        global $wp_object_cache;
 
         $this->process_defaults();
 
-        $plugin = Plugin::instance();
+        $roc = Plugin::instance();
 
-        $this->data['status'] = $plugin->get_status();
-        $this->data['has_dropin'] = $plugin->object_cache_dropin_exists();
-        $this->data['valid_dropin'] = $plugin->validate_object_cache_dropin();
+        $this->data['status'] = $roc->get_status();
+        $this->data['has_dropin'] = $roc->object_cache_dropin_exists();
+        $this->data['valid_dropin'] = $roc->validate_object_cache_dropin();
 
         if ( ! method_exists( $wp_object_cache, 'info' ) ) {
             return;
@@ -54,12 +72,17 @@ class QM_Collector extends Base_Collector {
             'unflushable' => $info->groups->unflushable,
         ];
 
-        // these are used by Query Monitor
+        // These are used by Query Monitor.
         $this->data['stats']['cache_hits'] = $info->hits;
         $this->data['stats']['cache_misses'] = $info->misses;
         $this->data['cache_hit_percentage'] = $info->ratio;
     }
 
+    /**
+     * Sets collector defaults
+     *
+     * @return void
+     */
     public function process_defaults() {
         $this->data['hits'] = 0;
         $this->data['misses'] = 0;
