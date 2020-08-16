@@ -1179,20 +1179,20 @@ class WP_Object_Cache {
 
         return function () use ( $salt ) {
             $script = <<<LUA
-            local cur = 0
-            local i = 0
-            local tmp
-            repeat
-                tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
-                cur = tonumber(tmp[1])
-                if tmp[2] then
-                    for _, v in pairs(tmp[2]) do
-                        redis.call('del', v)
-                        i = i + 1
+                local cur = 0
+                local i = 0
+                local tmp
+                repeat
+                    tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
+                    cur = tonumber(tmp[1])
+                    if tmp[2] then
+                        for _, v in pairs(tmp[2]) do
+                            redis.call('del', v)
+                            i = i + 1
+                        end
                     end
-                end
-            until 0 == cur
-            return i
+                until 0 == cur
+                return i
 LUA;
 
             if ( version_compare( $this->redis_version(), '5', '<' ) && version_compare( $this->redis_version(), '3.2', '>=' ) ) {
@@ -1227,27 +1227,27 @@ LUA;
             );
 
             $script = <<<LUA
-            local cur = 0
-            local i = 0
-            local d, tmp
-            repeat
-                tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
-                cur = tonumber(tmp[1])
-                if tmp[2] then
-                    for _, v in pairs(tmp[2]) do
-                        d = true
-                        for _, s in pairs(KEYS) do
-                            d = d and not v:find(s, {$salt_length})
-                            if not d then break end
-                        end
-                        if d then
-                            redis.call('del', v)
-                            i = i + 1
+                local cur = 0
+                local i = 0
+                local d, tmp
+                repeat
+                    tmp = redis.call('SCAN', cur, 'MATCH', '{$salt}*')
+                    cur = tonumber(tmp[1])
+                    if tmp[2] then
+                        for _, v in pairs(tmp[2]) do
+                            d = true
+                            for _, s in pairs(KEYS) do
+                                d = d and not v:find(s, {$salt_length})
+                                if not d then break end
+                            end
+                            if d then
+                                redis.call('del', v)
+                                i = i + 1
+                            end
                         end
                     end
-                end
-            until 0 == cur
-            return i
+                until 0 == cur
+                return i
 LUA;
             if ( version_compare( $this->redis_version(), '5', '<' ) && version_compare( $this->redis_version(), '3.2', '>=' ) ) {
                 $script = 'redis.replicate_commands()' . "\n" . $script;
