@@ -715,6 +715,7 @@ class Plugin {
     public function dismiss_notice() {
         if ( isset( $_POST['notice'] ) ) {
             check_ajax_referer( 'roc_dismiss_notice' );
+
             $notice = sprintf(
                 'roc_dismissed_%s',
                 sanitize_key( $_POST['notice'] )
@@ -961,6 +962,7 @@ class Plugin {
         }
 
         $credentials = request_filesystem_credentials( $url );
+
         if ( false === $credentials ) {
             if ( $silent ) {
                 ob_end_clean();
@@ -1105,6 +1107,7 @@ class Plugin {
         if ( ! in_array( $action, $this->actions, true ) ) {
             return '';
         }
+
         return wp_nonce_url(
             network_admin_url( add_query_arg( 'action', $action, $this->page ) ),
             $action
