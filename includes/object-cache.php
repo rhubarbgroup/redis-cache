@@ -622,19 +622,20 @@ class WP_Object_Cache {
             }
         }
 
+        $servers = false;
         $options = array();
 
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
-            $parameters = WP_REDIS_SHARDS;
+            $servers = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_SENTINEL' ) ) {
-            $parameters = WP_REDIS_SERVERS;
+            $servers = WP_REDIS_SERVERS;
             $options['replication'] = 'sentinel';
             $options['service'] = WP_REDIS_SENTINEL;
         } elseif ( defined( 'WP_REDIS_SERVERS' ) ) {
-            $parameters = WP_REDIS_SERVERS;
+            $servers = WP_REDIS_SERVERS;
             $options['replication'] = true;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $parameters = WP_REDIS_CLUSTER;
+            $servers = WP_REDIS_CLUSTER;
             $options['cluster'] = 'redis';
         }
 
@@ -654,7 +655,7 @@ class WP_Object_Cache {
             }
         }
 
-        $this->redis = new Predis\Client( $parameters, $options );
+        $this->redis = new Predis\Client( $servers ?: $parameters, $options );
         $this->redis->connect();
 
         $this->diagnostics = array_merge(
