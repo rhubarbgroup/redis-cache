@@ -1107,6 +1107,7 @@ class Plugin {
         if ( ! in_array( $action, $this->actions, true ) ) {
             return '';
         }
+
         return wp_nonce_url(
             network_admin_url( add_query_arg( 'action', $action, $this->page ) ),
             $action
