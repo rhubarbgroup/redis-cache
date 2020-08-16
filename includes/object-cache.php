@@ -627,15 +627,19 @@ class WP_Object_Cache {
 
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
             $servers = WP_REDIS_SHARDS;
+            $parameters['shards'] = $servers;
         } elseif ( defined( 'WP_REDIS_SENTINEL' ) ) {
             $servers = WP_REDIS_SERVERS;
+            $parameters['servers'] = $servers;
             $options['replication'] = 'sentinel';
             $options['service'] = WP_REDIS_SENTINEL;
         } elseif ( defined( 'WP_REDIS_SERVERS' ) ) {
             $servers = WP_REDIS_SERVERS;
+            $parameters['servers'] = $servers;
             $options['replication'] = true;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $servers = WP_REDIS_CLUSTER;
+            $parameters['cluster'] = $servers;
             $options['cluster'] = 'redis';
         }
 
