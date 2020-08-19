@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.12
 
 - Fixed bytes metrics calculation
 - Fixed an issue with non-standard Predis configurations
