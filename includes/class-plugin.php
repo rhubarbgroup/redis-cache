@@ -834,6 +834,10 @@ class Plugin {
             return;
         }
 
+        if ( $this->has_missed_cron() ) {
+            return;
+        }
+
         $info = $wp_object_cache->info();
 
         $metrics = [
@@ -886,6 +890,26 @@ class Plugin {
         } catch ( Exception $exception ) {
             error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
         }
+    }
+
+    /**
+     * Checks if a cron is overdue and was most likely missed
+     *
+     * @return bool
+     */
+    private function has_missed_cron() {
+        static $has_missed_cron;
+        if ( ! isset( $has_missed_cron ) ) {
+            $variance   = 15 * MINUTE_IN_SECONDS;
+            $cron_tasks = wp_get_ready_cron_jobs();
+            if ( ! $cron_tasks ) {
+                $has_missed_cron = false;
+            } else {
+                $cron_times      = array_keys( $cron_tasks );
+                $has_missed_cron = ( $cron_times[0] - time() ) < - $variance;
+            }
+        }
+        return $has_missed_cron;
     }
 
     /**
