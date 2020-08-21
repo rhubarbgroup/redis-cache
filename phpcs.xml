@@ -5,6 +5,7 @@
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
     <description>Coding standards</description>
     <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/dependencies/*</exclude-pattern>
     <exclude-pattern>/docker/*</exclude-pattern>
     <config name="testVersion" value="5.6-" />
     <rule ref="PHPCompatibilityWP">
