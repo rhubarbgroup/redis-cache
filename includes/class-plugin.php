@@ -557,6 +557,10 @@ class Plugin {
             $this->wc_pro_notice();
         }
 
+        if ( ( ! defined( 'WP_REDIS_DISABLE_METRICS' ) || ! WP_REDIS_DISABLE_METRICS ) && $this->has_missed_cron() ) {
+            $this->cron_issue_notice();
+        }
+
         // Only show admin notices to users with the right capability.
         if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
             return;
@@ -801,6 +805,31 @@ class Plugin {
                 esc_url( network_admin_url( $this->page ) )
             )
         );
+    }
+
+    /**
+     * Displays a notice if we detected issues with the cron system
+     *
+     * @return void
+     */
+    public function cron_issue_notice() {
+        $screen = get_current_screen();
+
+        if ( ! isset( $screen->id ) ) {
+            return;
+        }
+
+        if ( ! in_array( $screen->id, array( $this->screen ), true ) ) {
+            return;
+        }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        $message = __( 'Redis Object Cache has detected issues with your cron subsystem. Collecting metrics was disabled because of this.', 'redis-cache' );
+
+        printf( '<div class="update-nag">%s</div>', wp_kses_post( $message ) );
     }
 
     /**
