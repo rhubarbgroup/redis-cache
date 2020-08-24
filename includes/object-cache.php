@@ -949,7 +949,18 @@ class WP_Object_Cache {
         // Save if group not excluded and redis is up.
         if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
             try {
-                $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
+                $orig_exp = $expiration;
+                $expiration = $this->validate_expiration( $expiration );
+
+                /**
+                 * Filters the cache expiration time
+                 *
+                 * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+                 * @param string $key        The cache key.
+                 * @param string $group      The cache group.
+                 * @param mixed  $orig_exp   The original expiration value before validation.
+                 */
+                $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
                 $start_time = microtime( true );
 
                 if ( $add ) {
@@ -1044,6 +1055,13 @@ class WP_Object_Cache {
         $this->cache_time += $execute_time;
 
         if ( function_exists( 'do_action' ) ) {
+            /**
+             * Fires on every cache key deletion
+             *
+             * @param string $key          The cache key.
+             * @param string $group        The group value appended to the $key.
+             * @param float  $execute_time Execution time for the request in seconds.
+             */
             do_action( 'redis_object_cache_delete', $key, $group, $execute_time );
         }
 
@@ -1123,6 +1141,15 @@ class WP_Object_Cache {
             if ( function_exists( 'do_action' ) ) {
                 $execute_time = microtime( true ) - $start_time;
 
+                /**
+                 * Fires on every cache flush
+                 *
+                 * @param null|array $results      Array of flush results.
+                 * @param int        $delay        Given number of seconds to waited before invalidating the items.
+                 * @param bool       $seletive     Whether a selective flush took place.
+                 * @param string     $salt         The defined key prefix.
+                 * @param float      $execute_time Execution time for the request in seconds.
+                 */
                 do_action( 'redis_object_cache_flush', $results, $delay, $selective, $salt, $execute_time );
             }
         }
@@ -1325,11 +1352,30 @@ LUA;
         $this->add_to_internal_cache( $derived_key, $value );
 
         if ( function_exists( 'do_action' ) ) {
+            /**
+             * Fires on every cache get request
+             *
+             * @param mixed  $value        Value of the cache entry.
+             * @param string $key          The cache key.
+             * @param string $group        The group value appended to the $key.
+             * @param bool   $force        Whether a forced refetch has taken place rather than relying on the local cache.
+             * @param bool   $found        Whether the key was found in the cache.
+             * @param float  $execute_time Execution time for the request in seconds.
+             */
             do_action( 'redis_object_cache_get', $key, $value, $group, $force, $found, $execute_time );
         }
 
         if ( function_exists( 'apply_filters' ) && function_exists( 'has_filter' ) ) {
             if ( has_filter( 'redis_object_cache_get_value' ) ) {
+                /**
+                 * Filters the return value
+                 *
+                 * @param mixed  $value Value of the cache entry.
+                 * @param string $key   The cache key.
+                 * @param string $group The group value appended to the $key.
+                 * @param bool   $force Whether a forced refetch has taken place rather than relying on the local cache.
+                 * @param bool   $found Whether the key was found in the cache.
+                 */
                 return apply_filters( 'redis_object_cache_get_value', $value, $key, $group, $force, $found );
             }
         }
@@ -1429,12 +1475,29 @@ LUA;
         }
 
         if ( function_exists( 'do_action' ) ) {
+            /**
+             * Fires on every cache get multiple request
+             *
+             * @param mixed  $value        Value of the cache entry.
+             * @param string $key          The cache key.
+             * @param string $group        The group value appended to the $key.
+             * @param bool   $force        Whether a forced refetch has taken place rather than relying on the local cache.
+             * @param float  $execute_time Execution time for the request in seconds.
+             */
             do_action( 'redis_object_cache_get_multiple', $keys, $cache, $group, $force, $execute_time );
         }
 
         if ( function_exists( 'apply_filters' ) && function_exists( 'has_filter' ) ) {
             if ( has_filter( 'redis_object_cache_get_value' ) ) {
                 foreach ( $cache as $key => $value ) {
+                    /**
+                     * Filters the return value
+                     *
+                     * @param mixed  $value Value of the cache entry.
+                     * @param string $key   The cache key.
+                     * @param string $group The group value appended to the $key.
+                     * @param bool   $force Whether a forced refetch has taken place rather than relying on the local cache.
+                     */
                     $cache[ $key ] = apply_filters( 'redis_object_cache_get_value', $value, $key, $group, $force );
                 }
             }
@@ -1462,7 +1525,18 @@ LUA;
 
         // Save if group not excluded from redis and redis is up.
         if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
-            $expiration = apply_filters( 'redis_cache_expiration', $this->validate_expiration( $expiration ), $key, $group );
+            $orig_exp = $expiration;
+            $expiration = $this->validate_expiration( $expiration );
+
+            /**
+             * Filters the cache expiration time
+             *
+             * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+             * @param string $key        The cache key.
+             * @param string $group      The cache group.
+             * @param mixed  $orig_exp   The original expiration value before validation.
+             */
+            $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
 
             try {
                 if ( $expiration ) {
@@ -1488,6 +1562,15 @@ LUA;
         if ( function_exists( 'do_action' ) ) {
             $execute_time = microtime( true ) - $start_time;
 
+            /**
+             * Fires on every cache set
+             *
+             * @param string $key          The cache key.
+             * @param mixed  $value        Value of the cache entry.
+             * @param string $group        The group value appended to the $key.
+             * @param int    $expiration   The time in seconds the entry expires. 0 for no expiry.
+             * @param float  $execute_time Execution time for the request in seconds.
+             */
             do_action( 'redis_object_cache_set', $key, $value, $group, $expiration, $execute_time );
         }
 
@@ -2005,6 +2088,11 @@ LUA;
         error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
         if ( function_exists( 'do_action' ) ) {
+            /**
+             * Fires on every cache error
+             *
+             * @param \Exception $exception The exception triggered.
+             */
             do_action( 'redis_object_cache_error', $exception );
         }
     }

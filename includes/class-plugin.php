@@ -630,6 +630,11 @@ class Plugin {
                             FS_CHMOD_FILE
                         );
 
+                        /**
+                         * Fires on cache enable event
+                         *
+                         * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successfull.
+                         */
                         do_action( 'redis_object_cache_enable', $result );
 
                         $result
@@ -650,6 +655,11 @@ class Plugin {
                     if ( $action === 'disable-cache' ) {
                         $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
 
+                        /**
+                         * Fires on cache enable event
+                         *
+                         * @param bool $result Whether the filesystem event (deletion of the `object-cache.php` file) was successfull.
+                         */
                         do_action( 'redis_object_cache_disable', $result );
 
                         $result
@@ -675,6 +685,11 @@ class Plugin {
                             FS_CHMOD_FILE
                         );
 
+                        /**
+                         * Fires on cache enable event
+                         *
+                         * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successfull.
+                         */
                         do_action( 'redis_object_cache_update_dropin', $result );
 
                         $result
@@ -1065,6 +1080,11 @@ class Plugin {
                 FS_CHMOD_FILE
             );
 
+            /**
+             * Fires on cache enable event
+             *
+             * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successfull.
+             */
             do_action( 'redis_object_cache_update_dropin', $result );
         }
     }
