@@ -1302,7 +1302,7 @@ LUA;
      *
      * @param   string $key        The key under which to store the value.
      * @param   string $group      The group value appended to the $key.
-     * @param   string $force      Optional. Whether to force a refetch rather than relying on the local
+     * @param   bool   $force      Optional. Whether to force a refetch rather than relying on the local
      *                             cache. Default false.
      * @param   bool   $found      Optional. Whether the key was found in the cache. Disambiguates a return of
      *                             false, a storable value. Passed by reference. Default null.
