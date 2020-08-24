@@ -74,6 +74,7 @@ class Tab {
                 'file' => WP_REDIS_PLUGIN_PATH . "/includes/ui/tabs/{$slug}.php",
             ]
         );
+
         foreach ( $args ?: [] as $property => $value ) {
             if ( property_exists( $this, $property ) ) {
                 $this->{$property} = $value;
@@ -138,6 +139,7 @@ class Tab {
         if ( ! isset( $this->custom[ $key ] ) ) {
             return null;
         }
+
         return $this->custom[ $key ];
     }
 
@@ -161,6 +163,7 @@ class Tab {
      */
     public function display() {
         $roc = Plugin::instance();
+
         include $this->file;
     }
 
@@ -177,6 +180,7 @@ class Tab {
          * @param Tab    $this   The current tab.
          */
         $nav_id = "{$this->slug}-tab";
+
         return apply_filters( 'roc_tab_nav_id', $nav_id, $this );
     }
 
@@ -189,9 +193,11 @@ class Tab {
         $classes = [
             'nav-tab',
         ];
+
         if ( $this->default ) {
             $classes[] = 'nav-tab-active';
         }
+
         if ( $this->disabled ) {
             $classes[] = 'nav-tab-disabled';
         }
@@ -218,6 +224,7 @@ class Tab {
          * @param Tab    $this   The current tab.
          */
         $tab_id = "{$this->slug}-pane";
+
         return apply_filters( 'roc_tab_id', $tab_id, $this );
     }
 
@@ -231,6 +238,7 @@ class Tab {
             'tab-pane',
             "tab-pane-{$this->slug}",
         ];
+
         if ( $this->default ) {
             $classes[] = 'active';
         }
