@@ -74,6 +74,7 @@ class Tab {
                 'file' => WP_REDIS_PLUGIN_PATH . "/includes/ui/tabs/{$slug}.php",
             ]
         );
+
         foreach ( $args ?: [] as $property => $value ) {
             if ( property_exists( $this, $property ) ) {
                 $this->{$property} = $value;
@@ -138,6 +139,7 @@ class Tab {
         if ( ! isset( $this->custom[ $key ] ) ) {
             return null;
         }
+
         return $this->custom[ $key ];
     }
 
@@ -161,6 +163,7 @@ class Tab {
      */
     public function display() {
         $roc = Plugin::instance();
+
         include $this->file;
     }
 
@@ -170,7 +173,15 @@ class Tab {
      * @return string
      */
     public function nav_id() {
-        return apply_filters( 'roc_tab_nav_id', "{$this->slug}-tab", $this );
+        /**
+         * Filters the tab's nav id
+         *
+         * @param string $nav_id The id attribute of the current tab's nav element.
+         * @param Tab    $this   The current tab.
+         */
+        $nav_id = "{$this->slug}-tab";
+
+        return apply_filters( 'roc_tab_nav_id', $nav_id, $this );
     }
 
     /**
@@ -182,12 +193,21 @@ class Tab {
         $classes = [
             'nav-tab',
         ];
+
         if ( $this->default ) {
             $classes[] = 'nav-tab-active';
         }
+
         if ( $this->disabled ) {
             $classes[] = 'nav-tab-disabled';
         }
+
+        /**
+         * Filters the current tab's nav element css classes
+         *
+         * @param array $classes Array of css classes.
+         * @param Tab   $this    The current tab.
+         */
         return implode( ' ', apply_filters( 'roc_tab_nav_classes', $classes, $this ) );
     }
 
@@ -197,7 +217,15 @@ class Tab {
      * @return string
      */
     public function id() {
-        return apply_filters( 'roc_tab_id', "{$this->slug}-pane", $this );
+        /**
+         * Filters the tab's id
+         *
+         * @param string $tab_id The id attribute of the current tab element.
+         * @param Tab    $this   The current tab.
+         */
+        $tab_id = "{$this->slug}-pane";
+
+        return apply_filters( 'roc_tab_id', $tab_id, $this );
     }
 
     /**
@@ -210,9 +238,17 @@ class Tab {
             'tab-pane',
             "tab-pane-{$this->slug}",
         ];
+
         if ( $this->default ) {
             $classes[] = 'active';
         }
+
+        /**
+         * Filters the current tab's css classes
+         *
+         * @param array $classes Array of css classes.
+         * @param Tab   $this    The current tab.
+         */
         return implode( ' ', apply_filters( 'roc_tab_classes', $classes, $this ) );
     }
 
