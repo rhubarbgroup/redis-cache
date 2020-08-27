@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Updated bundled Predis library to v1.1.3
 - Made `redis-cache` a global group for improved Multiste metrics
 
 ## 2.0.12
