@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Made `redis-cache` a global group for improved Multiste metrics
+
 ## 2.0.12
 
 - Fixed bytes metrics calculation

@@ -397,6 +397,8 @@ class WP_Object_Cache {
             $this->global_groups = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_GLOBAL_GROUPS );
         }
 
+        $this->global_groups[] = 'redis-cache';
+
         if ( defined( 'WP_REDIS_IGNORED_GROUPS' ) && is_array( WP_REDIS_IGNORED_GROUPS ) ) {
             $this->ignored_groups = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_IGNORED_GROUPS );
         }
