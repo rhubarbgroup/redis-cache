@@ -93,7 +93,7 @@ class Plugin {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_redis_metrics' ] );
 
-        add_action( 'load-settings_page_redis-cache', [ $this, 'do_admin_actions' ] );
+        add_action( 'load-settings_page_redis-cache', [ self::class, 'do_admin_actions' ] );
 
         add_action( 'wp_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
         add_action( 'wp_network_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
@@ -591,7 +591,7 @@ class Plugin {
      *
      * @return void
      */
-    public function do_admin_actions() {
+    public static function do_admin_actions() {
         global $wp_filesystem;
 
         if ( isset( $_GET['_wpnonce'], $_GET['action'] ) ) {
