@@ -71,7 +71,7 @@ class Plugin {
 
         register_activation_hook( WP_REDIS_FILE, 'wp_cache_flush' );
 
-        $this->add_actions_and_filters();
+        self::add_actions_and_filters();
     }
 
     /**
