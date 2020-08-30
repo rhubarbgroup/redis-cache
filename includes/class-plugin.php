@@ -257,7 +257,7 @@ class Plugin {
      *
      * @return void
      */
-    public function enqueue_admin_scripts() {
+    public static function enqueue_admin_scripts() {
         $screen = get_current_screen();
 
         if ( ! isset( $screen->id ) ) {
