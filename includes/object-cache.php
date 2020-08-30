@@ -282,7 +282,7 @@ class WP_Object_Cache {
      *
      * @var array
      */
-    public $cache = array();
+    public $cache = [];
 
     /**
      * Holds the diagnostics values.
@@ -296,14 +296,14 @@ class WP_Object_Cache {
      *
      * @var array
      */
-    public $errors = array();
+    public $errors = [];
 
     /**
      * List of global groups.
      *
      * @var array
      */
-    public $global_groups = array(
+    public $global_groups = [
         'blog-details',
         'blog-id-cache',
         'blog-lookup',
@@ -321,25 +321,25 @@ class WP_Object_Cache {
         'usermeta',
         'user_meta',
         'userslugs',
-    );
+    ];
 
     /**
      * List of groups that will not be flushed.
      *
      * @var array
      */
-    public $unflushable_groups = array();
+    public $unflushable_groups = [];
 
     /**
      * List of groups not saved to Redis.
      *
      * @var array
      */
-    public $ignored_groups = array(
+    public $ignored_groups = [
         'counts',
         'plugins',
         'themes',
-    );
+    ];
 
     /**
      * Prefix used for global groups.
@@ -473,7 +473,7 @@ class WP_Object_Cache {
      * @return array
      */
     protected function build_parameters() {
-        $parameters = array(
+        $parameters = [
             'scheme' => 'tcp',
             'host' => '127.0.0.1',
             'port' => 6379,
@@ -481,9 +481,9 @@ class WP_Object_Cache {
             'timeout' => 1,
             'read_timeout' => 1,
             'retry_interval' => null,
-        );
+        ];
 
-        $settings = array(
+        $settings = [
             'scheme',
             'host',
             'port',
@@ -493,7 +493,7 @@ class WP_Object_Cache {
             'timeout',
             'read_timeout',
             'retry_interval',
-        );
+        ];
 
         foreach ( $settings as $setting ) {
             $constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
@@ -625,7 +625,7 @@ class WP_Object_Cache {
         }
 
         $servers = false;
-        $options = array();
+        $options = [];
 
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
             $servers = WP_REDIS_SHARDS;
@@ -649,7 +649,7 @@ class WP_Object_Cache {
             $parameters['read_write_timeout'] = $parameters['read_timeout'];
         }
 
-        foreach ( array( 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ) as $constant ) {
+        foreach ( [ 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ] as $constant ) {
             if ( defined( $constant ) ) {
                 if ( $parameters['database'] ) {
                     $options['parameters']['database'] = $parameters['database'];
@@ -1085,7 +1085,7 @@ class WP_Object_Cache {
         }
 
         $results = [];
-        $this->cache = array();
+        $this->cache = [];
 
         if ( $this->redis_status() ) {
             $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : null;
@@ -1399,8 +1399,8 @@ LUA;
             return false;
         }
 
-        $cache = array();
-        $derived_keys = array();
+        $cache = [];
+        $derived_keys = [];
 
         foreach ( $keys as $key ) {
             $derived_keys[ $key ] = $this->build_key( $key, $group );
