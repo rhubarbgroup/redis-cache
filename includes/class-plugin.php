@@ -36,12 +36,12 @@ class Plugin {
      *
      * @var string[] $actions
      */
-    private $actions = array(
+    private $actions = [
         'enable-cache',
         'disable-cache',
         'flush-cache',
         'update-dropin',
-    );
+    ];
 
     /**
      * Plugin instance property
@@ -93,34 +93,34 @@ class Plugin {
      * @return void
      */
     public function add_actions_and_filters() {
-        add_action( 'deactivate_plugin', array( $this, 'on_deactivation' ) );
-        add_action( 'admin_init', array( $this, 'maybe_update_dropin' ) );
+        add_action( 'deactivate_plugin', [ $this, 'on_deactivation' ] );
+        add_action( 'admin_init', [ $this, 'maybe_update_dropin' ] );
 
-        add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', array( $this, 'add_admin_menu_page' ) );
+        add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', [ $this, 'add_admin_menu_page' ] );
 
-        add_action( 'admin_notices', array( $this, 'show_admin_notices' ) );
-        add_action( 'network_admin_notices', array( $this, 'show_admin_notices' ) );
+        add_action( 'admin_notices', [ $this, 'show_admin_notices' ] );
+        add_action( 'network_admin_notices', [ $this, 'show_admin_notices' ] );
 
-        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
-        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_redis_metrics' ) );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_styles' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_redis_metrics' ] );
 
-        add_action( 'load-settings_page_redis-cache', array( $this, 'do_admin_actions' ) );
+        add_action( 'load-settings_page_redis-cache', [ $this, 'do_admin_actions' ] );
 
-        add_action( 'wp_dashboard_setup', array( $this, 'setup_dashboard_widget' ) );
-        add_action( 'wp_network_dashboard_setup', array( $this, 'setup_dashboard_widget' ) );
+        add_action( 'wp_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
+        add_action( 'wp_network_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
 
-        add_action( 'wp_ajax_roc_dismiss_notice', array( $this, 'dismiss_notice' ) );
+        add_action( 'wp_ajax_roc_dismiss_notice', [ $this, 'dismiss_notice' ] );
 
         $links = sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME );
-        add_filter( $links, array( $this, 'add_plugin_actions_links' ) );
+        add_filter( $links, [ $this, 'add_plugin_actions_links' ] );
 
-        add_action( 'wp_head', array( $this, 'register_shutdown_hooks' ) );
-        add_action( 'shutdown', array( $this, 'record_metrics' ) );
-        add_action( 'rediscache_discard_metrics', array( $this, 'discard_metrics' ) );
+        add_action( 'wp_head', [ $this, 'register_shutdown_hooks' ] );
+        add_action( 'shutdown', [ $this, 'record_metrics' ] );
+        add_action( 'rediscache_discard_metrics', [ $this, 'discard_metrics' ] );
 
-        add_filter( 'qm/collectors', array( $this, 'register_qm_collector' ), 25 );
-        add_filter( 'qm/outputter/html', array( $this, 'register_qm_output' ) );
+        add_filter( 'qm/collectors', [ $this, 'register_qm_collector' ], 25 );
+        add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
     }
 
     /**
@@ -135,7 +135,7 @@ class Plugin {
             __( 'Redis', 'redis-cache' ),
             is_multisite() ? 'manage_network_options' : 'manage_options',
             'redis-cache',
-            array( $this, 'show_admin_page' )
+            [ $this, 'show_admin_page' ]
         );
     }
 
@@ -200,7 +200,7 @@ class Plugin {
         wp_add_dashboard_widget(
             'dashboard_rediscache',
             __( 'Redis Object Cache', 'redis-cache' ),
-            array( $this, 'show_dashboard_widget' )
+            [ $this, 'show_dashboard_widget' ]
         );
     }
 
@@ -238,11 +238,11 @@ class Plugin {
             return;
         }
 
-        $screens = array(
+        $screens = [
             $this->screen,
             'dashboard',
             'dashboard-network',
-        );
+        ];
 
         if ( ! in_array( $screen->id, $screens, true ) ) {
             return;
@@ -263,14 +263,14 @@ class Plugin {
             return;
         }
 
-        $screens = array(
+        $screens = [
             $this->screen,
             'dashboard',
             'dashboard-network',
             'edit-shop_order',
             'edit-product',
             'woocommerce_page_wc-admin',
-        );
+        ];
 
         if ( ! in_array( $screen->id, $screens, true ) ) {
             return;
@@ -279,7 +279,7 @@ class Plugin {
         wp_enqueue_script(
             'redis-cache',
             plugins_url( 'assets/js/admin.js', WP_REDIS_FILE ),
-            array( 'jquery', 'underscore' ),
+            [ 'jquery', 'underscore' ],
             WP_REDIS_VERSION,
             true
         );
@@ -287,11 +287,11 @@ class Plugin {
         wp_localize_script(
             'redis-cache',
             'rediscache',
-            array(
+            [
                 'jQuery' => 'jQuery',
                 'disable_pro' => $screen->id !== $this->screen,
                 'disable_banners' => defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS,
-                'l10n' => array(
+                'l10n' => [
                     'time' => __( 'Time', 'redis-cache' ),
                     'bytes' => __( 'Bytes', 'redis-cache' ),
                     'ratio' => __( 'Ratio', 'redis-cache' ),
@@ -299,8 +299,8 @@ class Plugin {
                     'no_data' => __( 'Not enough data collected, yet.', 'redis-cache' ),
                     'no_cache' => __( 'Enable object cache to collect data.', 'redis-cache' ),
                     'pro' => 'Object Cache Pro',
-                ),
-            )
+                ],
+            ]
         );
     }
 
@@ -322,7 +322,7 @@ class Plugin {
             return;
         }
 
-        if ( ! in_array( $screen->id, array( $this->screen, 'dashboard', 'dashboard-network' ), true ) ) {
+        if ( ! in_array( $screen->id, [ $this->screen, 'dashboard', 'dashboard-network' ], true ) ) {
             return;
         }
 
@@ -754,7 +754,7 @@ class Plugin {
             return;
         }
 
-        if ( ! in_array( $screen->id, array( 'dashboard', 'dashboard-network' ), true ) ) {
+        if ( ! in_array( $screen->id, [ 'dashboard', 'dashboard-network' ], true ) ) {
             return;
         }
 
@@ -794,7 +794,7 @@ class Plugin {
             return;
         }
 
-        if ( ! in_array( $screen->id, array( 'edit-shop_order', 'edit-product', 'woocommerce_page_wc-admin' ), true ) ) {
+        if ( ! in_array( $screen->id, [ 'edit-shop_order', 'edit-product', 'woocommerce_page_wc-admin' ], true ) ) {
             return;
         }
 
@@ -825,7 +825,7 @@ class Plugin {
      */
     public function register_shutdown_hooks() {
         if ( ! defined( 'WP_REDIS_DISABLE_COMMENT' ) || ! WP_REDIS_DISABLE_COMMENT ) {
-            add_action( 'shutdown', array( $this, 'maybe_print_comment' ), 0 );
+            add_action( 'shutdown', [ $this, 'maybe_print_comment' ], 0 );
         }
     }
 

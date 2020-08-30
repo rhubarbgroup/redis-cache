@@ -61,7 +61,7 @@ if ( $dropin ) {
     $info['Blog Prefix'] = wp_json_encode( $wp_object_cache->blog_prefix );
 }
 
-$constants = array(
+$constants = [
     'WP_REDIS_DISABLED',
     'WP_REDIS_CLIENT',
     'WP_REDIS_SCHEME',
@@ -83,7 +83,7 @@ $constants = array(
     'WP_REDIS_GLOBAL_GROUPS',
     'WP_REDIS_IGNORED_GROUPS',
     'WP_REDIS_UNFLUSHABLE_GROUPS',
-);
+];
 
 foreach ( $constants as $constant ) {
     if ( defined( $constant ) ) {
