@@ -54,7 +54,7 @@ if ( defined( 'HHVM_VERSION' ) ) {
 }
 
 $info['Plugin Version'] = WP_REDIS_VERSION;
-$info['Redis Version'] = $roc->get_redis_version() ?: 'Unknown';
+$info['Redis Version'] = Plugin::get_redis_version() ?: 'Unknown';
 
 $info['Multisite'] = is_multisite() ? 'Yes' : 'No';
 

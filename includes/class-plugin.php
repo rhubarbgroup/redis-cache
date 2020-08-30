@@ -491,7 +491,7 @@ class Plugin {
      * @see WP_Object_Cache::redis_version()
      * @return null|string
      */
-    public function get_redis_version() {
+    public static function get_redis_version() {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
