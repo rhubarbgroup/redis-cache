@@ -173,6 +173,8 @@ class Tab {
      * @return string
      */
     public function nav_id() {
+        $nav_id = "{$this->slug}-tab";
+
         /**
          * Filters the tab's nav id
          *
@@ -180,8 +182,6 @@ class Tab {
          * @param string $nav_id The id attribute of the current tab's nav element.
          * @param Tab    $this   The current tab.
          */
-        $nav_id = "{$this->slug}-tab";
-
         return apply_filters( 'roc_tab_nav_id', $nav_id, $this );
     }
 
@@ -219,6 +219,8 @@ class Tab {
      * @return string
      */
     public function id() {
+        $tab_id = "{$this->slug}-pane";
+
         /**
          * Filters the tab's id
          *
@@ -226,8 +228,6 @@ class Tab {
          * @param string $tab_id The id attribute of the current tab element.
          * @param Tab    $this   The current tab.
          */
-        $tab_id = "{$this->slug}-pane";
-
         return apply_filters( 'roc_tab_id', $tab_id, $this );
     }
 
