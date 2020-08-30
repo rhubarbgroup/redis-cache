@@ -98,7 +98,7 @@ class Plugin {
         add_action( 'wp_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
         add_action( 'wp_network_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
 
-        add_action( 'wp_ajax_roc_dismiss_notice', [ $this, 'dismiss_notice' ] );
+        add_action( 'wp_ajax_roc_dismiss_notice', [ self::class, 'dismiss_notice' ] );
 
         $links = sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME );
         add_filter( $links, [ $this, 'add_plugin_actions_links' ] );
@@ -734,7 +734,7 @@ class Plugin {
      *
      * @return void
      */
-    public function dismiss_notice() {
+    public static function dismiss_notice() {
         if ( isset( $_POST['notice'] ) ) {
             check_ajax_referer( 'roc_dismiss_notice' );
 
