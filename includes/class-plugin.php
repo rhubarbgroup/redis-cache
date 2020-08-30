@@ -101,7 +101,7 @@ class Plugin {
         add_action( 'wp_ajax_roc_dismiss_notice', [ self::class, 'dismiss_notice' ] );
 
         $links = sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME );
-        add_filter( $links, [ $this, 'add_plugin_actions_links' ] );
+        add_filter( $links, [ self::class, 'add_plugin_actions_links' ] );
 
         add_action( 'wp_head', [ self::class, 'register_shutdown_hooks' ] );
         add_action( 'shutdown', array( $this, 'record_metrics' ) );
@@ -220,7 +220,7 @@ class Plugin {
      * @param string[] $links The current plugin action links.
      * @return string[]
      */
-    public function add_plugin_actions_links( $links ) {
+    public static function add_plugin_actions_links( $links ) {
         return array_merge(
             [ sprintf( '<a href="%s">%s</a>', network_admin_url( self::page() ), esc_html__( 'Settings', 'redis-cache' ) ) ],
             $links
