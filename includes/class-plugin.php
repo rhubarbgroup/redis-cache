@@ -44,29 +44,11 @@ class Plugin {
     ];
 
     /**
-     * Plugin instance property
+     * Initialization method
      *
-     * @var Plugin
+     * @return void
      */
-    private static $instance;
-
-    /**
-     * Plugin instanciation method
-     *
-     * @return Plugin
-     */
-    public static function instance() {
-        if ( ! isset( self::$instance ) ) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
-
-    /**
-     * Constructor
-     */
-    private function __construct() {
+    public static function init() {
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
         register_activation_hook( WP_REDIS_FILE, 'wp_cache_flush' );
