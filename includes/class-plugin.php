@@ -508,7 +508,7 @@ class Plugin {
      *
      * @return null|string
      */
-    public function get_redis_client_name() {
+    public static function get_redis_client_name() {
         global $wp_object_cache;
 
         if ( isset( $wp_object_cache->diagnostics[ 'client' ] ) ) {

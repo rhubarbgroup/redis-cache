@@ -17,7 +17,7 @@ $dropin = Plugin::validate_object_cache_dropin();
 $disabled = defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED;
 
 $info['Status'] = Plugin::get_status();
-$info['Client'] = $roc->get_redis_client_name();
+$info['Client'] = Plugin::get_redis_client_name();
 $info['Drop-in'] = Plugin::object_cache_dropin_exists()
     ? ( $dropin ? 'Valid' : 'Invalid' )
     : 'Not installed';
