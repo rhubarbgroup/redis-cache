@@ -538,7 +538,7 @@ class Plugin {
      *
      * @return null|mixed
      */
-    public function get_redis_prefix() {
+    public static function get_redis_prefix() {
         return defined( 'WP_REDIS_PREFIX' ) ? WP_REDIS_PREFIX : null;
     }
 
