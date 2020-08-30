@@ -558,7 +558,7 @@ class Plugin {
      */
     public function show_admin_notices() {
         if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS ) {
-            $this->pro_notice();
+            self::pro_notice();
             self::wc_pro_notice();
         }
 
@@ -754,7 +754,7 @@ class Plugin {
      *
      * @return void
      */
-    public function pro_notice() {
+    public static function pro_notice() {
         $screen = get_current_screen();
 
         if ( ! isset( $screen->id ) ) {
