@@ -136,7 +136,7 @@ class Plugin {
             __( 'Redis', 'redis-cache' ),
             is_multisite() ? 'manage_network_options' : 'manage_options',
             'redis-cache',
-            [ $this, 'show_admin_page' ]
+            [ self::class, 'show_admin_page' ]
         );
     }
 
@@ -145,7 +145,7 @@ class Plugin {
      *
      * @return void
      */
-    public function show_admin_page() {
+    public static function show_admin_page() {
         // Request filesystem credentials?
         if ( isset( $_GET['_wpnonce'], $_GET['action'] ) ) {
             $action = sanitize_key( $_GET['action'] );
