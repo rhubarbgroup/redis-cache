@@ -11,7 +11,7 @@ defined( '\\ABSPATH' ) || exit;
 
 $redis_client = $roc->get_redis_client_name();
 $redis_prefix = $roc->get_redis_prefix();
-$redis_maxttl = $roc->get_redis_maxttl();
+$redis_maxttl = Plugin::get_redis_maxttl();
 $redis_version = $roc->get_redis_version();
 
 $diagnostics = $roc->get_diagnostics();

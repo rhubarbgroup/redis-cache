@@ -547,7 +547,7 @@ class Plugin {
      *
      * @return null|mixed
      */
-    public function get_redis_maxttl() {
+    public static function get_redis_maxttl() {
         return defined( 'WP_REDIS_MAXTTL' ) ? WP_REDIS_MAXTTL : null;
     }
 
