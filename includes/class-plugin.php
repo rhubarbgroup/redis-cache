@@ -559,7 +559,7 @@ class Plugin {
     public function show_admin_notices() {
         if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS ) {
             $this->pro_notice();
-            $this->wc_pro_notice();
+            self::wc_pro_notice();
         }
 
         // Only show admin notices to users with the right capability.
@@ -790,7 +790,7 @@ class Plugin {
      *
      * @return void
      */
-    public function wc_pro_notice() {
+    public static function wc_pro_notice() {
         if ( ! class_exists( 'WooCommerce' ) ) {
             return;
         }
