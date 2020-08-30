@@ -36,7 +36,7 @@ class Plugin {
      *
      * @var string[] $actions
      */
-    private $actions = [
+    private static $actions = [
         'enable-cache',
         'disable-cache',
         'flush-cache',
@@ -159,7 +159,7 @@ class Plugin {
             $action = sanitize_key( $_GET['action'] );
             $nonce = sanitize_key( $_GET['_wpnonce'] );
 
-            foreach ( $this->actions as $name ) {
+            foreach ( self::$actions as $name ) {
                 // Nonce verification.
                 if ( $action === $name && wp_verify_nonce( $nonce, $action ) ) {
                     $url = $this->action_link( $action );
@@ -607,13 +607,13 @@ class Plugin {
             $nonce = sanitize_key( $_GET['_wpnonce'] );
 
             // Nonce verification.
-            foreach ( $this->actions as $name ) {
+            foreach ( self::$actions as $name ) {
                 if ( $action === $name && ! wp_verify_nonce( $nonce, $action ) ) {
                     return;
                 }
             }
 
-            if ( in_array( $action, $this->actions, true ) ) {
+            if ( in_array( $action, self::$actions, true ) ) {
                 $url = $this->action_link( $action );
 
                 if ( $action === 'flush-cache' ) {
@@ -1154,7 +1154,7 @@ class Plugin {
      * @return string
      */
     public function action_link( $action ) {
-        if ( ! in_array( $action, $this->actions, true ) ) {
+        if ( ! in_array( $action, self::$actions, true ) ) {
             return '';
         }
 
