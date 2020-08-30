@@ -22,14 +22,14 @@ class Plugin {
      *
      * @var string $page
      */
-    private $page = '';
+    private static $page = '';
 
     /**
      * Settings page slug
      *
      * @var string $screen
      */
-    private $screen = '';
+    private static $screen = '';
 
     /**
      * Allowed setting page actions
@@ -70,14 +70,6 @@ class Plugin {
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
         register_activation_hook( WP_REDIS_FILE, 'wp_cache_flush' );
-
-        if ( is_multisite() ) {
-            $this->page = 'settings.php?page=redis-cache';
-            $this->screen = 'settings_page_redis-cache-network';
-        } else {
-            $this->page = 'options-general.php?page=redis-cache';
-            $this->screen = 'settings_page_redis-cache';
-        }
 
         $this->add_actions_and_filters();
     }
@@ -230,7 +222,7 @@ class Plugin {
      */
     public function add_plugin_actions_links( $links ) {
         return array_merge(
-            [ sprintf( '<a href="%s">%s</a>', network_admin_url( $this->page ), esc_html__( 'Settings', 'redis-cache' ) ) ],
+            [ sprintf( '<a href="%s">%s</a>', network_admin_url( self::page() ), esc_html__( 'Settings', 'redis-cache' ) ) ],
             $links
         );
     }
@@ -248,7 +240,7 @@ class Plugin {
         }
 
         $screens = [
-            $this->screen,
+            self::screen(),
             'dashboard',
             'dashboard-network',
         ];
@@ -273,7 +265,7 @@ class Plugin {
         }
 
         $screens = [
-            $this->screen,
+            self::screen(),
             'dashboard',
             'dashboard-network',
             'edit-shop_order',
@@ -298,7 +290,7 @@ class Plugin {
             'rediscache',
             [
                 'jQuery' => 'jQuery',
-                'disable_pro' => $screen->id !== $this->screen,
+                'disable_pro' => $screen->id !== self::screen(),
                 'disable_banners' => defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS,
                 'l10n' => [
                     'time' => __( 'Time', 'redis-cache' ),
@@ -331,7 +323,7 @@ class Plugin {
             return;
         }
 
-        if ( ! in_array( $screen->id, [ $this->screen, 'dashboard', 'dashboard-network' ], true ) ) {
+        if ( ! in_array( $screen->id, [ self::screen(), 'dashboard', 'dashboard-network' ], true ) ) {
             return;
         }
 
@@ -730,7 +722,7 @@ class Plugin {
                     set_transient( 'settings_errors', $messages, 30 );
 
                     wp_safe_redirect(
-                        network_admin_url( add_query_arg( 'settings-updated', 1, $this->page ) )
+                        network_admin_url( add_query_arg( 'settings-updated', 1, self::page() ) )
                     );
                     exit;
                 }
@@ -789,7 +781,7 @@ class Plugin {
             sprintf(
                 // translators: %s = Link to the plugin setting screen.
                 wp_kses_post( __( 'A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href="%s">Learn more »</a>', 'redis-cache' ) ),
-                esc_url( network_admin_url( $this->page ) )
+                esc_url( network_admin_url( self::page() ) )
             )
         );
     }
@@ -829,7 +821,7 @@ class Plugin {
             sprintf(
                 // translators: %s = Link to the plugin's settings screen.
                 wp_kses_post( __( 'Object Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style="color: #bb77ae;" href="%s">Learn more »</a>', 'redis-cache' ) ),
-                esc_url( network_admin_url( $this->page ) )
+                esc_url( network_admin_url( self::page() ) )
             )
         );
     }
@@ -1159,8 +1151,36 @@ class Plugin {
         }
 
         return wp_nonce_url(
-            network_admin_url( add_query_arg( 'action', $action, $this->page ) ),
+            network_admin_url( add_query_arg( 'action', $action, self::page() ) ),
             $action
         );
+    }
+
+    /**
+     * Helper method to determine the settings page url
+     *
+     * @return string
+     */
+    private static function page() {
+        if ( ! self::$page ) {
+            self::$page = is_multisite()
+                ? 'settings.php?page=redis-cache'
+                : 'options-general.php?page=redis-cache';
+        }
+        return self::$page;
+    }
+
+    /**
+     * Helper method to determine the settings screen slug
+     *
+     * @return string
+     */
+    private static function screen() {
+        if ( ! self::$screen ) {
+            self::$screen = is_multisite()
+                ? 'settings_page_redis-cache-network'
+                : 'settings_page_redis-cache';
+        }
+        return self::$screen;
     }
 }
