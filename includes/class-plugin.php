@@ -832,7 +832,7 @@ class Plugin {
      */
     public function register_shutdown_hooks() {
         if ( ! defined( 'WP_REDIS_DISABLE_COMMENT' ) || ! WP_REDIS_DISABLE_COMMENT ) {
-            add_action( 'shutdown', [ $this, 'maybe_print_comment' ], 0 );
+            add_action( 'shutdown', [ self::class, 'maybe_print_comment' ], 0 );
         }
     }
 
@@ -915,7 +915,7 @@ class Plugin {
      *
      * @return void
      */
-    public function maybe_print_comment() {
+    public static function maybe_print_comment() {
         global $wp_object_cache;
 
         if (
