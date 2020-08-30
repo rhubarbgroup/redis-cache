@@ -39,7 +39,7 @@ $diagnostics = $roc->get_diagnostics();
             <code>
                 <?php if ( ! Plugin::object_cache_dropin_exists() ) : ?>
                     <?php esc_html_e( 'Not installed', 'redis-cache' ); ?>
-                <?php elseif ( $roc->object_cache_dropin_outdated() ) : ?>
+                <?php elseif ( Plugin::object_cache_dropin_outdated() ) : ?>
                     <?php esc_html_e( 'Outdated', 'redis-cache' ); ?>
                 <?php else : ?>
                     <?php

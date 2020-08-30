@@ -426,7 +426,7 @@ class Plugin {
      *
      * @return bool
      */
-    public function object_cache_dropin_outdated() {
+    public static function object_cache_dropin_outdated() {
         if ( ! self::object_cache_dropin_exists() ) {
             return false;
         }
@@ -579,7 +579,7 @@ class Plugin {
             $url = $this->action_link( 'update-dropin' );
 
             if ( self::validate_object_cache_dropin() ) {
-                if ( $this->object_cache_dropin_outdated() ) {
+                if ( self::object_cache_dropin_outdated() ) {
                     // translators: %s = Action link to update the drop-in.
                     $message = sprintf( __( 'The Redis object cache drop-in is outdated. Please <a href="%s">update the drop-in</a>.', 'redis-cache' ), $url );
                 }
@@ -1084,7 +1084,7 @@ class Plugin {
             return;
         }
 
-        if ( $this->object_cache_dropin_outdated() ) {
+        if ( self::object_cache_dropin_outdated() ) {
             add_action( 'shutdown', [ self::class, 'update_dropin' ] );
         }
     }
