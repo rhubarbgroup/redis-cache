@@ -95,7 +95,7 @@ $diagnostics = $roc->get_diagnostics();
 
     <tr>
         <th><?php esc_html_e( 'Status:', 'redis-cache' ); ?></th>
-        <td><code><?php echo esc_html( $roc->get_status() ); ?></code></td>
+        <td><code><?php echo esc_html( Plugin::get_status() ); ?></code></td>
     </tr>
 
     <?php if ( ! empty( $diagnostics['host'] ) ) : ?>

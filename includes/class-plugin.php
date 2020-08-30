@@ -438,7 +438,7 @@ class Plugin {
      *
      * @return string
      */
-    public function get_status() {
+    public static function get_status() {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {

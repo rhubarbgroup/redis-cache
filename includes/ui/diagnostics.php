@@ -16,7 +16,7 @@ $filesystem = Plugin::test_filesystem_writing();
 $dropin = Plugin::validate_object_cache_dropin();
 $disabled = defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED;
 
-$info['Status'] = $roc->get_status();
+$info['Status'] = Plugin::get_status();
 $info['Client'] = $roc->get_redis_client_name();
 $info['Drop-in'] = Plugin::object_cache_dropin_exists()
     ? ( $dropin ? 'Valid' : 'Invalid' )
