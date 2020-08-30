@@ -1085,7 +1085,7 @@ class Plugin {
         }
 
         if ( $this->object_cache_dropin_outdated() ) {
-            add_action( 'shutdown', [ $this, 'update_dropin' ] );
+            add_action( 'shutdown', [ self::class, 'update_dropin' ] );
         }
     }
 
@@ -1094,7 +1094,7 @@ class Plugin {
      *
      * @return void
      */
-    public function update_dropin() {
+    public static function update_dropin() {
         global $wp_filesystem;
 
         if ( ! self::validate_object_cache_dropin() ) {
