@@ -103,9 +103,9 @@ class Plugin {
         $links = sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME );
         add_filter( $links, [ $this, 'add_plugin_actions_links' ] );
 
-        add_action( 'wp_head', [ $this, 'register_shutdown_hooks' ] );
-        add_action( 'shutdown', [ $this, 'record_metrics' ] );
-        add_action( 'rediscache_discard_metrics', [ $this, 'discard_metrics' ] );
+        add_action( 'wp_head', [ self::class, 'register_shutdown_hooks' ] );
+        add_action( 'shutdown', array( $this, 'record_metrics' ) );
+        add_action( 'rediscache_discard_metrics', array( $this, 'discard_metrics' ) );
 
         add_filter( 'qm/collectors', [ self::class, 'register_qm_collector' ], 25 );
         add_filter( 'qm/outputter/html', [ self::class, 'register_qm_output' ] );
@@ -830,7 +830,7 @@ class Plugin {
      *
      * @return void
      */
-    public function register_shutdown_hooks() {
+    public static function register_shutdown_hooks() {
         if ( ! defined( 'WP_REDIS_DISABLE_COMMENT' ) || ! WP_REDIS_DISABLE_COMMENT ) {
             add_action( 'shutdown', [ self::class, 'maybe_print_comment' ], 0 );
         }
