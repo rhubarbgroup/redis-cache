@@ -467,7 +467,7 @@ class Plugin {
      *
      * @return bool|null Boolean Redis connection status if available, null otherwise.
      */
-    public function get_redis_status() {
+    public static function get_redis_status() {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
@@ -848,7 +848,7 @@ class Plugin {
             return;
         }
 
-        if ( ! $this->get_redis_status() ) {
+        if ( ! self::get_redis_status() ) {
             return;
         }
 
@@ -891,7 +891,7 @@ class Plugin {
             return;
         }
 
-        if ( ! $this->get_redis_status() ) {
+        if ( ! self::get_redis_status() ) {
             return;
         }
 

@@ -236,7 +236,7 @@ $diagnostics = $roc->get_diagnostics();
 
 <p class="submit">
 
-    <?php if ( $roc->get_redis_status() ) : ?>
+    <?php if ( Plugin::get_redis_status() ) : ?>
         <a href="<?php echo esc_attr( Plugin::action_link( 'flush-cache' ) ); ?>" class="button button-primary button-large">
             <?php esc_html_e( 'Flush Cache', 'redis-cache' ); ?>
         </a> &nbsp;
