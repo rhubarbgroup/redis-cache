@@ -14,7 +14,7 @@ $redis_prefix = Plugin::get_redis_prefix();
 $redis_maxttl = Plugin::get_redis_maxttl();
 $redis_version = Plugin::get_redis_version();
 
-$diagnostics = $roc->get_diagnostics();
+$diagnostics = Plugin::get_diagnostics();
 
 ?>
 

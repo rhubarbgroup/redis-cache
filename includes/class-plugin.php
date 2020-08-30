@@ -525,7 +525,7 @@ class Plugin {
      *
      * @return null|array
      */
-    public function get_diagnostics() {
+    public static function get_diagnostics() {
         global $wp_object_cache;
 
         if ( self::validate_object_cache_dropin() && property_exists( $wp_object_cache, 'diagnostics' ) ) {
