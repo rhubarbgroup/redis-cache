@@ -50,9 +50,9 @@ class Commands extends WP_CLI_Command {
 
         global $wp_filesystem;
 
-        $plugin = Plugin::instance();
+        if ( Plugin::object_cache_dropin_exists() ) {
 
-        if ( $plugin->object_cache_dropin_exists() ) {
+            $plugin = Plugin::instance();
 
             if ( $plugin->validate_object_cache_dropin() ) {
                 WP_CLI::line( __( 'Redis object cache already enabled.', 'redis-cache' ) );
@@ -95,7 +95,7 @@ class Commands extends WP_CLI_Command {
 
         $plugin = Plugin::instance();
 
-        if ( ! $plugin->object_cache_dropin_exists() ) {
+        if ( ! Plugin::object_cache_dropin_exists() ) {
 
             WP_CLI::error( __( 'No object cache drop-in found.', 'redis-cache' ) );
 

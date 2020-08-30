@@ -45,7 +45,7 @@ class QM_Collector extends Base_Collector {
         $roc = Plugin::instance();
 
         $this->data['status'] = $roc->get_status();
-        $this->data['has_dropin'] = $roc->object_cache_dropin_exists();
+        $this->data['has_dropin'] = Plugin::object_cache_dropin_exists();
         $this->data['valid_dropin'] = $roc->validate_object_cache_dropin();
 
         if ( ! method_exists( $wp_object_cache, 'info' ) ) {

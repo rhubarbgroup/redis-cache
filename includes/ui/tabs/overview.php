@@ -5,6 +5,8 @@
  * @package Rhubarb\RedisCache
  */
 
+use Rhubarb\RedisCache\Plugin;
+
 defined( '\\ABSPATH' ) || exit;
 
 $redis_client = $roc->get_redis_client_name();
@@ -35,7 +37,7 @@ $diagnostics = $roc->get_diagnostics();
         <th><?php esc_html_e( 'Drop-in:', 'redis-cache' ); ?></th>
         <td>
             <code>
-                <?php if ( ! $roc->object_cache_dropin_exists() ) : ?>
+                <?php if ( ! Plugin::object_cache_dropin_exists() ) : ?>
                     <?php esc_html_e( 'Not installed', 'redis-cache' ); ?>
                 <?php elseif ( $roc->object_cache_dropin_outdated() ) : ?>
                     <?php esc_html_e( 'Outdated', 'redis-cache' ); ?>

@@ -401,7 +401,7 @@ class Plugin {
      *
      * @return bool
      */
-    public function object_cache_dropin_exists() {
+    public static function object_cache_dropin_exists() {
         return file_exists( WP_CONTENT_DIR . '/object-cache.php' );
     }
 
@@ -411,7 +411,7 @@ class Plugin {
      * @return bool
      */
     public function validate_object_cache_dropin() {
-        if ( ! $this->object_cache_dropin_exists() ) {
+        if ( ! self::object_cache_dropin_exists() ) {
             return false;
         }
 
@@ -427,7 +427,7 @@ class Plugin {
      * @return bool
      */
     public function object_cache_dropin_outdated() {
-        if ( ! $this->object_cache_dropin_exists() ) {
+        if ( ! self::object_cache_dropin_exists() ) {
             return false;
         }
 
@@ -453,7 +453,7 @@ class Plugin {
             return __( 'Disabled', 'redis-cache' );
         }
 
-        if ( ! $this->object_cache_dropin_exists() ) {
+        if ( ! self::object_cache_dropin_exists() ) {
             return __( 'Drop-in not installed', 'redis-cache' );
         }
 
@@ -575,7 +575,7 @@ class Plugin {
             return;
         }
 
-        if ( $this->object_cache_dropin_exists() ) {
+        if ( self::object_cache_dropin_exists() ) {
             $url = $this->action_link( 'update-dropin' );
 
             if ( $this->validate_object_cache_dropin() ) {

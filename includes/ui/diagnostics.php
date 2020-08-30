@@ -5,6 +5,8 @@
  * @package Rhubarb\RedisCache
  */
 
+use Rhubarb\RedisCache\Plugin;
+
 defined( '\\ABSPATH' ) || exit;
 
 global $wp_object_cache;
@@ -16,7 +18,7 @@ $disabled = defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED;
 
 $info['Status'] = $roc->get_status();
 $info['Client'] = $roc->get_redis_client_name();
-$info['Drop-in'] = $roc->object_cache_dropin_exists()
+$info['Drop-in'] = Plugin::object_cache_dropin_exists()
     ? ( $dropin ? 'Valid' : 'Invalid' )
     : 'Not installed';
 $info['Disabled'] = $disabled ? 'Yes' : 'No';
