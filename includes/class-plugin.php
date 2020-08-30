@@ -86,8 +86,8 @@ class Plugin {
 
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', [ $this, 'add_admin_menu_page' ] );
 
-        add_action( 'admin_notices', [ $this, 'show_admin_notices' ] );
-        add_action( 'network_admin_notices', [ $this, 'show_admin_notices' ] );
+        add_action( 'admin_notices', [ self::class, 'show_admin_notices' ] );
+        add_action( 'network_admin_notices', [ self::class, 'show_admin_notices' ] );
 
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_styles' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
@@ -556,7 +556,7 @@ class Plugin {
      *
      * @return void
      */
-    public function show_admin_notices() {
+    public static function show_admin_notices() {
         if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS ) {
             self::pro_notice();
             self::wc_pro_notice();
