@@ -104,8 +104,8 @@ class Plugin {
         add_filter( $links, [ self::class, 'add_plugin_actions_links' ] );
 
         add_action( 'wp_head', [ self::class, 'register_shutdown_hooks' ] );
-        add_action( 'shutdown', array( $this, 'record_metrics' ) );
-        add_action( 'rediscache_discard_metrics', array( $this, 'discard_metrics' ) );
+        add_action( 'shutdown', [ self::class, 'record_metrics' ] );
+        add_action( 'rediscache_discard_metrics', [ self::class, 'discard_metrics' ] );
 
         add_filter( 'qm/collectors', [ self::class, 'register_qm_collector' ], 25 );
         add_filter( 'qm/outputter/html', [ self::class, 'register_qm_output' ] );
@@ -841,7 +841,7 @@ class Plugin {
      *
      * @return void
      */
-    public function record_metrics() {
+    public static function record_metrics() {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
@@ -884,7 +884,7 @@ class Plugin {
      *
      * @return void
      */
-    public function discard_metrics() {
+    public static function discard_metrics() {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
