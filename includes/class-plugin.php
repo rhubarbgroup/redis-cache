@@ -80,7 +80,7 @@ class Plugin {
      * @return void
      */
     public function add_actions_and_filters() {
-        add_action( 'deactivate_plugin', [ $this, 'on_deactivation' ] );
+        add_action( 'deactivate_plugin', [ self::class, 'on_deactivation' ] );
         add_action( 'admin_init',[ self::class, 'maybe_update_dropin' ] );
         add_action( 'init', [ $this, 'init' ] );
 
@@ -1116,7 +1116,7 @@ class Plugin {
      * @param string $plugin Plugin basename.
      * @return void
      */
-    public function on_deactivation( $plugin ) {
+    public static function on_deactivation( $plugin ) {
         global $wp_filesystem;
 
         ob_start();
