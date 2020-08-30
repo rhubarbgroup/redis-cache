@@ -89,9 +89,9 @@ class Plugin {
         add_action( 'admin_notices', [ self::class, 'show_admin_notices' ] );
         add_action( 'network_admin_notices', [ self::class, 'show_admin_notices' ] );
 
-        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_styles' ] );
-        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
-        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_redis_metrics' ] );
+        add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue_admin_styles' ] );
+        add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue_admin_scripts' ] );
+        add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue_redis_metrics' ] );
 
         add_action( 'load-settings_page_redis-cache', [ self::class, 'do_admin_actions' ] );
 
@@ -232,7 +232,7 @@ class Plugin {
      *
      * @return void
      */
-    public function enqueue_admin_styles() {
+    public static function enqueue_admin_styles() {
         $screen = get_current_screen();
 
         if ( ! isset( $screen->id ) ) {
