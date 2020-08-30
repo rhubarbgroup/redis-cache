@@ -633,6 +633,7 @@ class Plugin {
                         /**
                          * Fires on cache enable event
                          *
+                         * @since 1.3.5
                          * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successfull.
                          */
                         do_action( 'redis_object_cache_enable', $result );
@@ -658,6 +659,7 @@ class Plugin {
                         /**
                          * Fires on cache enable event
                          *
+                         * @since 1.3.5
                          * @param bool $result Whether the filesystem event (deletion of the `object-cache.php` file) was successfull.
                          */
                         do_action( 'redis_object_cache_disable', $result );
@@ -688,6 +690,7 @@ class Plugin {
                         /**
                          * Fires on cache enable event
                          *
+                         * @since 1.3.5
                          * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successfull.
                          */
                         do_action( 'redis_object_cache_update_dropin', $result );
@@ -1083,6 +1086,7 @@ class Plugin {
             /**
              * Fires on cache enable event
              *
+             * @since 1.3.5
              * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successfull.
              */
             do_action( 'redis_object_cache_update_dropin', $result );

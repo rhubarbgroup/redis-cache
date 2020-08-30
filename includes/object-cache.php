@@ -957,6 +957,7 @@ class WP_Object_Cache {
                 /**
                  * Filters the cache expiration time
                  *
+                 * @since 1.4.2
                  * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
                  * @param string $key        The cache key.
                  * @param string $group      The cache group.
@@ -1060,6 +1061,7 @@ class WP_Object_Cache {
             /**
              * Fires on every cache key deletion
              *
+             * @since 1.3.3
              * @param string $key          The cache key.
              * @param string $group        The group value appended to the $key.
              * @param float  $execute_time Execution time for the request in seconds.
@@ -1146,6 +1148,7 @@ class WP_Object_Cache {
                 /**
                  * Fires on every cache flush
                  *
+                 * @since 1.3.5
                  * @param null|array $results      Array of flush results.
                  * @param int        $delay        Given number of seconds to waited before invalidating the items.
                  * @param bool       $seletive     Whether a selective flush took place.
@@ -1357,6 +1360,7 @@ LUA;
             /**
              * Fires on every cache get request
              *
+             * @since 1.2.2
              * @param mixed  $value        Value of the cache entry.
              * @param string $key          The cache key.
              * @param string $group        The group value appended to the $key.
@@ -1372,6 +1376,7 @@ LUA;
                 /**
                  * Filters the return value
                  *
+                 * @since 1.4.2
                  * @param mixed  $value Value of the cache entry.
                  * @param string $key   The cache key.
                  * @param string $group The group value appended to the $key.
@@ -1480,6 +1485,7 @@ LUA;
             /**
              * Fires on every cache get multiple request
              *
+             * @since 2.0.6
              * @param mixed  $value        Value of the cache entry.
              * @param string $key          The cache key.
              * @param string $group        The group value appended to the $key.
@@ -1495,6 +1501,7 @@ LUA;
                     /**
                      * Filters the return value
                      *
+                     * @since 1.4.2
                      * @param mixed  $value Value of the cache entry.
                      * @param string $key   The cache key.
                      * @param string $group The group value appended to the $key.
@@ -1533,6 +1540,7 @@ LUA;
             /**
              * Filters the cache expiration time
              *
+             * @since 1.4.2
              * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
              * @param string $key        The cache key.
              * @param string $group      The cache group.
@@ -1567,6 +1575,7 @@ LUA;
             /**
              * Fires on every cache set
              *
+             * @since 1.2.2
              * @param string $key          The cache key.
              * @param mixed  $value        Value of the cache entry.
              * @param string $group        The group value appended to the $key.
@@ -2093,6 +2102,7 @@ LUA;
             /**
              * Fires on every cache error
              *
+             * @since 1.5.0
              * @param \Exception $exception The exception triggered.
              */
             do_action( 'redis_object_cache_error', $exception );
