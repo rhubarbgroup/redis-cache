@@ -43,7 +43,7 @@ $diagnostics = $roc->get_diagnostics();
                     <?php esc_html_e( 'Outdated', 'redis-cache' ); ?>
                 <?php else : ?>
                     <?php
-                        $roc->validate_object_cache_dropin()
+                        Plugin::validate_object_cache_dropin()
                             ? esc_html_e( 'Valid', 'redis-cache' )
                             : esc_html_e( 'Invalid', 'redis-cache' );
                     ?>
@@ -242,7 +242,7 @@ $diagnostics = $roc->get_diagnostics();
         </a> &nbsp;
     <?php endif; ?>
 
-    <?php if ( $roc->validate_object_cache_dropin() ) : ?>
+    <?php if ( Plugin::validate_object_cache_dropin() ) : ?>
         <a href="<?php echo esc_attr( $roc->action_link( 'disable-cache' ) ); ?>" class="button button-secondary button-large">
             <?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?>
         </a>

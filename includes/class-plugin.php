@@ -410,7 +410,7 @@ class Plugin {
      *
      * @return bool
      */
-    public function validate_object_cache_dropin() {
+    public static function validate_object_cache_dropin() {
         if ( ! self::object_cache_dropin_exists() ) {
             return false;
         }
@@ -457,7 +457,7 @@ class Plugin {
             return __( 'Drop-in not installed', 'redis-cache' );
         }
 
-        if ( ! $this->validate_object_cache_dropin() ) {
+        if ( ! self::validate_object_cache_dropin() ) {
             return __( 'Drop-in is invalid', 'redis-cache' );
         }
 
@@ -482,7 +482,7 @@ class Plugin {
             return;
         }
 
-        if ( ! $this->validate_object_cache_dropin() ) {
+        if ( ! self::validate_object_cache_dropin() ) {
             return;
         }
 
@@ -506,7 +506,7 @@ class Plugin {
             return;
         }
 
-        if ( $this->validate_object_cache_dropin() && method_exists( $wp_object_cache, 'redis_version' ) ) {
+        if ( self::validate_object_cache_dropin() && method_exists( $wp_object_cache, 'redis_version' ) ) {
             return $wp_object_cache->redis_version();
         }
     }
@@ -536,7 +536,7 @@ class Plugin {
     public function get_diagnostics() {
         global $wp_object_cache;
 
-        if ( $this->validate_object_cache_dropin() && property_exists( $wp_object_cache, 'diagnostics' ) ) {
+        if ( self::validate_object_cache_dropin() && property_exists( $wp_object_cache, 'diagnostics' ) ) {
             return $wp_object_cache->diagnostics;
         }
     }
@@ -578,7 +578,7 @@ class Plugin {
         if ( self::object_cache_dropin_exists() ) {
             $url = $this->action_link( 'update-dropin' );
 
-            if ( $this->validate_object_cache_dropin() ) {
+            if ( self::validate_object_cache_dropin() ) {
                 if ( $this->object_cache_dropin_outdated() ) {
                     // translators: %s = Action link to update the drop-in.
                     $message = sprintf( __( 'The Redis object cache drop-in is outdated. Please <a href="%s">update the drop-in</a>.', 'redis-cache' ), $url );
@@ -1097,7 +1097,7 @@ class Plugin {
     public function update_dropin() {
         global $wp_filesystem;
 
-        if ( ! $this->validate_object_cache_dropin() ) {
+        if ( ! self::validate_object_cache_dropin() ) {
             return;
         }
 
@@ -1139,7 +1139,7 @@ class Plugin {
 
             wp_cache_flush();
 
-            if ( $this->validate_object_cache_dropin() && self::initialize_filesystem( '', true ) ) {
+            if ( self::validate_object_cache_dropin() && self::initialize_filesystem( '', true ) ) {
                 $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
             }
         }

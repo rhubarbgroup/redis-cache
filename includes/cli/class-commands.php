@@ -52,9 +52,7 @@ class Commands extends WP_CLI_Command {
 
         if ( Plugin::object_cache_dropin_exists() ) {
 
-            $plugin = Plugin::instance();
-
-            if ( $plugin->validate_object_cache_dropin() ) {
+            if ( Plugin::validate_object_cache_dropin() ) {
                 WP_CLI::line( __( 'Redis object cache already enabled.', 'redis-cache' ) );
             } else {
                 WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
@@ -93,15 +91,13 @@ class Commands extends WP_CLI_Command {
 
         global $wp_filesystem;
 
-        $plugin = Plugin::instance();
-
         if ( ! Plugin::object_cache_dropin_exists() ) {
 
             WP_CLI::error( __( 'No object cache drop-in found.', 'redis-cache' ) );
 
         } else {
 
-            if ( ! $plugin->validate_object_cache_dropin() ) {
+            if ( ! Plugin::validate_object_cache_dropin() ) {
 
                 WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
 
