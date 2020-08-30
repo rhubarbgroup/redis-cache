@@ -154,7 +154,7 @@ class Plugin {
             foreach ( self::$actions as $name ) {
                 // Nonce verification.
                 if ( $action === $name && wp_verify_nonce( $nonce, $action ) ) {
-                    $url = $this->action_link( $action );
+                    $url = self::action_link( $action );
 
                     if ( self::initialize_filesystem( $url ) === false ) {
                         return; // Request filesystem credentials.
@@ -568,7 +568,7 @@ class Plugin {
         }
 
         if ( self::object_cache_dropin_exists() ) {
-            $url = $this->action_link( 'update-dropin' );
+            $url = self::action_link( 'update-dropin' );
 
             if ( self::validate_object_cache_dropin() ) {
                 if ( self::object_cache_dropin_outdated() ) {
@@ -606,7 +606,6 @@ class Plugin {
             }
 
             if ( in_array( $action, self::$actions, true ) ) {
-                $url = $this->action_link( $action );
 
                 if ( $action === 'flush-cache' ) {
                     wp_cache_flush()
@@ -625,7 +624,7 @@ class Plugin {
                 }
 
                 // do we have filesystem credentials?
-                if ( self::initialize_filesystem( $url, true ) ) {
+                if ( self::initialize_filesystem( self::action_link( $action ), true ) ) {
 
                     if ( $action === 'enable-cache' ) {
                         $result = $wp_filesystem->copy(
@@ -1145,7 +1144,7 @@ class Plugin {
      * @param string $action The action to be executed once the link is followed.
      * @return string
      */
-    public function action_link( $action ) {
+    public static function action_link( $action ) {
         if ( ! in_array( $action, self::$actions, true ) ) {
             return '';
         }
