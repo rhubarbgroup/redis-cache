@@ -115,8 +115,8 @@ class Plugin {
         add_action( 'shutdown', [ $this, 'record_metrics' ] );
         add_action( 'rediscache_discard_metrics', [ $this, 'discard_metrics' ] );
 
-        add_filter( 'qm/collectors', [ $this, 'register_qm_collector' ], 25 );
-        add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
+        add_filter( 'qm/collectors', [ self::class, 'register_qm_collector' ], 25 );
+        add_filter( 'qm/outputter/html', array( $this, 'register_qm_output' ) );
     }
 
     /**
@@ -371,7 +371,7 @@ class Plugin {
      * @param array $collectors Array of currently registered collectors.
      * @return array
      */
-    public function register_qm_collector( array $collectors ) {
+    public static function register_qm_collector( array $collectors ) {
         $collectors['cache'] = new QM_Collector();
 
         return $collectors;
