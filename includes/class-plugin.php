@@ -164,7 +164,7 @@ class Plugin {
                 if ( $action === $name && wp_verify_nonce( $nonce, $action ) ) {
                     $url = $this->action_link( $action );
 
-                    if ( $this->initialize_filesystem( $url ) === false ) {
+                    if ( self::initialize_filesystem( $url ) === false ) {
                         return; // Request filesystem credentials.
                     }
                 }
@@ -633,7 +633,7 @@ class Plugin {
                 }
 
                 // do we have filesystem credentials?
-                if ( $this->initialize_filesystem( $url, true ) ) {
+                if ( self::initialize_filesystem( $url, true ) ) {
 
                     if ( $action === 'enable-cache' ) {
                         $result = $wp_filesystem->copy(
@@ -1000,7 +1000,7 @@ class Plugin {
      * @param bool   $silent Wheather to ask the user for credentials if necessary or not.
      * @return bool
      */
-    public function initialize_filesystem( $url, $silent = false ) {
+    public static function initialize_filesystem( $url, $silent = false ) {
         if ( $silent ) {
             ob_start();
         }
@@ -1036,7 +1036,7 @@ class Plugin {
     public function test_filesystem_writing() {
         global $wp_filesystem;
 
-        if ( ! $this->initialize_filesystem( '', true ) ) {
+        if ( ! self::initialize_filesystem( '', true ) ) {
             return new WP_Error( 'fs', __( 'Could not initialize filesystem.', 'redis-cache' ) );
         }
 
@@ -1101,7 +1101,7 @@ class Plugin {
             return;
         }
 
-        if ( $this->initialize_filesystem( '', true ) ) {
+        if ( self::initialize_filesystem( '', true ) ) {
             $result = $wp_filesystem->copy(
                 WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
                 WP_CONTENT_DIR . '/object-cache.php',
@@ -1139,7 +1139,7 @@ class Plugin {
 
             wp_cache_flush();
 
-            if ( $this->validate_object_cache_dropin() && $this->initialize_filesystem( '', true ) ) {
+            if ( $this->validate_object_cache_dropin() && self::initialize_filesystem( '', true ) ) {
                 $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
             }
         }
