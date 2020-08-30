@@ -95,8 +95,8 @@ class Plugin {
 
         add_action( 'load-settings_page_redis-cache', [ self::class, 'do_admin_actions' ] );
 
-        add_action( 'wp_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
-        add_action( 'wp_network_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
+        add_action( 'wp_dashboard_setup', [ self::class, 'setup_dashboard_widget' ] );
+        add_action( 'wp_network_dashboard_setup', [ self::class, 'setup_dashboard_widget' ] );
 
         add_action( 'wp_ajax_roc_dismiss_notice', [ self::class, 'dismiss_notice' ] );
 
@@ -193,7 +193,7 @@ class Plugin {
      *
      * @return void
      */
-    public function setup_dashboard_widget() {
+    public static function setup_dashboard_widget() {
         if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
             return;
         }
