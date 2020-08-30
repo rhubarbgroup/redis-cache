@@ -310,7 +310,7 @@ class Plugin {
      *
      * @return void
      */
-    public function enqueue_redis_metrics() {
+    public static function enqueue_redis_metrics() {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
