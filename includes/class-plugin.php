@@ -116,7 +116,7 @@ class Plugin {
         add_action( 'rediscache_discard_metrics', [ $this, 'discard_metrics' ] );
 
         add_filter( 'qm/collectors', [ self::class, 'register_qm_collector' ], 25 );
-        add_filter( 'qm/outputter/html', array( $this, 'register_qm_output' ) );
+        add_filter( 'qm/outputter/html', [ self::class, 'register_qm_output' ] );
     }
 
     /**
@@ -383,7 +383,7 @@ class Plugin {
      * @param array $output Array of current QM_Output handlers.
      * @return array
      */
-    public function register_qm_output( $output ) {
+    public static function register_qm_output( $output ) {
         $collector = \QM_Collectors::get( 'cache' );
 
         if (
