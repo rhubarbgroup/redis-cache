@@ -201,7 +201,7 @@ class Plugin {
         wp_add_dashboard_widget(
             'dashboard_rediscache',
             __( 'Redis Object Cache', 'redis-cache' ),
-            [ $this, 'show_dashboard_widget' ]
+            [ self::class, 'show_dashboard_widget' ]
         );
     }
 
@@ -210,7 +210,7 @@ class Plugin {
      *
      * @return void
      */
-    public function show_dashboard_widget() {
+    public static function show_dashboard_widget() {
         require_once WP_REDIS_PLUGIN_PATH . '/includes/ui/widget.php';
     }
 
