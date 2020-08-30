@@ -84,7 +84,7 @@ class Plugin {
         add_action( 'admin_init',[ self::class, 'maybe_update_dropin' ] );
         add_action( 'init', [ $this, 'init' ] );
 
-        add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', [ $this, 'add_admin_menu_page' ] );
+        add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', [ self::class, 'add_admin_menu_page' ] );
 
         add_action( 'admin_notices', [ self::class, 'show_admin_notices' ] );
         add_action( 'network_admin_notices', [ self::class, 'show_admin_notices' ] );
@@ -129,7 +129,7 @@ class Plugin {
      *
      * @return void
      */
-    public function add_admin_menu_page() {
+    public static function add_admin_menu_page() {
         add_submenu_page(
             is_multisite() ? 'settings.php' : 'options-general.php',
             __( 'Redis Object Cache', 'redis-cache' ),
