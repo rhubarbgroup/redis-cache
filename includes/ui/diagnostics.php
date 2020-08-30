@@ -12,7 +12,7 @@ defined( '\\ABSPATH' ) || exit;
 global $wp_object_cache;
 
 $info = [];
-$filesystem = $roc->test_filesystem_writing();
+$filesystem = Plugin::test_filesystem_writing();
 $dropin = Plugin::validate_object_cache_dropin();
 $disabled = defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED;
 

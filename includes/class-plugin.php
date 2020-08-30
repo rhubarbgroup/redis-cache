@@ -1024,7 +1024,7 @@ class Plugin {
      *
      * @return true|WP_Error
      */
-    public function test_filesystem_writing() {
+    public static function test_filesystem_writing() {
         global $wp_filesystem;
 
         if ( ! self::initialize_filesystem( '', true ) ) {
