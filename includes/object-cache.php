@@ -743,7 +743,8 @@ class WP_Object_Cache {
             $clients = $is_cluster ? WP_REDIS_CLUSTER : WP_REDIS_SERVERS;
 
             foreach ( $clients as $index => &$connection_string ) {
-                $url_components = wp_parse_url( $connection_string );
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+                $url_components = parse_url( $connection_string );
                 parse_str( $url_components['query'], $add_params );
 
                 if ( ! $is_cluster && isset( $add_params['alias'] ) ) {
