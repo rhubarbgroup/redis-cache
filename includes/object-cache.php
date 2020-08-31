@@ -762,6 +762,16 @@ class WP_Object_Cache {
 
             $this->redis = new Credis_Cluster( $clients );
 
+            foreach ( $clients as &$_client ) {
+                $connection_string = "{$_client['scheme']}://{$_client['host']}:{$_client['port']}";
+                unset( $_client['scheme'], $_client['host'], $_client['port'] );
+                $params = array_filter( $_client );
+                if ( $params ) {
+                    $connection_string .= '?' . http_build_query( $params, null, '&' );
+                }
+                $_client = $connection_string;
+            }
+
             $args['servers'] = $clients;
         } else {
             $args = [
