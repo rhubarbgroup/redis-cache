@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.13
 
 - Updated bundled Predis library to v1.1.4
 - Made `redis-cache` a global group for improved metrics on multisite
