@@ -12,7 +12,7 @@
     ],
     "require": {
         "composer/installers": "~1.0",
-        "mnsami/composer-custom-directory-installer": "1.1.*",
+        "mnsami/composer-custom-directory-installer": "^2.0",
         "predis/predis": "^1.1",
         "colinmollenhour/credis": "^1.11.1"
     },
