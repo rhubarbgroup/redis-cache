@@ -31,7 +31,7 @@ class Commands extends WP_CLI_Command {
      *     wp redis status
      */
     public function status() {
-        $plugin = Plugin::instance();
+        $roc = Plugin::instance();
 
         require_once __DIR__ . '/../ui/diagnostics.php';
     }
