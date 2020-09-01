@@ -745,6 +745,7 @@ class WP_Object_Cache {
             foreach ( $clients as $index => &$connection_string ) {
                 // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
                 $url_components = parse_url( $connection_string );
+
                 parse_str( $url_components['query'], $add_params );
 
                 if ( ! $is_cluster && isset( $add_params['alias'] ) ) {
@@ -765,10 +766,13 @@ class WP_Object_Cache {
             foreach ( $clients as &$_client ) {
                 $connection_string = "{$_client['scheme']}://{$_client['host']}:{$_client['port']}";
                 unset( $_client['scheme'], $_client['host'], $_client['port'] );
+
                 $params = array_filter( $_client );
+
                 if ( $params ) {
                     $connection_string .= '?' . http_build_query( $params, null, '&' );
                 }
+
                 $_client = $connection_string;
             }
 
