@@ -88,7 +88,7 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 - Updated bundled Predis library to v1.1.4
 - Made `redis-cache` a global group for improved metrics on multisite
 - Switched to short array syntax
-- Added `@since` tags to all functions
+- Added `@since` tags to all hooks
 - Use `parse_url()` instead of `wp_parse_url()` in drop-in
 - Fixed plugin instance variable name in `wp redis status`
 
