@@ -61,9 +61,9 @@ class Plugin {
      *
      * @return void
      */
-    public function add_actions_and_filters() {
+    public static function add_actions_and_filters() {
         add_action( 'deactivate_plugin', [ self::class, 'on_deactivation' ] );
-        add_action( 'admin_init',[ self::class, 'maybe_update_dropin' ] );
+        add_action( 'admin_init', [ self::class, 'maybe_update_dropin' ] );
         add_action( 'init', [ $this, 'init' ] );
 
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', [ self::class, 'add_admin_menu_page' ] );
