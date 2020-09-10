@@ -285,6 +285,13 @@ class WP_Object_Cache {
     public $cache = [];
 
     /**
+     * Holds cache key to redis key map
+     *
+     * @var array
+     */
+    public $keys = [];
+
+    /**
      * Holds the diagnostics values.
      *
      * @var array
@@ -1775,15 +1782,21 @@ LUA;
             $group = 'default';
         }
 
-        $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
-        $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
+        $key_index = "{$key}:{$group}";
 
-        $key = $this->sanitize_key_part( $key );
-        $group = $this->sanitize_key_part( $group );
+        if ( ! isset( $this->keys[ $key_index ] ) ) {
+            $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
+            $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
 
-        $prefix = trim( $prefix, '_-:$' );
+            $key = $this->sanitize_key_part( $key );
+            $group = $this->sanitize_key_part( $group );
 
-        return "{$salt}{$prefix}:{$group}:{$key}";
+            $prefix = trim( $prefix, '_-:$' );
+
+            $this->keys[ $key_index ] = "{$salt}{$prefix}:{$group}:{$key}";
+        }
+
+        return $this->keys[ $key_index ];
     }
 
     /**
