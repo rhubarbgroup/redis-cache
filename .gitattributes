@@ -1,3 +1,5 @@
+* text=auto eol=lf
+
 dependencies/* linguist-vendored
 includes/ui/* linguist-language=HTML+PHP
 
