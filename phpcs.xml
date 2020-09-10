@@ -4,13 +4,20 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
     <description>Coding standards</description>
-    <exclude-pattern>*/vendor/*</exclude-pattern>
-    <exclude-pattern>*/dependencies/*</exclude-pattern>
-    <exclude-pattern>/docker/*</exclude-pattern>
+
+    <!-- File pattern definitions -->
+    <file>.</file>
+    <exclude-pattern>/vendor/</exclude-pattern>
+    <exclude-pattern>/dependencies/</exclude-pattern>
+    <exclude-pattern>/docker/</exclude-pattern>
+    <arg name="extensions" value="php" />
+    <arg name="basepath" value="./" /><!-- Strip the file paths down to the relevant bit -->
+
+    <arg name="colors" />
+	<arg name="parallel" value="8" /><!-- Enables parallel processing when available for faster results. -->
+
     <config name="testVersion" value="5.6-" />
-    <rule ref="PHPCompatibilityWP">
-        <include-pattern>*\.php$</include-pattern>
-    </rule>
+    <rule ref="PHPCompatibilityWP" />
     <rule ref="WordPress">
         <exclude name="WordPress.PHP.DisallowShortTernary" />
         <exclude name="WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys" />
@@ -19,6 +26,17 @@
         <exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned" />
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
         <exclude name="WordPress.PHP.YodaConditions.NotYoda" />
+        <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound" />
+    </rule>
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array" value="redis_object_cache" />
+		</properties>
+	</rule>
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array" value="redis-cache" />
+		</properties>
     </rule>
     <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
 </ruleset>
