@@ -285,13 +285,6 @@ class WP_Object_Cache {
     public $cache = [];
 
     /**
-     * Holds cache key to redis key map
-     *
-     * @var array
-     */
-    public $keys = [];
-
-    /**
      * Holds the diagnostics values.
      *
      * @var array
