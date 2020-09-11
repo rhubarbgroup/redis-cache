@@ -74,7 +74,7 @@ defined( '\\ABSPATH' ) || exit;
 
                 <div class="card">
                     <h2 class="title">
-                        <?php esc_html_e( 'Object Cache Pro', 'redis-cache' ); ?>
+                        Object Cache Pro
                     </h2>
                     <p>
                         <?php wp_kses_post( __( '<strong>A business class object cache backend.</strong> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.', 'redis-cache' ) ); ?>
