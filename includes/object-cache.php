@@ -1778,13 +1778,15 @@ LUA;
      * @return  string
      */
     public function build_key( $key, $group = 'default' ) {
+        static $keys = [];
+
         if ( empty( $group ) ) {
             $group = 'default';
         }
 
         $key_index = "{$key}:{$group}";
 
-        if ( ! isset( $this->keys[ $key_index ] ) ) {
+        if ( ! isset( $keys[ $key_index ] ) ) {
             $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
             $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
 
@@ -1793,10 +1795,10 @@ LUA;
 
             $prefix = trim( $prefix, '_-:$' );
 
-            $this->keys[ $key_index ] = "{$salt}{$prefix}:{$group}:{$key}";
+            $keys[ $key_index ] = "{$salt}{$prefix}:{$group}:{$key}";
         }
 
-        return $this->keys[ $key_index ];
+        return $keys[ $key_index ];
     }
 
     /**
