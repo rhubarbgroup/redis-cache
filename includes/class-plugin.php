@@ -342,6 +342,7 @@ class Plugin {
             $min_time = $sceen->id === $this->screen
                 ? self::metrics_max_time()
                 : MINUTE_IN_SECONDS * 30;
+
             $metrics = $wp_object_cache->redis_instance()->zrangebyscore(
                 $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
                 time() - $min_time,
@@ -979,6 +980,7 @@ class Plugin {
         if ( defined( 'WP_REDIS_METRICS_MAX_TIME' ) ) {
             return intval( WP_REDIS_METRICS_MAX_TIME );
         }
+
         return HOUR_IN_SECONDS;
     }
 
