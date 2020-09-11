@@ -1771,8 +1771,16 @@ LUA;
      * @return  string
      */
     public function build_key( $key, $group = 'default' ) {
+        static $keys = [];
+
         if ( empty( $group ) ) {
             $group = 'default';
+        }
+
+        $key_index = "{$key}:{$group}";
+
+        if ( isset( $keys[ $key_index ] ) ) {
+            return $keys[ $key_index ];
         }
 
         $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
@@ -1783,7 +1791,7 @@ LUA;
 
         $prefix = trim( $prefix, '_-:$' );
 
-        return "{$salt}{$prefix}:{$group}:{$key}";
+        $keys[ $key_index ] = "{$salt}{$prefix}:{$group}:{$key}";
     }
 
     /**
