@@ -339,9 +339,12 @@ class Plugin {
         }
 
         try {
+            $min_time = $sceen->id === $this->screen
+                ? WP_REDIS_METRICS_MAX_TIME
+                : MINUTE_IN_SECONDS * 30;
             $metrics = $wp_object_cache->redis_instance()->zrangebyscore(
                 $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
-                time() - ( MINUTE_IN_SECONDS * 30 ),
+                time() - $min_time,
                 time() - MINUTE_IN_SECONDS,
                 [ 'withscores' => true ]
             );
@@ -899,7 +902,7 @@ class Plugin {
             $wp_object_cache->redis_instance()->zremrangebyscore(
                 $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
                 0,
-                time() - HOUR_IN_SECONDS
+                time() - WP_REDIS_METRICS_MAX_TIME
             );
         } catch ( Exception $exception ) {
             error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
