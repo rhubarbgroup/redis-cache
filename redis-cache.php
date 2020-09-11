@@ -28,8 +28,6 @@ $meta = get_file_data( WP_REDIS_FILE, [ 'Version' => 'Version' ] );
 
 define( 'WP_REDIS_VERSION', $meta['Version'] );
 
-defined( 'WP_REDIS_METRICS_MAX_TIME' ) || define( 'WP_REDIS_METRICS_MAX_TIME', HOUR_IN_SECONDS );
-
 require_once WP_REDIS_PLUGIN_PATH . '/includes/class-autoloader.php';
 
 $autoloader = new Rhubarb\RedisCache\Autoloader();
