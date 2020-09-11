@@ -2011,7 +2011,7 @@ LUA;
             return serialize( $data );
         }
 
-        if ( $this->is_serialized( $data, false ) ) {
+        if ( ! $this->is_serialized( $data, false ) ) {
             // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
             return serialize( $data );
         }
