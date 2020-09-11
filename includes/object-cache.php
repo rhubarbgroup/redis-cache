@@ -1791,7 +1791,7 @@ LUA;
 
         $prefix = trim( $prefix, '_-:$' );
 
-        $keys[ $key_index ] = "{$salt}{$prefix}:{$group}:{$key}";
+        return $keys[ $key_index ] = "{$salt}{$prefix}:{$group}:{$key}";
     }
 
     /**
