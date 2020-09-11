@@ -1779,19 +1779,19 @@ LUA;
 
         $key_index = "{$key}:{$group}";
 
-        if ( ! isset( $keys[ $key_index ] ) ) {
-            $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
-            $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
-
-            $key = $this->sanitize_key_part( $key );
-            $group = $this->sanitize_key_part( $group );
-
-            $prefix = trim( $prefix, '_-:$' );
-
-            $keys[ $key_index ] = "{$salt}{$prefix}:{$group}:{$key}";
+        if ( isset( $keys[ $key_index ] ) ) {
+            return $keys[ $key_index ];
         }
 
-        return $keys[ $key_index ];
+        $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
+        $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
+
+        $key = $this->sanitize_key_part( $key );
+        $group = $this->sanitize_key_part( $group );
+
+        $prefix = trim( $prefix, '_-:$' );
+
+        $keys[ $key_index ] = "{$salt}{$prefix}:{$group}:{$key}";
     }
 
     /**
