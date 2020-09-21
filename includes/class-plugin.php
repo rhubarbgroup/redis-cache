@@ -69,7 +69,6 @@ class Plugin {
     private function __construct() {
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-        load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
         register_activation_hook( WP_REDIS_FILE, 'wp_cache_flush' );
 
         if ( is_multisite() ) {
@@ -95,6 +94,7 @@ class Plugin {
     public function add_actions_and_filters() {
         add_action( 'deactivate_plugin', [ $this, 'on_deactivation' ] );
         add_action( 'admin_init', [ $this, 'maybe_update_dropin' ] );
+        add_action( 'init', [ $this, 'init_translation' ] );
 
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', [ $this, 'add_admin_menu_page' ] );
 
@@ -121,6 +121,15 @@ class Plugin {
 
         add_filter( 'qm/collectors', [ $this, 'register_qm_collector' ], 25 );
         add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
+    }
+
+    /**
+     * Initializes the plugin textdomain
+     *
+     * @return void
+     */
+    public function init_translation() {
+        load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
     }
 
     /**
