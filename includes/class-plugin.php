@@ -339,7 +339,7 @@ class Plugin {
         }
 
         try {
-            $min_time = $sceen->id === $this->screen
+            $min_time = $screen->id === $this->screen
                 ? self::metrics_max_time()
                 : MINUTE_IN_SECONDS * 30;
 
