@@ -80,10 +80,6 @@ class Plugin {
         }
 
         $this->add_actions_and_filters();
-
-        if ( is_admin() && ! wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
-            wp_schedule_event( time(), 'hourly', 'rediscache_discard_metrics' );
-        }
     }
 
     /**
@@ -94,7 +90,7 @@ class Plugin {
     public function add_actions_and_filters() {
         add_action( 'deactivate_plugin', [ $this, 'on_deactivation' ] );
         add_action( 'admin_init', [ $this, 'maybe_update_dropin' ] );
-        add_action( 'init', [ $this, 'init_translation' ] );
+        add_action( 'init', [ $this, 'init' ] );
 
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', [ $this, 'add_admin_menu_page' ] );
 
@@ -124,12 +120,16 @@ class Plugin {
     }
 
     /**
-     * Initializes the plugin textdomain
+     * Callback of the `init` hook.
      *
      * @return void
      */
-    public function init_translation() {
+    public function init() {
         load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
+        
+        if ( is_admin() && ! wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
+            wp_schedule_event( time(), 'hourly', 'rediscache_discard_metrics' );
+        }
     }
 
     /**
