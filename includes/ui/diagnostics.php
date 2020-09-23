@@ -84,6 +84,7 @@ $constants = [
     'WP_REDIS_GLOBAL_GROUPS',
     'WP_REDIS_IGNORED_GROUPS',
     'WP_REDIS_UNFLUSHABLE_GROUPS',
+    'WP_REDIS_METRICS_MAX_TIME',
 ];
 
 foreach ( $constants as $constant ) {
