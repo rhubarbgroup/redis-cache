@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, caching, cache, object cache,
 Requires at least: 3.3
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 2.0.13
+Stable tag: 2.0.14
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,17 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.14 =
+
+- Made Object Cache Pro card translatable
+- Added `WP_REDIS_SERIALIZER` to diagnostics
+- Improved speed of `build_key()`
+- Support settings `WP_REDIS_PREFIX` and `WP_REDIS_SELECTIVE_FLUSH` via environment variable
+- Added `WP_REDIS_METRICS_MAX_TIME` to adjust stored metrics timeframe
+- Delay loading of text domain and schedule until `init` hook
+- Upgraded bundled Predis library to v1.1.6
+- Prevent variable referencing issue in `connect_using_credis()`
 
 = 2.0.13 =
 
@@ -459,6 +470,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.13 =
+= 2.0.14 =
 
 Version 2.0 is a significant rewrite of the plugin. Please read the v2.0.0 release notes.
