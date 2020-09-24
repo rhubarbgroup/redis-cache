@@ -152,6 +152,14 @@ function wp_cache_incr( $key, $offset = 1, $group = '' ) {
 function wp_cache_init() {
     global $wp_object_cache;
 
+    if ( ! defined( 'WP_REDIS_PREFIX' ) && getenv( 'WP_REDIS_PREFIX' ) ) {
+        define( 'WP_REDIS_PREFIX', getenv( 'WP_REDIS_PREFIX' ) );
+    }
+
+    if ( ! defined( 'WP_REDIS_SELECTIVE_FLUSH' ) && getenv( 'WP_REDIS_SELECTIVE_FLUSH' ) ) {
+        define( 'WP_REDIS_SELECTIVE_FLUSH', (bool) getenv( 'WP_REDIS_SELECTIVE_FLUSH' ) );
+    }
+
     // Backwards compatibility: map `WP_CACHE_KEY_SALT` constant to `WP_REDIS_PREFIX`.
     if ( defined( 'WP_CACHE_KEY_SALT' ) && ! defined( 'WP_REDIS_PREFIX' ) ) {
         define( 'WP_REDIS_PREFIX', WP_CACHE_KEY_SALT );
