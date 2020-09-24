@@ -152,13 +152,12 @@ function wp_cache_incr( $key, $offset = 1, $group = '' ) {
 function wp_cache_init() {
     global $wp_object_cache;
 
-    // Customizations: Spinup WP
-    if ( defined( 'SPINUPWP_CACHE_KEY_SALT' ) && ! defined( 'WP_REDIS_PREFIX' ) ) {
-        define( 'WP_REDIS_PREFIX', SPINUPWP_CACHE_KEY_SALT );
+    if ( ! defined( 'WP_REDIS_PREFIX' ) && getenv( 'WP_REDIS_PREFIX' ) ) {
+        define( 'WP_REDIS_PREFIX', getenv( 'WP_REDIS_PREFIX' ) );
     }
 
-    if ( getenv( 'SPINUPWP_CACHE_KEY_SALT' ) && ! defined( 'WP_REDIS_PREFIX' ) ) {
-        define( 'WP_REDIS_PREFIX', getenv( 'SPINUPWP_CACHE_KEY_SALT' ) );
+    if ( ! defined( 'WP_REDIS_SELECTIVE_FLUSH' ) && getenv( 'WP_REDIS_SELECTIVE_FLUSH' ) ) {
+        define( 'WP_REDIS_SELECTIVE_FLUSH', (bool) getenv( 'WP_REDIS_SELECTIVE_FLUSH' ) );
     }
 
     // Backwards compatibility: map `WP_CACHE_KEY_SALT` constant to `WP_REDIS_PREFIX`.
