@@ -5,14 +5,6 @@
     $.extend( rediscache, {
         metrics: {
             computed: null,
-            names: {
-                h: 'hits',
-                m: 'misses',
-                r: 'ratio',
-                b: 'bytes',
-                t: 'time',
-                c: 'calls',
-            },
         },
         chart: null,
         chart_defaults: {
@@ -228,24 +220,20 @@
         },
     } );
 
-    var compute_metrics = function ( raw_metrics, metric_names ) {
+    var compute_metrics = function ( raw_metrics ) {
         var metrics = {};
 
         // parse raw metrics in blocks of minutes
         for ( var entry in raw_metrics ) {
             var values = {};
-            var timestamp = raw_metrics[ entry ];
+            var timestamp = raw_metrics[ entry ].timestamp;
             var minute = ( timestamp - timestamp % 60 ) * 1000;
 
-            entry.split( ';' ).forEach(
-                function ( value ) {
-                    var metric = value.split( '=' );
-
-                    if ( metric_names[ metric[0] ] ) {
-                          values[ metric_names[ metric[0] ] ] = Number( metric[1] );
-                    }
+            for ( var key in raw_metrics[ entry ] ) {
+                if ( raw_metrics[ entry ].hasOwnProperty( key ) ) {
+                    values[ key ] = Number( raw_metrics[ entry ][ key ] );
                 }
-            );
+            }
 
             if ( ! metrics[ minute ] ) {
                 metrics[ minute ] = [];
@@ -263,16 +251,14 @@
 
             var medians = {};
 
-            for ( var key in metric_names ) {
-                var name = metric_names[ key ];
-
-                medians[ name ] = compute_median(
+            for ( var key in metrics[ entry ][0] ) {
+                medians[ key ] = compute_median(
                     metrics[ entry ].map(
                         function ( metric ) {
-                            return metric[ name ];
+                            return metric[ key ];
                         }
                     )
-                )
+                );
             }
 
             metrics[ entry ] = medians;
@@ -420,10 +406,7 @@
         $( window ).on( 'hashchange', show_current_tab );
 
         if ( $( '#widget-redis-stats' ).length ) {
-            rediscache.metrics.computed = compute_metrics(
-                root.rediscache_metrics,
-                rediscache.metrics.names
-            );
+            rediscache.metrics.computed = compute_metrics( root.rediscache_metrics );
 
             setup_charts();
             render_chart( 'time' );
