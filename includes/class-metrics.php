@@ -142,24 +142,6 @@ class Metrics {
     }
 
     /**
-     * Maps the properties to smaller identifiers
-     *
-     * @return array
-     */
-    private static function map() {
-        return [
-            'id' => 'i',
-            'hits' => 'h',
-            'misses' => 'm',
-            'ratio' => 'r',
-            'bytes' => 'b',
-            'time' => 't',
-            'calls' => 'c',
-            'timestamp' => 'ts',
-        ];
-    }
-
-    /**
      * Records metrics and adds them to redis
      *
      * @return void
