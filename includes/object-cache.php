@@ -1976,10 +1976,15 @@ LUA;
             return igbinary_unserialize( $original );
         }
 
-        // Don't attempt to unserialize data that wasn't serialized going in.
+        // Unserialize data that was serialized
         if ( $this->is_serialized( $original ) ) {
             // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
             $value = @unserialize( $original );
+
+            // Just in case the data was serialized twice
+            if ( is_string( $value ) && $this->is_serialized( $value ) ) {
+                $value = @unserialize( $original );
+            }
 
             return is_object( $value ) ? clone $value : $value;
         }
@@ -2006,10 +2011,11 @@ LUA;
             return igbinary_serialize( $data );
         }
 
+        // Don't serialize data that's already serialized
         if ( $this->is_serialized( $data, false ) ) {
             return $data;
         }
-        
+
         // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
         return serialize( $data );
     }
@@ -2068,6 +2074,7 @@ LUA;
                 return false;
             }
         }
+
         $token = $data[0];
 
         switch ( $token ) {
