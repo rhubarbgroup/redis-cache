@@ -2006,17 +2006,12 @@ LUA;
             return igbinary_serialize( $data );
         }
 
-        if ( is_array( $data ) || is_object( $data ) ) {
-            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-            return serialize( $data );
+        if ( $this->is_serialized( $data, false ) ) {
+            return $data;
         }
-
-        if ( ! $this->is_serialized( $data, false ) ) {
-            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-            return serialize( $data );
-        }
-
-        return $data;
+        
+        // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+        return serialize( $data );
     }
 
     /**
