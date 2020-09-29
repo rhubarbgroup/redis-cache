@@ -190,7 +190,8 @@ class Metrics {
         }
 
         $metrics = [];
-        $prefix = 'O:' . strlen( self::class ) . ':"' . self::class;
+        $prefix = sprintf( 'O:%d:"%s', strlen( self::class ), self::class );
+
         foreach ( $serialied_metrics as $serialized => $timestamp ) {
             // Compatibility: Ignore all non serialized entries as they were used by prior versions.
             if ( strpos( $serialized, $prefix ) !== 0 ) {
