@@ -71,24 +71,6 @@ class Metrics {
     public $timestamp;
 
     /**
-     * Constructor
-     */
-    public function collect() {
-        global $wp_object_cache;
-
-        $info = $wp_object_cache->info();
-
-        $this->id = substr( uniqid(), -7 );
-        $this->hits = $info->hits;
-        $this->misses = $info->misses;
-        $this->ratio = $info->ratio;
-        $this->bytes = $info->bytes;
-        $this->time = round( $info->time, 5 );
-        $this->calls = $info->calls;
-        $this->timestamp = time();
-    }
-
-    /**
      * Initializes the metrics collection
      *
      * @return void
@@ -125,6 +107,7 @@ class Metrics {
 
         return self::is_enabled()
             && Plugin::instance()->get_redis_status()
+            && method_exists( $wp_object_cache, 'info' )
             && method_exists( $wp_object_cache, 'redis_instance' );
     }
 
@@ -156,6 +139,24 @@ class Metrics {
         $metrics = new self();
         $metrics->collect();
         $metrics->save();
+    }
+
+    /**
+     * Collect metrics from object cache instance.
+     */
+    public function collect() {
+        global $wp_object_cache;
+
+        $info = $wp_object_cache->info();
+
+        $this->id = substr( uniqid(), -7 );
+        $this->hits = $info->hits;
+        $this->misses = $info->misses;
+        $this->ratio = $info->ratio;
+        $this->bytes = $info->bytes;
+        $this->time = round( $info->time, 5 );
+        $this->calls = $info->calls;
+        $this->timestamp = time();
     }
 
     /**
