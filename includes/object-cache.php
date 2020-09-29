@@ -1981,11 +1981,6 @@ LUA;
             // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
             $value = @unserialize( $original );
 
-            // Just in case the data was serialized twice
-            if ( is_string( $value ) && $this->is_serialized( $value ) ) {
-                $value = @unserialize( $original );
-            }
-
             return is_object( $value ) ? clone $value : $value;
         }
 
