@@ -79,7 +79,20 @@ class Plugin {
             $this->screen = 'settings_page_redis-cache';
         }
 
+        $this->run_migrations();
         $this->add_actions_and_filters();
+    }
+
+    /**
+     * Run migrations
+     *
+     * @return void
+     */
+    public function run_migrations() {
+        if ( WP_REDIS_VERSION === '2.0.16' && ! get_option( 'roc_migrated_2_0_16' ) ) {
+            wp_flush_cache();
+            update_option( 'roc_migrated_2_0_16', true, true );
+        }
     }
 
     /**
