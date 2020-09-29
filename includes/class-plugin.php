@@ -318,6 +318,10 @@ class Plugin {
      * @return void
      */
     public function enqueue_redis_metrics() {
+        if ( ! Metrics::is_active() ) {
+            return;
+        }
+
         $screen = get_current_screen();
 
         if ( ! isset( $screen->id ) ) {
