@@ -1779,19 +1779,31 @@ LUA;
      * @return  string
      */
     public function build_key( $key, $group = 'default' ) {
+        static $keys = [];
+
         if ( empty( $group ) ) {
             $group = 'default';
         }
 
-        $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
         $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
+
+        $key_index = "{$prefix}:{$group}:{$key}";
+
+        if ( isset( $keys[ $key_index ] ) ) {
+            return $keys[ $key_index ];
+        }
+
+        $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
 
         $key = $this->sanitize_key_part( $key );
         $group = $this->sanitize_key_part( $group );
 
         $prefix = trim( $prefix, '_-:$' );
 
-        return "{$salt}{$prefix}:{$group}:{$key}";
+        $built_key = "{$salt}{$prefix}:{$group}:{$key}";
+        $keys[ $key_index ] = $built_key;
+
+        return $built_key;
     }
 
     /**
