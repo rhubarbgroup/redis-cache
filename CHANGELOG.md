@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.15
+
+- Reverted `build_key()` changes due to issues in multisite environments
+
 ## 2.0.14
 
 - Made Object Cache Pro card translatable
