@@ -71,24 +71,6 @@ class Metrics {
     public $timestamp;
 
     /**
-     * Constructor
-     */
-    public function collect() {
-        global $wp_object_cache;
-
-        $info = $wp_object_cache->info();
-
-        $this->id = substr( uniqid(), -7 );
-        $this->hits = $info->hits;
-        $this->misses = $info->misses;
-        $this->ratio = $info->ratio;
-        $this->bytes = $info->bytes;
-        $this->time = round( $info->time, 5 );
-        $this->calls = $info->calls;
-        $this->timestamp = time();
-    }
-
-    /**
      * Initializes the metrics collection
      *
      * @return void
@@ -125,6 +107,7 @@ class Metrics {
 
         return self::is_enabled()
             && Plugin::instance()->get_redis_status()
+            && method_exists( $wp_object_cache, 'info' )
             && method_exists( $wp_object_cache, 'redis_instance' );
     }
 
@@ -159,6 +142,24 @@ class Metrics {
     }
 
     /**
+     * Collect metrics from object cache instance.
+     */
+    public function collect() {
+        global $wp_object_cache;
+
+        $info = $wp_object_cache->info();
+
+        $this->id = substr( uniqid(), -7 );
+        $this->hits = $info->hits;
+        $this->misses = $info->misses;
+        $this->ratio = $info->ratio;
+        $this->bytes = $info->bytes;
+        $this->time = round( $info->time, 5 );
+        $this->calls = $info->calls;
+        $this->timestamp = time();
+    }
+
+    /**
      * Retrieves metrics from redis
      *
      * @param int $seconds Number of seconds of the oldest entry to retrieve.
@@ -183,17 +184,21 @@ class Metrics {
                 [ 'withscores' => true ]
             );
         } catch ( Exception $exception ) {
-            error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( $exception );
+
             return [];
         }
 
         $metrics = [];
-        $prefix = 'O:' . strlen( self::class ) . ':"' . self::class;
+        $prefix = sprintf( 'O:%d:"%s', strlen( self::class ), self::class );
+
         foreach ( $serialied_metrics as $serialized => $timestamp ) {
             // Compatibility: Ignore all non serialized entries as they were used by prior versions.
-            if ( 0 !== strpos( $serialized, $prefix ) ) {
+            if ( strpos( $serialized, $prefix ) !== 0 ) {
                 continue;
             }
+
             // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
             $metrics[] = unserialize( $serialized );
         }
@@ -217,7 +222,8 @@ class Metrics {
                 serialize( $this )
             );
         } catch ( Exception $exception ) {
-            error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( $exception );
         }
     }
 
@@ -240,7 +246,8 @@ class Metrics {
                 time() - self::max_time()
             );
         } catch ( Exception $exception ) {
-            error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( $exception );
         }
     }
 
