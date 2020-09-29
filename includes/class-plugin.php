@@ -64,7 +64,7 @@ class Plugin {
     public static function add_actions_and_filters() {
         add_action( 'deactivate_plugin', [ self::class, 'on_deactivation' ] );
         add_action( 'admin_init', [ self::class, 'maybe_update_dropin' ] );
-        add_action( 'init', [ $this, 'init' ] );
+        add_action( 'init', [ self::class, 'wp_init' ] );
 
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', [ self::class, 'add_admin_menu_page' ] );
 
@@ -98,9 +98,9 @@ class Plugin {
      *
      * @return void
      */
-    public function init() {
+    public static function wp_init() {
         load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
-        
+
         if ( is_admin() && ! wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
             wp_schedule_event( time(), 'hourly', 'rediscache_discard_metrics' );
         }
