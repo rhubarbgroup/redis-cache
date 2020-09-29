@@ -1142,7 +1142,7 @@ class Plugin {
      *
      * @return string
      */
-    private static function page() {
+    public static function page() {
         if ( ! self::$page ) {
             self::$page = is_multisite()
                 ? 'settings.php?page=redis-cache'
@@ -1156,7 +1156,7 @@ class Plugin {
      *
      * @return string
      */
-    private static function screen() {
+    public static function screen() {
         if ( ! self::$screen ) {
             self::$screen = is_multisite()
                 ? 'settings_page_redis-cache-network'
