@@ -85,6 +85,7 @@ $constants = [
     'WP_REDIS_IGNORED_GROUPS',
     'WP_REDIS_UNFLUSHABLE_GROUPS',
     'WP_REDIS_METRICS_MAX_TIME',
+    'WP_REDIS_SSL',
 ];
 
 foreach ( $constants as $constant ) {
