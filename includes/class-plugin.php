@@ -8,7 +8,6 @@
 namespace Rhubarb\RedisCache;
 
 use WP_Error;
-use Exception;
 
 defined( '\\ABSPATH' ) || exit;
 
@@ -79,6 +78,8 @@ class Plugin {
             $this->screen = 'settings_page_redis-cache';
         }
 
+        Metrics::init();
+
         $this->add_actions_and_filters();
     }
 
@@ -112,8 +113,6 @@ class Plugin {
         add_filter( $links, [ $this, 'add_plugin_actions_links' ] );
 
         add_action( 'wp_head', [ $this, 'register_shutdown_hooks' ] );
-        add_action( 'shutdown', [ $this, 'record_metrics' ] );
-        add_action( 'rediscache_discard_metrics', [ $this, 'discard_metrics' ] );
 
         add_filter( 'qm/collectors', [ $this, 'register_qm_collector' ], 25 );
         add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
@@ -126,7 +125,7 @@ class Plugin {
      */
     public function init() {
         load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
-        
+
         if ( is_admin() && ! wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
             wp_schedule_event( time(), 'hourly', 'rediscache_discard_metrics' );
         }
@@ -319,9 +318,7 @@ class Plugin {
      * @return void
      */
     public function enqueue_redis_metrics() {
-        global $wp_object_cache;
-
-        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
+        if ( ! Metrics::is_active() ) {
             return;
         }
 
@@ -343,26 +340,13 @@ class Plugin {
             true
         );
 
-        if ( ! method_exists( $wp_object_cache, 'redis_instance' ) ) {
-            return;
-        }
+        $min_time = $screen->id === $this->screen
+            ? Metrics::max_time()
+            : MINUTE_IN_SECONDS * 30;
 
-        try {
-            $min_time = $screen->id === $this->screen
-                ? self::metrics_max_time()
-                : MINUTE_IN_SECONDS * 30;
+        $metrics = Metrics::get( $min_time );
 
-            $metrics = $wp_object_cache->redis_instance()->zrangebyscore(
-                $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
-                time() - $min_time,
-                time() - MINUTE_IN_SECONDS,
-                [ 'withscores' => true ]
-            );
-
-            wp_localize_script( 'redis-cache', 'rediscache_metrics', $metrics );
-        } catch ( Exception $exception ) {
-            error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-        }
+        wp_localize_script( 'redis-cache', 'rediscache_metrics', $metrics );
     }
 
     /**
@@ -846,80 +830,6 @@ class Plugin {
     }
 
     /**
-     * Adds the recorded metrics to redis
-     *
-     * @return void
-     */
-    public function record_metrics() {
-        global $wp_object_cache;
-
-        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
-            return;
-        }
-
-        if ( ! $this->get_redis_status() ) {
-            return;
-        }
-
-        if ( ! method_exists( $wp_object_cache, 'info' ) || ! method_exists( $wp_object_cache, 'redis_instance' ) ) {
-            return;
-        }
-
-        $info = $wp_object_cache->info();
-
-        $metrics = [
-            'i' => substr( uniqid(), -7 ),
-            'h' => $info->hits,
-            'm' => $info->misses,
-            'r' => $info->ratio,
-            'b' => $info->bytes,
-            't' => number_format( $info->time, 5 ),
-            'c' => $info->calls,
-        ];
-
-        try {
-            $wp_object_cache->redis_instance()->zadd(
-                $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
-                time(),
-                http_build_query( $metrics, null, ';' )
-            );
-        } catch ( Exception $exception ) {
-            error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-        }
-    }
-
-    /**
-     * Removes recorded metrics after an hour
-     *
-     * @return void
-     */
-    public function discard_metrics() {
-        global $wp_object_cache;
-
-        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
-            return;
-        }
-
-        if ( ! $this->get_redis_status() ) {
-            return;
-        }
-
-        if ( ! method_exists( $wp_object_cache, 'redis_instance' ) ) {
-            return;
-        }
-
-        try {
-            $wp_object_cache->redis_instance()->zremrangebyscore(
-                $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
-                0,
-                time() - self::metrics_max_time()
-            );
-        } catch ( Exception $exception ) {
-            error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-        }
-    }
-
-    /**
      * Displays the redis cache html comment
      *
      * @return void
@@ -978,19 +888,6 @@ class Plugin {
             $message, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             esc_html( $debug )
         );
-    }
-
-    /**
-     * Retrieves metrix max time
-     *
-     * @return int
-     */
-    public static function metrics_max_time() {
-        if ( defined( 'WP_REDIS_METRICS_MAX_TIME' ) ) {
-            return intval( WP_REDIS_METRICS_MAX_TIME );
-        }
-
-        return HOUR_IN_SECONDS;
     }
 
     /**
