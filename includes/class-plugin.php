@@ -402,7 +402,7 @@ class Plugin {
         $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
         $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
 
-        return $dropin['PluginURI'] === $plugin['PluginURI'];
+        return apply_filters('redis_cache_validate_object_cache_dropin',$dropin['PluginURI'] === $plugin['PluginURI'],$dropin['PluginURI'], $plugin['PluginURI']);
     }
 
     /**
