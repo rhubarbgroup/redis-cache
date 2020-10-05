@@ -489,6 +489,7 @@ class WP_Object_Cache {
             'timeout' => 1,
             'read_timeout' => 1,
             'retry_interval' => null,
+            'ssl' => [],
         ];
 
         $settings = [
@@ -501,6 +502,7 @@ class WP_Object_Cache {
             'timeout',
             'read_timeout',
             'retry_interval',
+            'ssl'
         ];
 
         foreach ( $settings as $setting ) {
