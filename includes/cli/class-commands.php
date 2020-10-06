@@ -13,6 +13,7 @@ use WP_CLI_Command;
 use WP_Filesystem;
 
 use Rhubarb\RedisCache\Plugin;
+use Rhubarb\RedisCache\Status;
 
 defined( '\\ABSPATH' ) || exit;
 
