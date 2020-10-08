@@ -41,6 +41,23 @@ else
     ls -lah /redis-cache/docker | grep 'apf.php'
 fi
 
+## Create phpinfo file
+info "Creating info.php file displaying phpinfo"
+echo "<?php phpinfo();" > "/$WP_DIR/info.php"
+
+## Set development constants
+info "Setting wp-config.php development constants"
+chmod +w "/$WP_DIR/wp-config.php"
+
+wp config set WP_DEBUG true --raw
+wp config set SCRIPT_DEBUG true --raw
+wp config set WP_ENVIRONMENT_TYPE "local"
+
+wp config set DISALLOW_FILE_EDIT true --raw
+wp config set CONCATENATE_SCRIPTS false --raw
+
+chmod -w "/$WP_DIR/wp-config.php"
+
 ## Activates the newly copied plugin
 info "Activating plugin and enabling dropin"
 wp plugin install --activate \
