@@ -18,6 +18,7 @@ services:
             - '.:/redis-cache:ro'
         depends_on:
             - mariadb
+            - redis-master
         environment:
             MARIADB_HOST: mariadb
             MARIADB_PORT_NUMBER: 3306
