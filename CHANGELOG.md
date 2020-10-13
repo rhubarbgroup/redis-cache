@@ -4,6 +4,7 @@
 
 - Updated Credis to v1.11.3
 - Moved metrics into dedicated class
+- Use `WP_DEBUG_DISPLAY` (instead of `WP_DEBUG`) constant to display debug information
 
 ## 2.0.15
 
