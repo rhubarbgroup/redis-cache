@@ -401,7 +401,15 @@ class Plugin {
 
         $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
         $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
-
+        
+        /**
+         * Filters the drop-in validation state
+         *
+         * @since 2.0.16
+         * @param bool   $state      The validation state of the drop-in.
+         * @param string $dropin     The `PluginURI` of the drop-in.
+         * @param string $plugin     The `PluginURI` of the plugin.
+         */
         return apply_filters(
             'redis_cache_validate_dropin',
             $dropin['PluginURI'] === $plugin['PluginURI'],
