@@ -866,7 +866,7 @@ class Plugin {
             'https://wprediscache.com'
         );
 
-        if ( ! WP_DEBUG ) {
+        if ( ! WP_DEBUG_DISPLAY ) {
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             printf( "\n<!-- %s -->\n", $message );
 
