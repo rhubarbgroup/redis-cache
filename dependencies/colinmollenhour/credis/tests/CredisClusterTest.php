@@ -106,7 +106,11 @@ class CredisClusterTest extends CredisTestCommon
   }
   public function testDontHashForCodeCoverage()
   {
-    $this->assertInternalType('array',$this->cluster->info());
+    if (method_exists($this,'assertIsArray')){
+        $this->assertIsArray($this->cluster->info());
+    } else {
+        $this->assertInternalType('array',$this->cluster->info());
+    }
   }
   public function testByHash()
   {

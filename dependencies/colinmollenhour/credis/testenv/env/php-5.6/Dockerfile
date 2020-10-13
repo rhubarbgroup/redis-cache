@@ -10,7 +10,7 @@ RUN wget https://phar.phpunit.de/phpunit-${phpunit_verison}.phar && \
     mv phpunit-${phpunit_verison}.phar /usr/local/bin/phpunit
 
 # install php extension
-RUN yes '' | pecl install -f redis && \
+RUN yes '' | pecl install -f redis-4.3.0 && \
     docker-php-ext-enable redis
 
 # install redis server

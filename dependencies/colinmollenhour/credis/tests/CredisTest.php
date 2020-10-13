@@ -578,7 +578,7 @@ class CredisTest extends CredisTestCommon
       }
       catch(CredisException $e)
       {
-          $this->assertStringStartsWith('ERR invalid password', $e->getMessage());
+          $this->assertStringStartsWith('WRONGPASS invalid username-password pair', $e->getMessage());
           $this->credis->close();
       }
       $this->credis = new Credis_Client($this->redisConfig[4]['host'], $this->redisConfig[4]['port'], $this->redisConfig[4]['timeout'], false, 0);
@@ -592,7 +592,6 @@ class CredisTest extends CredisTestCommon
       catch(CredisException $e)
       {
           $this->assertStringStartsWith('NOAUTH Authentication required', $e->getMessage());
-
       }
       try
       {
@@ -600,7 +599,7 @@ class CredisTest extends CredisTestCommon
       }
       catch(CredisException $e)
       {
-          $this->assertStringStartsWith('ERR invalid password', $e->getMessage());
+          $this->assertStringStartsWith('WRONGPASS invalid username-password pair', $e->getMessage());
       }
       $this->assertTrue($this->credis->auth('thepassword'));
       $this->assertTrue($this->credis->set('key','value'));
@@ -632,44 +631,32 @@ class CredisTest extends CredisTestCommon
 
   public function testConnectionStrings()
   {
-      $this->credis->close();
       $this->credis = new Credis_Client('tcp://'.$this->redisConfig[0]['host'] . ':' . $this->redisConfig[0]['port']);
-      if ($this->useStandalone) {
-          $this->credis->forceStandalone();
-      }
       $this->assertEquals($this->credis->getHost(),$this->redisConfig[0]['host']);
       $this->assertEquals($this->credis->getPort(),$this->redisConfig[0]['port']);
       $this->credis = new Credis_Client('tcp://'.$this->redisConfig[0]['host']);
-      if ($this->useStandalone) {
-          $this->credis->forceStandalone();
-      }
-      $this->assertEquals($this->credis->getPort(),$this->redisConfig[0]['port']);
+      $this->assertEquals($this->credis->getPort(),6379);
       $this->credis = new Credis_Client('tcp://'.$this->redisConfig[0]['host'] . ':' . $this->redisConfig[0]['port'] . '/abc123');
-      if ($this->useStandalone) {
-          $this->credis->forceStandalone();
-      }
-      $this->assertEquals('abc123',$this->credis->getPersistence());
+      $this->assertEquals($this->credis->getPersistence(),'abc123');
+      $this->credis = new Credis_Client('tcp://'.$this->redisConfig[0]['host'],6380);
+      $this->assertEquals($this->credis->getPort(),6380);
+      $this->credis = new Credis_Client('tcp://'.$this->redisConfig[0]['host'],NULL,NULL,"abc123");
+      $this->assertEquals($this->credis->getPersistence(),'abc123');
   }
 
   public function testConnectionStringsTls()
   {
-      $this->credis->close();
       $this->credis = new Credis_Client('tls://'.$this->redisConfig[0]['host'] . ':' . $this->redisConfig[0]['port']);
-      if ($this->useStandalone) {
-          $this->credis->forceStandalone();
-      }
       $this->assertEquals($this->credis->getHost(),$this->redisConfig[0]['host']);
       $this->assertEquals($this->credis->getPort(),$this->redisConfig[0]['port']);
       $this->credis = new Credis_Client('tls://'.$this->redisConfig[0]['host']);
-      if ($this->useStandalone) {
-          $this->credis->forceStandalone();
-      }
-      $this->assertEquals($this->credis->getPort(),$this->redisConfig[0]['port']);
+      $this->assertEquals($this->credis->getPort(),6379);
       $this->credis = new Credis_Client('tls://'.$this->redisConfig[0]['host'] . ':' . $this->redisConfig[0]['port'] . '/abc123');
-      if ($this->useStandalone) {
-          $this->credis->forceStandalone();
-      }
-      $this->assertEquals('abc123',$this->credis->getPersistence());
+      $this->assertEquals($this->credis->getPersistence(),'abc123');
+      $this->credis = new Credis_Client('tls://'.$this->redisConfig[0]['host'],6380);
+      $this->assertEquals($this->credis->getPort(),6380);
+      $this->credis = new Credis_Client('tls://'.$this->redisConfig[0]['host'],NULL,NULL,"abc123");
+      $this->assertEquals($this->credis->getPersistence(),'abc123');
   }
 
   /**

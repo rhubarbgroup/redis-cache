@@ -326,8 +326,8 @@ class Credis_Client {
         $this->authPassword = $password;
         $this->selectedDb = (int)$db;
         $this->convertHost();
-        if ($this->scheme == 'tls') {
-            // PHP Redis extension doesn't work with TLS
+        // PHP Redis extension support TLS since 5.3.0
+        if ($this->scheme == 'tls' && !$this->standalone && version_compare(phpversion('redis'),'5.3.0','<')){
             $this->standalone = true;
         }
     }
@@ -423,8 +423,8 @@ class Credis_Client {
                     throw new CredisException('Invalid host format; expected '.$this->scheme.'://host[:port][/persistence_identifier]');
                 }
                 $this->host = $matches[1];
-                $this->port = (int) (isset($matches[3]) ? $matches[3] : 6379);
-                $this->persistent = isset($matches[5]) ? $matches[5] : '';
+                $this->port = (int) (isset($matches[3]) ? $matches[3] : $this->port);
+                $this->persistent = isset($matches[5]) ? $matches[5] : $this->persistent;
             } else {
                 $this->host = $matches[2];
                 $this->port = NULL;
@@ -1231,6 +1231,10 @@ class Credis_Client {
                       }
                     }
                     break;
+                case 'auth':
+                    if (is_bool($response) && $response === true){
+                        $this->redis->clearLastError();
+                    }
                 default:
                     $error = $this->redis->getLastError();
                     $this->redis->clearLastError();

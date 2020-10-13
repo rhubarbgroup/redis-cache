@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Updated Credis to v1.11.3
+
 ## 2.0.15
 
 - Reverted `build_key()` changes due to issues in multisite environments

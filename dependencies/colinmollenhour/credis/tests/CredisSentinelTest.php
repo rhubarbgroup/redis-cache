@@ -76,7 +76,11 @@ class CredisSentinelTest extends CredisTestCommon
   public function testMasters()
   {
       $masters = $this->sentinel->masters();
-      $this->assertInternalType('array',$masters);
+      if (method_exists($this,'assertIsArray')){
+        $this->assertIsArray($masters);
+      } else {
+        $this->assertInternalType('array',$masters);
+      }
       $this->assertCount(2,$masters);
       $this->assertArrayHasKey(0,$masters);
       $this->assertArrayHasKey(1,$masters);
@@ -95,7 +99,11 @@ class CredisSentinelTest extends CredisTestCommon
   public function testMaster()
   {
       $master = $this->sentinel->master($this->sentinelConfig->clustername);
-      $this->assertInternalType('array',$master);
+      if (method_exists($this,'assertIsArray')){
+        $this->assertIsArray($master);
+      } else {
+        $this->assertInternalType('array',$master);
+      }
       $this->assertArrayHasKey(1,$master);
       $this->assertArrayHasKey(5,$master);
       $this->assertEquals($this->sentinelConfig->clustername,$master[1]);
@@ -107,7 +115,11 @@ class CredisSentinelTest extends CredisTestCommon
   public function testSlaveClient()
   {
       $slaves = $this->sentinel->getSlaveClients($this->sentinelConfig->clustername);
-      $this->assertInternalType('array',$slaves);
+      if (method_exists($this,'assertIsArray')){
+        $this->assertIsArray($slaves);
+      } else {
+        $this->assertInternalType('array',$slaves);
+      }
       $this->assertCount(1,$slaves);
       foreach($slaves as $slave){
           $this->assertInstanceOf('Credis_Client',$slave);
@@ -118,14 +130,22 @@ class CredisSentinelTest extends CredisTestCommon
   public function testSlaves()
   {
       $slaves = $this->sentinel->slaves($this->sentinelConfig->clustername);
-      $this->assertInternalType('array',$slaves);
+      if (method_exists($this,'assertIsArray')){
+        $this->assertIsArray($slaves);
+      } else {
+        $this->assertInternalType('array',$slaves);
+      }
       $this->assertCount(1,$slaves);
       $this->assertArrayHasKey(0,$slaves);
       $this->assertArrayHasKey(5,$slaves[0]);
       $this->assertEquals(6385,$slaves[0][5]);
 
       $slaves = $this->sentinel->slaves('masterdown');
-      $this->assertInternalType('array',$slaves);
+      if (method_exists($this,'assertIsArray')){
+        $this->assertIsArray($slaves);
+      } else {
+        $this->assertInternalType('array',$slaves);
+      }
       $this->assertCount(0,$slaves);
 
       $this->setExpectedExceptionShim('CredisException','No such master with that name');
@@ -165,7 +185,11 @@ class CredisSentinelTest extends CredisTestCommon
   public function testGetMasterAddressByName()
   {
       $address = $this->sentinel->getMasterAddressByName($this->sentinelConfig->clustername);
-      $this->assertInternalType('array',$address);
+      if (method_exists($this,'assertIsArray')){
+        $this->assertIsArray($address);
+      } else {
+        $this->assertInternalType('array',$address);
+      }
       $this->assertCount(2,$address);
       $this->assertArrayHasKey(0,$address);
       $this->assertArrayHasKey(1,$address);
@@ -184,7 +208,7 @@ class CredisSentinelTest extends CredisTestCommon
       $host = 'localhost';
       $port = '123456';
 
-      $client = $this->createMockShim('\Credis_Client');
+      $client = $this->createMock('\Credis_Client');
       $sentinel = new Credis_Sentinel($client);
 
       $client->expects($this->once())->method('getHost')->willReturn($host);
