@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Updated Credis to v1.11.3
+- Moved metrics into dedicated class
 
 ## 2.0.15
 
