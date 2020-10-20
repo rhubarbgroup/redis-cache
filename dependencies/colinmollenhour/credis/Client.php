@@ -168,7 +168,7 @@ class CredisException extends Exception
  */
 class Credis_Client {
 
-    const VERSION          = '1.11.2';
+    const VERSION          = '1.11.4';
 
     const TYPE_STRING      = 'string';
     const TYPE_LIST        = 'list';

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Updated Credis to v1.11.3
+- Updated Credis to v1.11.4
 - Moved metrics into dedicated class
 - Added `redis_cache_validate_dropin` filter
 - Use `WP_DEBUG_DISPLAY` (instead of `WP_DEBUG`) constant to display debug information
