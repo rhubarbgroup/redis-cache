@@ -90,11 +90,8 @@ class Metrics {
      * @return bool
      */
     public static function is_enabled() {
-        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
-            return false;
-        }
-
-        return true;
+        return defined( 'WP_REDIS_DISABLE_METRICS' )
+            && WP_REDIS_DISABLE_METRICS;
     }
 
     /**

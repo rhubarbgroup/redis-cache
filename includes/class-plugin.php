@@ -318,7 +318,7 @@ class Plugin {
      * @return void
      */
     public function enqueue_redis_metrics() {
-        if ( ! Metrics::is_active() ) {
+        if ( ! Metrics::is_enabled() ) {
             return;
         }
 
@@ -401,7 +401,7 @@ class Plugin {
 
         $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
         $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
-        
+
         /**
          * Filters the drop-in validation state
          *
