@@ -586,7 +586,7 @@ class Plugin {
             }
 
             if ( isset( $message ) ) {
-                printf( '<div class="update-nag">%s</div>', wp_kses_post( $message ) );
+                printf( '<div class="update-nag notice notice-warning inline">%s</div>', wp_kses_post( $message ) );
             }
         }
     }
