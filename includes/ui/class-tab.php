@@ -132,7 +132,7 @@ class Tab {
     /**
      * Getter for tab custom data
      *
-     * @param $string $key Custom data key.
+     * @param string $key Custom data key.
      * @return mixed
      */
     public function custom( $key ) {
