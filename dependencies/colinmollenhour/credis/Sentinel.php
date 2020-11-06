@@ -200,17 +200,18 @@ class Credis_Sentinel
      * When $selectRandomSlave is true, only one random slave is passed.
      * When $selectRandomSlave is false, all clients are passed and hashing is applied in Credis_Cluster
      * When $writeOnly is false, the master server will also be used for read commands.
-     *
+     * When $masterOnly is true, only the master server will also be used for both read and write commands. $writeOnly will be ignored and forced to set to false.
      * @param string $name
      * @param int $db
      * @param int $replicas
      * @param bool $selectRandomSlave
      * @param bool $writeOnly
+     * @param bool $masterOnly
      * @return Credis_Cluster
      * @throws CredisException
      * @deprecated
      */
-    public function createCluster($name, $db=0, $replicas=128, $selectRandomSlave=true, $writeOnly=false)
+    public function createCluster($name, $db=0, $replicas=128, $selectRandomSlave=true, $writeOnly=false, $masterOnly=false)
     {
         $clients = array();
         $workingClients = array();
@@ -218,21 +219,25 @@ class Credis_Sentinel
         if(strstr($master[9],'s_down') || strstr($master[9],'disconnected')) {
             throw new CredisException('The master is down');
         }
-        $slaves = $this->slaves($name);
-        foreach($slaves as $slave){
-            if(!strstr($slave[9],'s_down') && !strstr($slave[9],'disconnected')) {
-                $workingClients[] =  array('host'=>$slave[3],'port'=>$slave[5],'master'=>false,'db'=>$db,'password'=>$this->_password);
-            }
-        }
-        if(count($workingClients)>0){
-            if($selectRandomSlave){
-                if(!$writeOnly){
-                    $workingClients[] = array('host'=>$master[3],'port'=>$master[5],'master'=>false,'db'=>$db,'password'=>$this->_password);
+        if (!$masterOnly) {
+            $slaves = $this->slaves($name);
+            foreach($slaves as $slave){
+                if(!strstr($slave[9],'s_down') && !strstr($slave[9],'disconnected')) {
+                    $workingClients[] =  array('host'=>$slave[3],'port'=>$slave[5],'master'=>false,'db'=>$db,'password'=>$this->_password);
                 }
-                $clients[] = $workingClients[rand(0,count($workingClients)-1)];
-            } else {
-                $clients = $workingClients;
             }
+            if(count($workingClients)>0){
+                if($selectRandomSlave){
+                    if(!$writeOnly){
+                        $workingClients[] = array('host'=>$master[3],'port'=>$master[5],'master'=>false,'db'=>$db,'password'=>$this->_password);
+                    }
+                    $clients[] = $workingClients[rand(0,count($workingClients)-1)];
+                } else {
+                    $clients = $workingClients;
+                }
+            }
+        } else {
+            $writeOnly = false;
         }
         $clients[] = array('host'=>$master[3],'port'=>$master[5], 'db'=>$db ,'master'=>true,'write_only'=>$writeOnly,'password'=>$this->_password);
         return new Credis_Cluster($clients,$replicas,$this->_standAlone);
@@ -245,13 +250,15 @@ class Credis_Sentinel
      * @param int $replicas
      * @param bool $selectRandomSlave
      * @param bool $writeOnly
+     * @param bool $masterOnly
      * @return Credis_Cluster
+     * @throws CredisException
      * @deprecated
      */
-    public function getCluster($name, $db=0, $replicas=128, $selectRandomSlave=true, $writeOnly=false)
+    public function getCluster($name, $db=0, $replicas=128, $selectRandomSlave=true, $writeOnly=false, $masterOnly=false)
     {
         if(!isset($this->_cluster[$name])){
-            $this->_cluster[$name] = $this->createCluster($name, $db, $replicas, $selectRandomSlave, $writeOnly);
+            $this->_cluster[$name] = $this->createCluster($name, $db, $replicas, $selectRandomSlave, $writeOnly, $masterOnly);
         }
         return $this->_cluster[$name];
     }
