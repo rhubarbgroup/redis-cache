@@ -7,6 +7,8 @@
 
 namespace Rhubarb\RedisCache;
 
+use Exception;
+
 defined( '\\ABSPATH' ) || exit;
 
 /**
@@ -180,7 +182,7 @@ class Metrics {
                 time() - MINUTE_IN_SECONDS,
                 [ 'withscores' => true ]
             );
-        } catch ( \Exception $exception ) {
+        } catch ( Exception $exception ) {
             // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             error_log( $exception );
 
@@ -218,7 +220,7 @@ class Metrics {
                 // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
                 serialize( $this )
             );
-        } catch ( \Exception $exception ) {
+        } catch ( Exception $exception ) {
             // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             error_log( $exception );
         }
@@ -242,7 +244,7 @@ class Metrics {
                 0,
                 time() - self::max_time()
             );
-        } catch ( \Exception $exception ) {
+        } catch ( Exception $exception ) {
             // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             error_log( $exception );
         }
