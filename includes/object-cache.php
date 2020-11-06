@@ -380,7 +380,7 @@ class WP_Object_Cache {
     /**
      * Track how long request took.
      *
-     * @var int
+     * @var float
      */
     public $cache_time = 0;
 
