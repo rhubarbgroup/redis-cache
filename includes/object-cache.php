@@ -12,7 +12,9 @@
  * @package Rhubarb\RedisCache
  */
 
-defined( '\\ABSPATH' ) || exit;
+if ( defined( '\\ABSPATH' ) ) {
+    exit;
+}
 
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact, Generic.WhiteSpace.ScopeIndent.Incorrect
 if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
@@ -777,8 +779,8 @@ class WP_Object_Cache {
 
                 $params = array_filter( $_client );
 
-                if ( $params ) {
-                    $connection_string .= '?' . http_build_query( $params, null, '&' );
+                if ( [] !== $params ) {
+                    $connection_string .= '?' . http_build_query( $params, '', '&' );
                 }
 
                 $clients[ $index ] = $connection_string;
@@ -790,7 +792,7 @@ class WP_Object_Cache {
                 'host' => $parameters['scheme'] === 'unix' ? $parameters['path'] : $parameters['host'],
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
-                'persistent' => null,
+                'persistent' => '',
                 'database' => $parameters['database'],
                 'password' => isset( $parameters['password'] ) ? $parameters['password'] : null,
             ];
@@ -1054,7 +1056,7 @@ class WP_Object_Cache {
      * @param   string $group      The group value appended to the $key.
      * @return  bool               Returns TRUE on success or FALSE on failure.
      */
-    public function delete( $key, $group = 'default' ) {
+    public function delete( $key, $group = 'default', $deprecated = false ) {
         $result = false;
         $derived_key = $this->build_key( $key, $group );
 
@@ -1424,7 +1426,7 @@ LUA;
      */
     public function get_multiple( $keys, $group = 'default', $force = false ) {
         if ( ! is_array( $keys ) ) {
-            return false;
+            return [];
         }
 
         $cache = [];
@@ -1484,6 +1486,7 @@ LUA;
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
+            $results = [];
             $cache = array_fill( 0, count( $derived_keys ) - 1, false );
         }
 
@@ -1900,7 +1903,7 @@ LUA;
             return false;
         }
 
-        $this->blog_prefix = $_blog_id;
+        $this->blog_prefix = (string) $_blog_id;
 
         return true;
     }

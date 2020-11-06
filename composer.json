@@ -27,5 +27,15 @@
             "dependencies/predis/predis": [ "predis/predis" ],
             "dependencies/colinmollenhour/credis": [ "colinmollenhour/credis" ]
         }
+    },
+    "scripts": {
+        "setup:phpstan": [
+            "mkdir php7-tools",
+            "@composer require --working-dir=php7-tools --dev szepeviktor/phpstan-wordpress php-stubs/wp-cli-stubs"
+        ],
+        "analyze": [
+            "sed -e 's#WP_Object_Cache#Redis_Pro_WP_Object_Cache#;s#class Redis_Pro_WP_Object_Cache#& extends WP_Object_Cache#' includes/object-cache.php >php7-tools/object-cache.php",
+            "php7-tools/vendor/bin/phpstan analyze"
+        ]
     }
 }

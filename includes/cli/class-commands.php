@@ -14,7 +14,9 @@ use WP_Filesystem;
 
 use Rhubarb\RedisCache\Plugin;
 
-defined( '\\ABSPATH' ) || exit;
+if ( defined( '\\ABSPATH' ) ) {
+    exit;
+}
 
 /**
  * Enables, disabled, updates, and checks the status of the Redis object cache.

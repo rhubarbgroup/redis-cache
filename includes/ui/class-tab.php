@@ -9,7 +9,9 @@ namespace Rhubarb\RedisCache\UI;
 
 use Rhubarb\RedisCache\Plugin;
 
-defined( '\\ABSPATH' ) || exit;
+if ( defined( '\\ABSPATH' ) ) {
+    exit;
+}
 
 /**
  * Tab class definition
