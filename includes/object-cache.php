@@ -511,7 +511,6 @@ class WP_Object_Cache {
             }
         }
 
-
         if ( isset( $parameters['password'] ) ) {
             $password = $parameters['password'];
 
