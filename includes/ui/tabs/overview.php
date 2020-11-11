@@ -5,11 +5,7 @@
  * @package Rhubarb\RedisCache
  */
 
-if ( defined( '\\ABSPATH' ) ) {
-    exit;
-}
-
-/** @var \Rhubarb\RedisCache\Plugin $roc */
+defined( '\\ABSPATH' ) || exit;
 
 $redis_client = $roc->get_redis_client_name();
 $redis_prefix = $roc->get_redis_prefix();

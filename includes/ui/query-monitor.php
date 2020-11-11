@@ -5,12 +5,7 @@
  * @package Rhubarb\RedisCache
  */
 
-if ( defined( '\\ABSPATH' ) ) {
-    exit;
-}
-
-/** @var \QM_Output_Html $this */
-/** @var array $data */
+defined( '\\ABSPATH' ) || exit;
 
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 echo $this->before_non_tabular_output();

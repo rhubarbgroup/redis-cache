@@ -5,9 +5,7 @@
  * @package Rhubarb\RedisCache
  */
 
-if ( defined( '\\ABSPATH' ) ) {
-    exit;
-}
+defined( '\\ABSPATH' ) || exit;
 
 ?>
 

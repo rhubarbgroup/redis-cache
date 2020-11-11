@@ -5,13 +5,9 @@
  * @package Rhubarb\RedisCache
  */
 
-if ( defined( '\\ABSPATH' ) ) {
-    exit;
-}
+defined( '\\ABSPATH' ) || exit;
 
 global $wp_object_cache;
-
-/** @var \Rhubarb\RedisCache\Plugin $roc */
 
 $info = [];
 $filesystem = $roc->test_filesystem_writing();

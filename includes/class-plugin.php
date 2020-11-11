@@ -9,9 +9,7 @@ namespace Rhubarb\RedisCache;
 
 use WP_Error;
 
-if ( defined( '\\ABSPATH' ) ) {
-    exit;
-}
+defined( '\\ABSPATH' ) || exit;
 
 /**
  * Main plugin class definition
@@ -478,15 +476,15 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
-            return null;
+            return;
         }
 
         if ( ! $this->validate_object_cache_dropin() ) {
-            return null;
+            return;
         }
 
         if ( ! method_exists( $wp_object_cache, 'redis_status' ) ) {
-            return null;
+            return;
         }
 
         return $wp_object_cache->redis_status();
@@ -502,7 +500,7 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
-            return null;
+            return;
         }
 
         if ( $this->validate_object_cache_dropin() && method_exists( $wp_object_cache, 'redis_version' ) ) {
@@ -525,8 +523,6 @@ class Plugin {
         if ( defined( 'WP_REDIS_CLIENT' ) ) {
             return WP_REDIS_CLIENT;
         }
-
-        return null;
     }
 
     /**
@@ -540,8 +536,6 @@ class Plugin {
         if ( $this->validate_object_cache_dropin() && property_exists( $wp_object_cache, 'diagnostics' ) ) {
             return $wp_object_cache->diagnostics;
         }
-
-        return null;
     }
 
     /**

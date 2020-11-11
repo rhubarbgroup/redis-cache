@@ -9,9 +9,7 @@ namespace Rhubarb\RedisCache\UI;
 
 use Rhubarb\RedisCache\Plugin;
 
-if ( defined( '\\ABSPATH' ) ) {
-    exit;
-}
+defined( '\\ABSPATH' ) || exit;
 
 /**
  * Tab class definition
@@ -134,7 +132,7 @@ class Tab {
     /**
      * Getter for tab custom data
      *
-     * @param string $key Custom data key.
+     * @param $string $key Custom data key.
      * @return mixed
      */
     public function custom( $key ) {

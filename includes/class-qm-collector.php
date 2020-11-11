@@ -9,9 +9,7 @@ namespace Rhubarb\RedisCache;
 
 use QM_Collector as Base_Collector;
 
-if ( defined( '\\ABSPATH' ) ) {
-    exit;
-}
+defined( '\\ABSPATH' ) || exit;
 
 /**
  * Query Monitor data collector class definition
