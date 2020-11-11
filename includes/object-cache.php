@@ -511,8 +511,13 @@ class WP_Object_Cache {
             }
         }
 
-        if ( isset( $parameters[ 'password' ] ) && $parameters[ 'password' ] === '' ) {
-            unset( $parameters[ 'password' ] );
+
+        if ( isset( $parameters['password'] ) ) {
+            $password = $parameters['password'];
+
+            if ( is_null( $password ) || $password === '' ) {
+                unset( $parameters['password'] );
+            }
         }
 
         return $parameters;
