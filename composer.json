@@ -20,12 +20,12 @@
     "require-dev": {
         "wp-coding-standards/wpcs": "^2.3",
         "phpcompatibility/phpcompatibility-wp": "^2.1",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0"
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0"
     },
     "extra": {
         "installer-paths": {
-            "dependencies/predis/predis": [ "predis/predis" ],
-            "dependencies/colinmollenhour/credis": [ "colinmollenhour/credis" ]
+            "dependencies/predis/predis": ["predis/predis"],
+            "dependencies/colinmollenhour/credis": ["colinmollenhour/credis"]
         }
     }
 }
