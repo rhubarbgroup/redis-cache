@@ -572,7 +572,7 @@ class Plugin {
             return;
         }
         
-        // Do not display the dropin message if redis is disabled.
+        // Do not display the dropin message if you want
         if (defined('WP_REDIS_DISABLE_DROPIN_BANNERS') && WP_REDIS_DISABLE_DROPIN_BANNERS) {
             return;
         }
