@@ -571,6 +571,11 @@ class Plugin {
         if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
             return;
         }
+        
+        // Do not display the dropin message if you want
+        if (defined('WP_REDIS_DISABLE_DROPIN_BANNERS') && WP_REDIS_DISABLE_DROPIN_BANNERS) {
+            return;
+        }
 
         if ( $this->object_cache_dropin_exists() ) {
             $url = $this->action_link( 'update-dropin' );
