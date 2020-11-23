@@ -573,7 +573,7 @@ class Plugin {
         }
         
         // Do not display the dropin message if you want
-        if (defined('WP_REDIS_DISABLE_DROPIN_BANNERS') && WP_REDIS_DISABLE_DROPIN_BANNERS) {
+        if ( defined( 'WP_REDIS_DISABLE_DROPIN_BANNERS' ) && WP_REDIS_DISABLE_DROPIN_BANNERS ) {
             return;
         }
 
