@@ -398,6 +398,10 @@ class Plugin {
         if ( ! $this->object_cache_dropin_exists() ) {
             return false;
         }
+        
+        if ( defined( 'WP_REDIS_DISABLE_DROPIN_MANAGE' ) && WP_REDIS_DISABLE_DROPIN_MANAGE ) {
+            return true;
+        } 
 
         $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
         $plugin = get_plugin_data( WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php' );
@@ -573,7 +577,7 @@ class Plugin {
         }
         
         // Do not display the dropin message if you want
-        if ( defined( 'WP_REDIS_DISABLE_DROPIN_BANNERS' ) && WP_REDIS_DISABLE_DROPIN_BANNERS ) {
+        if ( defined( 'WP_REDIS_DISABLE_DROPIN_MANAGE' ) && WP_REDIS_DISABLE_DROPIN_MANAGE ) {
             return;
         }
 
@@ -638,12 +642,16 @@ class Plugin {
                 if ( $this->initialize_filesystem( $url, true ) ) {
 
                     if ( $action === 'enable-cache' ) {
-                        $result = $wp_filesystem->copy(
-                            WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
-                            WP_CONTENT_DIR . '/object-cache.php',
-                            true,
-                            FS_CHMOD_FILE
-                        );
+                        if ( defined( 'WP_REDIS_DISABLE_DROPIN_MANAGE' ) && WP_REDIS_DISABLE_DROPIN_MANAGE ) {
+                            $result = true;
+                        } else {
+                            $result = $wp_filesystem->copy(
+                                WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
+                                WP_CONTENT_DIR . '/object-cache.php',
+                                true,
+                                FS_CHMOD_FILE
+                            );
+                        }
 
                         /**
                          * Fires on cache enable event
@@ -669,7 +677,11 @@ class Plugin {
                     }
 
                     if ( $action === 'disable-cache' ) {
-                        $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
+                        if ( defined( 'WP_REDIS_DISABLE_DROPIN_MANAGE' ) && WP_REDIS_DISABLE_DROPIN_MANAGE ) {
+                            $result = true;
+                        } else {
+                            $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
+                        }
 
                         /**
                          * Fires on cache enable event
@@ -695,12 +707,16 @@ class Plugin {
                     }
 
                     if ( $action === 'update-dropin' ) {
-                        $result = $wp_filesystem->copy(
-                            WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
-                            WP_CONTENT_DIR . '/object-cache.php',
-                            true,
-                            FS_CHMOD_FILE
-                        );
+                        if ( defined( 'WP_REDIS_DISABLE_DROPIN_MANAGE' ) && WP_REDIS_DISABLE_DROPIN_MANAGE ) {
+                            $result = true;
+                        } else {
+                            $result = $wp_filesystem->copy(
+                                WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
+                                WP_CONTENT_DIR . '/object-cache.php',
+                                true,
+                                FS_CHMOD_FILE
+                            );
+                        }
 
                         /**
                          * Fires on cache enable event
