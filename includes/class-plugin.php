@@ -576,7 +576,6 @@ class Plugin {
             return;
         }
         
-        // Do not display the dropin message if you want
         if ( defined( 'WP_REDIS_DISABLE_DROPIN_MANAGE' ) && WP_REDIS_DISABLE_DROPIN_MANAGE ) {
             return;
         }
