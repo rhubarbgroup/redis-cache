@@ -433,7 +433,7 @@ class Plugin {
         }
         
         if ( defined( 'WP_REDIS_DISABLE_DROPIN_MANAGE' ) && WP_REDIS_DISABLE_DROPIN_MANAGE ) {
-            return true;
+            return false;
         } 
 
         $dropin = get_plugin_data( WP_CONTENT_DIR . '/object-cache.php' );
