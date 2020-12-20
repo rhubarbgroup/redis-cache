@@ -1476,6 +1476,7 @@ LUA;
             $results = array_combine(
                 $remaining_keys,
                 $this->redis->mget( $remaining_ids )
+                    ?: array_fill( 0, count( $remaining_ids ), false )
             );
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
