@@ -8,6 +8,7 @@
 - Added `redis_cache_validate_dropin` filter
 - Use `WP_DEBUG_DISPLAY` (instead of `WP_DEBUG`) constant to display debug information
 - Fixed rare error in `wp_cache_get_multiple()`
+- Removed `intval()` usage
 
 ## 2.0.15
 

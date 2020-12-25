@@ -23,12 +23,12 @@ echo $this->before_non_tabular_output();
 
     <section>
         <h3><?php esc_html_e( 'Hits', 'redis-cache' ); ?></h3>
-        <p class="qm-ltr"><code><?php echo intval( $data['hits'] ); ?></code></p>
+        <p class="qm-ltr"><code><?php echo (int) $data['hits']; ?></code></p>
     </section>
 
     <section>
         <h3><?php esc_html_e( 'Misses', 'redis-cache' ); ?></h3>
-        <p class="qm-ltr"><code><?php echo intval( $data['misses'] ); ?></code></p>
+        <p class="qm-ltr"><code><?php echo (int) $data['misses']; ?></code></p>
     </section>
 
     <section>

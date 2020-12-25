@@ -584,7 +584,7 @@ class WP_Object_Cache {
 
             if ( isset( $parameters['database'] ) ) {
                 if ( ctype_digit( $parameters['database'] ) ) {
-                    $parameters['database'] = intval( $parameters['database'] );
+                    $parameters['database'] = (int) $parameters['database'];
                 }
 
                 $args['database'] = $parameters['database'];
@@ -843,7 +843,7 @@ class WP_Object_Cache {
 
         if ( isset( $parameters['database'] ) ) {
             if ( ctype_digit( $parameters['database'] ) ) {
-                $parameters['database'] = intval( $parameters['database'] );
+                $parameters['database'] = (int) $parameters['database'];
             }
 
             if ( $parameters['database'] ) {
@@ -1099,7 +1099,7 @@ class WP_Object_Cache {
      * @return  bool            Returns TRUE on success or FALSE on failure.
      */
     public function flush( $delay = 0 ) {
-        $delay = abs( intval( $delay ) );
+        $delay = abs( (int) $delay );
 
         if ( $delay ) {
             sleep( $delay );
@@ -1720,10 +1720,10 @@ LUA;
         <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
         <br />
         <strong>Cache Hits:</strong>
-        <?php echo intval( $this->cache_hits ); ?>
+        <?php echo (int) $this->cache_hits; ?>
         <br />
         <strong>Cache Misses:</strong>
-        <?php echo intval( $this->cache_misses ); ?>
+        <?php echo (int) $this->cache_misses; ?>
         <br />
         <strong>Cache Size:</strong>
         <?php echo number_format( strlen( serialize( $this->cache ) ) / 1024, 2 ); ?> kB

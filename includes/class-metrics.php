@@ -117,7 +117,7 @@ class Metrics {
      */
     public static function max_time() {
         if ( defined( 'WP_REDIS_METRICS_MAX_TIME' ) ) {
-            return intval( WP_REDIS_METRICS_MAX_TIME );
+            return (int) WP_REDIS_METRICS_MAX_TIME;
         }
 
         return HOUR_IN_SECONDS;
