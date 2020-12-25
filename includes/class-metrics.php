@@ -129,8 +129,6 @@ class Metrics {
      * @return void
      */
     public static function record() {
-        global $wp_object_cache;
-
         if ( ! self::is_active() ) {
             return;
         }
