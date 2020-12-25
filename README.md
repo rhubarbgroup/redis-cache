@@ -12,7 +12,7 @@ A **business class** Redis object cache backend. Truly reliable, highly optimize
 * 100% WordPress API compliant
 * Faster serialization and compression
 * Easy debugging & logging
-* Cache analytics and preloading
+* Cache prefetching and analytics
 * Fully unit tested (100% code coverage)
 * Secure connections with TLS
 * Health checks via WordPress & WP CLI

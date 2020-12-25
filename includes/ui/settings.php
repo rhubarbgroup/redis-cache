@@ -84,7 +84,7 @@ defined( '\\ABSPATH' ) || exit;
                         <li><?php esc_html_e( '100% WordPress API compliant', 'redis-cache' ); ?></li>
                         <li><?php esc_html_e( 'Faster serialization and compression', 'redis-cache' ); ?></li>
                         <li><?php esc_html_e( 'Easy debugging & logging', 'redis-cache' ); ?></li>
-                        <li><?php esc_html_e( 'Cache analytics and preloading', 'redis-cache' ); ?></li>
+                        <li><?php esc_html_e( 'Cache prefetching and analytics', 'redis-cache' ); ?></li>
                         <li><?php esc_html_e( 'Fully unit tested (100% code coverage)', 'redis-cache' ); ?></li>
                         <li><?php esc_html_e( 'Secure connections with TLS', 'redis-cache' ); ?></li>
                         <li><?php esc_html_e( 'Health checks via WordPress & WP CLI', 'redis-cache' ); ?></li>
