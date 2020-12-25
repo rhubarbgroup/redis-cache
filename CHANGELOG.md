@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.16
 
 - Updated Credis to v1.11.4
 - Fixed drop-in notice styling
