@@ -176,7 +176,7 @@ class Metrics {
         }
 
         try {
-            $serialied_metrics = $wp_object_cache->redis_instance()->zrangebyscore(
+            $raw_metrics = $wp_object_cache->redis_instance()->zrangebyscore(
                 $wp_object_cache->build_key( 'metrics', 'redis-cache' ),
                 time() - $seconds,
                 time() - MINUTE_IN_SECONDS,
@@ -192,7 +192,7 @@ class Metrics {
         $metrics = [];
         $prefix = sprintf( 'O:%d:"%s', strlen( self::class ), self::class );
 
-        foreach ( $serialied_metrics as $serialized => $timestamp ) {
+        foreach ( $raw_metrics as $serialized => $timestamp ) {
             // Compatibility: Ignore all non serialized entries as they were used by prior versions.
             if ( strpos( $serialized, $prefix ) !== 0 ) {
                 continue;
