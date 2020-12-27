@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.17
+
+- Code cleanup
+- Fixed missing metrics
+- Fixed filesystem test
+
 ## 2.0.16
 
 - Updated Credis to v1.11.4
