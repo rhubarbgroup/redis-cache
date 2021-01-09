@@ -93,7 +93,7 @@ class Metrics {
      */
     public static function is_enabled() {
         return ! defined( 'WP_REDIS_DISABLE_METRICS' )
-             || ! WP_REDIS_DISABLE_METRICS;
+            || ! WP_REDIS_DISABLE_METRICS;
     }
 
     /**
