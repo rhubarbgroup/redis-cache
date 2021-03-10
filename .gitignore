@@ -1,3 +1,4 @@
 /docker/apf.php
+/php-tools
 /vendor
 composer.lock
