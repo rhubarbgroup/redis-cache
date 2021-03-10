@@ -30,7 +30,7 @@
     },
     "scripts": {
         "setup:phpstan": [
-            "mkdir php7-tools",
+            "mkdir php-tools",
             "@composer require --working-dir=php-tools --dev szepeviktor/phpstan-wordpress php-stubs/wp-cli-stubs"
         ],
         "analyze": [
