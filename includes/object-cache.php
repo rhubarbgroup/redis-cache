@@ -339,6 +339,13 @@ class WP_Object_Cache {
     public $unflushable_groups = [];
 
     /**
+     * List of keys not saved to Redis.
+     *
+     * @var array
+     */
+    public $ignored_keys = [];
+
+    /**
      * List of groups not saved to Redis.
      *
      * @var array
@@ -406,6 +413,10 @@ class WP_Object_Cache {
         }
 
         $this->global_groups[] = 'redis-cache';
+
+        if ( defined( 'WP_REDIS_IGNORED_KEYS' ) && is_array( WP_REDIS_IGNORED_KEYS ) ) {
+            $this->ignored_keys = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_IGNORED_KEYS );
+        }
 
         if ( defined( 'WP_REDIS_IGNORED_GROUPS' ) && is_array( WP_REDIS_IGNORED_GROUPS ) ) {
             $this->ignored_groups = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_IGNORED_GROUPS );
@@ -964,6 +975,10 @@ class WP_Object_Cache {
             return false;
         }
 
+        if( $this->is_ignored_key( $key ) ) {
+            return false;
+        }
+
         $result = true;
         $derived_key = $this->build_key( $key, $group );
 
@@ -1051,7 +1066,12 @@ class WP_Object_Cache {
      * @return  bool               Returns TRUE on success or FALSE on failure.
      */
     public function delete( $key, $group = 'default' ) {
+        if( $this->is_ignored_key( $key ) ) {
+            return false;
+        }
+
         $result = false;
+
         $derived_key = $this->build_key( $key, $group );
 
         if ( isset( $this->cache[ $derived_key ] ) ) {
@@ -1333,6 +1353,10 @@ LUA;
      * @return  bool|mixed         Cached object value.
      */
     public function get( $key, $group = 'default', $force = false, &$found = null ) {
+        if( $this->is_ignored_key( $key ) ) {
+            return false;
+        }
+
         $derived_key = $this->build_key( $key, $group );
 
         if ( isset( $this->cache[ $derived_key ] ) && ! $force ) {
@@ -1432,6 +1456,10 @@ LUA;
 
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             foreach ( $keys as $key ) {
+                if( $this->is_ignored_key( $key ) ) {
+                    $cache[ $key ] = false;
+                    continue;
+                }
                 $cache[ $key ] = $this->get_from_internal_cache( $derived_keys[ $key ] );
                 $cache[ $key ] === false ? $this->cache_misses++ : $this->cache_hits++;
             }
@@ -1441,6 +1469,10 @@ LUA;
 
         if ( ! $force ) {
             foreach ( $keys as $key ) {
+                if( $this->is_ignored_key( $key ) ) {
+                    $cache[ $key ] = false;
+                    continue;
+                }
                 $value = $this->get_from_internal_cache( $derived_keys[ $key ] );
 
                 if ( $value === false ) {
@@ -1547,6 +1579,10 @@ LUA;
      * @return  bool               Returns TRUE on success or FALSE on failure.
      */
     public function set( $key, $value, $group = 'default', $expiration = 0 ) {
+        if( $this->is_ignored_key( $key ) ) {
+            return false;
+        }
+
         $result = true;
         $derived_key = $this->build_key( $key, $group );
 
@@ -1617,6 +1653,10 @@ LUA;
      * @return int|bool
      */
     public function increment( $key, $offset = 1, $group = 'default' ) {
+        if( $this->is_ignored_key( $key ) ) {
+            return false;
+        }
+
         $offset = (int) $offset;
         $derived_key = $this->build_key( $key, $group );
 
@@ -1671,6 +1711,10 @@ LUA;
      * @return int|bool
      */
     public function decrement( $key, $offset = 1, $group = 'default' ) {
+        if( $this->is_ignored_key( $key ) ) {
+            return false;
+        }
+
         $derived_key = $this->build_key( $key, $group );
         $offset = (int) $offset;
 
@@ -1754,6 +1798,9 @@ LUA;
             'bytes' => array_sum( $bytes ),
             'time' => $this->cache_time,
             'calls' => $this->cache_calls,
+            'keys' => (object) [
+                'non_persistent' => $this->ignored_keys
+            ],
             'groups' => (object) [
                 'global' => $this->global_groups,
                 'non_persistent' => $this->ignored_groups,
@@ -1799,6 +1846,16 @@ LUA;
      */
     protected function sanitize_key_part( $part ) {
         return str_replace( ':', '-', $part );
+    }
+
+    /**
+     * Checks if the given key is part the ignored key array
+     *
+     * @param string $key  Name of the key to check.
+     * @return bool
+     */
+    protected function is_ignored_key( $key ) {
+        return in_array( $this->sanitize_key_part( $key ), $this->ignored_keys, true );
     }
 
     /**
