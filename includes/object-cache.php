@@ -1499,6 +1499,8 @@ LUA;
             $derived_keys[ $key ] = $this->build_key( $key, $group );
         }
 
+        $trace_enabled = $this->trace_enabled();
+
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             $traceKV = [];
             foreach ( $keys as $key ) {
@@ -1506,10 +1508,14 @@ LUA;
                 $cache[ $key ] = $value;
                 if ($value === false) {
                     $this->cache_misses++;
-                    $traceKV[] = ["value" => null, "status" => $trace_flags | self::TRACE_FLAG_INTERNAL];
+                    if ( $trace_enabled ) {
+                        $traceKV[$key] = ["value" => null, "status" => $trace_flags | self::TRACE_FLAG_INTERNAL];
+                    }
                 } else {
                     $this->cache_hits++;
-                    $traceKV[] = ["value" => $value, "status" => $trace_flags | self::TRACE_FLAG_HIT | self::TRACE_FLAG_INTERNAL];
+                    if ( $trace_enabled ) {
+                        $traceKV[$key] = ["value" => $value, "status" => $trace_flags | self::TRACE_FLAG_HIT | self::TRACE_FLAG_INTERNAL];
+                    }
                 }
             }
 
@@ -1524,11 +1530,15 @@ LUA;
 
                 if ( $value === false ) {
                     $this->cache_misses++;
-                    $traceKV[] = ["value" => null, "status" => $trace_flags | self::TRACE_FLAG_INTERNAL];
+                    if ( $trace_enabled ) {
+                        $traceKV[$key] = ["value" => null, "status" => $trace_flags | self::TRACE_FLAG_INTERNAL];
+                    }
                 } else {
                     $cache[ $key ] = $value;
                     $this->cache_hits++;
-                    $traceKV[] = ["value" => $value, "status" => $trace_flags | self::TRACE_FLAG_HIT | self::TRACE_FLAG_INTERNAL];
+                    if ( $trace_enabled ) {
+                        $traceKV[$key] = ["value" => $value, "status" => $trace_flags | self::TRACE_FLAG_HIT | self::TRACE_FLAG_INTERNAL];
+                    }
                 }
             }
         }
@@ -1575,13 +1585,17 @@ LUA;
             if ( $value === null || $value === false ) {
                 $cache[ $key ] = false;
                 $this->cache_misses++;
-                $traceKV[] = ["value" => null, "status" => $trace_flags];
+                if ( $trace_enabled ) {
+                    $traceKV[$key] = ["value" => null, "status" => $trace_flags];
+                }
             } else {
                 $cache[ $key ] = $this->maybe_unserialize( $value );
                 $this->add_to_internal_cache( $derived_keys[ $key ], $cache[ $key ] );
 
                 $this->cache_hits++;
-                $traceKV[] = ["value" => $value, "status" => $trace_flags | self::TRACE_FLAG_HIT];
+                if ( $trace_enabled ) {
+                    $traceKV[$key] = ["value" => $value, "status" => $trace_flags | self::TRACE_FLAG_HIT];
+                }
             }
         }
 
@@ -2254,6 +2268,15 @@ LUA;
     }
 
     /**
+     * Returns whether tracing is enabled.
+     *
+     * @return bool
+     */
+    private function trace_enabled() {
+        return function_exists( 'do_action' ) && has_action( 'redis_object_cache_trace' );
+    }
+
+    /**
      * Invoke the `redis_object_cache_trace` hook.
      *
      * @param  string             $command
@@ -2263,7 +2286,7 @@ LUA;
      * @return void
      */
     private function trace_command ( $command, $group, $keyValues, $duration ) {
-        if ( !function_exists( 'do_action' ) ) {
+        if ( !$this->trace_enabled() ) {
             return;
         }
 
