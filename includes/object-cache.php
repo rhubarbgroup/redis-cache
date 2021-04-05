@@ -1068,7 +1068,7 @@ class WP_Object_Cache {
                         'value' => $value,
                         'status' => self::TRACE_FLAG_WRITE,
                     ],
-                ], microtime(true) - $start_time );
+                ], microtime( true ) - $start_time );
 
                 $this->cache_calls++;
                 $this->cache_time += $execute_time;
@@ -1408,7 +1408,7 @@ LUA;
                     'value' => $value,
                     'status' => $trace_flags | self::TRACE_FLAG_HIT | self::TRACE_FLAG_INTERNAL,
                 ],
-            ], microtime(true) - $start_time);
+            ], microtime( true ) - $start_time);
 
             return $value;
         } elseif ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
@@ -1420,7 +1420,7 @@ LUA;
                     'value' => null,
                     'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
                 ],
-            ], microtime(true) - $start_time );
+            ], microtime( true ) - $start_time );
 
             return false;
         }
@@ -1448,7 +1448,7 @@ LUA;
                     'value' => null,
                     'status' => $trace_flags,
                 ],
-            ], microtime(true) - $start_time );
+            ], microtime( true ) - $start_time );
             return false;
         } else {
             $found = true;
@@ -1463,7 +1463,7 @@ LUA;
                 'value' => $value,
                 'status' => $trace_flags | self::TRACE_FLAG_HIT,
             ],
-        ], microtime(true) - $start_time );
+        ], microtime( true ) - $start_time );
 
         if ( function_exists( 'do_action' ) ) {
             /**
@@ -1521,7 +1521,7 @@ LUA;
 
         $cache = [];
         $derived_keys = [];
-        $start_time = microtime(true);
+        $start_time = microtime( true );
 
         foreach ( $keys as $key ) {
             $derived_keys[ $key ] = $this->build_key( $key, $group );
@@ -1557,7 +1557,7 @@ LUA;
                 }
             }
 
-            $this->trace_command( 'mget', $group, $traceKV, microtime(true) - $start_time );
+            $this->trace_command( 'mget', $group, $traceKV, microtime( true ) - $start_time );
 
             return $cache;
         }
@@ -1599,7 +1599,7 @@ LUA;
         );
 
         if ( empty( $remaining_keys ) ) {
-            $this->trace_command( 'mget', $group, $traceKV, microtime(true) - $start_time );
+            $this->trace_command( 'mget', $group, $traceKV, microtime( true ) - $start_time );
 
             return $cache;
         }
@@ -1796,7 +1796,7 @@ LUA;
                     'value' => $value,
                     'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
                 ],
-            ], microtime(true) - $start_time );
+            ], microtime( true ) - $start_time );
 
             return $value;
         }
@@ -1864,7 +1864,7 @@ LUA;
                     'value' => $value,
                     'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
                 ],
-            ], microtime(true) - $start_time );
+            ], microtime( true ) - $start_time );
 
             return $value;
         }
