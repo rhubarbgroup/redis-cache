@@ -259,42 +259,42 @@ class WP_Object_Cache {
     /**
      * Operation pertains to internal cache, not Redis.
      *
-     * @since x.x.x
+     * @since 2.0.18
      * @var int
      */
     const TRACE_FLAG_INTERNAL = 1 << 0;
     /**
      * Operation resulted in a cache hit.
      *
-     * @since x.x.x
+     * @since 2.0.18
      * @var int
      */
     const TRACE_FLAG_HIT = 1 << 1;
     /**
      * Read operation.
      *
-     * @since x.x.x
+     * @since 2.0.18
      * @var int
      */
     const TRACE_FLAG_READ = 1 << 2;
     /**
      * Write operation.
      *
-     * @since x.x.x
+     * @since 2.0.18
      * @var int
      */
     const TRACE_FLAG_WRITE = 1 << 3;
     /**
      * Delete operation.
      *
-     * @since x.x.x
+     * @since 2.0.18
      * @var int
      */
     const TRACE_FLAG_DEL = 1 << 4;
     /**
      * Operation bypassed internal cache.
      *
-     * @since x.x.x
+     * @since 2.0.18
      * @var int
      */
     const TRACE_FLAG_REFRESH = 1 << 5;
