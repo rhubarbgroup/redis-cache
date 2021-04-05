@@ -1068,7 +1068,7 @@ class WP_Object_Cache {
                         'value' => $value,
                         'status' => self::TRACE_FLAG_WRITE,
                     ],
-                ], $this->elapsed( $start_time ) );
+                ], microtime(true) - $start_time );
 
                 $this->cache_calls++;
                 $this->cache_time += $execute_time;
@@ -1408,7 +1408,7 @@ LUA;
                     'value' => $value,
                     'status' => $trace_flags | self::TRACE_FLAG_HIT | self::TRACE_FLAG_INTERNAL,
                 ],
-            ], $this->elapsed($start_time));
+            ], microtime(true) - $start_time);
 
             return $value;
         } elseif ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
@@ -1420,7 +1420,7 @@ LUA;
                     'value' => null,
                     'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
                 ],
-            ], $this->elapsed( $start_time ) );
+            ], microtime(true) - $start_time );
 
             return false;
         }
@@ -1448,7 +1448,7 @@ LUA;
                     'value' => null,
                     'status' => $trace_flags,
                 ],
-            ], $this->elapsed( $start_time ) );
+            ], microtime(true) - $start_time );
             return false;
         } else {
             $found = true;
@@ -1463,7 +1463,7 @@ LUA;
                 'value' => $value,
                 'status' => $trace_flags | self::TRACE_FLAG_HIT,
             ],
-        ], $this->elapsed( $start_time ) );
+        ], microtime(true) - $start_time );
 
         if ( function_exists( 'do_action' ) ) {
             /**
@@ -1557,7 +1557,7 @@ LUA;
                 }
             }
 
-            $this->trace_command( 'mget', $group, $traceKV, $this->elapsed( $start_time ) );
+            $this->trace_command( 'mget', $group, $traceKV, microtime(true) - $start_time );
 
             return $cache;
         }
@@ -1599,7 +1599,7 @@ LUA;
         );
 
         if ( empty( $remaining_keys ) ) {
-            $this->trace_command( 'mget', $group, $traceKV, $this->elapsed( $start_time ) );
+            $this->trace_command( 'mget', $group, $traceKV, microtime(true) - $start_time );
 
             return $cache;
         }
@@ -1796,7 +1796,7 @@ LUA;
                     'value' => $value,
                     'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
                 ],
-            ], $this->elapsed( $start_time ) );
+            ], microtime(true) - $start_time );
 
             return $value;
         }
@@ -1864,7 +1864,7 @@ LUA;
                     'value' => $value,
                     'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
                 ],
-            ], $this->elapsed( $start_time ) );
+            ], microtime(true) - $start_time );
 
             return $value;
         }
@@ -2329,16 +2329,6 @@ LUA;
      */
     public function __get( $name ) {
         return isset( $this->{$name} ) ? $this->{$name} : null;
-    }
-
-    /**
-     * Calculates how much time has elapsed since $start_time.
-     *
-     * @param float $start_time
-     * @return float
-     */
-    private function elapsed( $start_time ) {
-        return microtime(true) - $start_time;
     }
 
     /**
