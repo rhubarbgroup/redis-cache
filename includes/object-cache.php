@@ -1593,7 +1593,7 @@ LUA;
                 if ( $value === false ) {
                     $this->cache_misses++;
 
-                    if ( $trace_enabled ) {
+                    if ( $this->trace_enabled ) {
                         $traceKV[ $key ] = [
                             'value' => null,
                             'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
@@ -1603,7 +1603,7 @@ LUA;
                     $cache[ $key ] = $value;
                     $this->cache_hits++;
 
-                    if ( $trace_enabled ) {
+                    if ( $this->trace_enabled ) {
                         $traceKV[ $key ] = [
                             'value' => $value,
                             'status' => $trace_flags | self::TRACE_FLAG_HIT | self::TRACE_FLAG_INTERNAL,
@@ -1658,7 +1658,7 @@ LUA;
                 $cache[ $key ] = false;
                 $this->cache_misses++;
 
-                if ( $trace_enabled ) {
+                if ( $this->trace_enabled ) {
                     $traceKV[ $key ] = [
                         'value' => null,
                         'status' => $trace_flags,
@@ -1669,7 +1669,7 @@ LUA;
                 $this->add_to_internal_cache( $derived_keys[ $key ], $cache[ $key ] );
                 $this->cache_hits++;
 
-                if ( $trace_enabled ) {
+                if ( $this->trace_enabled ) {
                     $traceKV[ $key ] = [
                         'value' => $value,
                         'status' => $trace_flags | self::TRACE_FLAG_HIT,
