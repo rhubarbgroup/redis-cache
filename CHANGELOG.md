@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.18
+
+- Added `redis_object_cache_trace` action and `WP_REDIS_TRACE` constant
+- Updated ApexCharts to v3.26.0
+- Fixed and issue with `WP_REDIS_DISABLE_METRICS`
+
 ## 2.0.17
 
 - Code cleanup
