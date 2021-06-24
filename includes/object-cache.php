@@ -160,6 +160,11 @@ function wp_cache_init() {
         define( 'WP_REDIS_SELECTIVE_FLUSH', (bool) getenv( 'WP_REDIS_SELECTIVE_FLUSH' ) );
     }
 
+    // Set unique `WP_CACHE_KEY_SALT` for sites hosted on Cloudways  
+    if( ( ! defined( 'WP_CACHE_KEY_SALT' ) ) && ( isset( $_SERVER['cw_allowed_ip'] ) ))  {
+        define( 'WP_CACHE_KEY_SALT', getenv(HTTP_X_APP_USER) );
+    }
+
     // Backwards compatibility: map `WP_CACHE_KEY_SALT` constant to `WP_REDIS_PREFIX`.
     if ( defined( 'WP_CACHE_KEY_SALT' ) && ! defined( 'WP_REDIS_PREFIX' ) ) {
         define( 'WP_REDIS_PREFIX', WP_CACHE_KEY_SALT );
