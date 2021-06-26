@@ -164,6 +164,11 @@ function wp_cache_init() {
     if ( defined( 'WP_CACHE_KEY_SALT' ) && ! defined( 'WP_REDIS_PREFIX' ) ) {
         define( 'WP_REDIS_PREFIX', WP_CACHE_KEY_SALT );
     }
+    
+    // Set unique `WP_CACHE_KEY_SALT` for sites hosted on Cloudways  
+    if ( ! defined( 'WP_REDIS_PREFIX' ) && isset( $_SERVER['cw_allowed_ip'] ) )  {
+        define( 'WP_REDIS_PREFIX', getenv( 'HTTP_X_APP_USER' ) );
+    }
 
     if ( ! ( $wp_object_cache instanceof WP_Object_Cache ) ) {
         $fail_gracefully = ! defined( 'WP_REDIS_GRACEFUL' ) || WP_REDIS_GRACEFUL;
