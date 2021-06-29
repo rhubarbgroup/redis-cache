@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Set unique prefix for sites hosted on Cloudways
+
 ## 2.0.18
 
 - Added `redis_object_cache_trace` action and `WP_REDIS_TRACE` constant
