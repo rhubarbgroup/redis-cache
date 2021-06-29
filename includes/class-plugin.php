@@ -865,6 +865,7 @@ class Plugin {
         global $wp_object_cache;
 
         if (
+            ( defined( 'WP_CLI' ) && WP_CLI ) ||
             ( defined( 'DOING_CRON' ) && DOING_CRON ) ||
             ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ||
             ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ||

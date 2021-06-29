@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Don't print HTML debug comment when `WP_CLI` is `true`
 - Set unique prefix for sites hosted on Cloudways
 
 ## 2.0.18
