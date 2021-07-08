@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.20
+
+- Fix wp.org release
+
 ## 2.0.19
 
 - Make metric identifier unique
