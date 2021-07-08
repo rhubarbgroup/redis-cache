@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, caching, cache, object cache,
 Requires at least: 3.3
 Tested up to: 5.7
 Requires PHP: 5.6
-Stable tag: 2.0.18
+Stable tag: 2.0.19
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,12 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.19 =
+
+- Make metric identifier unique
+- Set unique prefix for sites hosted on Cloudways
+- Don't print HTML debug comment when `WP_CLI` is `true`
 
 = 2.0.18 =
 

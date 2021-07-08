@@ -1,10 +1,10 @@
 # Changelog
 
-## Unreleased
+## 2.0.19
 
-- Don't print HTML debug comment when `WP_CLI` is `true`
-- Set unique prefix for sites hosted on Cloudways
 - Make metric identifier unique
+- Set unique prefix for sites hosted on Cloudways
+- Don't print HTML debug comment when `WP_CLI` is `true`
 
 ## 2.0.18
 
