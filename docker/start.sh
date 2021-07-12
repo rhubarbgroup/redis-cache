@@ -21,7 +21,7 @@ function start {
 
 # Stops all containers
 function stop {
-    compose down "${@:2}"
+    compose down "${@}"
 }
 
 # Modifies the auto-prepend-file
