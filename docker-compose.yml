@@ -28,6 +28,7 @@ services:
             WORDPRESS_USERNAME: wordpress
             WORDPRESS_PASSWORD: wordpress
             WORDPRESS_BLOG_NAME: Redis Cache Dev
+            WORDPRESS_PLUGINS: query-monitor
     redis-master:
         build: docker/redis
         ports:

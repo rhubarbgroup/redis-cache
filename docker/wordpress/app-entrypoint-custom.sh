@@ -89,8 +89,6 @@ chmod -w "/$WP_DIR/wp-config.php"
 
 ## Activates the newly copied plugin
 info "Activating plugin and enabling dropin"
-wp plugin install --activate \
-    query-monitor
 wp plugin activate redis-cache
 wp redis update-dropin
 wp redis enable
