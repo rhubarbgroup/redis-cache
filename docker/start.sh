@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+#
+# Utility script to manage the docker dev environments
+#
+# Documentation:
+# https://github.com/rhubarbgroup/redis-cache/wiki/Docker-Development
+#
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
