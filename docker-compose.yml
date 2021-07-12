@@ -20,11 +20,14 @@ services:
             - mariadb
             - redis-master
         environment:
-            MARIADB_HOST: mariadb
-            MARIADB_PORT_NUMBER: 3306
+            WORDPRESS_DATABASE_HOST: mariadb
+            WORDPRESS_DATABASE_PORT_NUMBER: 3306
             WORDPRESS_DATABASE_USER: bn_wordpress
             WORDPRESS_DATABASE_NAME: bitnami_wordpress
             ALLOW_EMPTY_PASSWORD: "yes"
+            WORDPRESS_USERNAME: wordpress
+            WORDPRESS_PASSWORD: wordpress
+            WORDPRESS_BLOG_NAME: Redis Cache Dev
     redis-master:
         build: docker/redis
         ports:

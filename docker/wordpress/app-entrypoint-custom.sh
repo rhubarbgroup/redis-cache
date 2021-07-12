@@ -1,17 +1,46 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
+set -e
 
-. /opt/bitnami/base/functions
-. /opt/bitnami/base/helpers
+#
+# Initial part copied from
+# https://github.com/bitnami/bitnami-docker-wordpress/blob/a0affeb00b7087bcfb81e85e1982a9419ad401c9/5/debian-10/rootfs/opt/bitnami/scripts/wordpress/entrypoint.sh
+#
+
+# shellcheck disable=SC1091
+
+set -o errexit
+set -o nounset
+set -o pipefail
+# set -o xtrace # Uncomment this line for debugging purpose
+
+# Load WordPress environment
+. /opt/bitnami/scripts/wordpress-env.sh
+
+# Load libraries
+. /opt/bitnami/scripts/libbitnami.sh
+. /opt/bitnami/scripts/liblog.sh
+. /opt/bitnami/scripts/libwebserver.sh
 
 print_welcome_page
 
-if [[ "$1" == "nami" && "$2" == "start" ]] || [[ "$1" == "httpd" ]]; then
-    . /apache-init.sh
-    . /wordpress-init.sh
-    nami_initialize apache mysql-client wordpress
-    info "Starting gosu... "
-    . /post-init.sh
+if [[ "$1" = "/opt/bitnami/scripts/$(web_server_type)/run.sh" || "$1" = "/opt/bitnami/scripts/nginx-php-fpm/run.sh" ]]; then
+    info "** Starting WordPress setup **"
+    /opt/bitnami/scripts/"$(web_server_type)"/setup.sh
+    /opt/bitnami/scripts/php/setup.sh
+    /opt/bitnami/scripts/mysql-client/setup.sh
+    /opt/bitnami/scripts/wordpress/setup.sh
+    /post-init.sh
+    info "** WordPress setup finished! **"
 fi
+
+###
+# Custom actions
+###
+
+# Load libraries
+. /opt/bitnami/scripts/libapache.sh
+# Load Apache environment
+. /opt/bitnami/scripts/apache-env.sh
 
 # Additional custom actions
 PLUGIN_SOURCE_DIR="/redis-cache"
@@ -67,4 +96,5 @@ wp redis update-dropin
 wp redis enable
 
 # Needed for bitnami image - needs to be the last command!
-exec tini -- "$@"
+echo ""
+exec "$@"
