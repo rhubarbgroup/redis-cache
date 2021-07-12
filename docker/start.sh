@@ -76,7 +76,25 @@ function apf {
 
 # Retrieves the IP of a docker container using its name and optionally its index
 function dcip {
-    echo $(compose exec --index="${2:-1}" "$1" hostname -i) | tr -d '\r'
+    declare -i counter=1
+    declare -i max_counter=25
+    container_name="$1_${2:-1}"
+    while [ $counter -le $max_counter ]; do
+        container_info=$(docker ps -a --no-trunc --format '{{ .ID }}\t{{ .Names }}\t{{ .State }}\tp:{{ .Label "com.docker.compose.project" }}' \
+                | grep 'p:redis-cache' \
+                | grep "$container_name")
+        container_state=$(echo $container_info | awk '{print $3}')
+        if [ "running" = $container_state ]; then
+            break
+        fi
+        sleep 0.1s
+        ((counter++))
+    done
+    if [ $counter -lt $max_counter ]; then
+        echo $(compose exec --index="${2:-1}" "$1" hostname -i) | tr -d '\r'
+    else
+        echo "$container_name"
+    fi
 }
 
 # Restarts apache in the wordpress container
