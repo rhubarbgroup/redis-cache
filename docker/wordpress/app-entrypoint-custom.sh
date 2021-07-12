@@ -90,6 +90,10 @@ wp plugin activate redis-cache
 wp redis update-dropin
 wp redis enable
 
+# fixes httpd already running error
+if is_apache_running; then
+    apache_stop
+fi
 # Needed for bitnami image - needs to be the last command!
 echo ""
 exec "$@"
