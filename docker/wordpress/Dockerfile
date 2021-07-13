@@ -1,8 +1,4 @@
-FROM bitnami/wordpress
-
-ENV WORDPRESS_USERNAME="wordpress" \
-    WORDPRESS_PASSWORD="wordpress" \
-    WORDPRESS_BLOG_NAME="WP dev installation"
+FROM bitnami/wordpress:5
 
 # Required to perform privileged actions
 USER 0
@@ -20,4 +16,4 @@ USER 1001
 RUN rm -r /opt/bitnami/wordpress/wp-content/plugins/*
 
 ENTRYPOINT [ "/app-entrypoint-custom.sh" ]
-CMD [ "httpd", "-f", "/opt/bitnami/apache/conf/httpd.conf", "-DFOREGROUND" ]
+CMD [ "/opt/bitnami/scripts/apache/run.sh" ]

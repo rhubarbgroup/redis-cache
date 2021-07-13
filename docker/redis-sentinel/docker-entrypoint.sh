@@ -46,6 +46,7 @@ print_master () {
 }
 
 echo "port $SENTINEL_PORT" > $SENTINEL_CONFIGURATION_FILE
+echo "sentinel resolve-hostnames yes" > $SENTINEL_CONFIGURATION_FILE
 
 if [ "$ANNOUNCE_IP" ]; then
     echo "sentinel announce-ip $ANNOUNCE_IP" >> $SENTINEL_CONFIGURATION_FILE

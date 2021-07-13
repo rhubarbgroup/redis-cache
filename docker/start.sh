@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+#
+# Utility script to manage the docker dev environments
+#
+# Documentation:
+# https://github.com/rhubarbgroup/redis-cache/wiki/Docker-Development
+#
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
@@ -21,7 +27,7 @@ function start {
 
 # Stops all containers
 function stop {
-    compose down "${@:2}"
+    compose down "${@}"
 }
 
 # Modifies the auto-prepend-file
@@ -70,7 +76,25 @@ function apf {
 
 # Retrieves the IP of a docker container using its name and optionally its index
 function dcip {
-    echo $(compose exec --index="${2:-1}" "$1" hostname -i) | tr -d '\r'
+    declare -i counter=1
+    declare -i max_counter=25
+    container_name="$1_${2:-1}"
+    while [ $counter -le $max_counter ]; do
+        container_info=$(docker ps -a --no-trunc --format '{{ .ID }}\t{{ .Names }}\t{{ .State }}\tp:{{ .Label "com.docker.compose.project" }}' \
+                | grep 'p:redis-cache' \
+                | grep "$container_name")
+        container_state=$(echo $container_info | awk '{print $3}')
+        if [ "running" = $container_state ]; then
+            break
+        fi
+        sleep 0.1s
+        ((counter++))
+    done
+    if [ $counter -lt $max_counter ]; then
+        echo $(compose exec --index="${2:-1}" "$1" hostname -i) | tr -d '\r'
+    else
+        echo "$container_name"
+    fi
 }
 
 # Restarts apache in the wordpress container
@@ -86,46 +110,53 @@ declare -A variables=();
 declare options=();
 declare -i index=1;
 
+variables["-m"]="mode";
+variables["--mode"]="mode";
 variables["-c"]="client";
 variables["--client"]="client";
 
-for i in "$@"; do
-  arguments[$index]=$i;
-  prev_index="$(expr $index - 1)";
+for i in ${@}; do
+    arguments[$index]=$i;
+    prev_index="$(expr $index - 1)";
 
-  # this if block does something akin to "where $i contains ="
-  # "%=*" here strips out everything from the = to the end of the argument leaving only the label
-  if [[ $i == *"="* ]]
-    then argument_label=${i%=*}
-    else argument_label=${arguments[$prev_index]}
-  fi
-
-  if [[ -n $argument_label ]] ; then
-    # this if block only evaluates to true if the argument label exists in the variables array
-    if [[ -n ${variables[$argument_label]} ]] ; then
-      # dynamically creating variables names using declare
-      # "#$argument_label=" here strips out the label leaving only the value
-      if [[ $i == *"="* ]]
-        then declare ${variables[$argument_label]}=${i#$argument_label=} 
-        else declare ${variables[$argument_label]}=${arguments[$index]}
-      fi
+    # this if block does something akin to "where $i contains ="
+    # "%=*" here strips out everything from the = to the end of the argument leaving only the label
+    if [[ $i == *"="* ]]; then
+        argument_label=${i%=*}
     else
-      # if the argument was not found store it in order
-      options+=(${arguments[$index]})
+        argument_label=${arguments[$prev_index]}
     fi
-  fi
 
-  index=index+1;
+    # first argument and no label detected: must be mode then
+    if [[ 1 == $index && -z $argument_label ]]; then
+        argument_label="-m"
+    fi
+
+    if [[ -n $argument_label ]]; then
+        # this if block only evaluates to true if the argument label exists in the variables array
+        if [[ -n ${variables[$argument_label]} ]]; then
+            # dynamically creating variables names using declare
+            # "#$argument_label=" here strips out the label leaving only the value
+            if [[ $i == *"="* ]]; then
+                declare ${variables[$argument_label]}=${i#$argument_label=} 
+            else
+                declare ${variables[$argument_label]}=${arguments[$index]}
+            fi
+        else
+          # if the argument was not found store it in order
+          options+=(${arguments[$index]})
+        fi
+    else
+      echo "unrecognized $1"
+    fi
+
+    index=index+1;
 done;
 
-mode="default"
-if [[ -n "$1" && "$1" != --* ]] ; then
-    mode="$1"
-fi
 
-case "$mode" in
+case ${mode-default} in
 
-    "default"|""|"-"|"simple"|"up"|"start")
+    "default"|"-"|"simple"|"up"|"start")
         start 1 0 0 "${options[@]}"
         apf --reset
         apf WP_REDIS_CLIENT "${client-phpredis}"
