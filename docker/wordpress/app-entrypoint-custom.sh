@@ -38,14 +38,16 @@ fi
 ###
 
 # Load libraries
+. /opt/bitnami/scripts/libfs.sh
+. /opt/bitnami/scripts/libphp.sh
 . /opt/bitnami/scripts/libapache.sh
-# Load Apache environment
+. /opt/bitnami/scripts/libwordpress.sh
+# Load environments
+. /opt/bitnami/scripts/php-env.sh
 . /opt/bitnami/scripts/apache-env.sh
 
-# Additional custom actions
 PLUGIN_SOURCE_DIR="/redis-cache"
 PLUGIN_TARGET_DIR="/opt/bitnami/wordpress/wp-content/plugins/redis-cache"
-PHP_INI_PATH="/opt/bitnami/php/etc/php.ini"
 APF_FILE_PATH="/redis-cache/docker/apf.php"
 
 ## Symlink generation
@@ -56,11 +58,7 @@ fi
 
 ## Set APF file
 if [ -f "$APF_FILE_PATH" ]; then
-    cp "$PHP_INI_PATH" "$PHP_INI_PATH-original"
-    TF=$(mktemp)
-    awk '{gsub(/auto_prepend_file ?=.*$/,"auto_prepend_file = '"$APF_FILE_PATH"'",$0)}1' "$PHP_INI_PATH" \
-        > "$TF" \
-        && mv "$TF" "$PHP_INI_PATH"
+    php_conf_set auto_prepend_file "$APF_FILE_PATH"
     info "Set PHP auto prepend file"
 else
     error "Unable to set PHP auto prepend file"
@@ -73,27 +71,25 @@ echo "<?php phpinfo();" > "$WORDPRESS_BASE_DIR/info.php"
 
 ## Set development constants
 info "Setting wp-config.php development constants"
-chmod +w "$WORDPRESS_CONF_FILE"
+is_file_writable "$WORDPRESS_CONF_FILE" || chmod +w "$WORDPRESS_CONF_FILE"
 
-wp config set WP_DEBUG true --raw
-wp config set SCRIPT_DEBUG true --raw
-wp config set WP_ENVIRONMENT_TYPE "local"
+wordpress_conf_set WP_DEBUG true yes
+wordpress_conf_set SCRIPT_DEBUG true yes
+wordpress_conf_set WP_ENVIRONMENT_TYPE "local"
 
-wp config set DISALLOW_FILE_EDIT true --raw
-wp config set CONCATENATE_SCRIPTS false --raw
+wordpress_conf_set DISALLOW_FILE_EDIT true yes
+wordpress_conf_set CONCATENATE_SCRIPTS false yes
 
-chmod -w "$WORDPRESS_CONF_FILE"
+is_file_writable "$WORDPRESS_CONF_FILE" && chmod -w "$WORDPRESS_CONF_FILE"
 
 ## Activates the newly copied plugin
 info "Activating plugin and enabling dropin"
-wp plugin activate redis-cache
-wp redis update-dropin
-wp redis enable
+wp_execute plugin activate redis-cache
+wp_execute redis update-dropin
+wp_execute redis enable
 
 # fixes httpd already running error
-if is_apache_running; then
-    apache_stop
-fi
+apache_stop
 # Needed for bitnami image - needs to be the last command!
 echo ""
 exec "$@"
