@@ -57,6 +57,9 @@ $info['Redis Version'] = $roc->get_redis_version() ?: 'Unknown';
 
 $info['Multisite'] = is_multisite() ? 'Yes' : 'No';
 
+$info['Metrics'] = \Rhubarb\RedisCache\Metrics::is_active() ? 'Enabled' : 'Disabled';
+$info['Metrics recorded'] = wp_json_encode( \Rhubarb\RedisCache\Metrics::count() );
+
 $info['Filesystem'] = is_wp_error( $filesystem ) ? $filesystem->get_error_message() : 'Working';
 
 if ( $dropin ) {

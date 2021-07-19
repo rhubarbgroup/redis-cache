@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added metrics diagnostics
 - Added `WP_Object_Cache::decr()` alias
 - Moved `diagnostics.php` file
 
