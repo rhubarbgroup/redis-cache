@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added `WP_Object_Cache::decr()` alias
+
 ## 2.0.20
 
 - Fix wp.org release
