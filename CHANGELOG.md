@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.21
 
 - Added metrics diagnostics
 - Added `WP_Object_Cache::decr()` alias
