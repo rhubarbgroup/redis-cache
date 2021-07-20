@@ -248,4 +248,26 @@ class Metrics {
         }
     }
 
+    /**
+     * Counts the recorded metrics
+     *
+     * @return int
+     */
+    public static function count() {
+        global $wp_object_cache;
+
+        if ( ! self::is_active() ) {
+            return;
+        }
+
+        try {
+            return $wp_object_cache->redis_instance()->zcount(
+                $wp_object_cache->build_key( 'metrics', 'redis-cache' ), '-inf', '+inf'
+            );
+        } catch ( Exception $exception ) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( $exception );
+        }
+    }
+
 }

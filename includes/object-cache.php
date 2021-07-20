@@ -1936,6 +1936,19 @@ LUA;
     }
 
     /**
+     * Alias of `decrement()`.
+     *
+     * @see self::decrement()
+     * @param  string $key    The key name.
+     * @param  int    $offset Optional. The decrement. Defaults to 1.
+     * @param  string $group  Optional. The key group. Default is 'default'.
+     * @return int|bool
+     */
+    public function decr( $key, $offset = 1, $group = 'default' ) {
+        return $this->decrement( $key, $offset, $group );
+    }
+
+    /**
      * Render data about current cache requests
      * Used by the Debug bar plugin
      *
