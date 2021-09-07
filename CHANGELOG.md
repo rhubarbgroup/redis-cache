@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed wrong path to `diagnostics.php` file
+
 ## 2.0.21
 
 - Added metrics diagnostics
