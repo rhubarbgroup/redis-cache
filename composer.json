@@ -20,7 +20,8 @@
     "require-dev": {
         "wp-coding-standards/wpcs": "^2.3",
         "phpcompatibility/phpcompatibility-wp": "^2.1",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0"
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+        "phpunit/phpunit": "^7"
     },
     "extra": {
         "installer-paths": {
