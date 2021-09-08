@@ -1,4 +1,5 @@
 /docker/apf.php
 /php-tools
 /vendor
+/reports
 composer.lock

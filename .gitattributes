@@ -13,4 +13,5 @@ includes/ui/* linguist-language=HTML+PHP
 composer.json export-ignore
 docker-compose.yml export-ignore
 phpcs.xml export-ignore
+phpunit.xml.dist export-ignore
 readme.txt export-ignore
