@@ -251,7 +251,7 @@ class Plugin {
 
         $plugin_meta[] = sprintf(
 			'<a href="%1$s"><span class="dashicons dashicons-star-filled" aria-hidden="true" style="font-size: 14px; line-height: 1.3"></span>%2$s</a>',
-			'https://objectcache.pro/?utm_source=wp-plugin&amp;utm_medium=meta-row',
+			'https://objectcache.pro/?ref=oss&amp;utm_source=wp-plugin&amp;utm_medium=meta-row',
 			esc_html_x( 'Upgrade to Pro', 'verb', 'redis-cache' )
 		);
 
