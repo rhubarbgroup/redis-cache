@@ -74,7 +74,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <code><?php echo esc_html( $redis_maxttl ); ?></code>
 
-                <?php if ( ! is_int( $redis_maxttl ) && ! ctype_digit( $redis_maxttl ) ) : ?>
+                <?php if ( ! is_int( $redis_maxttl ) && ! ctype_digit( (string) $redis_maxttl ) ) : ?>
                     <p class="description is-notice">
                         <?php esc_html_e( 'This doesn’t appear to be a valid number.', 'redis-cache' ); ?>
                     </p>

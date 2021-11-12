@@ -109,8 +109,8 @@ class Plugin {
 
         add_action( 'wp_ajax_roc_dismiss_notice', [ $this, 'dismiss_notice' ] );
 
-        $links = sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME );
-        add_filter( $links, [ $this, 'add_plugin_actions_links' ] );
+        add_filter( 'plugin_row_meta', [ $this, 'add_plugin_row_meta' ], 10, 2 );
+        add_filter( sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME ), [ $this, 'add_plugin_actions_links' ] );
 
         add_action( 'wp_head', [ $this, 'register_shutdown_hooks' ] );
 
@@ -228,20 +228,35 @@ class Plugin {
      * @return string[]
      */
     public function add_plugin_actions_links( $links ) {
-        $upgrade = sprintf(
-            '<a href="%s">%s</a>',
-            'https://objectcache.pro/?utm_source=wp-plugin&amp;utm_medium=action-link',
-            esc_html__( 'Upgrade', 'redis-cache' )
-        );
-
         $settings = sprintf(
             '<a href="%s">%s</a>',
             network_admin_url( $this->page ),
             esc_html__( 'Settings', 'redis-cache' )
         );
 
-        return array_merge( [ $upgrade, $settings ], $links );
+        return array_merge( [ $settings ], $links );
     }
+
+    /**
+	 * Adds plugin meta links on the plugin page
+	 *
+	 * @param string[] $plugin_meta An array of the plugin's metadata.
+	 * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
+	 * @return string[] An array of the plugin's metadata.
+	 */
+	public function add_plugin_row_meta( array $plugin_meta, $plugin_file ) {
+		if ( strpos( $plugin_file, 'redis-cache.php' ) === false ) {
+			return $plugin_meta;
+		}
+
+        $plugin_meta[] = sprintf(
+			'<a href="%1$s"><span class="dashicons dashicons-star-filled" aria-hidden="true" style="font-size: 14px; line-height: 1.3"></span>%2$s</a>',
+			'https://objectcache.pro/?utm_source=wp-plugin&amp;utm_medium=meta-row',
+			esc_html_x( 'Upgrade to Pro', 'verb', 'redis-cache' )
+		);
+
+		return $plugin_meta;
+	}
 
     /**
      * Enqueues admin style resources
@@ -796,7 +811,7 @@ class Plugin {
         printf(
             '<div class="notice notice-info is-dismissible" data-dismissible="pro_release_notice" data-nonce="%s"><p><strong>%s</strong> %s</p></div>',
             esc_attr( wp_create_nonce( 'roc_dismiss_notice' ) ),
-            esc_html__( 'Object Cache Pro is out!', 'redis-cache' ),
+            esc_html__( 'Object Cache Pro!', 'redis-cache' ),
             sprintf(
                 // translators: %s = Link to the plugin setting screen.
                 wp_kses_post( __( 'A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href="%s">Learn more »</a>', 'redis-cache' ) ),
