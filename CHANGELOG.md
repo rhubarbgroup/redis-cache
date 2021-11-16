@@ -6,6 +6,7 @@
 - Upgraded to Predis v1.1.9
 - Added settings link to widget
 - Overhauled diagnostics pane
+- Updated ApexCharts to v3.30.0
 - Fixed wrong path to `diagnostics.php` file
 - Fixed chart overflow in settings tab
 
