@@ -7,6 +7,7 @@
 - Added settings link to widget
 - Overhauled diagnostics pane
 - Updated ApexCharts to v3.30.0
+- Redirect to plugin settings after activation
 - Fixed wrong path to `diagnostics.php` file
 - Fixed chart overflow in settings tab
 

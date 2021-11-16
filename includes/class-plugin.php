@@ -91,6 +91,7 @@ class Plugin {
     public function add_actions_and_filters() {
         add_action( 'deactivate_plugin', [ $this, 'on_deactivation' ] );
         add_action( 'admin_init', [ $this, 'maybe_update_dropin' ] );
+        add_action( 'admin_init', [ $this, 'maybe_redirect' ] );
         add_action( 'init', [ $this, 'init' ] );
 
         add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', [ $this, 'add_admin_menu_page' ] );
@@ -1034,6 +1035,25 @@ class Plugin {
     }
 
     /**
+     * Redirects to the plugin settings if the plugin was just activated
+     *
+     * @return void
+     */
+    public function maybe_redirect() {
+        if ( ! get_transient( '_rediscache_activation_redirect' ) ) {
+            return;
+        }
+
+        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+            return;
+        }
+
+        delete_transient( '_rediscache_activation_redirect' );
+
+        wp_safe_redirect( network_admin_url( $this->page ) );
+    }
+
+    /**
      * Updates the `object-cache.php` drop-in
      *
      * @return void
@@ -1061,6 +1081,15 @@ class Plugin {
              */
             do_action( 'redis_object_cache_update_dropin', $result );
         }
+    }
+
+    /**
+     * Plugin activation hook
+     *
+     * @return void
+     */
+    public static function on_activation() {
+        set_transient( '_rediscache_activation_redirect', 1, 30 );
     }
 
     /**

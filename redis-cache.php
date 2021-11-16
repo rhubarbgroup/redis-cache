@@ -38,6 +38,11 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
     WP_CLI::add_command( 'redis', Rhubarb\RedisCache\CLI\Commands::class );
 }
 
+register_activation_hook(
+    WP_REDIS_FILE,
+    [ Rhubarb\RedisCache\Plugin::class, 'on_activation' ]
+);
+
 Rhubarb\RedisCache\Plugin::instance();
 
 if ( ! function_exists( 'redis_object_cache' ) ) {
