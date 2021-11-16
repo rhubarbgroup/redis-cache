@@ -805,7 +805,7 @@ class Plugin {
             return;
         }
 
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
             return;
         }
 
@@ -845,7 +845,7 @@ class Plugin {
             return;
         }
 
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
             return;
         }
 
