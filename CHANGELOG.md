@@ -5,6 +5,7 @@
 - PHP 8.1 compatibility fixes
 - Upgraded to Predis v1.1.9
 - Fixed wrong path to `diagnostics.php` file
+- Fixed chart overflow in settings tab
 
 ## 2.0.21
 

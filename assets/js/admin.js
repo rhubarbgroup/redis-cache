@@ -42,7 +42,7 @@
             },
             chart: {
                 type: 'line',
-                height: '100%',
+                height: $( '#metrics-pane #widget-redis-stats' ).length ? '300px' : '100%',
                 toolbar: { show: false },
                 zoom: { enabled: false },
                 animations: { enabled: false },

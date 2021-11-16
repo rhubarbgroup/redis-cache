@@ -53,10 +53,6 @@
     background-color: #e5e5e5 !important;
 }
 
-#rediscache #redis-stats-chart {
-    height: 300px;
-}
-
 #rediscache .tab-pane-diagnostics p {
     margin-top: 20px;
 }
