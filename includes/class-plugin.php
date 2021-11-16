@@ -68,8 +68,6 @@ class Plugin {
     private function __construct() {
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-        register_activation_hook( WP_REDIS_FILE, 'wp_cache_flush' );
-
         if ( is_multisite() ) {
             $this->page = 'settings.php?page=redis-cache';
             $this->screen = 'settings_page_redis-cache-network';
