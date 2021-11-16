@@ -208,7 +208,9 @@ class Plugin {
         wp_add_dashboard_widget(
             'dashboard_rediscache',
             __( 'Redis Object Cache', 'redis-cache' ),
-            [ $this, 'show_dashboard_widget' ]
+            [ $this, 'show_dashboard_widget' ],
+            'normal',
+            'high'
         );
     }
 
