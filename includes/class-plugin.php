@@ -809,7 +809,7 @@ class Plugin {
             return;
         }
 
-        if ( 1 === intval( get_user_meta( get_current_user_id(), 'roc_dismissed_pro_release_notice', true ) ) ) {
+        if ( intval( get_user_meta( get_current_user_id(), 'roc_dismissed_pro_release_notice', true ) ) === 1 ) {
             return;
         }
 
@@ -849,7 +849,7 @@ class Plugin {
             return;
         }
 
-        if ( 1 === intval( get_user_meta( get_current_user_id(), 'roc_dismissed_wc_pro_notice', true ) ) ) {
+        if ( intval( get_user_meta( get_current_user_id(), 'roc_dismissed_wc_pro_notice', true ) ) === 1 ) {
             return;
         }
 
