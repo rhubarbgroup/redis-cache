@@ -57,8 +57,14 @@
     margin-top: 20px;
 }
 
-#rediscache .tab-pane-diagnostics textarea {
+#rediscache #diagnostics-pane .card {
     width: 100%;
+    max-width: 100%;
+}
+
+#rediscache #diagnostics-pane pre {
+    height: 400px;
+    overflow: scroll;
 }
 
 #rediscache .compatiblity {

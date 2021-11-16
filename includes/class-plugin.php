@@ -308,10 +308,12 @@ class Plugin {
             return;
         }
 
+        $clipboard = file_exists( ABSPATH .WPINC . '/js/clipboard.min.js' );
+
         wp_enqueue_script(
             'redis-cache',
             plugins_url( 'assets/js/admin.js', WP_REDIS_FILE ),
-            [ 'jquery', 'underscore' ],
+            array_merge( [ 'jquery', 'underscore' ], $clipboard ? [ 'clipboard' ] : [ ] ),
             WP_REDIS_VERSION,
             true
         );

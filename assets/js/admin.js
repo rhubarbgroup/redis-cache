@@ -441,6 +441,35 @@
                 } );
             }
         );
+
+        if ( $( '#redis-cache-copy-button' ).length ) {
+            if ( typeof ClipboardJS === 'undefined' ) {
+                $( '#redis-cache-copy-button' ).remove();
+            } else {
+                var successTimeout;
+                var clipboard = new ClipboardJS( '#redis-cache-copy-button .copy-button' );
+
+                clipboard.on( 'success', function( e ) {
+                    var triggerElement = $( e.trigger ),
+                        successElement = $( '.success', triggerElement.closest( 'div' ) );
+
+                    e.clearSelection();
+                    triggerElement.trigger( 'focus' );
+
+                    clearTimeout( successTimeout );
+                    successElement.removeClass( 'hidden' );
+
+                    successTimeout = setTimeout( function() {
+                        successElement.addClass( 'hidden' );
+
+                        if ( clipboard.clipboardAction.fakeElem && clipboard.clipboardAction.removeFake ) {
+                            clipboard.clipboardAction.removeFake();
+                        }
+                    }, 3000 );
+
+                } );
+            }
+        }
     });
 
 } ( window[ rediscache.jQuery ], window ) );
