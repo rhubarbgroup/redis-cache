@@ -102,23 +102,36 @@
 
 #widget-redis-stats ul {
     margin: 11px 11px 0;
-    text-align: center;
+    display: flex;
 }
 
 #widget-redis-stats ul li {
+    margin-bottom: 0;
+}
+
+#metrics-pane #widget-redis-stats ul {
+    display: block;
+    list-style-type: none;
+    text-align: center;
+    font-size: 14px;
+}
+
+#metrics-pane #widget-redis-stats ul li {
     display: inline;
+    list-style-type: none;
 }
 
 #widget-redis-stats ul a {
-    padding: 0 5px;
-    color: #72777c;
-    font-weight: bold;
+    padding: 0 7px;
     text-decoration: none;
 }
 
-#widget-redis-stats ul a:hover,
+#widget-redis-stats ul a:hover {
+    color: #135e96;
+}
+
 #widget-redis-stats ul a.active {
-    color: #0073aa;
+    color: #1d2327;
 }
 
 #redis-stats-chart .apexcharts-annotations {

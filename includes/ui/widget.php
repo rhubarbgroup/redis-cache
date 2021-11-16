@@ -31,6 +31,11 @@ defined( '\\ABSPATH' ) || exit;
                 <?php esc_html_e( 'Calls', 'redis-cache' ); ?>
             </a>
         </li>
+        <li style="margin-left: auto;">
+            <a href="<?php echo network_admin_url( $this->page ); ?>">
+                <?php esc_html_e( 'Settings', 'redis-cache' ); ?>
+            </a>
+        </li>
     </ul>
 
     <div id="redis-stats-chart"></div>

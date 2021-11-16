@@ -412,7 +412,7 @@
             render_chart( 'time' );
         }
 
-        $( '#widget-redis-stats ul a' ).on(
+        $( '#widget-redis-stats ul a[data-chart]' ).on(
             'click.redis-cache',
             function ( event ) {
                 event.preventDefault();
