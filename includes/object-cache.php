@@ -494,7 +494,11 @@ class WP_Object_Cache {
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                $this->diagnostics[ 'ping' ] = $this->redis->ping( current( array_values( WP_REDIS_CLUSTER ) ) );
+                $connectionID = current( array_values( WP_REDIS_CLUSTER ) );
+
+                $this->diagnostics[ 'ping' ] = ($client === 'predis')
+                    ? $this->redis->getClientFor( $connectionID )->ping()
+                    : $this->redis->ping( $connectionID );
             } else {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }

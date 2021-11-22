@@ -10,6 +10,7 @@
 - Redirect to plugin settings after activation
 - Fixed wrong path to `diagnostics.php` file
 - Fixed chart overflow in settings tab
+- Fixed Predis cluster ping
 
 ## 2.0.21
 
