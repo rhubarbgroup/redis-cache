@@ -676,7 +676,7 @@ class Plugin {
                          * Fires on cache enable event
                          *
                          * @since 1.3.5
-                         * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successfull.
+                         * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.
                          */
                         do_action( 'redis_object_cache_enable', $result );
 
@@ -994,6 +994,10 @@ class Plugin {
             if ( ! $wp_filesystem->delete( $testfile ) ) {
                 return new WP_Error( 'delete', __( 'Test file exists, but couldn’t be deleted.', 'redis-cache' ) );
             }
+        }
+
+        if ( ! $wp_filesystem->is_writable( WP_CONTENT_DIR ) ) {
+            return new WP_Error( 'copy', __( 'Content directory is not writable.', 'redis-cache' ) );
         }
 
         if ( ! $wp_filesystem->copy( $cachefile, $testfile, true, FS_CHMOD_FILE ) ) {

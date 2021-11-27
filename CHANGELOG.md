@@ -11,6 +11,7 @@
 - Fixed wrong path to `diagnostics.php` file
 - Fixed chart overflow in settings tab
 - Fixed Predis cluster ping
+- Avoid warning when content folder is not writeable
 
 ## 2.0.21
 
