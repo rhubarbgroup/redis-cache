@@ -73,8 +73,9 @@ defined( '\\ABSPATH' ) || exit;
             <div class="section-pro">
 
                 <div class="card">
-                    <h2 class="title">
-                        Object Cache Pro
+                    <h2 class="title" style="line-height: 1.4">
+                        Need more performance and reliability?<br>
+                        Check out <span style="color: #dc2626;">Object Cache Pro</span>!
                     </h2>
                     <p>
                         <?php wp_kses_post( __( '<strong>A business class object cache backend.</strong> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.', 'redis-cache' ) ); ?>
