@@ -24,6 +24,18 @@
     padding-bottom: 7px;
 }
 
+#rediscache .form-table .success {
+    color: #008a20;
+}
+
+#rediscache .form-table .warning {
+    color: #dba617;
+}
+
+#rediscache .form-table .error {
+    color: #d63638;
+}
+
 #rediscache .form-table td ul {
     margin: 0;
 }

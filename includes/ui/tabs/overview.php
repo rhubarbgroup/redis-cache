@@ -7,6 +7,7 @@
 
 defined( '\\ABSPATH' ) || exit;
 
+$status = $roc->get_redis_status();
 $redis_client = $roc->get_redis_client_name();
 $redis_prefix = $roc->get_redis_prefix();
 $redis_maxttl = $roc->get_redis_maxttl();
@@ -22,31 +23,64 @@ $diagnostics = $roc->get_diagnostics();
 
 <table class="form-table">
 
-    <?php if ( ! is_null( $redis_client ) ) : ?>
-        <tr>
-            <th><?php esc_html_e( 'Client:', 'redis-cache' ); ?></th>
-            <td>
-                <code><?php echo esc_html( $redis_client ); ?></code>
-            </td>
-        </tr>
-    <?php endif; ?>
+    <tr>
+        <th><?php esc_html_e( 'Status:', 'redis-cache' ); ?></th>
+        <td>
+            <?php if ( $status ) : ?>
+                <span class="success">
+                    <span class="dashicons dashicons-yes"></span>
+                    <?php echo esc_html( $roc->get_status() ); ?>
+                </span>
+            <?php else : ?>
+                <span class="error">
+                    <span class="dashicons dashicons-no"></span>
+                    <?php echo esc_html( $roc->get_status() ); ?>
+                </span>
+            <?php endif; ?>
+        </td>
+    </tr>
 
     <tr>
         <th><?php esc_html_e( 'Drop-in:', 'redis-cache' ); ?></th>
         <td>
-            <code>
-                <?php if ( ! $roc->object_cache_dropin_exists() ) : ?>
+            <?php if ( ! $roc->object_cache_dropin_exists() ) : ?>
+                <span class="error">
+                    <span class="dashicons dashicons-no"></span>
                     <?php esc_html_e( 'Not installed', 'redis-cache' ); ?>
-                <?php elseif ( $roc->object_cache_dropin_outdated() ) : ?>
+                </span>
+            <?php elseif ( $roc->object_cache_dropin_outdated() ) : ?>
+                <span class="warning">
+                    <span class="dashicons dashicons-no"></span>
                     <?php esc_html_e( 'Outdated', 'redis-cache' ); ?>
-                <?php else : ?>
-                    <?php
-                        $roc->validate_object_cache_dropin()
-                            ? esc_html_e( 'Valid', 'redis-cache' )
-                            : esc_html_e( 'Invalid', 'redis-cache' );
-                    ?>
-                <?php endif; ?>
-            </code>
+                </span>
+            <?php elseif ( $roc->validate_object_cache_dropin() ) : ?>
+                <span class="success">
+                    <span class="dashicons dashicons-yes"></span>
+                    <?php esc_html_e( 'Valid', 'redis-cache' ); ?>
+                </span>
+            <?php else : ?>
+                <span class="error">
+                    <span class="dashicons dashicons-no"></span>
+                    <?php esc_html_e( 'Invalid', 'redis-cache' ); ?>
+                </span>
+            <?php endif; ?>
+        </td>
+    </tr>
+
+    <tr>
+        <th><?php esc_html_e( 'Filesystem:', 'redis-cache' ); ?></th>
+        <td>
+            <?php if ( ! $roc->test_filesystem_writing() ) : ?>
+                <span class="error">
+                    <span class="dashicons dashicons-no"></span>
+                    <?php esc_html_e( 'Not writeable', 'redis-cache' ); ?>
+                </span>
+            <?php else : ?>
+                <span class="success">
+                    <span class="dashicons dashicons-yes"></span>
+                    <?php esc_html_e( 'Writeable', 'redis-cache' ); ?>
+                </span>
+            <?php endif; ?>
         </td>
     </tr>
 
@@ -85,16 +119,22 @@ $diagnostics = $roc->get_diagnostics();
 
 </table>
 
+<?php if ( $status ) : ?>
+
 <h2 class="title">
     <?php esc_html_e( 'Connection', 'redis-cache' ); ?>
 </h2>
 
 <table class="form-table">
 
-    <tr>
-        <th><?php esc_html_e( 'Status:', 'redis-cache' ); ?></th>
-        <td><code><?php echo esc_html( $roc->get_status() ); ?></code></td>
-    </tr>
+    <?php if ( ! is_null( $redis_client ) ) : ?>
+        <tr>
+            <th><?php esc_html_e( 'Client:', 'redis-cache' ); ?></th>
+            <td>
+                <code><?php echo esc_html( $redis_client ); ?></code>
+            </td>
+        </tr>
+    <?php endif; ?>
 
     <?php if ( ! empty( $diagnostics['host'] ) ) : ?>
         <tr>
@@ -231,6 +271,8 @@ $diagnostics = $roc->get_diagnostics();
     <?php endif; ?>
 
 </table>
+
+<?php endif; ?>
 
 <p class="submit">
 
