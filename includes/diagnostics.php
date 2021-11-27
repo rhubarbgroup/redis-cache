@@ -148,6 +148,6 @@ foreach ( $info as $name => $value ) {
     if ( defined( 'WP_CLI' ) && WP_CLI ) {
         WP_CLI::line( "{$name}: $value" );
     } else {
-        echo esc_textarea( "{$name}: {$value}\r\n" );
+        echo esc_html( "{$name}: {$value}\r\n" );
     }
 }
