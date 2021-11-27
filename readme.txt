@@ -83,6 +83,19 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 == Changelog ==
 
+= 2.0.22 =
+
+- PHP 8.1 compatibility fixes
+- Upgraded to Predis v1.1.9
+- Added settings link to widget
+- Overhauled diagnostics pane
+- Updated ApexCharts to v3.30.0
+- Redirect to plugin settings after activation
+- Fixed wrong path to `diagnostics.php` file
+- Fixed chart overflow in settings tab
+- Fixed Predis cluster ping
+- Avoid warning when content folder is not writeable
+
 = 2.0.21 =
 
 - Added metrics diagnostics
