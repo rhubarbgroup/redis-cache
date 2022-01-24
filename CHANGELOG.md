@@ -3,6 +3,8 @@
 ## Unreleased
 
 - Added support for Relay
+- Minor UX fixes and improvements
+
 ## 2.0.22
 
 - PHP 8.1 compatibility fixes

@@ -367,6 +367,10 @@ class Plugin {
             true
         );
 
+        if ( ! $this->get_redis_status() ) {
+            return;
+        }
+
         $min_time = $screen->id === $this->screen
             ? Metrics::max_time()
             : MINUTE_IN_SECONDS * 30;
