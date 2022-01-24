@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Improve metrics label/tooltip formatting
 - Updated Predis to v1.1.10
 - Support `composer/installers` v1 and v2
 
