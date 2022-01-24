@@ -85,8 +85,9 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 = 2.0.23 =
 
-- Added support for Relay
+- Added support for [Relay](https://relaycache.com)
 - Minor UX fixes and improvements
+- Fixed PHP 8.1 deprecation notice
 - Updated ApexCharts to v3.31.0
 
 = 2.0.22 =
