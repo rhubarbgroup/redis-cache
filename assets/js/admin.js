@@ -391,7 +391,7 @@
             }
         );
 
-        var firstRender = true;
+        var firstRender = window.location.hash.indexOf('metrics') === -1;
 
         var show_tab = function ( name ) {
             $tabs.find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );
