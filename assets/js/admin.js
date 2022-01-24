@@ -385,12 +385,19 @@
             }
         );
 
+        var firstRender = true;
+
         var show_tab = function ( name ) {
             $tabs.find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );
             $panes.find( '.tab-pane.active' ).removeClass( 'active' );
 
             $( '#' + name + '-tab' ).addClass( 'nav-tab-active' );
             $( '#' + name + '-pane' ).addClass( 'active' );
+
+            if (name === 'metrics' && firstRender) {
+                firstRender = false;
+                render_chart( 'time' );
+            }
         };
 
         var show_current_tab = function () {
