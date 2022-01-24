@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+
+- Updated Predis to v1.1.10
 ## 2.0.23
 
 - Added support for [Relay](https://relaycache.com)
