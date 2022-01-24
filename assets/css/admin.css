@@ -164,6 +164,7 @@
 
 #redis-stats-chart .apexcharts-tooltip {
     display: flex;
+    flex-direction: row;
     width: 100%;
     justify-content: center;
     border: none;
