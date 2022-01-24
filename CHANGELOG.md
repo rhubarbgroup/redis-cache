@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+
+- Added support for Relay
 ## 2.0.22
 
 - PHP 8.1 compatibility fixes

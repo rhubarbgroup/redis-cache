@@ -484,6 +484,9 @@ class WP_Object_Cache {
                 case 'phpredis':
                     $this->connect_using_phpredis( $parameters );
                     break;
+                case 'relay':
+                    $this->connect_using_relay( $parameters );
+                    break;
                 case 'credis':
                     $this->connect_using_credis( $parameters );
                     break;
@@ -661,6 +664,74 @@ class WP_Object_Cache {
 
         if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
             $this->redis->setOption( Redis::OPT_SERIALIZER, WP_REDIS_SERIALIZER );
+        }
+    }
+
+    /**
+     * Connect to Redis using the Relay extension.
+     *
+     * @param  array $parameters Connection parameters built by the `build_parameters` method.
+     * @return void
+     */
+    protected function connect_using_relay( $parameters ) {
+        $version = phpversion( 'relay' );
+
+        $this->diagnostics[ 'client' ] = sprintf( 'Relay (v%s)', $version );
+
+        if ( defined( 'WP_REDIS_SHARDS' ) ) {
+            throw new Exception('Relay does not support sharding.');
+        } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
+            throw new Exception('Relay does not cluster connections.');
+        } else {
+            $this->redis = new Relay\Relay;
+
+            $args = [
+                'host' => $parameters['host'],
+                'port' => $parameters['port'],
+                'timeout' => $parameters['timeout'],
+                '',
+                'retry_interval' => $parameters['retry_interval'],
+            ];
+
+            if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {
+                $args['host'] = sprintf(
+                    '%s://%s',
+                    $parameters['scheme'],
+                    str_replace( 'tls://', '', $parameters['host'] )
+                );
+            }
+
+            if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
+                $args['host'] = $parameters['path'];
+                $args['port'] = null;
+            }
+
+            $args['read_timeout'] = $parameters['read_timeout'];
+
+            call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
+
+            if ( isset( $parameters['password'] ) ) {
+                $args['password'] = $parameters['password'];
+                $this->redis->auth( $parameters['password'] );
+            }
+
+            if ( isset( $parameters['database'] ) ) {
+                if ( ctype_digit( (string) $parameters['database'] ) ) {
+                    $parameters['database'] = (int) $parameters['database'];
+                }
+
+                $args['database'] = $parameters['database'];
+
+                if ( $parameters['database'] ) {
+                    $this->redis->select( $parameters['database'] );
+                }
+            }
+
+            $this->diagnostics += $args;
+        }
+
+        if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
+            $this->redis->setOption( Relay\Relay::OPT_SERIALIZER, WP_REDIS_SERIALIZER );
         }
     }
 
