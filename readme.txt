@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, relay, caching, cache, object
 Requires at least: 3.3
 Tested up to: 5.9
 Requires PHP: 5.6
-Stable tag: 2.0.22
+Stable tag: 2.0.23
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,12 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.23 =
+
+- Added support for Relay
+- Minor UX fixes and improvements
+- Updated ApexCharts to v3.31.0
 
 = 2.0.22 =
 
@@ -525,6 +531,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.21 =
+= 2.0.23 =
 
-Version 2.0 is a significant rewrite of the plugin. Please read the v2.0.0 release notes.
+Added support for Relay. Minor UX fixes and improvements.

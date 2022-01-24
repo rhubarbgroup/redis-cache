@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.23
 
 - Added support for Relay
 - Minor UX fixes and improvements
