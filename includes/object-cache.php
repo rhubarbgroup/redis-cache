@@ -620,7 +620,7 @@ class WP_Object_Cache {
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
                 '',
-                'retry_interval' => $parameters['retry_interval'],
+                'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
             if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {
@@ -690,7 +690,7 @@ class WP_Object_Cache {
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
                 '',
-                'retry_interval' => $parameters['retry_interval'],
+                'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
             if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {

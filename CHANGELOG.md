@@ -5,6 +5,7 @@
 - Added support for Relay
 - Minor UX fixes and improvements
 - Updated ApexCharts to v3.31.0
+- Fixed PHP 8.1 deprecation notice
 
 ## 2.0.22
 
