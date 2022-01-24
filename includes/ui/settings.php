@@ -150,13 +150,6 @@ defined( '\\ABSPATH' ) || exit;
 
             </div>
 
-            <!-- Managing Massive WP Sites?
-Then join our Object Cache Pro Insiders group today!
-
-Each month, we share exclusive insights, tips, tricks and tutorials on making WordPress faster … at scale.
-
-Join for free OCP INSIDERS group today! -->
-
         </div>
 
     </div>

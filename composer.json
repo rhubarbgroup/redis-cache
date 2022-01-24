@@ -20,7 +20,7 @@
     ],
     "require": {
         "php": ">=5.6.0",
-        "composer/installers": "~1.0",
+        "composer/installers": "~1.0 || ~2.0",
         "mnsami/composer-custom-directory-installer": "^2.0",
         "predis/predis": "^1.1",
         "colinmollenhour/credis": "^1.12.1"
@@ -49,5 +49,12 @@
             "sed -e 's#WP_Object_Cache#Redis_Pro_WP_Object_Cache#;s#class Redis_Pro_WP_Object_Cache#& extends WP_Object_Cache#' includes/object-cache.php >php-tools/object-cache.php",
             "php-tools/vendor/bin/phpstan analyze"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/installers": true,
+            "mnsami/composer-custom-directory-installer": true
+        }
     }
 }
