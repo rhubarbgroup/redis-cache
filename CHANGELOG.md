@@ -3,6 +3,8 @@
 ## Unreleased
 
 - Updated Predis to v1.1.10
+- Support `composer/installers` v1 and v2
+
 ## 2.0.23
 
 - Added support for [Relay](https://relaycache.com)
