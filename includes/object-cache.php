@@ -584,7 +584,7 @@ class WP_Object_Cache {
     }
 
     /**
-     * Connect to Redis using the PhpRedis (PECL) extention.
+     * Connect to Redis using the PhpRedis (PECL) extension.
      *
      * @param  array $parameters Connection parameters built by the `build_parameters` method.
      * @return void
@@ -944,7 +944,7 @@ class WP_Object_Cache {
     }
 
     /**
-     * Connect to Redis using HHVM's Redis extention.
+     * Connect to Redis using HHVM's Redis extension.
      *
      * @param  array $parameters Connection parameters built by the `build_parameters` method.
      * @return void

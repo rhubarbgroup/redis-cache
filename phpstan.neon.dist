@@ -6,7 +6,7 @@ parameters:
     dynamicConstantNames:
         - WP_REDIS_SERVERS
     bootstrapFiles:
-        - tests/phpstan/boostrap.php
+        - tests/phpstan/bootstrap.php
         # Made with generate-stubs --classes --interfaces --traits --out=query-monitor-stubs.php classes/ output/
         - tests/phpstan/query-monitor-stubs.php
         - php-tools/vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php

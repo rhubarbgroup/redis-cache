@@ -38,7 +38,7 @@ abstract class ROC_Unit_Test_Case extends WP_UnitTestCase {
     }
 
     /**
-     * Retreives file data (headers) from a specific file
+     * Retrieves file data (headers) from a specific file
      *
      * @param string               $path    The path of the file
      * @param array<string,string> $headers Headers to find. Format: ['key_index'=>'Header in File']

@@ -50,7 +50,7 @@ class Plugin {
     private static $instance;
 
     /**
-     * Plugin instanciation method
+     * Plugin instantiation method
      *
      * @return Plugin
      */
@@ -706,7 +706,7 @@ class Plugin {
                          * Fires on cache enable event
                          *
                          * @since 1.3.5
-                         * @param bool $result Whether the filesystem event (deletion of the `object-cache.php` file) was successfull.
+                         * @param bool $result Whether the filesystem event (deletion of the `object-cache.php` file) was successful.
                          */
                         do_action( 'redis_object_cache_disable', $result );
 
@@ -737,7 +737,7 @@ class Plugin {
                          * Fires on cache enable event
                          *
                          * @since 1.3.5
-                         * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successfull.
+                         * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.
                          */
                         do_action( 'redis_object_cache_update_dropin', $result );
 
@@ -944,7 +944,7 @@ class Plugin {
      * Initializes the WP filesystem API to be ready for use
      *
      * @param string $url    The URL to post the form to.
-     * @param bool   $silent Wheather to ask the user for credentials if necessary or not.
+     * @param bool   $silent Whether to ask the user for credentials if necessary or not.
      * @return bool
      */
     public function initialize_filesystem( $url, $silent = false ) {
@@ -1083,7 +1083,7 @@ class Plugin {
              * Fires on cache enable event
              *
              * @since 1.3.5
-             * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successfull.
+             * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.
              */
             do_action( 'redis_object_cache_update_dropin', $result );
         }

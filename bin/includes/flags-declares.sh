@@ -1,6 +1,6 @@
 #!busr/bin/env bash
 #
-# Needed for agrument extraction
+# Needed for argument extraction
 #
 declare -A arguments=();
 declare -A variables=();

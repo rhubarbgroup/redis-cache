@@ -79,14 +79,14 @@
     overflow: scroll;
 }
 
-#rediscache .compatiblity {
+#rediscache .compatibility {
     display: flex;
     max-width: 520px;
     margin-bottom: 5px;
     color: #666;
 }
 
-#rediscache .compatiblity + ul {
+#rediscache .compatibility + ul {
     margin-top: 0;
     padding-left: 50px;
     list-style: circle;
@@ -94,7 +94,7 @@
     color: #666;
 }
 
-#rediscache .compatiblity .dashicons {
+#rediscache .compatibility .dashicons {
     margin-right: 5px;
 }
 

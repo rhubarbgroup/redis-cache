@@ -104,14 +104,14 @@ defined( '\\ABSPATH' ) || exit;
 
                 <?php if ( $is_php7 && $is_phpredis311 ) : ?>
 
-                    <p class="compatiblity">
+                    <p class="compatibility">
                         <span class="dashicons dashicons-yes"></span>
                         <span><?php esc_html_e( 'Your site meets the system requirements for the Pro version.', 'redis-cache' ); ?></span>
                     </p>
 
                 <?php else : ?>
 
-                    <p class="compatiblity">
+                    <p class="compatibility">
                         <span class="dashicons dashicons-no"></span>
                         <span><?php echo wp_kses_post( __( 'Your site <i>does not</i> meet the requirements for the Pro version:', 'redis-cache' ) ); ?></span>
                     </p>
@@ -149,6 +149,13 @@ defined( '\\ABSPATH' ) || exit;
                 <?php endif; ?>
 
             </div>
+
+            <!-- Managing Massive WP Sites?
+Then join our Object Cache Pro Insiders group today!
+
+Each month, we share exclusive insights, tips, tricks and tutorials on making WordPress faster … at scale.
+
+Join for free OCP INSIDERS group today! -->
 
         </div>
 

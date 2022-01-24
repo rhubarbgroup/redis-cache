@@ -17,7 +17,7 @@ defined( '\\ABSPATH' ) || exit;
 class QM_Output extends QM_Output_Html {
 
     /**
-     * Contructor
+     * Constructor
      *
      * @param QM_Collector $collector The corresponding collector instance.
      */
