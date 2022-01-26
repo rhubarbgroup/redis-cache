@@ -6,6 +6,7 @@
 - Fix metrics chart not rendering
 - Updated Predis to v1.1.10
 - Support `composer/installers` v1 and v2
+- Link to settings page when foreign drop-in was found
 
 ## 2.0.23
 
