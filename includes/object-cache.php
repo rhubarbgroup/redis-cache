@@ -81,6 +81,19 @@ function wp_cache_delete( $key, $group = '', $time = 0 ) {
 }
 
 /**
+ * Delete multiple values from the cache in one call.
+ *
+ * @param array  $keys  Array of keys under which the cache to deleted.
+ * @param string $group Optional. Where the cache contents are grouped. Default empty.
+ * @return array Array of return values organized into groups.
+ */
+function wp_cache_delete_multiple( array $keys, $group = '' ) {
+	global $wp_object_cache;
+
+	return $wp_object_cache->delete_multiple( $keys, $group );
+}
+
+/**
  * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
  * only keys prefixed with the `WP_REDIS_PREFIX` are flushed.
  *
@@ -1241,6 +1254,62 @@ class WP_Object_Cache {
 
         return (bool) $result;
     }
+
+    /**
+	 * Delete multiple values from the cache in one call.
+	 *
+	 * @param array  $keys  Array of keys to be deleted.
+	 * @param string $group Optional. Where the cache contents are grouped. Default empty.
+	 * @return array Array of return values.
+	 */
+	public function delete_multiple( array $keys, $group = '' ) {
+		$result = 0;
+
+        $derived_keys = array_map( function ( $key ) use ( $group ) {
+            return $this->build_key( $key, $group );
+        }, $keys );
+
+        foreach ( $derived_keys as $derived_key ) {
+            if ( isset( $this->cache[ $derived_key ] ) ) {
+                unset( $this->cache[ $derived_key ] );
+                $result++;
+            }
+		}
+
+        $start_time = microtime( true );
+
+        if ( $this->redis_status() && ! $this->is_ignored_group( $group ) ) {
+            try {
+                $result = $this->parse_redis_response( $this->redis->del( $derived_keys ) );
+            } catch ( Exception $exception ) {
+                $this->handle_exception( $exception );
+
+                return false;
+            }
+        }
+
+        $execute_time = microtime( true ) - $start_time;
+
+        $this->cache_calls++;
+        $this->cache_time += $execute_time;
+
+        if ( function_exists( 'do_action' ) ) {
+            /**
+             * Fires on every cache key deletion
+             *
+             * @since 2.0.24
+             * @param string $keys         The cache keys.
+             * @param string $group        The group value appended to the $key.
+             * @param float  $execute_time Execution time for the request in seconds.
+             */
+            do_action( 'redis_object_cache_delete_multiple', $keys, $group, $execute_time );
+        }
+
+        return array_replace(
+            array_fill(0, count($keys), false),
+            array_fill(0, $result, true),
+        );
+	}
 
     /**
      * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
