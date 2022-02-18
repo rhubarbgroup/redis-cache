@@ -1318,13 +1318,18 @@ class WP_Object_Cache {
     }
 
     /**
-	 * Delete multiple values from the cache in one call.
+	 * Deletes multiple values from the cache in one call.
 	 *
 	 * @param array  $keys  Array of keys to be deleted.
-	 * @param string $group Optional. Where the cache contents are grouped. Default empty.
-	 * @return array Array of return values.
+	 * @param string $group Optional. Where the cache contents are grouped.
+	 * @return bool[] Array of return values, grouped by key. Each value is either
+	 *                true on success, or false if the contents were not deleted.
 	 */
 	public function delete_multiple( array $keys, $group = 'default' ) {
+        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+            return $this->delete_multiple_at_once( $keys, $group );
+        }
+
 		$values = [];
 
 		foreach ( $keys as $key ) {
@@ -1332,6 +1337,52 @@ class WP_Object_Cache {
 		}
 
 		return $values;
+	}
+
+    /**
+	 * Deletes multiple values from the cache in one call.
+	 *
+	 * @param array  $keys  Array of keys to be deleted.
+	 * @param string $group Optional. Where the cache contents are grouped.
+	 * @return bool[] Array of return values, grouped by key. Each value is either
+	 *                true on success, or false if the contents were not deleted.
+	 */
+	public function delete_multiple_at_once( array $keys, $group = 'default' ) {
+		if ( $this->is_ignored_group( $group ) ) {
+            $results = [];
+
+            foreach ( $keys as $key ) {
+                $derived_key = $this->build_key( $key, $group );
+
+                $results[ $key ] = isset( $this->cache[ $derived_key ] );
+
+                unset( $this->cache[ $derived_key ] );
+            }
+
+            return $results;
+        }
+
+        try {
+            $tx = $this->redis->pipeline();
+
+            foreach ($keys as $key) {
+                $derived_key = $this->build_key( (string) $key, $group );
+
+                $tx->del( $derived_key );
+
+                unset( $this->cache[ $derived_key ] );
+            }
+
+            $results = array_map( function ( $response ) {
+                return (bool) $this->parse_redis_response( $response );
+            }, $tx->exec() );
+
+            return array_combine( $keys, $results );
+        } catch ( Exception $exception ) {
+            $this->handle_exception( $exception );
+
+            return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
+        }
 	}
 
     /**
