@@ -37,6 +37,22 @@ function wp_cache_add( $key, $value, $group = '', $expiration = 0 ) {
 }
 
 /**
+ * Adds multiple values to the cache in one call.
+ *
+ * @param array  $data   Array of keys and values to be set.
+ * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+ * @param int    $expire Optional. When to expire the cache contents, in seconds.
+ *                       Default 0 (no expiration).
+ * @return bool[] Array of return values, grouped by key. Each value is either
+ *                true on success, or false if cache key and group already exist.
+ */
+function wp_cache_add_multiple( array $data, $group = '', $expire = 0 ) {
+	global $wp_object_cache;
+
+	return $wp_object_cache->add_multiple( $data, $group, $expire );
+}
+
+/**
  * Closes the cache.
  *
  * This function has ceased to do anything since WordPress 2.5. The
@@ -81,11 +97,12 @@ function wp_cache_delete( $key, $group = '', $time = 0 ) {
 }
 
 /**
- * Delete multiple values from the cache in one call.
+ * Deletes multiple values from the cache in one call.
  *
  * @param array  $keys  Array of keys under which the cache to deleted.
  * @param string $group Optional. Where the cache contents are grouped. Default empty.
- * @return array Array of return values organized into groups.
+ * @return bool[] Array of return values, grouped by key. Each value is either
+ *                true on success, or false if the contents were not deleted.
  */
 function wp_cache_delete_multiple( array $keys, $group = '' ) {
 	global $wp_object_cache;
@@ -238,6 +255,22 @@ function wp_cache_set( $key, $value, $group = '', $expiration = 0 ) {
     global $wp_object_cache;
 
     return $wp_object_cache->set( $key, $value, $group, $expiration );
+}
+
+/**
+ * Sets multiple values to the cache in one call.
+ *
+ * @param array  $data   Array of keys and values to be set.
+ * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+ * @param int    $expire Optional. When to expire the cache contents, in seconds.
+ *                       Default 0 (no expiration).
+ * @return bool[] Array of return values, grouped by key. Each value is either
+ *                true on success, or false on failure.
+ */
+function wp_cache_set_multiple( array $data, $group = '', $expire = 0 ) {
+	global $wp_object_cache;
+
+	return $wp_object_cache->set_multiple( $data, $group, $expire );
 }
 
 /**
@@ -1085,6 +1118,24 @@ class WP_Object_Cache {
     }
 
     /**
+	 * Add multiple values to the cache in one call.
+	 *
+	 * @param array  $data   Array of key and value to be added.
+	 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+	 * @param int    $expire Optional. When to expire the cache contents, in seconds. Default 0 (no expiration).
+	 * @return array Array of return values.
+	 */
+	public function add_multiple( array $data, $group = 'default', $expire = 0 ) {
+		$values = [];
+
+		foreach ( $data as $key => $value ) {
+			$values[ $key ] = $this->add( $key, $value, $group, $expire );
+		}
+
+		return $values;
+	}
+
+    /**
      * Replace a value in the cache.
      *
      * If the specified key doesn't exist, the value is not stored and the function
@@ -1273,53 +1324,14 @@ class WP_Object_Cache {
 	 * @param string $group Optional. Where the cache contents are grouped. Default empty.
 	 * @return array Array of return values.
 	 */
-	public function delete_multiple( array $keys, $group = '' ) {
-		$result = 0;
+	public function delete_multiple( array $keys, $group = 'default' ) {
+		$values = [];
 
-        $derived_keys = array_map( function ( $key ) use ( $group ) {
-            return $this->build_key( $key, $group );
-        }, $keys );
-
-        foreach ( $derived_keys as $derived_key ) {
-            if ( isset( $this->cache[ $derived_key ] ) ) {
-                unset( $this->cache[ $derived_key ] );
-                $result++;
-            }
+		foreach ( $keys as $key ) {
+			$values[ $key ] = $this->delete( $key, $group );
 		}
 
-        $start_time = microtime( true );
-
-        if ( $this->redis_status() && ! $this->is_ignored_group( $group ) ) {
-            try {
-                $result = $this->parse_redis_response( $this->redis->del( $derived_keys ) );
-            } catch ( Exception $exception ) {
-                $this->handle_exception( $exception );
-
-                return false;
-            }
-        }
-
-        $execute_time = microtime( true ) - $start_time;
-
-        $this->cache_calls++;
-        $this->cache_time += $execute_time;
-
-        if ( function_exists( 'do_action' ) ) {
-            /**
-             * Fires on every cache key deletion
-             *
-             * @since 2.0.24
-             * @param string $keys         The cache keys.
-             * @param string $group        The group value appended to the $key.
-             * @param float  $execute_time Execution time for the request in seconds.
-             */
-            do_action( 'redis_object_cache_delete_multiple', $keys, $group, $execute_time );
-        }
-
-        return array_replace(
-            array_fill(0, count($keys), false),
-            array_fill(0, $result, true),
-        );
+		return $values;
 	}
 
     /**
@@ -1967,6 +1979,24 @@ LUA;
 
         return $result;
     }
+
+    /**
+	 * Set multiple values to the cache in one call.
+	 *
+	 * @param array  $data   Array of key and value to be set.
+	 * @param string $group  Optional. Where the cache contents are grouped.
+	 * @param int    $expiration Optional. When to expire the cache contents, in seconds. Default 0 (no expiration).
+	 * @return array Array of return values.
+	 */
+	public function set_multiple( array $data, $group = 'default', $expiration = 0 ) {
+		$values = [];
+
+		foreach ( $data as $key => $value ) {
+			$values[ $key ] = $this->set( $key, $value, $group, $expiration );
+		}
+
+		return $values;
+	}
 
     /**
      * Increment a Redis counter by the amount specified
