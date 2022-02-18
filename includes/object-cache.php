@@ -1118,12 +1118,14 @@ class WP_Object_Cache {
     }
 
     /**
-	 * Add multiple values to the cache in one call.
+	 * Adds multiple values to the cache in one call.
 	 *
-	 * @param array  $data   Array of key and value to be added.
-	 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
-	 * @param int    $expire Optional. When to expire the cache contents, in seconds. Default 0 (no expiration).
-	 * @return array Array of return values.
+	 * @param array  $data   Array of keys and values to be added.
+	 * @param string $group  Optional. Where the cache contents are grouped.
+	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
+	 *                       Default 0 (no expiration).
+	 * @return bool[] Array of return values, grouped by key. Each value is either
+	 *                true on success, or false if cache key and group already exist.
 	 */
 	public function add_multiple( array $data, $group = 'default', $expire = 0 ) {
 		$values = [];
@@ -2032,12 +2034,13 @@ LUA;
     }
 
     /**
-	 * Set multiple values to the cache in one call.
+	 * Sets multiple values to the cache in one call.
 	 *
 	 * @param array  $data   Array of key and value to be set.
 	 * @param string $group  Optional. Where the cache contents are grouped.
-	 * @param int    $expiration Optional. When to expire the cache contents, in seconds. Default 0 (no expiration).
-	 * @return array Array of return values.
+	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
+	 *                       Default 0 (no expiration).
+	 * @return bool[] Array of return values, grouped by key. Each value is always true.
 	 */
 	public function set_multiple( array $data, $group = 'default', $expiration = 0 ) {
 		$values = [];
