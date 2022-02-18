@@ -108,6 +108,17 @@ function wp_cache_flush( $delay = 0 ) {
 }
 
 /**
+ * Removes all cache items from the in-memory runtime cache.
+ *
+ * @return bool True on success, false on failure.
+ */
+function wp_cache_flush_runtime() {
+    global $wp_object_cache;
+
+    return $wp_object_cache->flush_runtime();
+}
+
+/**
  * Retrieve object from cache.
  *
  * Gets an object from cache based on $key and $group.
@@ -1310,6 +1321,17 @@ class WP_Object_Cache {
             array_fill(0, $result, true),
         );
 	}
+
+    /**
+     * Removes all cache items from the in-memory runtime cache.
+     *
+     * @return bool True on success, false on failure.
+     */
+    public function flush_runtime() {
+        $this->cache = [];
+
+        return true;
+    }
 
     /**
      * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
