@@ -132,6 +132,11 @@ if ( $dropin ) {
         array_values( $wp_object_cache->unflushable_groups ),
         JSON_PRETTY_PRINT
     );
+
+    $info['Groups Types'] = wp_json_encode(
+        $wp_object_cache->group_type,
+        JSON_PRETTY_PRINT
+    );
 }
 
 $dropins = [];

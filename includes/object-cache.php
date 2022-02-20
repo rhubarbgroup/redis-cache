@@ -1205,7 +1205,7 @@ class WP_Object_Cache {
         $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         // Save if group not excluded and redis is up.
-        if ( ! $this->is_group_of_type( $san_group, "ignored" ) && $this->redis_status() ) {
+        if ( ! $this->is_ignored_group( $san_group ) && $this->redis_status() ) {
             try {
                 $orig_exp = $expiration;
                 $expiration = $this->validate_expiration( $expiration );
@@ -1311,7 +1311,7 @@ class WP_Object_Cache {
 
         $start_time = microtime( true );
 
-        if ( $this->redis_status() && ! $this->is_group_of_type( $san_group, "ignored" ) ) {
+        if ( $this->redis_status() && ! $this->is_ignored_group( $san_group ) ) {
             try {
                 $result = $this->parse_redis_response( $this->redis->del( $derived_key ) );
             } catch ( Exception $exception ) {
@@ -1698,7 +1698,7 @@ LUA;
             }
 
             return $value;
-        } elseif ( $this->is_group_of_type( $san_group, "ignored" ) || ! $this->redis_status() ) {
+        } elseif ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
             $found = false;
             $this->cache_misses++;
 
@@ -1824,7 +1824,7 @@ LUA;
             $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
         }
 
-        if ( $this->is_group_of_type( $san_group, "ignored" ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
             $traceKV = [];
 
             foreach ( $keys as $key ) {
@@ -2009,7 +2009,7 @@ LUA;
         $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         // Save if group not excluded from redis and redis is up.
-        if ( ! $this->is_group_of_type( $san_group, "ignored" ) && $this->redis_status() ) {
+        if ( ! $this->is_ignored_group( $san_group ) && $this->redis_status() ) {
             $orig_exp = $expiration;
             $expiration = $this->validate_expiration( $expiration );
 
@@ -2112,7 +2112,7 @@ LUA;
         $trace_flags = self::TRACE_FLAG_READ | self::TRACE_FLAG_WRITE;
 
         // If group is a non-Redis group, save to internal cache, not Redis.
-        if ( $this->is_group_of_type( $san_group, "ignored" ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
             $value = $this->get_from_internal_cache( $derived_key );
             $value += $offset;
             $this->add_to_internal_cache( $derived_key, $value );
@@ -2188,7 +2188,7 @@ LUA;
         $trace_flags = self::TRACE_FLAG_READ | self::TRACE_FLAG_WRITE;
 
         // If group is a non-Redis group, save to internal cache, not Redis.
-        if ( $this->is_group_of_type( $san_group, "ignored" ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
             $value = $this->get_from_internal_cache( $derived_key );
             $value -= $offset;
             $this->add_to_internal_cache( $derived_key, $value );
@@ -2344,7 +2344,7 @@ LUA;
 
         $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
 
-        $prefix = $this->is_group_of_type( $group, "global" ) ? $this->global_prefix : $this->blog_prefix;
+        $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
 
 
         $prefix = trim( $prefix, '_-:$' );
@@ -2362,6 +2362,36 @@ LUA;
         return str_replace( ':', '-', $part );
     }
 
+     /**
+     * Checks if the given group is part the ignored group array
+     *
+     * @param string $group  Name of the group to check, pre-sanitized.
+     * @return bool
+     */
+    protected function is_ignored_group( $group ) {
+        return $this->is_group_of_type( $group, "ignored" );
+    }
+
+     /**
+     * Checks if the given group is part the global group array
+     *
+     * @param string $group  Name of the group to check, pre-sanitized.
+     * @return bool
+     */
+    protected function is_global_group( $group ) {
+        return $this->is_group_of_type( $group, "global" );
+    }
+
+    /**
+     * Checks if the given group is part the unflushable group array
+     *
+     * @param string $group  Name of the group to check, pre-sanitized.
+     * @return bool
+     */
+    protected function is_unflushable_group( $group ) {
+        return $this->is_group_of_type( $group, "unflushable" );
+    }
+
     /**
      * Checks the type of the given group
      *
@@ -2369,7 +2399,7 @@ LUA;
      * @param string $type   Type of the group to check.
      * @return bool
      */
-    protected function is_group_of_type( $group, $type ) {
+    private function is_group_of_type( $group, $type ) {
         return isset($this->group_type[$group]) && $this->group_type[$group] == $type;
     }
 
@@ -2457,6 +2487,7 @@ LUA;
         } else {
             $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
         }
+        $this->cache_groups_type();
     }
 
     /**
@@ -2468,6 +2499,7 @@ LUA;
         $groups = (array) $groups;
 
         $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
+        $this->cache_groups_type();
     }
 
     /**
@@ -2479,6 +2511,7 @@ LUA;
         $groups = (array) $groups;
 
         $this->unflushable_groups = array_unique( array_merge( $this->unflushable_groups, $groups ) );
+        $this->cache_groups_type();
     }
 
     /**
