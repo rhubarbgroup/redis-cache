@@ -461,11 +461,11 @@ class WP_Object_Cache {
     ];
 
     /**
-     * group name to type mapping
+     * List of groups and their types.
      *
      * @var array
      */
-    public $group_type = array();
+    public $group_type = [];
 
     /**
      * Prefix used for global groups.
@@ -533,7 +533,7 @@ class WP_Object_Cache {
             $this->unflushable_groups = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_UNFLUSHABLE_GROUPS );
         }
 
-        $this->cache_groups_type();
+        $this->cache_group_types();
 
         if ( defined( 'WP_REDIS_TRACE' ) && WP_REDIS_TRACE ) {
             $this->trace_enabled = true;
@@ -588,18 +588,23 @@ class WP_Object_Cache {
 
     /**
      * Set group type array
+     *
+     * @return void
      */
-    protected function cache_groups_type() {
-        foreach ($this->global_groups as $group) {
-            $this->group_type[$group] = "global";
+    protected function cache_group_types() {
+        foreach ( $this->global_groups as $group ) {
+            $this->group_type[ $group ] = 'global';
         }
-        foreach ($this->unflushable_groups as $group) {
-            $this->group_type[$group] = "unflushable";
+
+        foreach ( $this->unflushable_groups as $group ) {
+            $this->group_type[ $group ] = 'unflushable';
         }
-        foreach ($this->ignored_groups as $group) {
-            $this->group_type[$group] = "ignored";
+
+        foreach ( $this->ignored_groups as $group ) {
+            $this->group_type[ $group ] = 'ignored';
         }
     }
+
     /**
      * Determine the Redis client.
      *
@@ -2362,24 +2367,24 @@ LUA;
         return str_replace( ':', '-', $part );
     }
 
-     /**
+    /**
      * Checks if the given group is part the ignored group array
      *
      * @param string $group  Name of the group to check, pre-sanitized.
      * @return bool
      */
     protected function is_ignored_group( $group ) {
-        return $this->is_group_of_type( $group, "ignored" );
+        return $this->is_group_of_type( $group, 'ignored' );
     }
 
-     /**
+    /**
      * Checks if the given group is part the global group array
      *
      * @param string $group  Name of the group to check, pre-sanitized.
      * @return bool
      */
     protected function is_global_group( $group ) {
-        return $this->is_group_of_type( $group, "global" );
+        return $this->is_group_of_type( $group, 'global' );
     }
 
     /**
@@ -2389,7 +2394,7 @@ LUA;
      * @return bool
      */
     protected function is_unflushable_group( $group ) {
-        return $this->is_group_of_type( $group, "unflushable" );
+        return $this->is_group_of_type( $group, 'unflushable' );
     }
 
     /**
@@ -2400,7 +2405,8 @@ LUA;
      * @return bool
      */
     private function is_group_of_type( $group, $type ) {
-        return isset($this->group_type[$group]) && $this->group_type[$group] == $type;
+        return isset( $this->group_type[ $group ] )
+            && $this->group_type[ $group ] == $type;
     }
 
     /**
@@ -2487,6 +2493,7 @@ LUA;
         } else {
             $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
         }
+
         $this->cache_groups_type();
     }
 
