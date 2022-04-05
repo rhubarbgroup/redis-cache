@@ -2430,7 +2430,7 @@ LUA;
 
         if ( $removed_default_groups && array_intersect( $groups, $removed_default_groups ) ) {
             // Don't allow default groups that were manually removed via WP_REDIS_IGNORED_GROUPS constant to be readded.
-            return;
+            $groups = array_diff( $groups, $removed_default_groups );
         }
 
         $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
