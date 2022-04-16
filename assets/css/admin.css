@@ -170,6 +170,7 @@
     border: none;
     box-shadow: none;
     background: #fff;
+    margin-top: 1px;
 }
 
 #redis-stats-chart .apexcharts-tooltip-title {
@@ -177,8 +178,6 @@
     padding: 0 15px;
     border-bottom: none;
     background-color: transparent;
-    font-weight: bold;
-    font-variant-numeric: tabular-nums;
 }
 
 #redis-stats-chart .apexcharts-tooltip-series-group {

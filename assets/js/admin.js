@@ -148,12 +148,18 @@
                 yaxis: {
                     labels: {
                         formatter: function ( value ) {
-                            return Math.round( value / 1024 ) + ' KB';
+                            var i = value === 0 ? 0 : Math.floor( Math.log( value ) / Math.log( 1024 ) );
+
+                            return parseFloat( (value / Math.pow( 1024, i ) ).toFixed( i ? 2 : 0 ) ) + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
                         },
                     },
                 },
                 tooltip: {
                     custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                        var value = series[0][ dataPointIndex ];
+                        var i = value === 0 ? 0 : Math.floor( Math.log( value ) / Math.log( 1024 ) );
+                        var bytes = parseFloat( (value / Math.pow( 1024, i ) ).toFixed( i ? 2 : 0 ) ) + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
+
                         return [
                             rediscache.templates.tooltip_title({
                                 title: new Date( w.globals.seriesX[ seriesIndex ][ dataPointIndex ] ).toTimeString().slice( 0, 5 ),
@@ -161,7 +167,7 @@
                             rediscache.templates.series_group({
                                 color: rediscache.chart_defaults.colors[0],
                                 name: w.globals.seriesNames[0],
-                                value: Math.round( series[0][ dataPointIndex ] / 1024 ) + ' kb',
+                                value: bytes,
                             }),
                             rediscache.templates.series_pro({
                                 color: rediscache.chart_defaults.colors[1],
@@ -385,7 +391,7 @@
             }
         );
 
-        var firstRender = true;
+        var firstRender = window.location.hash.indexOf('metrics') === -1;
 
         var show_tab = function ( name ) {
             $tabs.find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );

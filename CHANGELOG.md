@@ -1,9 +1,16 @@
 # Changelog
 
-## Unreleased
+## 2.0.24
 
+- Improve metrics label/tooltip formatting
+- Fix metrics chart not rendering
 - Updated Predis to v1.1.10
+- Updated Credis to v1.13.0
 - Support `composer/installers` v1 and v2
+- Link to settings page when foreign drop-in was found
+- Added `wp_cache_flush_runtime()` function
+- Added `wp_cache_add_multiple()` function
+- Added `wp_cache_delete_multiple()` function
 
 ## 2.0.23
 

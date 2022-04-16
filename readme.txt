@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, relay, caching, cache, object
 Requires at least: 3.3
 Tested up to: 5.9
 Requires PHP: 5.6
-Stable tag: 2.0.23
+Stable tag: 2.0.24
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,18 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.24 =
+
+- Improve metrics label/tooltip formatting
+- Fix metrics chart not rendering
+- Updated Predis to v1.1.10
+- Updated Credis to v1.13.0
+- Support `composer/installers` v1 and v2
+- Link to settings page when foreign drop-in was found
+- Added `wp_cache_flush_runtime()` function
+- Added `wp_cache_add_multiple()` function
+- Added `wp_cache_delete_multiple()` function
 
 = 2.0.23 =
 
