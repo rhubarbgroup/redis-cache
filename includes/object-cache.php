@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: http://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Credis, HHVM, replication, clustering and WP-CLI.
- * Version: 2.0.24
+ * Version: 2.0.25
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -1132,10 +1132,6 @@ class WP_Object_Cache {
             return array_combine( $data, array_fill( 0, count( $data ), false ) );
         }
 
-        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
-            return $this->add_multiple_at_once( $data, $group, $expire );
-        }
-
         $values = [];
 
         foreach ( $data as $key => $value ) {
@@ -1143,70 +1139,6 @@ class WP_Object_Cache {
         }
 
         return $values;
-    }
-
-    /**
-     * Adds multiple values to the cache in one call.
-     *
-     * @param array  $data   Array of keys and values to be added.
-     * @param string $group  Optional. Where the cache contents are grouped.
-     * @param int    $expire Optional. When to expire the cache contents, in seconds.
-     *                       Default 0 (no expiration).
-     * @return bool[] Array of return values, grouped by key. Each value is either
-     *                true on success, or false if cache key and group already exist.
-     */
-    protected function add_multiple_at_once( array $data, $group = 'default', $expire = 0 ) {
-        $results = [];
-
-        if ($this->isNonPersistentGroup($group)) {
-            foreach ($data as $key => $value) {
-                $id = $this->id((string) $key, $group);
-                $results[$key] = ! $this->hasInMemory($id, $group);
-
-                if ($results[$key]) {
-                    $this->storeInMemory($id, $value, $group);
-                }
-            }
-
-            return $results;
-        }
-
-        foreach ($data as $key => $value) {
-            $id = $this->id((string) $key, $group);
-
-            if ($this->hasInMemory($id, $group)) {
-                $results[$key] = false;
-            }
-        }
-
-        try {
-            $response = $this->multiwrite(
-                array_diff_key($data, $results),
-                $group,
-                $expire,
-                'NX'
-            );
-        } catch (Exception $exception) {
-            $this->error($exception);
-
-            return array_combine(array_keys($data), array_fill(0, count($data), false));
-        }
-
-        foreach ($response as $key => $result) {
-            if ($result->response) {
-                $this->storeInMemory($result->id, $data[$key], $group);
-            }
-
-            $results[$key] = $result->response;
-        }
-
-        $order = array_flip(array_keys($data));
-
-        uksort($results, function ($a, $b) use ($order) {
-            return $order[$a] - $order[$b];
-        });
-
-        return $results;
     }
 
     /**

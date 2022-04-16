@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.25
+
+- Removed broken `wp_cache_add_multiple()` function
+
 ## 2.0.24
 
 - Improve metrics label/tooltip formatting
