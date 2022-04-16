@@ -83,6 +83,10 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 == Changelog ==
 
+= 2.0.25 =
+
+- Removed broken `wp_cache_add_multiple()` function
+
 = 2.0.24 =
 
 - Improve metrics label/tooltip formatting
@@ -544,6 +548,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.23 =
+= 2.0.25 =
 
-Added support for Relay. Minor UX fixes and improvements.
+Various fixes and improvements.
