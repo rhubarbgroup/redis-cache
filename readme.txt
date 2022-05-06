@@ -16,7 +16,7 @@ A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, C
 
 A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), [Credis](https://github.com/colinmollenhour/credis), [HHVM](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), replication, clustering and [WP-CLI](http://wp-cli.org/).
 
-To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [our Wiki](https://github.com/rhubarbgroup/redis-cache/wiki).
+To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [our wiki](https://github.com/rhubarbgroup/redis-cache/wiki).
 
 = Object Cache Pro =
 
