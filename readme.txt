@@ -3,7 +3,7 @@ Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, predis, phpredis, credis, hhvm, pecl, relay, caching, cache, object cache, performance, replication, clustering, keydb
 Requires at least: 3.3
-Tested up to: 5.9
+Tested up to: 6.0
 Requires PHP: 5.6
 Stable tag: 2.0.25
 License: GPLv3
