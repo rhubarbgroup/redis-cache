@@ -2,6 +2,7 @@
 
 ## 2.0.26
 
+- Fixed a bug in `wp_cache_delete_multiple()` when using Predis
 - Fixed a bug in `wp_cache_add_multiple()` when cache addition is suspended
 
 ## 2.0.25

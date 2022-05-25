@@ -1379,9 +1379,11 @@ class WP_Object_Cache {
                 unset( $this->cache[ $derived_key ] );
             }
 
+            $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
-            }, $tx->exec() );
+            }, $tx->{$method}() );
 
             return array_combine( $keys, $results );
         } catch ( Exception $exception ) {
