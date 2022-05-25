@@ -611,15 +611,15 @@ class Plugin {
         if ( $this->object_cache_dropin_exists() ) {
             if ( $this->validate_object_cache_dropin() ) {
                 if ( $this->object_cache_dropin_outdated() ) {
-                    // translators: %s = Action link to update the drop-in.
                     $message = sprintf(
+                        // translators: %s = Action link to update the drop-in.
                         __( 'The Redis object cache drop-in is outdated. Please <a href="%s">update the drop-in</a>.', 'redis-cache' ),
                         $this->action_link( 'update-dropin' )
                     );
                 }
             } else {
-                // translators: %s = Link to settings page.
                 $message = sprintf(
+                    // translators: %s = Link to settings page.
                     __( 'A foreign object cache drop-in was found. To use Redis for object caching, please <a href="%s">enable the drop-in</a>.', 'redis-cache' ),
                     esc_url( network_admin_url( $this->page ) )
                 );
