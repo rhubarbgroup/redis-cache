@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, hhvm, pecl, relay, caching, cache, object
 Requires at least: 3.3
 Tested up to: 6.0
 Requires PHP: 5.6
-Stable tag: 2.0.25
+Stable tag: 2.0.26
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,11 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.26 =
+
+- Fixed a bug in `wp_cache_delete_multiple()` when using Predis
+- Fixed a bug in `wp_cache_add_multiple()` when cache addition is suspended
 
 = 2.0.25 =
 
@@ -548,6 +553,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.25 =
+= 2.0.26 =
 
-Various fixes and improvements.
+WordPress 6.0 compatibility fixes.
