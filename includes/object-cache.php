@@ -1129,7 +1129,7 @@ class WP_Object_Cache {
      */
     public function add_multiple( array $data, $group = 'default', $expire = 0 ) {
         if ( function_exists( 'wp_suspend_cache_addition' ) && wp_suspend_cache_addition() ) {
-            return array_combine( $data, array_fill( 0, count( $data ), false ) );
+            return array_combine( array_keys( $data ), array_fill( 0, count( $data ), false ) );
         }
 
         $values = [];
