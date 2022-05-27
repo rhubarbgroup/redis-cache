@@ -63,7 +63,7 @@ $info['Metrics recorded'] = wp_json_encode( \Rhubarb\RedisCache\Metrics::count()
 
 $info['Filesystem'] = is_wp_error( $filesystem ) ? $filesystem->get_error_message() : 'Working';
 
-if ( $dropin ) {
+if ( $dropin && ! $disabled ) {
     $info['Global Prefix'] = wp_json_encode( $wp_object_cache->global_prefix );
     $info['Blog Prefix'] = wp_json_encode( $wp_object_cache->blog_prefix );
 }
@@ -117,7 +117,7 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
     }
 }
 
-if ( $dropin ) {
+if ( $dropin && ! $disabled ) {
     $info['Global Groups'] = wp_json_encode(
         array_values( $wp_object_cache->global_groups ),
         JSON_PRETTY_PRINT
