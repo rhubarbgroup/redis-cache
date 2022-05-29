@@ -690,7 +690,7 @@ class WP_Object_Cache {
 
             if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = $parameters['path'];
-                $args['port'] = null;
+                $args['port'] = -1;
             }
 
             if ( version_compare( $version, '3.1.3', '>=' ) ) {
