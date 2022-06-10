@@ -1,5 +1,9 @@
 # Changelog
 
+## Unrelease
+
+- Disable banners if Object Cache Pro is installed
+
 ## 2.0.26
 
 - Fixed a bug in `wp_cache_delete_multiple()` when using Predis
