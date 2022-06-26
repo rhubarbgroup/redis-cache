@@ -2500,7 +2500,7 @@ LUA;
             $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
         }
 
-        $this->cache_groups_type();
+        $this->cache_group_types();
     }
 
     /**
@@ -2512,7 +2512,7 @@ LUA;
         $groups = (array) $groups;
 
         $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
-        $this->cache_groups_type();
+        $this->cache_group_types();
     }
 
     /**
@@ -2524,7 +2524,7 @@ LUA;
         $groups = (array) $groups;
 
         $this->unflushable_groups = array_unique( array_merge( $this->unflushable_groups, $groups ) );
-        $this->cache_groups_type();
+        $this->cache_group_types();
     }
 
     /**
