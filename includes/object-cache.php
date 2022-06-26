@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: http://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Credis, HHVM, replication, clustering and WP-CLI.
- * Version: 2.0.24-dev
+ * Version: 2.0.26
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -47,9 +47,9 @@ function wp_cache_add( $key, $value, $group = '', $expiration = 0 ) {
  *                true on success, or false if cache key and group already exist.
  */
 function wp_cache_add_multiple( array $data, $group = '', $expire = 0 ) {
-	global $wp_object_cache;
+    global $wp_object_cache;
 
-	return $wp_object_cache->add_multiple( $data, $group, $expire );
+    return $wp_object_cache->add_multiple( $data, $group, $expire );
 }
 
 /**
@@ -105,9 +105,9 @@ function wp_cache_delete( $key, $group = '', $time = 0 ) {
  *                true on success, or false if the contents were not deleted.
  */
 function wp_cache_delete_multiple( array $keys, $group = '' ) {
-	global $wp_object_cache;
+    global $wp_object_cache;
 
-	return $wp_object_cache->delete_multiple( $keys, $group );
+    return $wp_object_cache->delete_multiple( $keys, $group );
 }
 
 /**
@@ -268,9 +268,9 @@ function wp_cache_set( $key, $value, $group = '', $expiration = 0 ) {
  *                true on success, or false on failure.
  */
 function wp_cache_set_multiple( array $data, $group = '', $expire = 0 ) {
-	global $wp_object_cache;
+    global $wp_object_cache;
 
-	return $wp_object_cache->set_multiple( $data, $group, $expire );
+    return $wp_object_cache->set_multiple( $data, $group, $expire );
 }
 
 /**
@@ -718,7 +718,7 @@ class WP_Object_Cache {
 
             if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = $parameters['path'];
-                $args['port'] = null;
+                $args['port'] = -1;
             }
 
             if ( version_compare( $version, '3.1.3', '>=' ) ) {
@@ -1146,24 +1146,28 @@ class WP_Object_Cache {
     }
 
     /**
-	 * Adds multiple values to the cache in one call.
-	 *
-	 * @param array  $data   Array of keys and values to be added.
-	 * @param string $group  Optional. Where the cache contents are grouped.
-	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
-	 *                       Default 0 (no expiration).
-	 * @return bool[] Array of return values, grouped by key. Each value is either
-	 *                true on success, or false if cache key and group already exist.
-	 */
-	public function add_multiple( array $data, $group = 'default', $expire = 0 ) {
-		$values = [];
+     * Adds multiple values to the cache in one call.
+     *
+     * @param array  $data   Array of keys and values to be added.
+     * @param string $group  Optional. Where the cache contents are grouped.
+     * @param int    $expire Optional. When to expire the cache contents, in seconds.
+     *                       Default 0 (no expiration).
+     * @return bool[] Array of return values, grouped by key. Each value is either
+     *                true on success, or false if cache key and group already exist.
+     */
+    public function add_multiple( array $data, $group = 'default', $expire = 0 ) {
+        if ( function_exists( 'wp_suspend_cache_addition' ) && wp_suspend_cache_addition() ) {
+            return array_combine( array_keys( $data ), array_fill( 0, count( $data ), false ) );
+        }
 
-		foreach ( $data as $key => $value ) {
-			$values[ $key ] = $this->add( $key, $value, $group, $expire );
-		}
+        $values = [];
 
-		return $values;
-	}
+        foreach ( $data as $key => $value ) {
+            $values[ $key ] = $this->add( $key, $value, $group, $expire );
+        }
+
+        return $values;
+    }
 
     /**
      * Replace a value in the cache.
@@ -1356,37 +1360,37 @@ class WP_Object_Cache {
     }
 
     /**
-	 * Deletes multiple values from the cache in one call.
-	 *
-	 * @param array  $keys  Array of keys to be deleted.
-	 * @param string $group Optional. Where the cache contents are grouped.
-	 * @return bool[] Array of return values, grouped by key. Each value is either
-	 *                true on success, or false if the contents were not deleted.
-	 */
-	public function delete_multiple( array $keys, $group = 'default' ) {
+     * Deletes multiple values from the cache in one call.
+     *
+     * @param array  $keys  Array of keys to be deleted.
+     * @param string $group Optional. Where the cache contents are grouped.
+     * @return bool[] Array of return values, grouped by key. Each value is either
+     *                true on success, or false if the contents were not deleted.
+     */
+    public function delete_multiple( array $keys, $group = 'default' ) {
         if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
             return $this->delete_multiple_at_once( $keys, $group );
         }
 
-		$values = [];
+        $values = [];
 
-		foreach ( $keys as $key ) {
-			$values[ $key ] = $this->delete( $key, $group );
-		}
+        foreach ( $keys as $key ) {
+            $values[ $key ] = $this->delete( $key, $group );
+        }
 
-		return $values;
-	}
+        return $values;
+    }
 
     /**
-	 * Deletes multiple values from the cache in one call.
-	 *
-	 * @param array  $keys  Array of keys to be deleted.
-	 * @param string $group Optional. Where the cache contents are grouped.
-	 * @return bool[] Array of return values, grouped by key. Each value is either
-	 *                true on success, or false if the contents were not deleted.
-	 */
-	public function delete_multiple_at_once( array $keys, $group = 'default' ) {
-		if ( $this->is_ignored_group( $group ) ) {
+     * Deletes multiple values from the cache in one call.
+     *
+     * @param array  $keys  Array of keys to be deleted.
+     * @param string $group Optional. Where the cache contents are grouped.
+     * @return bool[] Array of return values, grouped by key. Each value is either
+     *                true on success, or false if the contents were not deleted.
+     */
+    protected function delete_multiple_at_once( array $keys, $group = 'default' ) {
+        if ( $this->is_ignored_group( $group ) ) {
             $results = [];
 
             foreach ( $keys as $key ) {
@@ -1411,9 +1415,11 @@ class WP_Object_Cache {
                 unset( $this->cache[ $derived_key ] );
             }
 
+            $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
-            }, $tx->exec() );
+            }, $tx->{$method}() );
 
             return array_combine( $keys, $results );
         } catch ( Exception $exception ) {
@@ -1421,7 +1427,7 @@ class WP_Object_Cache {
 
             return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
         }
-	}
+    }
 
     /**
      * Removes all cache items from the in-memory runtime cache.
@@ -2080,23 +2086,23 @@ LUA;
     }
 
     /**
-	 * Sets multiple values to the cache in one call.
-	 *
-	 * @param array  $data   Array of key and value to be set.
-	 * @param string $group  Optional. Where the cache contents are grouped.
-	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
-	 *                       Default 0 (no expiration).
-	 * @return bool[] Array of return values, grouped by key. Each value is always true.
-	 */
-	public function set_multiple( array $data, $group = 'default', $expiration = 0 ) {
-		$values = [];
+     * Sets multiple values to the cache in one call.
+     *
+     * @param array  $data   Array of key and value to be set.
+     * @param string $group  Optional. Where the cache contents are grouped.
+     * @param int    $expire Optional. When to expire the cache contents, in seconds.
+     *                       Default 0 (no expiration).
+     * @return bool[] Array of return values, grouped by key. Each value is always true.
+     */
+    public function set_multiple( array $data, $group = 'default', $expiration = 0 ) {
+        $values = [];
 
-		foreach ( $data as $key => $value ) {
-			$values[ $key ] = $this->set( $key, $value, $group, $expiration );
-		}
+        foreach ( $data as $key => $value ) {
+            $values[ $key ] = $this->set( $key, $value, $group, $expiration );
+        }
 
-		return $values;
-	}
+        return $values;
+    }
 
     /**
      * Increment a Redis counter by the amount specified

@@ -3,9 +3,9 @@ Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, predis, phpredis, credis, hhvm, pecl, relay, caching, cache, object cache, performance, replication, clustering, keydb
 Requires at least: 3.3
-Tested up to: 5.9
+Tested up to: 6.0
 Requires PHP: 5.6
-Stable tag: 2.0.23
+Stable tag: 2.0.26
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,7 +16,7 @@ A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, C
 
 A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), [Credis](https://github.com/colinmollenhour/credis), [HHVM](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), replication, clustering and [WP-CLI](http://wp-cli.org/).
 
-To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [Other Notes](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
+To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [our wiki](https://github.com/rhubarbgroup/redis-cache/wiki).
 
 = Object Cache Pro =
 
@@ -82,6 +82,27 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.0.26 =
+
+- Fixed a bug in `wp_cache_delete_multiple()` when using Predis
+- Fixed a bug in `wp_cache_add_multiple()` when cache addition is suspended
+
+= 2.0.25 =
+
+- Removed broken `wp_cache_add_multiple()` function
+
+= 2.0.24 =
+
+- Improve metrics label/tooltip formatting
+- Fix metrics chart not rendering
+- Updated Predis to v1.1.10
+- Updated Credis to v1.13.0
+- Support `composer/installers` v1 and v2
+- Link to settings page when foreign drop-in was found
+- Added `wp_cache_flush_runtime()` function
+- Added `wp_cache_add_multiple()` function
+- Added `wp_cache_delete_multiple()` function
 
 = 2.0.23 =
 
@@ -532,6 +553,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.23 =
+= 2.0.26 =
 
-Added support for Relay. Minor UX fixes and improvements.
+WordPress 6.0 compatibility fixes.
