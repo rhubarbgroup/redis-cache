@@ -461,6 +461,13 @@ class WP_Object_Cache {
     ];
 
     /**
+     * List of groups and their types.
+     *
+     * @var array
+     */
+    public $group_type = [];
+
+    /**
      * Prefix used for global groups.
      *
      * @var string
@@ -526,6 +533,8 @@ class WP_Object_Cache {
             $this->unflushable_groups = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_UNFLUSHABLE_GROUPS );
         }
 
+        $this->cache_group_types();
+
         if ( defined( 'WP_REDIS_TRACE' ) && WP_REDIS_TRACE ) {
             $this->trace_enabled = true;
         }
@@ -574,6 +583,25 @@ class WP_Object_Cache {
         if ( function_exists( 'is_multisite' ) ) {
             $this->global_prefix = is_multisite() ? '' : $table_prefix;
             $this->blog_prefix = is_multisite() ? $blog_id : $table_prefix;
+        }
+    }
+
+    /**
+     * Set group type array
+     *
+     * @return void
+     */
+    protected function cache_group_types() {
+        foreach ( $this->global_groups as $group ) {
+            $this->group_type[ $group ] = 'global';
+        }
+
+        foreach ( $this->unflushable_groups as $group ) {
+            $this->group_type[ $group ] = 'unflushable';
+        }
+
+        foreach ( $this->ignored_groups as $group ) {
+            $this->group_type[ $group ] = 'ignored';
         }
     }
 
@@ -1179,10 +1207,14 @@ class WP_Object_Cache {
         }
 
         $result = true;
-        $derived_key = $this->build_key( $key, $group );
+
+        $san_key = $this->sanitize_key_part( $key );
+        $san_group = $this->sanitize_key_part( $group );
+
+        $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         // Save if group not excluded and redis is up.
-        if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
+        if ( ! $this->is_ignored_group( $san_group ) && $this->redis_status() ) {
             try {
                 $orig_exp = $expiration;
                 $expiration = $this->validate_expiration( $expiration );
@@ -1275,7 +1307,11 @@ class WP_Object_Cache {
      */
     public function delete( $key, $group = 'default' ) {
         $result = false;
-        $derived_key = $this->build_key( $key, $group );
+
+        $san_key = $this->sanitize_key_part( $key );
+        $san_group = $this->sanitize_key_part( $group );
+
+        $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         if ( isset( $this->cache[ $derived_key ] ) ) {
             unset( $this->cache[ $derived_key ] );
@@ -1284,7 +1320,7 @@ class WP_Object_Cache {
 
         $start_time = microtime( true );
 
-        if ( $this->redis_status() && ! $this->is_ignored_group( $group ) ) {
+        if ( $this->redis_status() && ! $this->is_ignored_group( $san_group ) ) {
             try {
                 $result = $this->parse_redis_response( $this->redis->del( $derived_key ) );
             } catch ( Exception $exception ) {
@@ -1653,7 +1689,10 @@ LUA;
         }
 
         $start_time = microtime( true );
-        $derived_key = $this->build_key( $key, $group );
+
+        $san_key = $this->sanitize_key_part( $key );
+        $san_group = $this->sanitize_key_part( $group );
+        $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         if ( isset( $this->cache[ $derived_key ] ) && ! $force ) {
             $found = true;
@@ -1670,7 +1709,7 @@ LUA;
             }
 
             return $value;
-        } elseif ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
+        } elseif ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
             $found = false;
             $this->cache_misses++;
 
@@ -1789,11 +1828,14 @@ LUA;
         $derived_keys = [];
         $start_time = microtime( true );
 
+        $san_group = $this->sanitize_key_part( $group );
+
         foreach ( $keys as $key ) {
-            $derived_keys[ $key ] = $this->build_key( $key, $group );
+            $san_key = $this->sanitize_key_part( $key );
+            $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
         }
 
-        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
             $traceKV = [];
 
             foreach ( $keys as $key ) {
@@ -1971,10 +2013,14 @@ LUA;
     public function set( $key, $value, $group = 'default', $expiration = 0 ) {
         $result = true;
         $start_time = microtime( true );
-        $derived_key = $this->build_key( $key, $group );
+
+        $san_key = $this->sanitize_key_part( $key );
+        $san_group = $this->sanitize_key_part( $group );
+
+        $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         // Save if group not excluded from redis and redis is up.
-        if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
+        if ( ! $this->is_ignored_group( $san_group ) && $this->redis_status() ) {
             $orig_exp = $expiration;
             $expiration = $this->validate_expiration( $expiration );
 
@@ -2069,11 +2115,15 @@ LUA;
     public function increment( $key, $offset = 1, $group = 'default' ) {
         $offset = (int) $offset;
         $start_time = microtime( true );
-        $derived_key = $this->build_key( $key, $group );
+
+        $san_key = $this->sanitize_key_part( $key );
+        $san_group = $this->sanitize_key_part( $group );
+
+        $derived_key = $this->fast_build_key( $san_key, $san_group );
         $trace_flags = self::TRACE_FLAG_READ | self::TRACE_FLAG_WRITE;
 
         // If group is a non-Redis group, save to internal cache, not Redis.
-        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
             $value = $this->get_from_internal_cache( $derived_key );
             $value += $offset;
             $this->add_to_internal_cache( $derived_key, $value );
@@ -2141,11 +2191,15 @@ LUA;
     public function decrement( $key, $offset = 1, $group = 'default' ) {
         $offset = (int) $offset;
         $start_time = microtime( true );
-        $derived_key = $this->build_key( $key, $group );
+
+        $san_key = $this->sanitize_key_part( $key );
+        $san_group = $this->sanitize_key_part( $group );
+
+        $derived_key = $this->fast_build_key( $san_key, $san_group );
         $trace_flags = self::TRACE_FLAG_READ | self::TRACE_FLAG_WRITE;
 
         // If group is a non-Redis group, save to internal cache, not Redis.
-        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
             $value = $this->get_from_internal_cache( $derived_key );
             $value -= $offset;
             $this->add_to_internal_cache( $derived_key, $value );
@@ -2270,8 +2324,8 @@ LUA;
     /**
      * Builds a key for the cached object using the prefix, group and key.
      *
-     * @param   string $key        The key under which to store the value.
-     * @param   string $group      The group value appended to the $key.
+     * @param   string $key        The key under which to store the value, pre-sanitized.
+     * @param   string $group      The group value appended to the $key, pre-sanitized.
      *
      * @return  string
      */
@@ -2280,11 +2334,29 @@ LUA;
             $group = 'default';
         }
 
+        $san_key = $this->sanitize_key_part( $key );
+        $san_group = $this->sanitize_key_part( $group );
+
+        return $this->fast_build_key($san_key, $san_group);
+    }
+
+    /**
+     * Builds a key for the cached object using the prefix, group and key.
+     *
+     * @param   string $key        The key under which to store the value, pre-sanitized.
+     * @param   string $group      The group value appended to the $key, pre-sanitized.
+     *
+     * @return  string
+     */
+    public function fast_build_key( $key, $group = 'default' ) {
+        if ( empty( $group ) ) {
+            $group = 'default';
+        }
+
         $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
+
         $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
 
-        $key = $this->sanitize_key_part( $key );
-        $group = $this->sanitize_key_part( $group );
 
         $prefix = trim( $prefix, '_-:$' );
 
@@ -2304,31 +2376,43 @@ LUA;
     /**
      * Checks if the given group is part the ignored group array
      *
-     * @param string $group  Name of the group to check.
+     * @param string $group  Name of the group to check, pre-sanitized.
      * @return bool
      */
     protected function is_ignored_group( $group ) {
-        return in_array( $this->sanitize_key_part( $group ), $this->ignored_groups, true );
+        return $this->is_group_of_type( $group, 'ignored' );
     }
 
     /**
      * Checks if the given group is part the global group array
      *
-     * @param string $group  Name of the group to check.
+     * @param string $group  Name of the group to check, pre-sanitized.
      * @return bool
      */
     protected function is_global_group( $group ) {
-        return in_array( $this->sanitize_key_part( $group ), $this->global_groups, true );
+        return $this->is_group_of_type( $group, 'global' );
     }
 
     /**
      * Checks if the given group is part the unflushable group array
      *
-     * @param string $group  Name of the group to check.
+     * @param string $group  Name of the group to check, pre-sanitized.
      * @return bool
      */
     protected function is_unflushable_group( $group ) {
-        return in_array( $this->sanitize_key_part( $group ), $this->unflushable_groups, true );
+        return $this->is_group_of_type( $group, 'unflushable' );
+    }
+
+    /**
+     * Checks the type of the given group
+     *
+     * @param string $group  Name of the group to check, pre-sanitized.
+     * @param string $type   Type of the group to check.
+     * @return bool
+     */
+    private function is_group_of_type( $group, $type ) {
+        return isset( $this->group_type[ $group ] )
+            && $this->group_type[ $group ] == $type;
     }
 
     /**
@@ -2415,6 +2499,8 @@ LUA;
         } else {
             $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
         }
+
+        $this->cache_group_types();
     }
 
     /**
@@ -2426,6 +2512,7 @@ LUA;
         $groups = (array) $groups;
 
         $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
+        $this->cache_group_types();
     }
 
     /**
@@ -2437,6 +2524,7 @@ LUA;
         $groups = (array) $groups;
 
         $this->unflushable_groups = array_unique( array_merge( $this->unflushable_groups, $groups ) );
+        $this->cache_group_types();
     }
 
     /**
