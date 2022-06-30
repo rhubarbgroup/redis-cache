@@ -2270,7 +2270,7 @@ LUA;
                         ];
                     }, $keys ));
 
-                    $this->trace_command( 'pipeline', $group, $traceKV, $execute_time );
+                    $this->trace_command( 'set', $group, $traceKV, $execute_time );
                 }
             }
 
