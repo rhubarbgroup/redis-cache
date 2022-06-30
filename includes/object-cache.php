@@ -1284,9 +1284,7 @@ class WP_Object_Cache {
      * @return  bool                   Returns TRUE on success or FALSE on failure.
      */
     protected function add_or_replace( $add, $key, $value, $group = 'default', $expiration = 0 ) {
-        $cache_addition_suspended = function_exists( 'wp_suspend_cache_addition' )
-            ? wp_suspend_cache_addition()
-            : false;
+        $cache_addition_suspended = function_exists( 'wp_suspend_cache_addition' ) && wp_suspend_cache_addition();
 
         if ( $add && $cache_addition_suspended ) {
             return false;
