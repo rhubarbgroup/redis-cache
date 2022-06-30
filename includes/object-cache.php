@@ -1161,87 +1161,95 @@ class WP_Object_Cache {
         }
 
         $results = [];
-        $group = $this->sanitize_key_part( $group );
 
+        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+            $group = $this->sanitize_key_part( $group );
 
-        if (! $this->is_ignored_group( $group ) && $this->redis_status() ) {
-            $orig_exp = $expire;
-            $expire = $this->validate_expiration( $expire );
-            $tx = $this->redis->pipeline();
-            $keys = array_keys( $data );
+            if (! $this->is_ignored_group( $group ) && $this->redis_status() ) {
+                $orig_exp = $expire;
+                $expire = $this->validate_expiration( $expire );
+                $tx = $this->redis->pipeline();
+                $keys = array_keys( $data );
 
-            foreach ( $data as $key => $value ) {
-                /**
-                 * Filters the cache expiration time
-                 *
-                 * @since 1.4.2
-                 * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
-                 * @param string $key        The cache key.
-                 * @param string $group      The cache group.
-                 * @param mixed  $orig_exp   The original expiration value before validation.
-                 */
-                $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
-                $start_time = microtime( true );
+                foreach ( $data as $key => $value ) {
+                    /**
+                     * Filters the cache expiration time
+                     *
+                     * @since 1.4.2
+                     * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+                     * @param string $key        The cache key.
+                     * @param string $group      The cache group.
+                     * @param mixed  $orig_exp   The original expiration value before validation.
+                     */
+                    $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
+                    $start_time = microtime( true );
 
-                $key = $this->sanitize_key_part( $key );
-                $derived_key = $this->fast_build_key( $key, $group );
+                    $key = $this->sanitize_key_part( $key );
+                    $derived_key = $this->fast_build_key( $key, $group );
 
-                $results[ $key ] = $derived_key || ! isset( $this->cache[ $derived_key ] );
+                    $results[ $key ] = $derived_key || ! isset( $this->cache[ $derived_key ] );
 
-                $args = [ $derived_key, $this->maybe_serialize( $value ) ];
+                    $args = [ $derived_key, $this->maybe_serialize( $value ) ];
 
-                if ( $this->redis instanceof Predis\Client ) {
-                    $args[] = 'nx';
+                    if ( $this->redis instanceof Predis\Client ) {
+                        $args[] = 'nx';
 
-                    if ( $expire ) {
-                        $args[] = 'ex';
-                        $args[] = $expire;
-                    }
-                } else {
-                    if ( $expire ) {
-                        $args[] = [
-                            'nx',
-                            'ex' => $expire,
-                        ];
+                        if ( $expire ) {
+                            $args[] = 'ex';
+                            $args[] = $expire;
+                        }
                     } else {
-                        $args[] = [ 'nx' ];
+                        if ( $expire ) {
+                            $args[] = [
+                                'nx',
+                                'ex' => $expire,
+                            ];
+                        } else {
+                            $args[] = [ 'nx' ];
+                        }
                     }
+
+                    $tx->set( ...$args );
+
+                    $execute_time = microtime( true ) - $start_time;
+
+                    if ( $this->trace_enabled ) {
+                        $this->trace_command( 'set', $group, [
+                            $key => [
+                                'value' => $value,
+                                'status' => self::TRACE_FLAG_WRITE,
+                            ],
+                        ], microtime( true ) - $start_time );
+                    }
+
+                    $this->cache_calls++;
+                    $this->cache_time += $execute_time;
+                }
+                try {
+
+                    $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+
+                    $results = array_map( function ( $response ) {
+                        return (bool) $this->parse_redis_response( $response );
+                    }, $tx->{$method}() );
+
+                    if ( $results ) {
+                        $results = array_combine( $keys, $results );
+                    }
+
+                } catch ( Exception $exception ) {
+                    $this->handle_exception( $exception );
+
+                    $results[ $key ] = false;
                 }
 
-                $tx->set( ...$args );
-
-                $execute_time = microtime( true ) - $start_time;
-
-                if ( $this->trace_enabled ) {
-                    $this->trace_command( 'set', $group, [
-                        $key => [
-                            'value' => $value,
-                            'status' => self::TRACE_FLAG_WRITE,
-                        ],
-                    ], microtime( true ) - $start_time );
-                }
-
-                $this->cache_calls++;
-                $this->cache_time += $execute_time;
             }
-            try {
 
-                $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+            return $results;
+        }
 
-                $results = array_map( function ( $response ) {
-                    return (bool) $this->parse_redis_response( $response );
-                }, $tx->{$method}() );
-
-                if ( $results ) {
-                    $results = array_combine( $keys, $results );
-                }
-
-            } catch ( Exception $exception ) {
-                $this->handle_exception( $exception );
-
-                $results[ $key ] = false;
-            }
-
+        foreach ( $data as $key => $value ) {
+            $results[ $key ] = $this->add( $key, $value, $group, $expire );
         }
 
         return $results;
