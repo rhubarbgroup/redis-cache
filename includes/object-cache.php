@@ -1164,13 +1164,13 @@ class WP_Object_Cache {
             return $this->add_multiple_at_once($data, $group, $expire);
         }
 
-        $results = [];
+        $values = [];
 
         foreach ( $data as $key => $value ) {
-            $results[ $key ] = $this->add( $key, $value, $group, $expire );
+            $values[ $key ] = $this->add( $key, $value, $group, $expire );
         }
 
-        return $results;
+        return $values;
     }
 
     /**
