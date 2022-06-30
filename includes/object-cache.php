@@ -1168,8 +1168,14 @@ class WP_Object_Cache {
             if (! $this->is_ignored_group( $group ) && $this->redis_status() ) {
                 $orig_exp = $expire;
                 $expire = $this->validate_expiration( $expire );
+
                 $tx = $this->redis->pipeline();
+
                 $keys = array_keys( $data );
+
+                $start_time = microtime( true );
+
+                $traceKV = [];
 
                 foreach ( $data as $key => $value ) {
                     /**
@@ -1182,7 +1188,6 @@ class WP_Object_Cache {
                      * @param mixed  $orig_exp   The original expiration value before validation.
                      */
                     $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
-                    $start_time = microtime( true );
 
                     $key = $this->sanitize_key_part( $key );
                     $derived_key = $this->fast_build_key( $key, $group );
@@ -1209,22 +1214,14 @@ class WP_Object_Cache {
                         }
                     }
 
+                    $traceKV [ $key ] = [
+                        'value' => $value,
+                        'status' => self::TRACE_FLAG_WRITE,
+                    ];
+
                     $tx->set( ...$args );
-
-                    $execute_time = microtime( true ) - $start_time;
-
-                    if ( $this->trace_enabled ) {
-                        $this->trace_command( 'set', $group, [
-                            $key => [
-                                'value' => $value,
-                                'status' => self::TRACE_FLAG_WRITE,
-                            ],
-                        ], microtime( true ) - $start_time );
-                    }
-
-                    $this->cache_calls++;
-                    $this->cache_time += $execute_time;
                 }
+
                 try {
 
                     $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
@@ -1237,10 +1234,19 @@ class WP_Object_Cache {
                         $results = array_combine( $keys, $results );
                     }
 
+                    $execute_time = microtime( true ) - $start_time;
+
+                    if ( $this->trace_enabled ) {
+                        $this->trace_command( 'set', $group, $traceKV, microtime( true ) - $start_time );
+                    }
+
+                    $this->cache_calls++;
+                    $this->cache_time += $execute_time;
+
                 } catch ( Exception $exception ) {
                     $this->handle_exception( $exception );
 
-                    $results[ $key ] = false;
+                    return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
                 }
 
             }
