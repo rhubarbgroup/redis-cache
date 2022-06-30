@@ -2172,10 +2172,10 @@ LUA;
     /**
      * Sets multiple values to the cache in one call.
      *
-     * @param array  $data   Array of key and value to be set.
-     * @param string $group  Optional. Where the cache contents are grouped.
-     * @param int    $expire Optional. When to expire the cache contents, in seconds.
-     *                       Default 0 (no expiration).
+     * @param array  $data       Array of key and value to be set.
+     * @param string $group      Optional. Where the cache contents are grouped.
+     * @param int    $expiration Optional. When to expire the cache contents, in seconds.
+     *                           Default 0 (no expiration).
      * @return bool[] Array of return values, grouped by key. Each value is always true.
      */
     public function set_multiple( array $data, $group = 'default', $expiration = 0 ) {
