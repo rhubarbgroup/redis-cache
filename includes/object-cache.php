@@ -2181,6 +2181,129 @@ LUA;
     public function set_multiple( array $data, $group = 'default', $expiration = 0 ) {
         $values = [];
 
+        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+            $group = $this->sanitize_key_part( $group );
+
+            // Save if group not excluded from redis and redis is up.
+            if (! $this->is_ignored_group( $group ) && $this->redis_status() ) {
+                $orig_exp = $expiration;
+                $expiration = $this->validate_expiration( $expiration );
+
+                $tx = $this->redis->pipeline();
+
+                $keys = array_keys( $data );
+
+                $start_time = microtime( true );
+
+                foreach ( $data as $key => $value ) {
+                    $key = $this->sanitize_key_part( $key );
+
+                    $derived_key = $this->fast_build_key( $key, $group );
+
+                    // Save if group not excluded from redis and redis is up.
+                    if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
+
+                        /**
+                         * Filters the cache expiration time
+                         *
+                         * @since 1.4.2
+                         * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+                         * @param string $key        The cache key.
+                         * @param string $group      The cache group.
+                         * @param mixed  $orig_exp   The original expiration value before validation.
+                         */
+                        $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
+
+                        $args = [ $derived_key, $this->maybe_serialize( $value ) ];
+
+                        if ( $this->redis instanceof Predis\Client ) {
+                            $args[] = 'nx';
+
+                            if ( $expiration ) {
+                                $args[] = 'ex';
+                                $args[] = $expiration;
+                            }
+                        } else {
+                            if ( $expiration ) {
+                                $args[] = [
+                                    'nx',
+                                    'ex' => $expiration,
+                                ];
+                            } else {
+                                $args[] = [ 'nx' ];
+                            }
+                        }
+
+                        $tx->set( ...$args );
+                    }
+                }
+
+                try {
+
+                    $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+
+                    $values = array_map( function ( $response ) {
+                        return (bool) $this->parse_redis_response( $response );
+                    }, $tx->{$method}() );
+
+                    if ( $values ) {
+                        $values = array_combine( $keys, $values );
+                    }
+
+                } catch ( Exception $exception ) {
+                    $this->handle_exception( $exception );
+
+                    return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
+                }
+
+                $execute_time = microtime( true ) - $start_time;
+                $this->cache_calls++;
+                $this->cache_time += $execute_time;
+
+                if ( $this->trace_enabled ) {
+                    $traceKV = array_merge(...array_map( function ( $key ) {
+                        return [
+                            $key => [
+                                'value' => null,
+                                'status' => self::TRACE_FLAG_WRITE,
+                            ]
+                        ];
+                    }, $keys ));
+
+                    $this->trace_command( 'pipeline', $group, $traceKV, $execute_time );
+                }
+            }
+
+            // If the set was successful, or we didn't go to redis.
+            foreach ($data as $key => $value) {
+                $start_time = microtime( true );
+                $key = $this->sanitize_key_part( $key );
+                $derived_key = $this->fast_build_key( $key, $group );
+
+                if ( isset( $values[$key] ) && $values[$key] ) {
+                    $this->add_to_internal_cache( $derived_key, $value );
+                }
+
+                if ( function_exists( 'do_action' ) ) {
+                    $execute_time = microtime( true ) - $start_time;
+
+                    /**
+                     * Fires on every cache set multiple request
+                     *
+                     * @since 1.2.2
+                     * @param string $key          The cache key.
+                     * @param mixed  $value        Value of the cache entry.
+                     * @param string $group        The group value appended to the $key.
+                     * @param int    $expiration   The time in seconds the entry expires. 0 for no expiry.
+                     * @param float  $execute_time Execution time for the request in seconds.
+                     */
+                    do_action( 'redis_object_cache_set_multiple', $key, $value, $group, $expiration, $execute_time );
+                }
+            }
+
+            return $values;
+        }
+
         foreach ( $data as $key => $value ) {
             $values[ $key ] = $this->set( $key, $value, $group, $expiration );
         }
