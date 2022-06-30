@@ -1161,12 +1161,14 @@ class WP_Object_Cache {
         }
 
         $results = [];
+        $group = $this->sanitize_key_part( $group );
 
-        if (! $this->is_ignored_group($group) && $this->redis_status() ) {
+
+        if (! $this->is_ignored_group( $group ) && $this->redis_status() ) {
             $orig_exp = $expire;
             $expire = $this->validate_expiration( $expire );
             $tx = $this->redis->pipeline();
-            $keys = array_keys($data);
+            $keys = array_keys( $data );
 
             foreach ( $data as $key => $value ) {
                 /**
@@ -1181,8 +1183,11 @@ class WP_Object_Cache {
                 $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
                 $start_time = microtime( true );
 
+                $key = $this->sanitize_key_part( $key );
                 $derived_key = $this->fast_build_key( $key, $group );
+
                 $results[ $key ] = $derived_key || ! isset( $this->cache[ $derived_key ] );
+
                 $args = [ $derived_key, $this->maybe_serialize( $value ) ];
 
                 if ( $this->redis instanceof Predis\Client ) {
@@ -1234,7 +1239,7 @@ class WP_Object_Cache {
             } catch ( Exception $exception ) {
                 $this->handle_exception( $exception );
 
-                $results[$key] = false;
+                $results[ $key ] = false;
             }
 
         }
