@@ -1185,7 +1185,7 @@ class WP_Object_Cache {
      */
     protected function add_multiple_at_once( array $data, $group = 'default', $expire = 0 )
     {
-        $results = [];
+        $values = [];
 
         $group = $this->sanitize_key_part( $group );
 
@@ -1216,7 +1216,7 @@ class WP_Object_Cache {
                 $key = $this->sanitize_key_part( $key );
                 $derived_key = $this->fast_build_key( $key, $group );
 
-                $results[ $key ] = $derived_key || ! isset( $this->cache[ $derived_key ] );
+                $values[ $key ] = $derived_key || ! isset( $this->cache[ $derived_key ] );
 
                 $args = [ $derived_key, $this->maybe_serialize( $value ) ];
 
@@ -1250,12 +1250,12 @@ class WP_Object_Cache {
 
                 $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
 
-                $results = array_map( function ( $response ) {
+                $values = array_map( function ( $response ) {
                     return (bool) $this->parse_redis_response( $response );
                 }, $tx->{$method}() );
 
-                if ( $results ) {
-                    $results = array_combine( $keys, $results );
+                if ( $values ) {
+                    $values = array_combine( $keys, $values );
                 }
 
                 $execute_time = microtime( true ) - $start_time;
@@ -1275,9 +1275,8 @@ class WP_Object_Cache {
 
         }
 
-        return $results;
+        return $values;
     }
-
 
     /**
      * Replace a value in the cache.
