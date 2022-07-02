@@ -11,7 +11,12 @@ $GLOBALS['wp_tests_options'] = [
     ],
 ];
 
-$_tests_dir = '/opt/bitnami/wordpress/tests-lib';
+$_tests_dir = getenv('WP_TESTS_DIR');
+
+if ( ! getenv('WP_TESTS_DIR') ) {
+    $_tests_dir = '/opt/bitnami/wordpress/tests-lib';
+}
+
 $base_dir   = dirname( dirname( __DIR__ ) );
 
 // Give access to tests_add_filter() function.
