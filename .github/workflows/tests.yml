@@ -9,6 +9,7 @@ jobs:
     name: Testing (PHP ${{ matrix.php }}; Instance ${{ matrix.redis }})
     runs-on: ubuntu-latest
     timeout-minutes: 5
+
     services:
       mysql:
         image: mysql:5.7
@@ -19,28 +20,33 @@ jobs:
           MYSQL_USER: wordpress
           MYSQL_PASSWORD: wordpress
           MYSQL_DATABASE: wordpress_test
+      redis:
+        image: redis:${{ matrix.redis }}
+        ports:
+          - '6379:6379'
+
     strategy:
       fail-fast: false
       matrix:
-        php: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
-        composer: ['composer:v2.2', 'composer']
+        php: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
+        composer: ['composer']
         redis: [ '4.0.14', '5.0.12', '6.2.6' ]
         include:
-          - composer: 'composer'
           - php: '7.1'
             composer: 'composer:v2.2'
+            redis: '4.0.14'
+          - php: '7.1'
+            composer: 'composer:v2.2'
+            redis: '5.0.12'
+          - php: '7.1'
+            composer: 'composer:v2.2'
+            redis: '6.2.6'
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
-      - name: Build Redis instance
-        uses: getong/redis-action@v1
-        with:
-          redis version: ${{ matrix.redis }}
-          host port: 6379
-
-      - name: Install PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -54,6 +60,8 @@ jobs:
 
       - name: Install PHP Dependencies
         uses: ramsey/composer-install@v2
+        with:
+          ignore-cache: "yes"
 
       - name: Install missing library
         run: |
@@ -86,24 +94,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
-        composer: ['composer:v2.2', 'composer']
+        php: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
+        composer: ['composer']
         redis: [ '5.0.12', '6.2.1' ]
         include:
-          - composer: 'composer'
           - php: '7.1'
             composer: 'composer:v2.2'
+            redis: '5.0.12'
+          - php: '7.1'
+            composer: 'composer:v2.2'
+            redis: '6.2.1'
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
-      - name: Build Redis cluster
+      - name: Setup Redis cluster
         uses: brunoofarias-dev/redis-cluster-github-action@main
         with:
           redis-version: ${{ matrix.redis }}
 
-      - name: Install PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -117,6 +128,8 @@ jobs:
 
       - name: Install PHP Dependencies
         uses: ramsey/composer-install@v2
+        with:
+          ignore-cache: "yes"
 
       - name: Install missing library
         run: |
