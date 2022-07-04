@@ -1161,7 +1161,7 @@ class WP_Object_Cache {
         }
 
         if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
-            return $this->add_multiple_at_once($data, $group, $expire);
+            return $this->add_multiple_at_once( $data, $group, $expire );
         }
 
         $values = [];
@@ -2203,7 +2203,7 @@ LUA;
      */
     public function set_multiple( array $data, $group = 'default', $expiration = 0 ) {
         if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
-            return $this->set_multiple_at_once($data, $group, $expiration);
+            return $this->set_multiple_at_once( $data, $group, $expiration );
         }
 
         $values = [];
@@ -2307,7 +2307,7 @@ LUA;
             $this->cache_time += $execute_time;
 
             if ( $this->trace_enabled ) {
-                $traceKV = array_merge(...array_map( function ( $key ) {
+                $traceKV = array_merge( ...array_map( function ( $key ) {
                     return [
                         $key => [
                             'value' => null,
@@ -2326,7 +2326,7 @@ LUA;
             $key = $this->sanitize_key_part( $key );
             $derived_key = $this->fast_build_key( $key, $group );
 
-            if ( isset( $values[$key] ) && $values[$key] ) {
+            if ( isset( $values[ $key ] ) && $values[ $key ] ) {
                 $this->add_to_internal_cache( $derived_key, $value );
             }
 
