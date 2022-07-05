@@ -563,18 +563,9 @@ class WP_Object_Cache {
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                $currentServer = current( array_values( WP_REDIS_CLUSTER ) );
-                $scheme = sprintf( '%s://' , current( explode( '://' , $currentServer ) ) );
-
-                $connectionID = current(
-                    explode( '?' ,
-                        str_replace( $scheme , '' , $currentServer )
-                    )
-                );
-
                 $this->diagnostics[ 'ping' ] = ($client === 'predis')
-                    ? $this->redis->getClientFor( $connectionID )->ping()
-                    : $this->redis->ping( $connectionID );
+                    ? $this->redis->getClientFor( $this->build_connection_id() )->ping()
+                    : $this->redis->ping( $this->build_connection_id() );
             } else {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }
@@ -1097,16 +1088,9 @@ class WP_Object_Cache {
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $currentServer = current( array_values( WP_REDIS_CLUSTER ) );
-            $scheme = sprintf( '%s://' , current( explode( '://' , $currentServer ) ) );
-
-            $connectionID = current(
-                explode( '?' ,
-                    str_replace( $scheme , '' , $currentServer )
-                )
-            );
-
-            $info = $this->redis->getClientFor( $connectionID )->info();
+            $info = ($this->determine_client() === 'predis')
+                ? $this->redis->getClientFor( $this->build_connection_id() )->info()
+                : $this->redis->info( $this->build_connection_id() );
         } else {
             $info = $this->redis->info();
         }
@@ -2765,6 +2749,22 @@ LUA;
              */
             do_action( 'redis_object_cache_error', $exception );
         }
+    }
+
+    /**
+     * Builds a connection id out of redis clusters array.
+     *
+     * @return  string
+     */
+    public function build_connection_id() {
+        $currentServer = current( array_values( WP_REDIS_CLUSTER ) );
+        $scheme = sprintf( '%s://' , current( explode( '://' , $currentServer ) ) );
+
+        return current(
+            explode( '?' ,
+                str_replace( $scheme , '' , $currentServer )
+            )
+        );
     }
 
     /**
