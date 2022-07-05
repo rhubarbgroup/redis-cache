@@ -1190,6 +1190,8 @@ class WP_Object_Cache {
         $group = $this->sanitize_key_part( $group );
 
         if ( ! $this->is_ignored_group( $group ) ) {
+            $start_time = microtime( true );
+
             $orig_exp = $expire;
             $expire = $this->validate_expiration( $expire );
             $tx = $this->redis->pipeline();
@@ -1228,8 +1230,6 @@ class WP_Object_Cache {
 
                 $tx->set( ...$args );
             }
-
-            $start_time = microtime( true );
 
             try {
                 $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
@@ -1485,6 +1485,9 @@ class WP_Object_Cache {
      *                true on success, or false if the contents were not deleted.
      */
     protected function delete_multiple_at_once( array $keys, $group = 'default' ) {
+        $start_time = microtime( true );
+        $traceKV = [];
+
         if ( $this->is_ignored_group( $group ) ) {
             $results = [];
 
@@ -1493,7 +1496,18 @@ class WP_Object_Cache {
 
                 $results[ $key ] = isset( $this->cache[ $derived_key ] );
 
+                $traceKV[ $key ] = [
+                    'value' => $this->cache[ $derived_key ],
+                    'status' => self::TRACE_FLAG_DEL,
+                ];
+
                 unset( $this->cache[ $derived_key ] );
+            }
+
+            $execute_time = microtime( true ) - $start_time;
+
+            if ( $this->trace_enabled ) {
+                $this->trace_command( 'set', $group, $traceKV, $execute_time );
             }
 
             return $results;
@@ -1505,6 +1519,11 @@ class WP_Object_Cache {
             foreach ($keys as $key) {
                 $derived_key = $this->build_key( (string) $key, $group );
 
+                $traceKV[ $key ] = [
+                    'value' => $this->cache[ $derived_key ],
+                    'status' => self::TRACE_FLAG_DEL,
+                ];
+
                 $tx->del( $derived_key );
 
                 unset( $this->cache[ $derived_key ] );
@@ -1515,6 +1534,12 @@ class WP_Object_Cache {
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
             }, $tx->{$method}() );
+
+            $execute_time = microtime( true ) - $start_time;
+
+            if ( $this->trace_enabled ) {
+                $this->trace_command( 'set', $group, $traceKV, $execute_time );
+            }
 
             return array_combine( $keys, $results );
         } catch ( Exception $exception ) {
@@ -2218,6 +2243,8 @@ LUA;
         $group = $this->sanitize_key_part( $group );
 
         if ( ! $this->is_ignored_group( $group ) ) {
+            $start_time = microtime( true );
+
             $orig_exp = $expiration;
             $expiration = $this->validate_expiration( $expiration );
             $tx = $this->redis->pipeline();
@@ -2255,8 +2282,6 @@ LUA;
 
                 $tx->set( ...$args );
             }
-
-            $start_time = microtime( true );
 
             try {
                 $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
