@@ -2215,34 +2215,19 @@ LUA;
     protected function set_multiple_at_once( array $data, $group = 'default', $expiration = 0 )
     {
         $values = [];
-
         $group = $this->sanitize_key_part( $group );
 
-        // Save if group not excluded from redis and redis is up.
-        if (! $this->is_ignored_group( $group ) ) {
+        if ( ! $this->is_ignored_group( $group ) ) {
             $orig_exp = $expiration;
             $expiration = $this->validate_expiration( $expiration );
-
             $tx = $this->redis->pipeline();
-
             $keys = array_keys( $data );
-
-            $start_time = microtime( true );
 
             foreach ( $data as $key => $value ) {
                 $key = $this->sanitize_key_part( $key );
-
                 $derived_key = $this->fast_build_key( $key, $group );
 
-                /**
-                 * Filters the cache expiration time
-                 *
-                 * @since 1.4.2
-                 * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
-                 * @param string $key        The cache key.
-                 * @param string $group      The cache group.
-                 * @param mixed  $orig_exp   The original expiration value before validation.
-                 */
+                /** This action is documented in includes/object-cache.php */
                 $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
 
                 $args = [ $derived_key, $this->maybe_serialize( $value ) ];
@@ -2256,10 +2241,7 @@ LUA;
                     }
                 } else {
                     if ( $expiration ) {
-                        $args[] = [
-                            'nx',
-                            'ex' => $expiration,
-                        ];
+                        $args[] = [ 'nx', 'ex' => $expiration ];
                     } else {
                         $args[] = [ 'nx' ];
                     }
@@ -2268,8 +2250,9 @@ LUA;
                 $tx->set( ...$args );
             }
 
-            try {
+            $start_time = microtime( true );
 
+            try {
                 $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
 
                 $values = array_map( function ( $response ) {
@@ -2279,7 +2262,6 @@ LUA;
                 if ( $values ) {
                     $values = array_combine( $keys, $values );
                 }
-
             } catch ( Exception $exception ) {
                 $this->handle_exception( $exception );
 
@@ -2296,7 +2278,7 @@ LUA;
                         $key => [
                             'value' => null,
                             'status' => self::TRACE_FLAG_WRITE,
-                        ]
+                        ],
                     ];
                 }, $keys ));
 
@@ -2304,7 +2286,6 @@ LUA;
             }
         }
 
-        // If the set was successful, or we didn't go to redis.
         foreach ($data as $key => $value) {
             $start_time = microtime( true );
             $key = $this->sanitize_key_part( $key );
