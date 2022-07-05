@@ -2287,28 +2287,11 @@ LUA;
         }
 
         foreach ($data as $key => $value) {
-            $start_time = microtime( true );
             $key = $this->sanitize_key_part( $key );
             $derived_key = $this->fast_build_key( $key, $group );
 
             if ( isset( $values[ $key ] ) && $values[ $key ] ) {
                 $this->add_to_internal_cache( $derived_key, $value );
-            }
-
-            if ( function_exists( 'do_action' ) ) {
-                $execute_time = microtime( true ) - $start_time;
-
-                /**
-                 * Fires on every cache set multiple request
-                 *
-                 * @since 1.2.2
-                 * @param string $key          The cache key.
-                 * @param mixed  $value        Value of the cache entry.
-                 * @param string $group        The group value appended to the $key.
-                 * @param int    $expiration   The time in seconds the entry expires. 0 for no expiry.
-                 * @param float  $execute_time Execution time for the request in seconds.
-                 */
-                do_action( 'redis_object_cache_set_multiple', $key, $value, $group, $expiration, $execute_time );
             }
         }
 
