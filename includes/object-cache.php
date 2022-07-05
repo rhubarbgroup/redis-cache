@@ -1187,30 +1187,16 @@ class WP_Object_Cache {
     {
         $keys = array_keys( $data );
         $values = array_combine( $keys, array_fill( 0, count( $keys ), true ) );
-
         $group = $this->sanitize_key_part( $group );
 
-        // Save if group not excluded.
-        if (! $this->is_ignored_group( $group ) ) {
+        if ( ! $this->is_ignored_group( $group ) ) {
             $orig_exp = $expire;
             $expire = $this->validate_expiration( $expire );
-
             $tx = $this->redis->pipeline();
-
-            $start_time = microtime( true );
-
             $traceKV = [];
 
             foreach ( $data as $key => $value ) {
-                /**
-                 * Filters the cache expiration time
-                 *
-                 * @since 1.4.2
-                 * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
-                 * @param string $key        The cache key.
-                 * @param string $group      The cache group.
-                 * @param mixed  $orig_exp   The original expiration value before validation.
-                 */
+                /** This action is documented in includes/object-cache.php */
                 $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
 
                 $key = $this->sanitize_key_part( $key );
@@ -1229,16 +1215,13 @@ class WP_Object_Cache {
                     }
                 } else {
                     if ( $expire ) {
-                        $args[] = [
-                            'nx',
-                            'ex' => $expire,
-                        ];
+                        $args[] = [ 'nx', 'ex' => $expire ];
                     } else {
                         $args[] = [ 'nx' ];
                     }
                 }
 
-                $traceKV [ $key ] = [
+                $traceKV[ $key ] = [
                     'value' => $value,
                     'status' => self::TRACE_FLAG_WRITE,
                 ];
@@ -1246,8 +1229,9 @@ class WP_Object_Cache {
                 $tx->set( ...$args );
             }
 
-            try {
+            $start_time = microtime( true );
 
+            try {
                 $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
 
                 $values = array_map( function ( $response ) {
@@ -1266,16 +1250,13 @@ class WP_Object_Cache {
 
                 $this->cache_calls++;
                 $this->cache_time += $execute_time;
-
             } catch ( Exception $exception ) {
                 $this->handle_exception( $exception );
 
                 return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
             }
-
         }
 
-        // If the set was successful, or we didn't go to redis.
         foreach ( $values as $key => $value ) {
             if ( $value ) {
                 $this->add_to_internal_cache( $this->fast_build_key( $key, $group ) , $value );
