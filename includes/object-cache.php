@@ -1185,17 +1185,18 @@ class WP_Object_Cache {
      */
     protected function add_multiple_at_once( array $data, $group = 'default', $expire = 0 )
     {
-        $values = [];
+        $keys = array_keys( $data );
+        $values = array_combine( $keys, array_fill( 0, count( $keys ), true ) );
 
         $group = $this->sanitize_key_part( $group );
 
-        if (! $this->is_ignored_group( $group ) && $this->redis_status() ) {
+
+        // Save if group not excluded.
+        if (! $this->is_ignored_group( $group ) ) {
             $orig_exp = $expire;
             $expire = $this->validate_expiration( $expire );
 
             $tx = $this->redis->pipeline();
-
-            $keys = array_keys( $data );
 
             $start_time = microtime( true );
 
@@ -1273,6 +1274,13 @@ class WP_Object_Cache {
                 return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
             }
 
+        }
+
+        // If the set was successful, or we didn't go to redis.
+        foreach ( $values as $key => $value ) {
+            if ( $value ) {
+                $this->add_to_internal_cache( $this->fast_build_key( $key, $group ) , $value );
+            }
         }
 
         return $values;
@@ -2224,14 +2232,14 @@ LUA;
      *                           Default 0 (no expiration).
      * @return bool[] Array of return values, grouped by key. Each value is always true.
      */
-    public function set_multiple_at_once( array $data, $group = 'default', $expiration = 0 )
+    protected function set_multiple_at_once( array $data, $group = 'default', $expiration = 0 )
     {
         $values = [];
 
         $group = $this->sanitize_key_part( $group );
 
         // Save if group not excluded from redis and redis is up.
-        if (! $this->is_ignored_group( $group ) && $this->redis_status() ) {
+        if (! $this->is_ignored_group( $group ) ) {
             $orig_exp = $expiration;
             $expiration = $this->validate_expiration( $expiration );
 
@@ -2246,42 +2254,38 @@ LUA;
 
                 $derived_key = $this->fast_build_key( $key, $group );
 
-                // Save if group not excluded from redis and redis is up.
-                if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
+                /**
+                 * Filters the cache expiration time
+                 *
+                 * @since 1.4.2
+                 * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+                 * @param string $key        The cache key.
+                 * @param string $group      The cache group.
+                 * @param mixed  $orig_exp   The original expiration value before validation.
+                 */
+                $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
 
-                    /**
-                     * Filters the cache expiration time
-                     *
-                     * @since 1.4.2
-                     * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
-                     * @param string $key        The cache key.
-                     * @param string $group      The cache group.
-                     * @param mixed  $orig_exp   The original expiration value before validation.
-                     */
-                    $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
+                $args = [ $derived_key, $this->maybe_serialize( $value ) ];
 
-                    $args = [ $derived_key, $this->maybe_serialize( $value ) ];
+                if ( $this->redis instanceof Predis\Client ) {
+                    $args[] = 'nx';
 
-                    if ( $this->redis instanceof Predis\Client ) {
-                        $args[] = 'nx';
-
-                        if ( $expiration ) {
-                            $args[] = 'ex';
-                            $args[] = $expiration;
-                        }
-                    } else {
-                        if ( $expiration ) {
-                            $args[] = [
-                                'nx',
-                                'ex' => $expiration,
-                            ];
-                        } else {
-                            $args[] = [ 'nx' ];
-                        }
+                    if ( $expiration ) {
+                        $args[] = 'ex';
+                        $args[] = $expiration;
                     }
-
-                    $tx->set( ...$args );
+                } else {
+                    if ( $expiration ) {
+                        $args[] = [
+                            'nx',
+                            'ex' => $expiration,
+                        ];
+                    } else {
+                        $args[] = [ 'nx' ];
+                    }
                 }
+
+                $tx->set( ...$args );
             }
 
             try {
