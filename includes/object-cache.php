@@ -563,7 +563,14 @@ class WP_Object_Cache {
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                $connectionID = current( array_values( WP_REDIS_CLUSTER ) );
+                $currentServer = current( array_values( WP_REDIS_CLUSTER ) );
+                $scheme = sprintf( '%s://' , current( explode( '://' , $currentServer ) ) );
+
+                $connectionID = current(
+                    explode( '?' ,
+                        str_replace( $scheme , '' , $currentServer )
+                    )
+                );
 
                 $this->diagnostics[ 'ping' ] = ($client === 'predis')
                     ? $this->redis->getClientFor( $connectionID )->ping()
@@ -1090,7 +1097,16 @@ class WP_Object_Cache {
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $info = $this->redis->info( current( array_values( WP_REDIS_CLUSTER ) ) );
+            $currentServer = current( array_values( WP_REDIS_CLUSTER ) );
+            $scheme = sprintf( '%s://' , current( explode( '://' , $currentServer ) ) );
+
+            $connectionID = current(
+                explode( '?' ,
+                    str_replace( $scheme , '' , $currentServer )
+                )
+            );
+
+            $info = $this->redis->getClientFor( $connectionID )->info();
         } else {
             $info = $this->redis->info();
         }
