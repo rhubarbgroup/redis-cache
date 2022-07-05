@@ -1190,7 +1190,6 @@ class WP_Object_Cache {
 
         $group = $this->sanitize_key_part( $group );
 
-
         // Save if group not excluded.
         if (! $this->is_ignored_group( $group ) ) {
             $orig_exp = $expire;
