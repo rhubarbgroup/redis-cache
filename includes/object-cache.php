@@ -2183,21 +2183,21 @@ LUA;
     /**
      * Sets multiple values to the cache in one call.
      *
-     * @param array  $data       Array of key and value to be set.
-     * @param string $group      Optional. Where the cache contents are grouped.
-     * @param int    $expiration Optional. When to expire the cache contents, in seconds.
-     *                           Default 0 (no expiration).
+     * @param array  $data   Array of key and value to be set.
+     * @param string $group  Optional. Where the cache contents are grouped.
+     * @param int    $expire Optional. When to expire the cache contents, in seconds.
+     *                       Default 0 (no expiration).
      * @return bool[] Array of return values, grouped by key. Each value is always true.
      */
-    public function set_multiple( array $data, $group = 'default', $expiration = 0 ) {
+    public function set_multiple( array $data, $group = 'default', $expire = 0 ) {
         if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
-            return $this->set_multiple_at_once( $data, $group, $expiration );
+            return $this->set_multiple_at_once( $data, $group, $expire );
         }
 
         $values = [];
 
         foreach ( $data as $key => $value ) {
-            $values[ $key ] = $this->set( $key, $value, $group, $expiration );
+            $values[ $key ] = $this->set( $key, $value, $group, $expire );
         }
 
         return $values;
@@ -2222,6 +2222,7 @@ LUA;
             $expiration = $this->validate_expiration( $expiration );
             $tx = $this->redis->pipeline();
             $keys = array_keys( $data );
+            $traceKV = [];
 
             foreach ( $data as $key => $value ) {
                 $key = $this->sanitize_key_part( $key );
@@ -2246,6 +2247,11 @@ LUA;
                         $args[] = [ 'nx' ];
                     }
                 }
+
+                $traceKV[ $key ] = [
+                    'value' => $value,
+                    'status' => self::TRACE_FLAG_WRITE,
+                ];
 
                 $tx->set( ...$args );
             }
@@ -2273,15 +2279,6 @@ LUA;
             $this->cache_time += $execute_time;
 
             if ( $this->trace_enabled ) {
-                $traceKV = array_merge( ...array_map( function ( $key ) {
-                    return [
-                        $key => [
-                            'value' => null,
-                            'status' => self::TRACE_FLAG_WRITE,
-                        ],
-                    ];
-                }, $keys ));
-
                 $this->trace_command( 'set', $group, $traceKV, $execute_time );
             }
         }
