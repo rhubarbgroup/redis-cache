@@ -2769,8 +2769,8 @@ LUA;
             $connection_string = parse_url( $server );
             $cluster[ $key ] = sprintf(
                 "%s:%s",
-                $connection_string[ 'host' ],
-                $connection_string[ 'port' ]
+                $connection_string['host'],
+                $connection_string['port']
             );
         }
 
