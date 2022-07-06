@@ -1160,10 +1160,107 @@ class WP_Object_Cache {
             return array_combine( array_keys( $data ), array_fill( 0, count( $data ), false ) );
         }
 
+        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+            return $this->add_multiple_at_once( $data, $group, $expire );
+        }
+
         $values = [];
 
         foreach ( $data as $key => $value ) {
             $values[ $key ] = $this->add( $key, $value, $group, $expire );
+        }
+
+        return $values;
+    }
+
+    /**
+     * Adds multiple values to the cache in one call.
+     *
+     * @param array  $data   Array of keys and values to be added.
+     * @param string $group  Optional. Where the cache contents are grouped.
+     * @param int    $expire Optional. When to expire the cache contents, in seconds.
+     *                       Default 0 (no expiration).
+     * @return bool[] Array of return values, grouped by key. Each value is either
+     *                true on success, or false if cache key and group already exist.
+     */
+    protected function add_multiple_at_once( array $data, $group = 'default', $expire = 0 )
+    {
+        $keys = array_keys( $data );
+        $values = array_combine( $keys, array_fill( 0, count( $keys ), true ) );
+        $group = $this->sanitize_key_part( $group );
+
+        if ( ! $this->is_ignored_group( $group ) ) {
+            $start_time = microtime( true );
+
+            $orig_exp = $expire;
+            $expire = $this->validate_expiration( $expire );
+            $tx = $this->redis->pipeline();
+            $traceKV = [];
+
+            foreach ( $data as $key => $value ) {
+                /** This action is documented in includes/object-cache.php */
+                $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
+
+                $key = $this->sanitize_key_part( $key );
+                $derived_key = $this->fast_build_key( $key, $group );
+
+                $values[ $key ] = $derived_key || ! isset( $this->cache[ $derived_key ] );
+
+                $args = [ $derived_key, $this->maybe_serialize( $value ) ];
+
+                if ( $this->redis instanceof Predis\Client ) {
+                    $args[] = 'nx';
+
+                    if ( $expire ) {
+                        $args[] = 'ex';
+                        $args[] = $expire;
+                    }
+                } else {
+                    if ( $expire ) {
+                        $args[] = [ 'nx', 'ex' => $expire ];
+                    } else {
+                        $args[] = [ 'nx' ];
+                    }
+                }
+
+                $traceKV[ $key ] = [
+                    'value' => $value,
+                    'status' => self::TRACE_FLAG_WRITE,
+                ];
+
+                $tx->set( ...$args );
+            }
+
+            try {
+                $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+
+                $values = array_map( function ( $response ) {
+                    return (bool) $this->parse_redis_response( $response );
+                }, $tx->{$method}() );
+
+                if ( $values ) {
+                    $values = array_combine( $keys, $values );
+                }
+
+                $execute_time = microtime( true ) - $start_time;
+
+                if ( $this->trace_enabled ) {
+                    $this->trace_command( 'set', $group, $traceKV, microtime( true ) - $start_time );
+                }
+
+                $this->cache_calls++;
+                $this->cache_time += $execute_time;
+            } catch ( Exception $exception ) {
+                $this->handle_exception( $exception );
+
+                return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
+            }
+        }
+
+        foreach ( $values as $key => $value ) {
+            if ( $value ) {
+                $this->add_to_internal_cache( $this->fast_build_key( $key, $group ) , $value );
+            }
         }
 
         return $values;
@@ -1198,9 +1295,7 @@ class WP_Object_Cache {
      * @return  bool                   Returns TRUE on success or FALSE on failure.
      */
     protected function add_or_replace( $add, $key, $value, $group = 'default', $expiration = 0 ) {
-        $cache_addition_suspended = function_exists( 'wp_suspend_cache_addition' )
-            ? wp_suspend_cache_addition()
-            : false;
+        $cache_addition_suspended = function_exists( 'wp_suspend_cache_addition' ) && wp_suspend_cache_addition();
 
         if ( $add && $cache_addition_suspended ) {
             return false;
@@ -1390,6 +1485,9 @@ class WP_Object_Cache {
      *                true on success, or false if the contents were not deleted.
      */
     protected function delete_multiple_at_once( array $keys, $group = 'default' ) {
+        $start_time = microtime( true );
+        $traceKV = [];
+
         if ( $this->is_ignored_group( $group ) ) {
             $results = [];
 
@@ -1398,7 +1496,18 @@ class WP_Object_Cache {
 
                 $results[ $key ] = isset( $this->cache[ $derived_key ] );
 
+                $traceKV[ $key ] = [
+                    'value' => $this->cache[ $derived_key ],
+                    'status' => self::TRACE_FLAG_DEL,
+                ];
+
                 unset( $this->cache[ $derived_key ] );
+            }
+
+            $execute_time = microtime( true ) - $start_time;
+
+            if ( $this->trace_enabled ) {
+                $this->trace_command( 'set', $group, $traceKV, $execute_time );
             }
 
             return $results;
@@ -1410,6 +1519,11 @@ class WP_Object_Cache {
             foreach ($keys as $key) {
                 $derived_key = $this->build_key( (string) $key, $group );
 
+                $traceKV[ $key ] = [
+                    'value' => $this->cache[ $derived_key ],
+                    'status' => self::TRACE_FLAG_DEL,
+                ];
+
                 $tx->del( $derived_key );
 
                 unset( $this->cache[ $derived_key ] );
@@ -1420,6 +1534,12 @@ class WP_Object_Cache {
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
             }, $tx->{$method}() );
+
+            $execute_time = microtime( true ) - $start_time;
+
+            if ( $this->trace_enabled ) {
+                $this->trace_command( 'set', $group, $traceKV, $execute_time );
+            }
 
             return array_combine( $keys, $results );
         } catch ( Exception $exception ) {
@@ -2094,11 +2214,107 @@ LUA;
      *                       Default 0 (no expiration).
      * @return bool[] Array of return values, grouped by key. Each value is always true.
      */
-    public function set_multiple( array $data, $group = 'default', $expiration = 0 ) {
+    public function set_multiple( array $data, $group = 'default', $expire = 0 ) {
+        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+            return $this->set_multiple_at_once( $data, $group, $expire );
+        }
+
         $values = [];
 
         foreach ( $data as $key => $value ) {
-            $values[ $key ] = $this->set( $key, $value, $group, $expiration );
+            $values[ $key ] = $this->set( $key, $value, $group, $expire );
+        }
+
+        return $values;
+    }
+
+    /**
+     * Sets multiple values to the cache in one call.
+     *
+     * @param array  $data       Array of key and value to be set.
+     * @param string $group      Optional. Where the cache contents are grouped.
+     * @param int    $expiration Optional. When to expire the cache contents, in seconds.
+     *                           Default 0 (no expiration).
+     * @return bool[] Array of return values, grouped by key. Each value is always true.
+     */
+    protected function set_multiple_at_once( array $data, $group = 'default', $expiration = 0 )
+    {
+        $values = [];
+        $group = $this->sanitize_key_part( $group );
+
+        if ( ! $this->is_ignored_group( $group ) ) {
+            $start_time = microtime( true );
+
+            $orig_exp = $expiration;
+            $expiration = $this->validate_expiration( $expiration );
+            $tx = $this->redis->pipeline();
+            $keys = array_keys( $data );
+            $traceKV = [];
+
+            foreach ( $data as $key => $value ) {
+                $key = $this->sanitize_key_part( $key );
+                $derived_key = $this->fast_build_key( $key, $group );
+
+                /** This action is documented in includes/object-cache.php */
+                $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
+
+                $args = [ $derived_key, $this->maybe_serialize( $value ) ];
+
+                if ( $this->redis instanceof Predis\Client ) {
+                    $args[] = 'nx';
+
+                    if ( $expiration ) {
+                        $args[] = 'ex';
+                        $args[] = $expiration;
+                    }
+                } else {
+                    if ( $expiration ) {
+                        $args[] = [ 'nx', 'ex' => $expiration ];
+                    } else {
+                        $args[] = [ 'nx' ];
+                    }
+                }
+
+                $traceKV[ $key ] = [
+                    'value' => $value,
+                    'status' => self::TRACE_FLAG_WRITE,
+                ];
+
+                $tx->set( ...$args );
+            }
+
+            try {
+                $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+
+                $values = array_map( function ( $response ) {
+                    return (bool) $this->parse_redis_response( $response );
+                }, $tx->{$method}() );
+
+                if ( $values ) {
+                    $values = array_combine( $keys, $values );
+                }
+            } catch ( Exception $exception ) {
+                $this->handle_exception( $exception );
+
+                return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
+            }
+
+            $execute_time = microtime( true ) - $start_time;
+            $this->cache_calls++;
+            $this->cache_time += $execute_time;
+
+            if ( $this->trace_enabled ) {
+                $this->trace_command( 'set', $group, $traceKV, $execute_time );
+            }
+        }
+
+        foreach ($data as $key => $value) {
+            $key = $this->sanitize_key_part( $key );
+            $derived_key = $this->fast_build_key( $key, $group );
+
+            if ( isset( $values[ $key ] ) && $values[ $key ] ) {
+                $this->add_to_internal_cache( $derived_key, $value );
+            }
         }
 
         return $values;
