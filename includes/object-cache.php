@@ -2764,14 +2764,13 @@ LUA;
      */
     public function build_cluster_connection_array() {
         $cluster = array_values( WP_REDIS_CLUSTER );
-        $currentServer = current( $cluster );
-        $scheme = sprintf( '%s://' , current( explode( '://' , $currentServer ) ) );
 
         foreach ( $cluster as $key => $server ) {
-            $cluster[ $key ] = current(
-                explode( '?' ,
-                    str_replace( $scheme , '' , $server )
-                )
+            $connection_string = parse_url( $server );
+            $cluster[ $key ] = sprintf(
+                "%s:%s",
+                $connection_string[ 'host' ],
+                $connection_string[ 'port' ]
             );
         }
 
