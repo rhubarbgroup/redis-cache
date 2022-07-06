@@ -565,9 +565,14 @@ class WP_Object_Cache {
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
                 $connectionID = current( $this->build_cluster_connection_array() );
 
-                $this->diagnostics[ 'ping' ] = ($client === 'predis')
-                    ? $this->redis->getClientFor( $connectionID )->ping()
-                    : $this->redis->ping( $connectionID );
+                if ( $client === 'credis' ) {
+                    $this->diagnostics[ 'ping' ] = $this->redis->ping();
+                } else {
+                    $this->diagnostics[ 'ping' ] = ($client === 'predis')
+                        ? $this->redis->getClientFor( $connectionID )->ping()
+                        : $this->redis->ping( $connectionID );
+                }
+
             } else {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }
@@ -970,13 +975,16 @@ class WP_Object_Cache {
                 // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
                 $url_components = parse_url( $connection_string );
 
-                parse_str( $url_components['query'], $add_params );
+                if ( isset( $url_components['query'] ) ) {
+                    parse_str( $url_components['query'], $add_params );
+                }
 
                 if ( ! $is_cluster && isset( $add_params['alias'] ) ) {
                     $add_params['master'] = 'master' === $add_params['alias'];
                 }
 
                 $add_params['host'] = $url_components['host'];
+                $add_params['port'] = $url_components['port'];
 
                 if ( ! isset( $add_params['alias'] ) ) {
                     $add_params['alias'] = "redis-$index";
@@ -1094,9 +1102,13 @@ class WP_Object_Cache {
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $connectionID = current( $this->build_cluster_connection_array() );
 
-            $info = ($this->determine_client() === 'predis')
-                ? $this->redis->getClientFor( $connectionID )->info()
-                : $this->redis->info( $connectionID );
+            if ( $this->determine_client() === 'credis' ) {
+                $info = $this->redis->info();
+            } else {
+                $info = ($this->determine_client() === 'predis')
+                    ? $this->redis->getClientFor( $connectionID )->info()
+                    : $this->redis->info( $connectionID );
+            }
         } else {
             $info = $this->redis->info();
         }
