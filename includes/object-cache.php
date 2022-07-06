@@ -563,9 +563,11 @@ class WP_Object_Cache {
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+                $connectionID = current( $this->build_cluster_connection_array() );
+
                 $this->diagnostics[ 'ping' ] = ($client === 'predis')
-                    ? $this->redis->getClientFor( $this->build_connection_id() )->ping()
-                    : $this->redis->ping( $this->build_connection_id() );
+                    ? $this->redis->getClientFor( $connectionID )->ping()
+                    : $this->redis->ping( $connectionID );
             } else {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }
@@ -637,6 +639,7 @@ class WP_Object_Cache {
             'timeout' => 1,
             'read_timeout' => 1,
             'retry_interval' => null,
+            'persistant' => false,
         ];
 
         $settings = [
@@ -683,9 +686,10 @@ class WP_Object_Cache {
             $this->diagnostics[ 'shards' ] = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $args = [
-                'cluster' => array_values( WP_REDIS_CLUSTER ),
+                'cluster' => $this->build_cluster_connection_array(),
                 'timeout' => $parameters['timeout'],
                 'read_timeout' => $parameters['read_timeout'],
+                'persistant' => $parameters['persistant'],
             ];
 
             if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
@@ -860,7 +864,7 @@ class WP_Object_Cache {
             $parameters['servers'] = $servers;
             $options['replication'] = true;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $servers = WP_REDIS_CLUSTER;
+            $servers = $this->build_cluster_connection_array();
             $parameters['cluster'] = $servers;
             $options['cluster'] = 'redis';
         }
@@ -1088,9 +1092,11 @@ class WP_Object_Cache {
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+            $connectionID = current( $this->build_cluster_connection_array() );
+
             $info = ($this->determine_client() === 'predis')
-                ? $this->redis->getClientFor( $this->build_connection_id() )->info()
-                : $this->redis->info( $this->build_connection_id() );
+                ? $this->redis->getClientFor( $connectionID )->info()
+                : $this->redis->info( $connectionID );
         } else {
             $info = $this->redis->info();
         }
@@ -2752,19 +2758,24 @@ LUA;
     }
 
     /**
-     * Builds a connection id out of redis clusters array.
+     * Builds a clean connection array out of redis clusters array.
      *
-     * @return  string
+     * @return  array
      */
-    public function build_connection_id() {
-        $currentServer = current( array_values( WP_REDIS_CLUSTER ) );
+    public function build_cluster_connection_array() {
+        $cluster = array_values( WP_REDIS_CLUSTER );
+        $currentServer = current( $cluster );
         $scheme = sprintf( '%s://' , current( explode( '://' , $currentServer ) ) );
 
-        return current(
-            explode( '?' ,
-                str_replace( $scheme , '' , $currentServer )
-            )
-        );
+        foreach ( $cluster as $key => $server ) {
+            $cluster[ $key ] = current(
+                explode( '?' ,
+                    str_replace( $scheme , '' , $server )
+                )
+            );
+        }
+
+        return $cluster;
     }
 
     /**
