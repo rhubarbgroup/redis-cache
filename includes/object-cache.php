@@ -991,6 +991,8 @@ class WP_Object_Cache {
                 }
 
                 $clients[ $index ] = array_merge( $parameters, $add_params );
+                
+                unset($add_params);
             }
 
             $this->redis = new Credis_Cluster( $clients );
