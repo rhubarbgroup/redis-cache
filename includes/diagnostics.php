@@ -43,7 +43,6 @@ if ( $dropin && ! $disabled ) {
 $info['PhpRedis'] = class_exists( 'Redis' ) ? phpversion( 'redis' ) : 'Not loaded';
 $info['Relay'] = class_exists( 'Relay\Relay' ) ? phpversion( 'relay' ) : 'Not loaded';
 $info['Predis'] = class_exists( 'Predis\Client' ) ? Predis\Client::VERSION : 'Not loaded';
-$info['Credis'] = class_exists( 'Credis_Client' ) ? Credis_Client::VERSION : 'Not loaded';
 
 if ( defined( 'PHP_VERSION' ) ) {
     $info['PHP Version'] = PHP_VERSION;
@@ -98,7 +97,7 @@ foreach ( $constants as $constant ) {
     if ( defined( $constant ) ) {
         $info[ $constant ] = wp_json_encode(
             constant( $constant ),
-            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
         );
     }
 }

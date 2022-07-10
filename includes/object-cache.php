@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
- * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, Credis, HHVM, replication, clustering and WP-CLI.
+ * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, HHVM, replication, clustering and WP-CLI.
  * Version: 2.0.26
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
@@ -543,6 +543,14 @@ class WP_Object_Cache {
         $parameters = $this->build_parameters();
 
         try {
+            // Credis library is on maintenance mode
+            // https://github.com/colinmollenhour/credis/issues/168#issuecomment-1178308804
+            if ( strtolower( $client ) === 'credis' ) {
+                throw new Exception(
+                    'Credis is no longer supported, you may choose one of the other available drivers.'
+                );
+            }
+
             switch ( $client ) {
                 case 'hhvm':
                     $this->connect_using_hhvm( $parameters );
@@ -553,9 +561,6 @@ class WP_Object_Cache {
                 case 'relay':
                     $this->connect_using_relay( $parameters );
                     break;
-                case 'credis':
-                    $this->connect_using_credis( $parameters );
-                    break;
                 case 'predis':
                 default:
                     $this->connect_using_predis( $parameters );
@@ -565,13 +570,9 @@ class WP_Object_Cache {
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
                 $connectionID = current( $this->build_cluster_connection_array() );
 
-                if ( $client === 'credis' ) {
-                    $this->diagnostics[ 'ping' ] = $this->redis->ping();
-                } else {
-                    $this->diagnostics[ 'ping' ] = ($client === 'predis')
-                        ? $this->redis->getClientFor( $connectionID )->ping()
-                        : $this->redis->ping( $connectionID );
-                }
+                $this->diagnostics[ 'ping' ] = ($client === 'predis')
+                    ? $this->redis->getClientFor( $connectionID )->ping()
+                    : $this->redis->ping( $connectionID );
 
             } else {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
@@ -901,104 +902,6 @@ class WP_Object_Cache {
     }
 
     /**
-     * Connect to Redis using the Credis library.
-     *
-     * @param  array $parameters Connection parameters built by the `build_parameters` method.
-     * @throws \Exception If the Credis library was not found or is unreadable.
-     * @throws \Exception If redis sharding should be configured as Credis does not support sharding.
-     * @throws \Exception If more than one seninel is configured as Credis does not support multiple sentinel servers.
-     * @return void
-     */
-    protected function connect_using_credis( $parameters ) {
-        $client = 'Credis';
-
-        $creds_path = sprintf(
-            '%s/redis-cache/dependencies/colinmollenhour/credis/',
-            defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins'
-        );
-
-        $to_load = [];
-
-        if ( ! class_exists( 'Credis_Client' ) ) {
-            $to_load[] = 'Client.php';
-        }
-
-        $has_shards = defined( 'WP_REDIS_SHARDS' );
-        $has_sentinel = defined( 'WP_REDIS_SENTINEL' );
-        $has_servers = defined( 'WP_REDIS_SERVERS' );
-        $has_cluster = defined( 'WP_REDIS_CLUSTER' );
-
-        if ( ( $has_shards || $has_sentinel || $has_servers || $has_cluster ) && ! class_exists( 'Credis_Cluster' ) ) {
-            $to_load[] = 'Cluster.php';
-
-            if ( defined( 'WP_REDIS_SENTINEL' ) && ! class_exists( 'Credis_Sentinel' ) ) {
-                $to_load[] = 'Sentinel.php';
-            }
-        }
-
-        foreach ( $to_load as $sub_path ) {
-            $path = $creds_path . $sub_path;
-
-            if ( file_exists( $path ) ) {
-                require_once $path;
-            } else {
-                throw new Exception(
-                    'Credis library not found. Re-install Redis Cache plugin or delete object-cache.php.'
-                );
-            }
-        }
-
-        if ( defined( 'WP_REDIS_SHARDS' ) ) {
-            throw new Exception(
-                'Sharding not supported by bundled Credis library. Please review your Redis Cache configuration.'
-            );
-        }
-
-        if ( defined( 'WP_REDIS_SENTINEL' ) ) {
-            if ( is_array( WP_REDIS_SERVERS ) && count( WP_REDIS_SERVERS ) > 1 ) {
-                throw new Exception(
-                    'Multipe sentinel servers are not supported by the bundled Credis library. Please review your Redis Cache configuration.'
-                );
-            }
-
-            $connection_string = array_values( WP_REDIS_SERVERS )[0];
-            $sentinel = new Credis_Sentinel( new Credis_Client( $connection_string ) );
-            $this->redis = $sentinel->getCluster( WP_REDIS_SENTINEL );
-            $args['servers'] = WP_REDIS_SERVERS;
-        } elseif ( defined( 'WP_REDIS_CLUSTER' ) || defined( 'WP_REDIS_SERVERS' ) ) {
-            throw new Exception(
-                'Clusters not fully supported by bundled Credis library. Please review your Redis Cache configuration.'
-            );
-        } else {
-            $args = [
-                'host' => $parameters['scheme'] === 'unix' ? $parameters['path'] : $parameters['host'],
-                'port' => $parameters['port'],
-                'timeout' => $parameters['timeout'],
-                'persistent' => null,
-                'database' => $parameters['database'],
-                'password' => isset( $parameters['password'] ) ? $parameters['password'] : null,
-            ];
-
-            $this->redis = new Credis_Client( ...array_values( $args ) );
-        }
-
-        // Don't use PhpRedis if it is available.
-        $this->redis->forceStandalone();
-
-        $this->redis->connect();
-
-        if ( $parameters['read_timeout'] ) {
-            $args['read_timeout'] = $parameters['read_timeout'];
-            $this->redis->setReadTimeout( $parameters['read_timeout'] );
-        }
-
-        $this->diagnostics = array_merge(
-            [ 'client' => sprintf( '%s (v%s)', $client, Credis_Client::VERSION ) ],
-            $args
-        );
-    }
-
-    /**
      * Connect to Redis using HHVM's Redis extension.
      *
      * @param  array $parameters Connection parameters built by the `build_parameters` method.
@@ -1062,13 +965,9 @@ class WP_Object_Cache {
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $connectionID = current( $this->build_cluster_connection_array() );
 
-            if ( $this->determine_client() === 'credis' ) {
-                $info = $this->redis->info();
-            } else {
-                $info = ($this->determine_client() === 'predis')
-                    ? $this->redis->getClientFor( $connectionID )->info()
-                    : $this->redis->info( $connectionID );
-            }
+            $info = ($this->determine_client() === 'predis')
+                ? $this->redis->getClientFor( $connectionID )->info()
+                : $this->redis->info( $connectionID );
         } else {
             $info = $this->redis->info();
         }
@@ -2509,7 +2408,7 @@ LUA;
             ],
             'errors' => empty( $this->errors ) ? null : $this->errors,
             'meta' => [
-                'Client' => $this->diagnostics['client'] ?: 'Unknown',
+                'Client' => $this->diagnostics !== null && $this->diagnostics['client'] ?: 'Unknown',
                 'Redis Version' => $this->redis_version,
             ],
         ];
