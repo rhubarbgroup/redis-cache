@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Improve cluster information readability inside the diagnostics tab.
+- Fixed the connection id when trying to ping the server in `__construct`.
+- Fixed the cluster array in `connect_using_phpredis`.
+- Fixed the cluster array in `connect_using_predis`.
+- Fixed a few bugs in `connect_using_credis`.
+- Fixed the connection id in `fetch_info`.
+- Added a note about the deprecation of HHVM and Credis.
+- Added an internal function `build_cluster_connection_array` to return the correct format for the clusters.
+
 ## 2.0.26
 
 - Fixed a bug in `wp_cache_delete_multiple()` when using Predis

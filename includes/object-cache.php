@@ -2988,7 +2988,7 @@ LUA;
      *
      * @return  array
      */
-    public function build_cluster_connection_array() {
+    protected function build_cluster_connection_array() {
         $cluster = array_values( WP_REDIS_CLUSTER );
 
         foreach ( $cluster as $key => $server ) {
