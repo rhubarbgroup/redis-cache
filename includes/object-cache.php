@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
- * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, HHVM, replication, clustering and WP-CLI.
+ * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, clustering and WP-CLI.
  * Version: 2.0.26
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
@@ -640,7 +640,7 @@ class WP_Object_Cache {
             'timeout' => 1,
             'read_timeout' => 1,
             'retry_interval' => null,
-            'persistant' => false,
+            'persistent' => false,
         ];
 
         $settings = [
@@ -906,7 +906,7 @@ class WP_Object_Cache {
      * @return void
      */
     protected function connect_using_credis( $parameters ) {
-        _doing_it_wrong(__FUNCTION__, 'Credis support will be removed in future versions.', '2.0.26');
+        _doing_it_wrong( __FUNCTION__ , 'Credis support will be removed in future versions.' , '2.0.26' );
 
         $client = 'Credis';
 
@@ -1045,7 +1045,7 @@ class WP_Object_Cache {
      * @return void
      */
     protected function connect_using_hhvm( $parameters ) {
-        _doing_it_wrong(__FUNCTION__, 'HHVM support will be removed in future versions.', '2.0.26');
+        _doing_it_wrong( __FUNCTION__ , 'HHVM support will be removed in future versions.' , '2.0.26' );
 
         $this->redis = new Redis();
 
@@ -1104,7 +1104,7 @@ class WP_Object_Cache {
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $connectionID = current( $this->build_cluster_connection_array() );
 
-            $info = ($this->determine_client() === 'predis')
+            $info = $this->determine_client() === 'predis'
                 ? $this->redis->getClientFor( $connectionID )->info()
                 : $this->redis->info( $connectionID );
         } else {
