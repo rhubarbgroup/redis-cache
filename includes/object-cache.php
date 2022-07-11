@@ -907,7 +907,7 @@ class WP_Object_Cache {
      */
     protected function connect_using_credis( $parameters ) {
         _doing_it_wrong(__FUNCTION__, 'Credis support will be removed in future versions.', '2.0.26');
-        
+
         $client = 'Credis';
 
         $creds_path = sprintf(
@@ -964,9 +964,51 @@ class WP_Object_Cache {
             $this->redis = $sentinel->getCluster( WP_REDIS_SENTINEL );
             $args['servers'] = WP_REDIS_SERVERS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) || defined( 'WP_REDIS_SERVERS' ) ) {
-            throw new Exception(
-                'Clusters not fully supported by bundled Credis library. Please review your Redis Cache configuration.'
-            );
+            $parameters['db'] = $parameters['database'];
+
+            $is_cluster = defined( 'WP_REDIS_CLUSTER' );
+            $clients = $is_cluster ? WP_REDIS_CLUSTER : WP_REDIS_SERVERS;
+
+            foreach ( $clients as $index => $connection_string ) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+                $url_components = parse_url( $connection_string );
+
+                if ( isset( $url_components['query'] ) ) {
+                    parse_str( $url_components['query'], $add_params );
+                }
+
+                if ( ! $is_cluster && isset( $add_params['alias'] ) ) {
+                    $add_params['master'] = 'master' === $add_params['alias'];
+                }
+
+                $add_params['host'] = $url_components['host'];
+                $add_params['port'] = $url_components['port'];
+
+                if ( ! isset( $add_params['alias'] ) ) {
+                    $add_params['alias'] = "redis-$index";
+                }
+
+                $clients[ $index ] = array_merge( $parameters, $add_params );
+
+                unset($add_params);
+            }
+
+            $this->redis = new Credis_Cluster( $clients );
+
+            foreach ( $clients as $index => $_client ) {
+                $connection_string = "{$_client['scheme']}://{$_client['host']}:{$_client['port']}";
+                unset( $_client['scheme'], $_client['host'], $_client['port'] );
+
+                $params = array_filter( $_client );
+
+                if ( $params ) {
+                    $connection_string .= '?' . http_build_query( $params, null, '&' );
+                }
+
+                $clients[ $index ] = $connection_string;
+            }
+
+            $args['servers'] = $clients;
         } else {
             $args = [
                 'host' => $parameters['scheme'] === 'unix' ? $parameters['path'] : $parameters['host'],
