@@ -690,7 +690,7 @@ class WP_Object_Cache {
                 'cluster' => $this->build_cluster_connection_array(),
                 'timeout' => $parameters['timeout'],
                 'read_timeout' => $parameters['read_timeout'],
-                'persistant' => $parameters['persistant'],
+                'persistent' => $parameters['persistent'],
             ];
 
             if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
