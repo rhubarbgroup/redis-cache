@@ -8,6 +8,7 @@
  * Author URI: https://objectcache.pro
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ * Requires PHP: 7.0
  *
  * @package Rhubarb\RedisCache
  */
@@ -2546,7 +2547,7 @@ LUA;
             ],
             'errors' => empty( $this->errors ) ? null : $this->errors,
             'meta' => [
-                'Client' => $this->diagnostics !== null && $this->diagnostics['client'] ?: 'Unknown',
+                'Client' => $this->diagnostics['client'] ?? 'Unknown',
                 'Redis Version' => $this->redis_version,
             ],
         ];
@@ -2992,6 +2993,7 @@ LUA;
 
         foreach ( $cluster as $key => $server ) {
             $connection_string = parse_url( $server );
+
             $cluster[ $key ] = sprintf(
                 "%s:%s",
                 $connection_string['host'],

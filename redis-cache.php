@@ -7,7 +7,7 @@
  * Text Domain: redis-cache
  * Domain Path: /languages
  * Network: true
- * Requires PHP: 5.6
+ * Requires PHP: 7.0
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * GitHub Plugin URI: https://github.com/rhubarbgroup/redis-cache
