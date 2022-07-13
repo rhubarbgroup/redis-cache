@@ -72,7 +72,7 @@ jobs:
         run: ./vendor/bin/phpunit
 
   cluster-instance:
-    name: Testing (PHP ${{ matrix.php }}; Cluster
+    name: Testing (PHP ${{ matrix.php }}; Redis Cluster)
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
