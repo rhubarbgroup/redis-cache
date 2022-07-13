@@ -83,6 +83,17 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 == Changelog ==
 
+= 2.1.0 =
+
+- Bumped PHP requirement to 7.0
+- Deprecated Credis and HHVM clients
+- Updated Predis to v2.0.0
+- Updated Credis to v1.13.1
+- Improved cluster readability in diagnostics
+- Improved connecting to clusters
+- Fixed pinging clusters after connecting
+- Fixed several bugs in `connect_using_credis()`
+
 = 2.0.26 =
 
 - Fixed a bug in `wp_cache_delete_multiple()` when using Predis
@@ -553,6 +564,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.26 =
+= 2.1.0 =
 
-WordPress 6.0 compatibility fixes.
+Bumped PHP requirement to 7.0, updated Predis to v2.0 and deprecated Credis and HHVM clients.
