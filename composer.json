@@ -38,7 +38,8 @@
         }
     },
     "suggest": {
-        "ext-redis": "A PHP extension for Redis"
+        "ext-redis": "Required to use PhpRedis as the object cache backend.",
+        "ext-relay": "Required to use Relay as the object cache backend."
     },
     "scripts": {
         "setup:phpstan": [
