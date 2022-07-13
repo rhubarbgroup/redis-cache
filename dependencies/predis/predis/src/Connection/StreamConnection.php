@@ -58,11 +58,8 @@ class StreamConnection extends AbstractConnection
             case 'tcp':
             case 'redis':
             case 'unix':
-                break;
-
             case 'tls':
             case 'rediss':
-                $this->assertSslSupport($parameters);
                 break;
 
             default:
@@ -70,23 +67,6 @@ class StreamConnection extends AbstractConnection
         }
 
         return $parameters;
-    }
-
-    /**
-     * Checks needed conditions for SSL-encrypted connections.
-     *
-     * @param ParametersInterface $parameters Initialization parameters for the connection.
-     *
-     * @throws \InvalidArgumentException
-     */
-    protected function assertSslSupport(ParametersInterface $parameters)
-    {
-        if (
-            filter_var($parameters->persistent, FILTER_VALIDATE_BOOLEAN) &&
-            version_compare(PHP_VERSION, '7.0.0beta') < 0
-        ) {
-            throw new \InvalidArgumentException('Persistent SSL connections require PHP >= 7.0.0.');
-        }
     }
 
     /**
@@ -123,8 +103,9 @@ class StreamConnection extends AbstractConnection
     protected function createStreamSocket(ParametersInterface $parameters, $address, $flags)
     {
         $timeout = (isset($parameters->timeout) ? (float) $parameters->timeout : 5.0);
+        $context = stream_context_create(['socket' => ['tcp_nodelay' => (bool) $parameters->tcp_nodelay]]);
 
-        if (!$resource = @stream_socket_client($address, $errno, $errstr, $timeout, $flags)) {
+        if (!$resource = @stream_socket_client($address, $errno, $errstr, $timeout, $flags, $context)) {
             $this->onConnectionError(trim($errstr), $errno);
         }
 
@@ -134,11 +115,6 @@ class StreamConnection extends AbstractConnection
             $timeoutSeconds = floor($rwtimeout);
             $timeoutUSeconds = ($rwtimeout - $timeoutSeconds) * 1000000;
             stream_set_timeout($resource, $timeoutSeconds, $timeoutUSeconds);
-        }
-
-        if (isset($parameters->tcp_nodelay) && function_exists('socket_import_stream')) {
-            $socket = socket_import_stream($resource);
-            socket_set_option($socket, SOL_TCP, TCP_NODELAY, (int) $parameters->tcp_nodelay);
         }
 
         return $resource;
@@ -175,9 +151,7 @@ class StreamConnection extends AbstractConnection
             }
         }
 
-        $resource = $this->createStreamSocket($parameters, $address, $flags);
-
-        return $resource;
+        return $this->createStreamSocket($parameters, $address, $flags);
     }
 
     /**
@@ -207,9 +181,7 @@ class StreamConnection extends AbstractConnection
             }
         }
 
-        $resource = $this->createStreamSocket($parameters, "unix://{$parameters->path}", $flags);
-
-        return $resource;
+        return $this->createStreamSocket($parameters, "unix://{$parameters->path}", $flags);
     }
 
     /**
@@ -361,6 +333,7 @@ class StreamConnection extends AbstractConnection
 
             case ':':
                 $integer = (int) $payload;
+
                 return $integer == $payload ? $integer : $payload;
 
             case '-':

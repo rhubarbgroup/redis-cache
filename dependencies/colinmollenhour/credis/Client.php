@@ -59,7 +59,7 @@ class CredisException extends Exception
  * @method int|Credis_Client           dbsize()
  *
  * Keys:
- * @method int|Credis_Client           del(string $key)
+ * @method int|Credis_Client           del(string|array $key)
  * @method int|Credis_Client           exists(string $key)
  * @method int|Credis_Client           expire(string $key, int $seconds)
  * @method int|Credis_Client           expireAt(string $key, int $timestamp)
@@ -75,13 +75,13 @@ class CredisException extends Exception
  * @method int|Credis_Client           append(string $key, string $value)
  * @method int|Credis_Client           decr(string $key)
  * @method int|Credis_Client           decrBy(string $key, int $decrement)
- * @method bool|string|Credis_Client   get(string $key)
+ * @method false|string|Credis_Client  get(string $key)
  * @method int|Credis_Client           getBit(string $key, int $offset)
  * @method string|Credis_Client        getRange(string $key, int $start, int $end)
  * @method string|Credis_Client        getSet(string $key, string $value)
  * @method int|Credis_Client           incr(string $key)
  * @method int|Credis_Client           incrBy(string $key, int $decrement)
- * @method array|Credis_Client         mGet(array $keys)
+ * @method false|array|Credis_Client   mGet(array $keys)
  * @method bool|Credis_Client          mSet(array $keysValues)
  * @method int|Credis_Client           mSetNx(array $keysValues)
  * @method bool|Credis_Client          set(string $key, string $value, int | array $options = null)
@@ -194,26 +194,32 @@ class Credis_Client {
     protected $host;
 
     /**
-     * Scheme of the Redis server (tcp, tls, unix)
-     * @var string
+     * Scheme of the Redis server (tcp, tls, tlsv1.2, unix)
+     * @var string|null
      */
     protected $scheme;
 
     /**
+     * SSL Meta information
+     * @var string
+     */
+    protected $sslMeta;
+
+    /**
      * Port on which the Redis server is running
-     * @var integer|null
+     * @var int|null
      */
     protected $port;
 
     /**
      * Timeout for connecting to Redis server
-     * @var float
+     * @var float|null
      */
     protected $timeout;
 
     /**
      * Timeout for reading response from Redis server
-     * @var float
+     * @var float|null
      */
     protected $readTimeout;
 
@@ -274,12 +280,12 @@ class Credis_Client {
     protected $isWatching = FALSE;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $authUsername;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $authPassword;
 
@@ -295,7 +301,7 @@ class Credis_Client {
     protected $wrapperMethods = array('delete' => 'del', 'getkeys' => 'keys', 'sremove' => 'srem');
 
     /**
-     * @var array
+     * @var array<string,string>|callable|null
      */
     protected $renamedCommands;
 
@@ -309,23 +315,47 @@ class Credis_Client {
      */
     protected $subscribed = false;
 
+    /** @var bool  */
+    protected $oldPhpRedis = false;
+
+    /** @var array */
+    protected $tlsOptions = [];
+
+
+    /**
+     * @var bool
+     */
+    protected $isTls = false;
+
+    /**
+     * Gets Useful Meta debug information about the SSL
+     *
+     * @return string
+     */
+    public function getSslMeta()
+    {
+        return $this->sslMeta;
+    }
 
     /**
      * Creates a Redisent connection to the Redis server on host {@link $host} and port {@link $port}.
      * $host may also be a path to a unix socket or a string in the form of tcp://[hostname]:[port] or unix://[path]
      *
      * @param string $host The hostname of the Redis server
-     * @param integer $port The port number of the Redis server
-     * @param float $timeout  Timeout period in seconds
+     * @param int|null $port The port number of the Redis server
+     * @param float|null $timeout  Timeout period in seconds
      * @param string $persistent  Flag to establish persistent connection
-     * @param int $db The selected datbase of the Redis server
-     * @param string $password The authentication password of the Redis server
-     * @param string $username The authentication username of the Redis server
+     * @param int $db The selected database of the Redis server
+     * @param string|null $password The authentication password of the Redis server
+     * @param string|null $username The authentication username of the Redis server
+     * @param array|null $tlsOptions The TLS/SSL context options. See https://www.php.net/manual/en/context.ssl.php for details
      */
-    public function __construct($host = '127.0.0.1', $port = 6379, $timeout = null, $persistent = '', $db = 0, $password = null, $username = null)
+    public function __construct($host = '127.0.0.1', $port = 6379, $timeout = null, $persistent = '', $db = 0, $password = null, $username = null, array $tlsOptions = null)
     {
         $this->host = (string) $host;
-        $this->port = (int) $port;
+        if ($port !== null) {
+          $this->port = (int) $port;
+        }
         $this->scheme = null;
         $this->timeout = $timeout;
         $this->persistent = (string) $persistent;
@@ -334,12 +364,16 @@ class Credis_Client {
         $this->authUsername = $username;
         $this->selectedDb = (int)$db;
         $this->convertHost();
+        if ($tlsOptions) {
+          $this->setTlsOptions($tlsOptions);
+        }
         // PHP Redis extension support TLS/ACL AUTH since 5.3.0
+        $this->oldPhpRedis = (bool)version_compare(phpversion('redis'),'5.3.0','<');
         if ((
-              $this->scheme === 'tls'
+              $this->isTls
               || $this->authUsername !== null
             )
-            && !$this->standalone && version_compare(phpversion('redis'),'5.3.0','<')){
+            && !$this->standalone && $this->oldPhpRedis){
             $this->standalone = true;
         }
     }
@@ -374,6 +408,14 @@ class Credis_Client {
     public function getPort()
     {
         return $this->port;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTls()
+    {
+      return $this->isTls;
     }
 
     /**
@@ -426,10 +468,20 @@ class Credis_Client {
         $this->closeOnDestruct = $flag;
         return $this;
     }
+
+    public function setTlsOptions(array $tlsOptions)
+    {
+      if($this->connected) {
+        throw new CredisException('Cannot change TLS options after a connection has already been established.');
+      }
+      $this->tlsOptions = $tlsOptions;
+    }
+
     protected function convertHost()
     {
-        if (preg_match('#^(tcp|tls|unix)://(.*)$#', $this->host, $matches)) {
-            if($matches[1] == 'tcp' || $matches[1] == 'tls') {
+        if (preg_match('#^(tcp|tls|ssl|tlsv\d(?:\.\d)?|unix)://(.+)$#', $this->host, $matches)) {
+            $this->isTls = strpos($matches[1], 'tls') === 0 || strpos($matches[1], 'ssl') === 0;
+            if($this->isTls || $matches[1] === 'tcp') {
                 $this->scheme = $matches[1];
                 if ( ! preg_match('#^([^:]+)(:([0-9]+))?(/(.+))?$#', $matches[2], $matches)) {
                     throw new CredisException('Invalid host format; expected '.$this->scheme.'://host[:port][/persistence_identifier]');
@@ -454,6 +506,7 @@ class Credis_Client {
             $this->scheme = 'tcp';
         }
     }
+
     /**
      * @throws CredisException
      * @return Credis_Client
@@ -464,7 +517,7 @@ class Credis_Client {
             return $this;
         }
         $this->close(true);
-
+        $tlsOptions = $this->isTls ? $this->tlsOptions : [];
         if ($this->standalone) {
             $flags = STREAM_CLIENT_CONNECT;
             $remote_socket = $this->port === NULL
@@ -475,18 +528,49 @@ class Credis_Client {
                 $remote_socket .= '/'.$this->persistent;
                 $flags = $flags | STREAM_CLIENT_PERSISTENT;
             }
-            $result = $this->redis = @stream_socket_client($remote_socket, $errno, $errstr, $this->timeout !== null ? $this->timeout : 2.5, $flags);
+            if ($this->isTls) {
+                $tlsOptions = array_merge($tlsOptions, [
+                    'capture_peer_cert' => true,
+                    'capture_peer_cert_chain' => true,
+                    'capture_session_meta' => true,
+                ]);
+            }
+
+            // passing $context as null errors before php 8.0
+            $context = stream_context_create(['ssl' => $tlsOptions]);
+
+            $result = $this->redis = @stream_socket_client($remote_socket, $errno, $errstr, $this->timeout !== null ? $this->timeout : 2.5, $flags, $context);
+
+            if ($result && $this->isTls) {
+                $this->sslMeta = stream_context_get_options($context);
+            }
         }
         else {
             if ( ! $this->redis) {
                 $this->redis = new Redis;
             }
-            $socketTimeout = $this->timeout ? $this->timeout : 0.0;
+            $socketTimeout = $this->timeout ?: 0.0;
             try
             {
+              if ($this->oldPhpRedis)
+              {
                 $result = $this->persistent
-                    ? $this->redis->pconnect($this->host, (int)$this->port, $socketTimeout, $this->persistent)
-                    : $this->redis->connect($this->host, (int)$this->port, $socketTimeout);
+                  ? $this->redis->pconnect($this->host, (int)$this->port, $socketTimeout, $this->persistent)
+                  : $this->redis->connect($this->host, (int)$this->port, $socketTimeout);
+              }
+              else
+              {
+                // 7th argument is non-documented TLS options. But it only exists on the newer versions of phpredis
+                if ($tlsOptions) {
+                  $context = ['stream' => $tlsOptions];
+                } else {
+                  $context = [];
+                }
+                /** @noinspection PhpMethodParametersCountMismatchInspection */
+                $result = $this->persistent
+                  ? $this->redis->pconnect($this->scheme.'://'.$this->host, (int)$this->port, $socketTimeout, $this->persistent, 0, 0.0, $context)
+                  : $this->redis->connect($this->scheme.'://'.$this->host, (int)$this->port, $socketTimeout, null, 0, 0.0, $context);
+              }
             }
             catch(Exception $e)
             {
@@ -505,7 +589,13 @@ class Credis_Client {
             }
             $failures = $this->connectFailures;
             $this->connectFailures = 0;
-            throw new CredisException("Connection to Redis {$this->host}:{$this->port} failed after $failures failures." . (isset($errno) && isset($errstr) ? "Last Error : ({$errno}) {$errstr}" : ""));
+            throw new CredisException(sprintf("Connection to Redis%s %s://%s failed after %s failures.%s",
+                $this->standalone ? ' standalone' : '',
+                $this->scheme,
+                $this->host.($this->port ? ':'.$this->port : ''),
+                $failures,
+                (isset($errno) && isset($errstr) ? "Last Error : ({$errno}) {$errstr}" : "")
+            ));
         }
 
         $this->connectFailures = 0;
@@ -534,7 +624,7 @@ class Credis_Client {
      * Set the read timeout for the connection. Use 0 to disable timeouts entirely (or use a very long timeout
      * if not supported).
      *
-     * @param int $timeout 0 (or -1) for no timeout, otherwise number of seconds
+     * @param float $timeout 0 (or -1) for no timeout, otherwise number of seconds
      * @throws CredisException
      * @return Credis_Client
      */
@@ -1168,7 +1258,7 @@ class Credis_Client {
                     break;
                 case 'auth':
                     // For phpredis pre-v5.3, the type signature is string, not array|string
-                    $args = (is_array($args) && count($args) === 1) ? $args : array($args);
+                    $args = $this->oldPhpRedis ? $args : array($args);
                     break;
                 default:
                     // Flatten arguments

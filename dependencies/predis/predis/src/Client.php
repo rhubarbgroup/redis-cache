@@ -16,8 +16,8 @@ use Predis\Command\RawCommand;
 use Predis\Command\ScriptCommand;
 use Predis\Configuration\Options;
 use Predis\Configuration\OptionsInterface;
-use Predis\Connection\AggregateConnectionInterface;
 use Predis\Connection\ConnectionInterface;
+use Predis\Connection\Parameters;
 use Predis\Connection\ParametersInterface;
 use Predis\Monitor\Consumer as MonitorConsumer;
 use Predis\Pipeline\Pipeline;
@@ -40,11 +40,16 @@ use Predis\Transaction\MultiExec as MultiExecTransaction;
  */
 class Client implements ClientInterface, \IteratorAggregate
 {
-    const VERSION = '1.1.10';
+    const VERSION = '2.0.0';
 
-    protected $connection;
-    protected $options;
-    private $profile;
+    /** @var OptionsInterface */
+    private $options;
+
+    /** @var ConnectionInterface */
+    private $connection;
+
+    /** @var Command\FactoryInterface */
+    private $commands;
 
     /**
      * @param mixed $parameters Connection parameters for one or more servers.
@@ -52,131 +57,101 @@ class Client implements ClientInterface, \IteratorAggregate
      */
     public function __construct($parameters = null, $options = null)
     {
-        $this->options = $this->createOptions($options ?: array());
-        $this->connection = $this->createConnection($parameters ?: array());
-        $this->profile = $this->options->profile;
+        $this->options = static::createOptions($options ?? new Options);
+        $this->connection = static::createConnection($this->options, $parameters ?? new Parameters);
+        $this->commands = $this->options->commands;
     }
 
     /**
-     * Creates a new instance of Predis\Configuration\Options from different
-     * types of arguments or simply returns the passed argument if it is an
-     * instance of Predis\Configuration\OptionsInterface.
+     * Creates a new set of client options for the client.
      *
-     * @param mixed $options Client options.
+     * @param array|OptionsInterface $options Set of client options
      *
      * @throws \InvalidArgumentException
      *
      * @return OptionsInterface
      */
-    protected function createOptions($options)
+    protected static function createOptions($options)
     {
         if (is_array($options)) {
             return new Options($options);
-        }
-
-        if ($options instanceof OptionsInterface) {
+        } elseif ($options instanceof OptionsInterface) {
             return $options;
+        } else {
+            throw new \InvalidArgumentException('Invalid type for client options');
         }
-
-        throw new \InvalidArgumentException('Invalid type for client options.');
     }
 
     /**
-     * Creates single or aggregate connections from different types of arguments
-     * (string, array) or returns the passed argument if it is an instance of a
-     * class implementing Predis\Connection\ConnectionInterface.
+     * Creates single or aggregate connections from supplied arguments.
      *
-     * Accepted types for connection parameters are:
+     * This method accepts the following types to create a connection instance:
      *
-     *  - Instance of Predis\Connection\ConnectionInterface.
-     *  - Instance of Predis\Connection\ParametersInterface.
-     *  - Array
-     *  - String
-     *  - Callable
+     *  - Array (dictionary: single connection, indexed: aggregate connections)
+     *  - String (URI for a single connection)
+     *  - Callable (connection initializer callback)
+     *  - Instance of Predis\Connection\ParametersInterface (used as-is)
+     *  - Instance of Predis\Connection\ConnectionInterface (returned as-is)
      *
-     * @param mixed $parameters Connection parameters or connection instance.
+     * When a callable is passed, it receives the original set of client options
+     * and must return an instance of Predis\Connection\ConnectionInterface.
+     *
+     * Connections are created using the connection factory (in case of single
+     * connections) or a specialized aggregate connection initializer (in case
+     * of cluster and replication) retrieved from the supplied client options.
+     *
+     * @param OptionsInterface $options    Client options container
+     * @param mixed            $parameters Connection parameters
      *
      * @throws \InvalidArgumentException
      *
      * @return ConnectionInterface
      */
-    protected function createConnection($parameters)
+    protected static function createConnection(OptionsInterface $options, $parameters)
     {
         if ($parameters instanceof ConnectionInterface) {
             return $parameters;
         }
 
         if ($parameters instanceof ParametersInterface || is_string($parameters)) {
-            return $this->options->connections->create($parameters);
+            return $options->connections->create($parameters);
         }
 
         if (is_array($parameters)) {
             if (!isset($parameters[0])) {
-                return $this->options->connections->create($parameters);
-            }
-
-            $options = $this->options;
-
-            if ($options->defined('aggregate')) {
-                $initializer = $this->getConnectionInitializerWrapper($options->aggregate);
-                $connection = $initializer($parameters, $options);
-            } elseif ($options->defined('replication')) {
-                $replication = $options->replication;
-
-                if ($replication instanceof AggregateConnectionInterface) {
-                    $connection = $replication;
-                    $options->connections->aggregate($connection, $parameters);
-                } else {
-                    $initializer = $this->getConnectionInitializerWrapper($replication);
-                    $connection = $initializer($parameters, $options);
-                }
+                return $options->connections->create($parameters);
+            } elseif ($options->defined('cluster') && $initializer = $options->cluster) {
+                return $initializer($parameters, true);
+            } elseif ($options->defined('replication') && $initializer = $options->replication) {
+                return $initializer($parameters, true);
+            } elseif ($options->defined('aggregate') && $initializer = $options->aggregate) {
+                return $initializer($parameters, false);
             } else {
-                $connection = $options->cluster;
-                $options->connections->aggregate($connection, $parameters);
+                throw new \InvalidArgumentException(
+                    'Array of connection parameters requires `cluster`, `replication` or `aggregate` client option'
+                );
             }
-
-            return $connection;
         }
 
         if (is_callable($parameters)) {
-            $initializer = $this->getConnectionInitializerWrapper($parameters);
-            $connection = $initializer($this->options);
+            $connection = call_user_func($parameters, $options);
+
+            if (!$connection instanceof ConnectionInterface) {
+                throw new \InvalidArgumentException('Callable parameters must return a valid connection');
+            }
 
             return $connection;
         }
 
-        throw new \InvalidArgumentException('Invalid type for connection parameters.');
-    }
-
-    /**
-     * Wraps a callable to make sure that its returned value represents a valid
-     * connection type.
-     *
-     * @param mixed $callable
-     *
-     * @return \Closure
-     */
-    protected function getConnectionInitializerWrapper($callable)
-    {
-        return function () use ($callable) {
-            $connection = call_user_func_array($callable, func_get_args());
-
-            if (!$connection instanceof ConnectionInterface) {
-                throw new \UnexpectedValueException(
-                    'The callable connection initializer returned an invalid type.'
-                );
-            }
-
-            return $connection;
-        };
+        throw new \InvalidArgumentException('Invalid type for connection parameters');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getProfile()
+    public function getCommandFactory()
     {
-        return $this->profile;
+        return $this->commands;
     }
 
     /**
@@ -188,23 +163,53 @@ class Client implements ClientInterface, \IteratorAggregate
     }
 
     /**
-     * Creates a new client instance for the specified connection ID or alias,
-     * only when working with an aggregate connection (cluster, replication).
-     * The new client instances uses the same options of the original one.
+     * Creates a new client using a specific underlying connection.
      *
-     * @param string $connectionID Identifier of a connection.
+     * This method allows to create a new client instance by picking a specific
+     * connection out of an aggregate one, with the same options of the original
+     * client instance.
      *
-     * @throws \InvalidArgumentException
+     * The specified selector defines which logic to use to look for a suitable
+     * connection by the specified value. Supported selectors are:
      *
-     * @return Client
+     *   - `id`
+     *   - `key`
+     *   - `slot`
+     *   - `command`
+     *   - `alias`
+     *   - `role`
+     *
+     * Internally the client relies on duck-typing and follows this convention:
+     *
+     *   $selector string => getConnectionBy$selector($value) method
+     *
+     * This means that support for specific selectors may vary depending on the
+     * actual logic implemented by connection classes and there is no interface
+     * binding a connection class to implement any of these.
+     *
+     * @param string $selector Type of selector.
+     * @param mixed  $value    Value to be used by the selector.
+     *
+     * @return ClientInterface
      */
-    public function getClientFor($connectionID)
+    public function getClientBy($selector, $value)
     {
-        if (!$connection = $this->getConnectionById($connectionID)) {
-            throw new \InvalidArgumentException("Invalid connection ID: $connectionID.");
+        $selector = strtolower($selector);
+
+        if (!in_array($selector, array('id', 'key', 'slot', 'role', 'alias', 'command'))) {
+            throw new \InvalidArgumentException("Invalid selector type: `$selector`");
         }
 
-        return new static($connection, $this->options);
+        if (!method_exists($this->connection, $method = "getConnectionBy$selector")) {
+            $class = get_class($this->connection);
+            throw new \InvalidArgumentException("Selecting connection by $selector is not supported by $class");
+        }
+
+        if (!$connection = $this->connection->$method($value)) {
+            throw new \InvalidArgumentException("Cannot find a connection by $selector matching `$value`");
+        }
+
+        return new static($connection, $this->getOptions());
     }
 
     /**
@@ -253,27 +258,6 @@ class Client implements ClientInterface, \IteratorAggregate
     }
 
     /**
-     * Retrieves the specified connection from the aggregate connection when the
-     * client is in cluster or replication mode.
-     *
-     * @param string $connectionID Index or alias of the single connection.
-     *
-     * @throws NotSupportedException
-     *
-     * @return Connection\NodeConnectionInterface
-     */
-    public function getConnectionById($connectionID)
-    {
-        if (!$this->connection instanceof AggregateConnectionInterface) {
-            throw new NotSupportedException(
-                'Retrieving connections by ID is supported only by aggregate connections.'
-            );
-        }
-
-        return $this->connection->getConnectionById($connectionID);
-    }
-
-    /**
      * Executes a command without filtering its arguments, parsing the response,
      * applying any prefix to keys or throwing exceptions on Redis errors even
      * regardless of client options.
@@ -289,9 +273,10 @@ class Client implements ClientInterface, \IteratorAggregate
     public function executeRaw(array $arguments, &$error = null)
     {
         $error = false;
+        $commandID = array_shift($arguments);
 
         $response = $this->connection->executeCommand(
-            new RawCommand($arguments)
+            new RawCommand($commandID, $arguments)
         );
 
         if ($response instanceof ResponseInterface) {
@@ -320,7 +305,7 @@ class Client implements ClientInterface, \IteratorAggregate
      */
     public function createCommand($commandID, $arguments = array())
     {
-        return $this->profile->createCommand($commandID, $arguments);
+        return $this->commands->create($commandID, $arguments);
     }
 
     /**
@@ -354,10 +339,7 @@ class Client implements ClientInterface, \IteratorAggregate
     protected function onErrorResponse(CommandInterface $command, ErrorResponseInterface $response)
     {
         if ($command instanceof ScriptCommand && $response->getErrorType() === 'NOSCRIPT') {
-            $eval = $this->createCommand('EVAL');
-            $eval->setRawArguments($command->getEvalArguments());
-
-            $response = $this->executeCommand($eval);
+            $response = $this->executeCommand($command->getEvalCommand());
 
             if (!$response instanceof ResponseInterface) {
                 $response = $command->parseResponse($response);
@@ -400,9 +382,11 @@ class Client implements ClientInterface, \IteratorAggregate
 
                 return $this->$initializer($arg0, $arg1);
 
+        // @codeCoverageIgnoreStart
             default:
                 return $this->$initializer($this, $argv);
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -527,7 +511,7 @@ class Client implements ClientInterface, \IteratorAggregate
     }
 
     /**
-     * @return \Traversable<string, static>
+     * {@inheritdoc}
      */
     #[\ReturnTypeWillChange]
     public function getIterator()
