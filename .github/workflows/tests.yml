@@ -72,7 +72,7 @@ jobs:
         run: ./vendor/bin/phpunit
 
   cluster-instance:
-    name: Testing (PHP ${{ matrix.php }}; Cluster ${{ matrix.redis }})
+    name: Testing (PHP ${{ matrix.php }}; Cluster
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -114,7 +114,6 @@ jobs:
       matrix:
         php: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
         composer: [ 'composer' ]
-        redis: [ '5.0.12', '6.2.1' ]
         wordpress: [ 'latest' ]
 
     steps:
