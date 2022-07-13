@@ -1,15 +1,15 @@
 # Changelog
 
-## Unreleased
+## 2.1.0
 
-- Improve cluster information readability inside the diagnostics tab.
-- Fixed the connection id when trying to ping the server in `__construct`.
-- Fixed the cluster array in `connect_using_phpredis`.
-- Fixed the cluster array in `connect_using_predis`.
-- Fixed a few bugs in `connect_using_credis`.
-- Fixed the connection id in `fetch_info`.
-- Added a note about the deprecation of HHVM and Credis.
-- Added an internal function `build_cluster_connection_array` to return the correct format for the clusters.
+- Bumped PHP requirement to 7.0
+- Deprecated Credis and HHVM clients
+- Updated Predis to v2.0.0
+- Updated Credis to v1.13.1
+- Improved cluster readability in diagnostics
+- Improved connecting to clusters
+- Fixed pinging clusters after connecting
+- Fixed several bugs in `connect_using_credis()`
 
 ## 2.0.26
 
