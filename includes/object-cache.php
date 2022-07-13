@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
- * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, Credis, HHVM, replication, clustering and WP-CLI.
+ * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, clustering and WP-CLI.
  * Version: 2.0.26
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
@@ -563,7 +563,7 @@ class WP_Object_Cache {
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                $connectionID = current( array_values( WP_REDIS_CLUSTER ) );
+                $connectionID = current( $this->build_cluster_connection_array() );
 
                 $this->diagnostics[ 'ping' ] = ($client === 'predis')
                     ? $this->redis->getClientFor( $connectionID )->ping()
@@ -639,6 +639,7 @@ class WP_Object_Cache {
             'timeout' => 1,
             'read_timeout' => 1,
             'retry_interval' => null,
+            'persistent' => false,
         ];
 
         $settings = [
@@ -685,9 +686,10 @@ class WP_Object_Cache {
             $this->diagnostics[ 'shards' ] = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $args = [
-                'cluster' => array_values( WP_REDIS_CLUSTER ),
+                'cluster' => $this->build_cluster_connection_array(),
                 'timeout' => $parameters['timeout'],
                 'read_timeout' => $parameters['read_timeout'],
+                'persistent' => $parameters['persistent'],
             ];
 
             if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
@@ -862,7 +864,7 @@ class WP_Object_Cache {
             $parameters['servers'] = $servers;
             $options['replication'] = true;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $servers = WP_REDIS_CLUSTER;
+            $servers = $this->build_cluster_connection_array();
             $parameters['cluster'] = $servers;
             $options['cluster'] = 'redis';
         }
@@ -903,6 +905,8 @@ class WP_Object_Cache {
      * @return void
      */
     protected function connect_using_credis( $parameters ) {
+        _doing_it_wrong( __FUNCTION__ , 'Credis support will be removed in future versions.' , '2.0.26' );
+
         $client = 'Credis';
 
         $creds_path = sprintf(
@@ -968,19 +972,24 @@ class WP_Object_Cache {
                 // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
                 $url_components = parse_url( $connection_string );
 
-                parse_str( $url_components['query'], $add_params );
+                if ( isset( $url_components['query'] ) ) {
+                    parse_str( $url_components['query'], $add_params );
+                }
 
                 if ( ! $is_cluster && isset( $add_params['alias'] ) ) {
                     $add_params['master'] = 'master' === $add_params['alias'];
                 }
 
                 $add_params['host'] = $url_components['host'];
+                $add_params['port'] = $url_components['port'];
 
                 if ( ! isset( $add_params['alias'] ) ) {
                     $add_params['alias'] = "redis-$index";
                 }
 
                 $clients[ $index ] = array_merge( $parameters, $add_params );
+
+                unset($add_params);
             }
 
             $this->redis = new Credis_Cluster( $clients );
@@ -1035,6 +1044,8 @@ class WP_Object_Cache {
      * @return void
      */
     protected function connect_using_hhvm( $parameters ) {
+        _doing_it_wrong( __FUNCTION__ , 'HHVM support will be removed in future versions.' , '2.0.26' );
+
         $this->redis = new Redis();
 
         // Adjust host and port if the scheme is `unix`.
@@ -1090,7 +1101,11 @@ class WP_Object_Cache {
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $info = $this->redis->info( current( array_values( WP_REDIS_CLUSTER ) ) );
+            $connectionID = current( $this->build_cluster_connection_array() );
+
+            $info = $this->determine_client() === 'predis'
+                ? $this->redis->getClientFor( $connectionID )->info()
+                : $this->redis->info( $connectionID );
         } else {
             $info = $this->redis->info();
         }
@@ -2531,7 +2546,7 @@ LUA;
             ],
             'errors' => empty( $this->errors ) ? null : $this->errors,
             'meta' => [
-                'Client' => $this->diagnostics['client'] ?: 'Unknown',
+                'Client' => $this->diagnostics !== null && $this->diagnostics['client'] ?: 'Unknown',
                 'Redis Version' => $this->redis_version,
             ],
         ];
@@ -2965,6 +2980,26 @@ LUA;
              */
             do_action( 'redis_object_cache_error', $exception );
         }
+    }
+
+    /**
+     * Builds a clean connection array out of redis clusters array.
+     *
+     * @return  array
+     */
+    protected function build_cluster_connection_array() {
+        $cluster = array_values( WP_REDIS_CLUSTER );
+
+        foreach ( $cluster as $key => $server ) {
+            $connection_string = parse_url( $server );
+            $cluster[ $key ] = sprintf(
+                "%s:%s",
+                $connection_string['host'],
+                $connection_string['port']
+            );
+        }
+
+        return $cluster;
     }
 
     /**
