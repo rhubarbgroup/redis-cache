@@ -568,7 +568,6 @@ class WP_Object_Cache {
                 $this->diagnostics[ 'ping' ] = ($client === 'predis')
                     ? $this->redis->getClientFor( $connectionID )->ping()
                     : $this->redis->ping( $connectionID );
-
             } else {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }
