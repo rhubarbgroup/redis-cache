@@ -1,8 +1,15 @@
 # Changelog
 
-## Unrelease
+## 2.1.0
 
-- Disable banners if Object Cache Pro is installed
+- Bumped PHP requirement to 7.0
+- Deprecated Credis and HHVM clients
+- Updated Predis to v2.0.0
+- Updated Credis to v1.13.1
+- Improved cluster readability in diagnostics
+- Improved connecting to clusters
+- Fixed pinging clusters after connecting
+- Fixed several bugs in `connect_using_credis()`
 
 ## 2.0.26
 
@@ -31,7 +38,6 @@
 - Minor UX fixes and improvements
 - Fixed PHP 8.1 deprecation notice
 - Updated ApexCharts to v3.31.0
-- Fixed PHP 8.1 deprecation notice
 
 ## 2.0.22
 

@@ -16,7 +16,7 @@ use Predis\ClientException;
 use Predis\ClientInterface;
 use Predis\Command\CommandInterface;
 use Predis\CommunicationException;
-use Predis\Connection\AggregateConnectionInterface;
+use Predis\Connection\Cluster\ClusterInterface;
 use Predis\NotSupportedException;
 use Predis\Protocol\ProtocolException;
 use Predis\Response\ErrorInterface as ErrorResponseInterface;
@@ -66,15 +66,15 @@ class MultiExec implements ClientContextInterface
      */
     private function assertClient(ClientInterface $client)
     {
-        if ($client->getConnection() instanceof AggregateConnectionInterface) {
+        if ($client->getConnection() instanceof ClusterInterface) {
             throw new NotSupportedException(
-                'Cannot initialize a MULTI/EXEC transaction over aggregate connections.'
+                'Cannot initialize a MULTI/EXEC transaction over cluster connections.'
             );
         }
 
-        if (!$client->getProfile()->supportsCommands(array('MULTI', 'EXEC', 'DISCARD'))) {
+        if (!$client->getCommandFactory()->supports('MULTI', 'EXEC', 'DISCARD')) {
             throw new NotSupportedException(
-                'The current profile does not support MULTI, EXEC and DISCARD.'
+                'MULTI, EXEC and DISCARD are not supported by the current command factory.'
             );
         }
     }
@@ -228,8 +228,8 @@ class MultiExec implements ClientContextInterface
      */
     public function watch($keys)
     {
-        if (!$this->client->getProfile()->supportsCommand('WATCH')) {
-            throw new NotSupportedException('WATCH is not supported by the current profile.');
+        if (!$this->client->getCommandFactory()->supports('WATCH')) {
+            throw new NotSupportedException('WATCH is not supported by the current command factory.');
         }
 
         if ($this->state->isWatchAllowed()) {
@@ -268,9 +268,9 @@ class MultiExec implements ClientContextInterface
      */
     public function unwatch()
     {
-        if (!$this->client->getProfile()->supportsCommand('UNWATCH')) {
+        if (!$this->client->getCommandFactory()->supports('UNWATCH')) {
             throw new NotSupportedException(
-                'UNWATCH is not supported by the current profile.'
+                'UNWATCH is not supported by the current command factory.'
             );
         }
 

@@ -12,7 +12,7 @@
 namespace Predis\Monitor;
 
 use Predis\ClientInterface;
-use Predis\Connection\AggregateConnectionInterface;
+use Predis\Connection\Cluster\ClusterInterface;
 use Predis\NotSupportedException;
 
 /**
@@ -56,14 +56,14 @@ class Consumer implements \Iterator
      */
     private function assertClient(ClientInterface $client)
     {
-        if ($client->getConnection() instanceof AggregateConnectionInterface) {
+        if ($client->getConnection() instanceof ClusterInterface) {
             throw new NotSupportedException(
-                'Cannot initialize a monitor consumer over aggregate connections.'
+                'Cannot initialize a monitor consumer over cluster connections.'
             );
         }
 
-        if ($client->getProfile()->supportsCommand('MONITOR') === false) {
-            throw new NotSupportedException("The current profile does not support 'MONITOR'.");
+        if (!$client->getCommandFactory()->supports('MONITOR')) {
+            throw new NotSupportedException("'MONITOR' is not supported by the current command factory.");
         }
     }
 

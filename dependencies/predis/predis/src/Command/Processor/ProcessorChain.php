@@ -89,7 +89,7 @@ class ProcessorChain implements \ArrayAccess, ProcessorInterface
     }
 
     /**
-     * @return bool
+     * {@inheritdoc}
      */
     #[\ReturnTypeWillChange]
     public function offsetExists($index)
@@ -114,8 +114,7 @@ class ProcessorChain implements \ArrayAccess, ProcessorInterface
     {
         if (!$processor instanceof ProcessorInterface) {
             throw new \InvalidArgumentException(
-                'A processor chain accepts only instances of '.
-                "'Predis\Command\Processor\ProcessorInterface'."
+                'Processor chain accepts only instances of `Predis\Command\Processor\ProcessorInterface`'
             );
         }
 

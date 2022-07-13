@@ -1,6 +1,6 @@
 {
     "name": "rhubarbgroup/redis-cache",
-    "description": "A persistent object cache backend for WordPress powered by Redis. Supports Predis, PhpRedis, Relay, Credis, HHVM, replication and clustering.",
+    "description": "A persistent object cache backend for WordPress powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.",
     "homepage": "https://github.com/rhubarbgroup/redis-cache",
     "type": "wordpress-plugin",
     "license": "GPL-3.0-or-later",
@@ -19,10 +19,10 @@
         "wordpress"
     ],
     "require": {
-        "php": ">=5.6.0",
+        "php": "^7.0 || ^8.0",
         "composer/installers": "~1.0 || ~2.0",
         "mnsami/composer-custom-directory-installer": "^2.0",
-        "predis/predis": "^1.1",
+        "predis/predis": "^2.0",
         "colinmollenhour/credis": "^1.12.1"
     },
     "require-dev": {
@@ -38,7 +38,8 @@
         }
     },
     "suggest": {
-        "ext-redis": "A PHP extension for Redis"
+        "ext-redis": "Required to use PhpRedis as the object cache backend.",
+        "ext-relay": "Required to use Relay as the object cache backend."
     },
     "scripts": {
         "setup:phpstan": [

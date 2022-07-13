@@ -11,7 +11,23 @@ $GLOBALS['wp_tests_options'] = [
     ],
 ];
 
-$_tests_dir = '/opt/bitnami/wordpress/tests-lib';
+if ( getenv('GH_REDIS_CLUSTER') ) {
+    define('WP_REDIS_CLUSTER', [
+        'tcp://127.0.0.1:6379',
+        'tcp://127.0.0.1:6380',
+        'tcp://127.0.0.1:6381',
+        'tcp://127.0.0.1:6382',
+        'tcp://127.0.0.1:6383',
+        'tcp://127.0.0.1:6384',
+    ]);
+}
+
+$_tests_dir = getenv('WP_TESTS_DIR');
+
+if ( ! getenv('WP_TESTS_DIR') ) {
+    $_tests_dir = '/opt/bitnami/wordpress/tests-lib';
+}
+
 $base_dir   = dirname( dirname( __DIR__ ) );
 
 // Give access to tests_add_filter() function.

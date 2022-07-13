@@ -1,0 +1,146 @@
+name: Run Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  single-instance:
+    name: Testing (PHP ${{ matrix.php }}; Instance ${{ matrix.redis }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    services:
+      mysql:
+        image: mysql:5.7
+        ports:
+          - '3306:3306'
+        options: >-
+          --health-cmd "mysqladmin -h localhost ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          MYSQL_ROOT_PASSWORD: wordpress
+          MYSQL_USER: wordpress
+          MYSQL_PASSWORD: wordpress
+          MYSQL_DATABASE: wordpress_test
+
+      redis:
+        image: redis:${{ matrix.redis }}
+        ports:
+          - '6379:6379'
+        options: >-
+          --health-cmd "redis-cli cluster info"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
+        composer: [ 'composer' ]
+        redis: [ '4.0.14', '5.0.12', '6.2.6' ]
+        wordpress: [ 'latest' ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: msgpack, igbinary, redis-5.3.7
+          tools: ${{ matrix.composer }}
+
+      - name: Set up WordPress and WordPress Test Library
+        uses: sjinks/setup-wordpress-test-library@master
+        with:
+          version: ${{ matrix.wordpress }}
+
+      - name: Install PHP Dependencies
+        uses: ramsey/composer-install@v2
+
+      - name: Install missing library
+        run: |
+          composer require --dev yoast/phpunit-polyfills
+
+      - name: Run test suite
+        run: ./vendor/bin/phpunit
+
+  cluster-instance:
+    name: Testing (PHP ${{ matrix.php }}; Cluster ${{ matrix.redis }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    services:
+      mysql:
+        image: mysql:5.7
+        ports:
+          - '3306:3306'
+        options: >-
+          --health-cmd "mysqladmin -h localhost ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          MYSQL_ROOT_PASSWORD: wordpress
+          MYSQL_USER: wordpress
+          MYSQL_PASSWORD: wordpress
+          MYSQL_DATABASE: wordpress_test
+
+      redis:
+        image: grokzen/redis-cluster
+        ports:
+          - '6379-6384:6379-6384'
+        options: >-
+          --health-cmd "redis-cli cluster info"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          INITIAL_PORT: 6379
+          MASTERS: 3
+          SLAVES_PER_MASTER: 1
+          SENTINEL: false
+          REDIS_CLUSTER_IP: 127.0.0.1
+          IP: 127.0.0.1
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
+        composer: [ 'composer' ]
+        redis: [ '5.0.12', '6.2.1' ]
+        wordpress: [ 'latest' ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: msgpack, igbinary, redis-5.3.7
+          tools: ${{ matrix.composer }}
+
+      - name: Set up WordPress and WordPress Test Library
+        uses: sjinks/setup-wordpress-test-library@master
+        with:
+          version: ${{ matrix.wordpress }}
+
+      - name: Install PHP Dependencies
+        uses: ramsey/composer-install@v2
+
+      - name: Install missing library
+        run: |
+          composer require --dev yoast/phpunit-polyfills
+
+      - name: Run test suite
+        run: ./vendor/bin/phpunit
+        env:
+          GH_REDIS_CLUSTER: true
