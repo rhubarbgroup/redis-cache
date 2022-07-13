@@ -1,8 +1,8 @@
 name: Run Tests
 
 on:
-  push:
-  pull_request:
+  push: null
+  pull_request: null
 
 jobs:
   single-instance:
@@ -41,7 +41,6 @@ jobs:
       fail-fast: false
       matrix:
         php: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
-        composer: [ 'composer' ]
         redis: [ '4.0.14', '5.0.12', '6.2.6' ]
         wordpress: [ 'latest' ]
 
@@ -54,7 +53,6 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: msgpack, igbinary, redis-5.3.7
-          tools: ${{ matrix.composer }}
 
       - name: Set up WordPress and WordPress Test Library
         uses: sjinks/setup-wordpress-test-library@master
@@ -113,7 +111,6 @@ jobs:
       fail-fast: false
       matrix:
         php: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
-        composer: [ 'composer' ]
         redis: [ '5.0.12', '6.2.1' ]
         wordpress: [ 'latest' ]
 
@@ -126,7 +123,6 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: msgpack, igbinary, redis-5.3.7
-          tools: ${{ matrix.composer }}
 
       - name: Set up WordPress and WordPress Test Library
         uses: sjinks/setup-wordpress-test-library@master
