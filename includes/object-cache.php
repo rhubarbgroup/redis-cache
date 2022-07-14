@@ -687,8 +687,8 @@ class WP_Object_Cache {
 
             $this->diagnostics[ 'shards' ] = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            if ( $parameters[ 'cluster_name' ] ) {
-                $this->redis = new RedisCluster($parameters['cluster_name']);
+            if ( $parameters['cluster_name'] ) {
+                $this->redis = new RedisCluster( $parameters['cluster_name'] );
             } else {
                 $args = [
                     'cluster' => $this->build_cluster_connection_array(),
@@ -701,7 +701,7 @@ class WP_Object_Cache {
                     $args['password'] = $parameters['password'];
                 }
 
-                $this->redis = new RedisCluster(null, ...array_values($args));
+                $this->redis = new RedisCluster( null, ...array_values( $args ) );
             }
 
             $this->diagnostics += $args;
