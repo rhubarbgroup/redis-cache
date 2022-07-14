@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Renamed `WP_REDIS_DIR` to `WP_REDIS_PLUGIN_DIR`
+- Fixed rare fatal error in diagnostics
+
 ## 2.1.0
 
 - Bumped PHP requirement to 7.0
@@ -8,10 +13,8 @@
 - Updated Credis to v1.13.1
 - Improved cluster readability in diagnostics
 - Improved connecting to clusters
-- Renamed `WP_REDIS_DIR` to `WP_REDIS_PLUGIN_DIR`
 - Fixed pinging clusters after connecting
 - Fixed several bugs in `connect_using_credis()`
-- Fixed rare fatal error in diagnostics
 
 ## 2.0.26
 
