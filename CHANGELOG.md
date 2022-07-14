@@ -11,6 +11,7 @@
 - Renamed `WP_REDIS_DIR` to `WP_REDIS_PLUGIN_DIR`
 - Fixed pinging clusters after connecting
 - Fixed several bugs in `connect_using_credis()`
+- Fixed rare fatal error in diagnostics
 
 ## 2.0.26
 
