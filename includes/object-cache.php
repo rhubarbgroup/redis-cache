@@ -653,6 +653,7 @@ class WP_Object_Cache {
             'timeout',
             'read_timeout',
             'retry_interval',
+            'cluster_name',
         ];
 
         foreach ( $settings as $setting ) {
