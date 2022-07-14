@@ -8,6 +8,7 @@
 - Updated Credis to v1.13.1
 - Improved cluster readability in diagnostics
 - Improved connecting to clusters
+- Renamed `WP_REDIS_DIR` to `WP_REDIS_PLUGIN_DIR`
 - Fixed pinging clusters after connecting
 - Fixed several bugs in `connect_using_credis()`
 
