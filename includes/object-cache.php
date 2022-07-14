@@ -686,7 +686,7 @@ class WP_Object_Cache {
 
             $this->diagnostics[ 'shards' ] = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            if ($parameters['cluster_name']) {
+            if ( $parameters[ 'cluster_name' ] ) {
                 $this->redis = new RedisCluster($parameters['cluster_name']);
             } else {
                 $args = [
@@ -696,7 +696,7 @@ class WP_Object_Cache {
                     'persistent' => $parameters['persistent'],
                 ];
 
-                if (isset($parameters['password']) && version_compare($version, '4.3.0', '>=')) {
+                if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
                     $args['password'] = $parameters['password'];
                 }
 
