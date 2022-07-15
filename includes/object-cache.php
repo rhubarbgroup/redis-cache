@@ -653,7 +653,6 @@ class WP_Object_Cache {
             'timeout',
             'read_timeout',
             'retry_interval',
-            'cluster_name',
         ];
 
         foreach ( $settings as $setting ) {
@@ -687,8 +686,8 @@ class WP_Object_Cache {
 
             $this->diagnostics[ 'shards' ] = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            if ( $parameters['cluster_name'] ) {
-                $this->redis = new RedisCluster( $parameters['cluster_name'] );
+            if ( is_string( WP_REDIS_CLUSTER ) ) {
+                $this->redis = new RedisCluster( WP_REDIS_CLUSTER  );
             } else {
                 $args = [
                     'cluster' => $this->build_cluster_connection_array(),
