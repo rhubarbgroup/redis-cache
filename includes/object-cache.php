@@ -686,18 +686,22 @@ class WP_Object_Cache {
 
             $this->diagnostics[ 'shards' ] = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $args = [
-                'cluster' => $this->build_cluster_connection_array(),
-                'timeout' => $parameters['timeout'],
-                'read_timeout' => $parameters['read_timeout'],
-                'persistent' => $parameters['persistent'],
-            ];
+            if ( is_string( WP_REDIS_CLUSTER ) ) {
+                $this->redis = new RedisCluster( WP_REDIS_CLUSTER  );
+            } else {
+                $args = [
+                    'cluster' => $this->build_cluster_connection_array(),
+                    'timeout' => $parameters['timeout'],
+                    'read_timeout' => $parameters['read_timeout'],
+                    'persistent' => $parameters['persistent'],
+                ];
 
-            if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
-                $args['password'] = $parameters['password'];
+                if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
+                    $args['password'] = $parameters['password'];
+                }
+
+                $this->redis = new RedisCluster( null, ...array_values( $args ) );
             }
-
-            $this->redis = new RedisCluster( null, ...array_values( $args ) );
 
             $this->diagnostics += $args;
         } else {
