@@ -8,7 +8,7 @@
  * Author URI: https://objectcache.pro
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
- * Requires PHP: 7.0
+ * Requires PHP: 7.2
  *
  * @package Rhubarb\RedisCache
  */
