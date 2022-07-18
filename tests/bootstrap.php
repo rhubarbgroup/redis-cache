@@ -43,23 +43,3 @@ if (!defined('WP_PLUGIN_DIR') || false === file_exists(WP_PLUGIN_DIR.'/redis-cac
 }
 
 require_once __DIR__.'/../redis-cache.php';
-
-// function plugin_basename($file)
-// {
-//     return 'redis-cache';
-// }
-
-// function plugin_dir_url($file)
-// {
-//     return 'redis-cache';
-// }
-
-// function get_file_data($file, $header)
-// {
-//     return ['Version' => '2.1.0'];
-// }
-
-// function register_activation_hook(string $file, callable $callback)
-// {
-//     return true;
-// }

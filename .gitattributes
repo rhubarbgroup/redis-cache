@@ -5,6 +5,7 @@ includes/ui/* linguist-language=HTML+PHP
 
 /.github export-ignore
 /.wordpress-org export-ignore
+/bin export-ignore
 .editorconfig export-ignore
 .gitattributes export-ignore
 .gitignore export-ignore
@@ -12,4 +13,3 @@ composer.json export-ignore
 phpcs.xml export-ignore
 phpunit.xml.dist export-ignore
 readme.txt export-ignore
-setup-test.sh export-ignore
