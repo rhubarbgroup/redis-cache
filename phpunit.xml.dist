@@ -15,9 +15,6 @@
          verbose="true">
 
     <testsuites>
-        <testsuite name="default">
-            <file>./tests/ExampleTest.php</file>
-        </testsuite>    
         <testsuite name="Feature">
             <directory suffix="Test.php">./tests/Feature</directory>
         </testsuite>
