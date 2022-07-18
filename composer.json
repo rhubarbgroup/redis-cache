@@ -29,8 +29,16 @@
         "wp-coding-standards/wpcs": "^2.3",
         "phpcompatibility/phpcompatibility-wp": "^2.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-        "phpunit/phpunit": "^7.0 || ^8.0"
+        "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
+        "yoast/wp-test-utils": "^1.0",
+        "dms/phpunit-arraysubset-asserts": "^0.4.0"
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Rhubarb\\RedisCache\\": "includes/",
+            "Tests\\": "tests/"
+        }
+    },    
     "extra": {
         "installer-paths": {
             "dependencies/predis/predis": ["predis/predis"],

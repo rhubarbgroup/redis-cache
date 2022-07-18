@@ -41,7 +41,6 @@ jobs:
       matrix:
         php: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
         redis: [ '4.0.14', '5.0.12', '6.2.6' ]
-        wordpress: [ 'latest' ]
 
     steps:
       - name: Checkout
@@ -56,7 +55,7 @@ jobs:
       - name: Set up WordPress and WordPress Test Library
         uses: sjinks/setup-wordpress-test-library@master
         with:
-          version: ${{ matrix.wordpress }}
+          version: latest
 
       - name: Install PHP Dependencies
         uses: ramsey/composer-install@v2
@@ -69,7 +68,7 @@ jobs:
         run: ./vendor/bin/phpunit
 
   cluster-instance:
-    name: Testing (PHP ${{ matrix.php }}; Redis Cluster)
+    name: Testing (PHP ${{ matrix.php }}; Cluster ${{ matrix.redis }})
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -90,7 +89,7 @@ jobs:
           MYSQL_DATABASE: wordpress_test
 
       redis:
-        image: grokzen/redis-cluster
+        image: grokzen/redis-cluster:${{ matrix.redis }}
         ports:
           - '6379-6384:6379-6384'
         options: >-
@@ -110,7 +109,7 @@ jobs:
       fail-fast: false
       matrix:
         php: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
-        wordpress: [ 'latest' ]
+        redis: [ '5.0.12', '6.2.1' ]
 
     steps:
       - name: Checkout
@@ -125,7 +124,7 @@ jobs:
       - name: Set up WordPress and WordPress Test Library
         uses: sjinks/setup-wordpress-test-library@master
         with:
-          version: ${{ matrix.wordpress }}
+          version: latest
 
       - name: Install PHP Dependencies
         uses: ramsey/composer-install@v2
