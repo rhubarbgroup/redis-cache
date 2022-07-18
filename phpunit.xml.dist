@@ -1,33 +1,35 @@
-<?xml version="1.0"?>
-<phpunit
-	bootstrap="tests/phpunit/bootstrap.php"
-	backupGlobals="false"
-	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	>
-	<php>
-		<ini name="auto_prepend_file" value="./docker/apf.php"/>
-	</php>
-	<logging>
-		<log type="coverage-html" target="/tmp/codecov"/>
-	</logging>
-	<filter>
-		<whitelist>
-			<directory suffix=".php">includes</directory>
-			<file>redis-cache.php</file>
-		</whitelist>
-	</filter>
-	<testsuites>
-		<testsuite name="main">
-			<directory suffix="-test.php">./tests/phpunit/main</directory>
-		</testsuite>
-		<testsuite name="cache">
-			<directory suffix="-test.php">./tests/phpunit/cache</directory>
-		</testsuite>
-		<testsuite name="meta">
-			<directory suffix="-test.php">./tests/phpunit/meta</directory>
-		</testsuite>
-	</testsuites>
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         beStrictAboutCoversAnnotation="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"         
+         bootstrap="tests/bootstrap.php"
+         cacheResultFile=".phpunit.cache/test-results"
+         colors="true"         
+         convertDeprecationsToExceptions="true"       
+         executionOrder="depends,defects"
+         forceCoversAnnotation="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         verbose="true">
+
+    <testsuites>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage cacheDirectory=".phpunit.cache/code-coverage"
+              processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">includes</directory>
+        </include>
+    </coverage>
+
+    <php>
+        <env name="WP_TESTS_DIR" value="./.wp-test/tests/phpunit/" />
+        <env name="WP_PLUGIN_DIR" value="../" />
+    </php>
+
 </phpunit>

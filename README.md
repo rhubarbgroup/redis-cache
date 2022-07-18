@@ -48,4 +48,4 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 ### Development
 
-Head over to the [Docker Development wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Docker-Development) to spin up various Redis setups.
+Head over to the [Local development wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Local-Development) for more information.

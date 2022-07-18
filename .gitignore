@@ -1,5 +1,9 @@
+/.wp-test
+/.phpunit.cache
 /docker/apf.php
 /php-tools
 /vendor
 /reports
+.phpunit.result.cache
 composer.lock
+config.sh
