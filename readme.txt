@@ -1,11 +1,11 @@
 === Redis Object Cache ===
 Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
-Tags: redis, predis, phpredis, credis, pecl, relay, caching, cache, object cache, performance, replication, clustering, keydb
+Tags: redis, predis, phpredis, credis, relay, caching, cache, object cache, performance, replication, clustering, keydb
 Requires at least: 3.3
 Tested up to: 6.0
-Requires PHP: 5.6
-Stable tag: 2.1.0
+Requires PHP: 7.2
+Stable tag: 2.1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,14 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.1.1 =
+
+- Bumped PHP requirement to 7.2
+- Renamed `WP_REDIS_DIR` to `WP_REDIS_PLUGIN_DIR`
+- Fixed rare fatal error in diagnostics
+- Allow Predis v1.1 Composer installs
+- Support using `WP_REDIS_CLUSTER` string
 
 = 2.1.0 =
 
@@ -564,6 +572,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.1.0 =
+= 2.1.1 =
 
-Bumped PHP requirement to 7.0, updated Predis to v2.0 and deprecated Credis and HHVM clients.
+Bumped PHP requirement to 7.2, updated Predis to v2.0 and deprecated Credis and HHVM clients.
