@@ -1,13 +1,16 @@
 # Changelog
 
-## Unreleased
+## 2.1.1
 
+- Bumped PHP requirement to 7.2
 - Renamed `WP_REDIS_DIR` to `WP_REDIS_PLUGIN_DIR`
 - Fixed rare fatal error in diagnostics
+- Allow Predis v1.1 Composer installs
+- Support using `WP_REDIS_CLUSTER` string
 
 ## 2.1.0
 
-- Bumped PHP requirement to 7.2
+- Bumped PHP requirement to 7.0
 - Deprecated Credis and HHVM clients
 - Updated Predis to v2.0.0
 - Updated Credis to v1.13.1
