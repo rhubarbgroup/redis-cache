@@ -7,7 +7,7 @@
 
 ## 2.1.0
 
-- Bumped PHP requirement to 7.0
+- Bumped PHP requirement to 7.2
 - Deprecated Credis and HHVM clients
 - Updated Predis to v2.0.0
 - Updated Credis to v1.13.1
