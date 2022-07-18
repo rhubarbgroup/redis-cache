@@ -5,7 +5,8 @@ on:
   pull_request: null
 
 jobs:
-  single-instance:
+
+  instance:
     name: Testing (PHP ${{ matrix.php }}; Instance ${{ matrix.redis }})
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -68,7 +69,7 @@ jobs:
       - name: Run test suite
         run: ./vendor/bin/phpunit
 
-  cluster-instance:
+  cluster:
     name: Testing (PHP ${{ matrix.php }}; Cluster ${{ matrix.redis }})
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -110,7 +111,7 @@ jobs:
       fail-fast: false
       matrix:
         php: ['7.2', '7.3', '7.4', '8.0', '8.1']
-        redis: ['3.2.12', '6.2.6', '7.0.3']
+        redis: ['5.0.12', '7.0.3']
 
     steps:
       - name: Checkout
