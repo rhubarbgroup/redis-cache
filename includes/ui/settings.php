@@ -98,7 +98,7 @@ defined( '\\ABSPATH' ) || exit;
                     </p>
                 </div>
 
-                <?php $is_php7 = version_compare( phpversion(), '7.0', '>=' ); ?>
+                <?php $is_php7 = version_compare( phpversion(), '7.2', '>=' ); ?>
                 <?php $is_phpredis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
                 <?php $phpredis_installed = (bool) phpversion( 'redis' ); ?>
 
@@ -122,7 +122,7 @@ defined( '\\ABSPATH' ) || exit;
                                 <?php
                                     printf(
                                         // translators: %s = PHP Version.
-                                        esc_html__( 'The current version of PHP (%s) is too old. PHP 7.0 or newer is required.', 'redis-cache' ),
+                                        esc_html__( 'The current version of PHP (%s) is too old. PHP 7.2 or newer is required.', 'redis-cache' ),
                                         esc_html( phpversion() )
                                     );
                                 ?>
