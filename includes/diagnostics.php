@@ -119,22 +119,22 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
 
 if ( $dropin && ! $disabled ) {
     $info['Global Groups'] = wp_json_encode(
-        array_values( $wp_object_cache->global_groups ),
+        array_values( $wp_object_cache->global_groups ?? [] ),
         JSON_PRETTY_PRINT
     );
 
     $info['Ignored Groups'] = wp_json_encode(
-        array_values( $wp_object_cache->ignored_groups ),
+        array_values( $wp_object_cache->ignored_groups ?? [] ),
         JSON_PRETTY_PRINT
     );
 
     $info['Unflushable Groups'] = wp_json_encode(
-        array_values( $wp_object_cache->unflushable_groups ),
+        array_values( $wp_object_cache->unflushable_groups ?? [] ),
         JSON_PRETTY_PRINT
     );
 
     $info['Groups Types'] = wp_json_encode(
-        $wp_object_cache->group_type,
+        $wp_object_cache->group_type ?? null,
         JSON_PRETTY_PRINT
     );
 }

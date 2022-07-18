@@ -281,7 +281,7 @@ class Plugin {
             return;
         }
 
-        wp_enqueue_style( 'redis-cache', WP_REDIS_DIR . '/assets/css/admin.css', null, WP_REDIS_VERSION );
+        wp_enqueue_style( 'redis-cache', WP_REDIS_PLUGIN_DIR . '/assets/css/admin.css', null, WP_REDIS_VERSION );
     }
 
     /**

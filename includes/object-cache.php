@@ -3,12 +3,12 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.1.0
+ * Version: 2.1.1
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
- * Requires PHP: 7.0
+ * Requires PHP: 7.2
  *
  * @package Rhubarb\RedisCache
  */
@@ -686,18 +686,22 @@ class WP_Object_Cache {
 
             $this->diagnostics[ 'shards' ] = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $args = [
-                'cluster' => $this->build_cluster_connection_array(),
-                'timeout' => $parameters['timeout'],
-                'read_timeout' => $parameters['read_timeout'],
-                'persistent' => $parameters['persistent'],
-            ];
+            if ( is_string( WP_REDIS_CLUSTER ) ) {
+                $this->redis = new RedisCluster( WP_REDIS_CLUSTER  );
+            } else {
+                $args = [
+                    'cluster' => $this->build_cluster_connection_array(),
+                    'timeout' => $parameters['timeout'],
+                    'read_timeout' => $parameters['read_timeout'],
+                    'persistent' => $parameters['persistent'],
+                ];
 
-            if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
-                $args['password'] = $parameters['password'];
+                if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
+                    $args['password'] = $parameters['password'];
+                }
+
+                $this->redis = new RedisCluster( null, ...array_values( $args ) );
             }
-
-            $this->redis = new RedisCluster( null, ...array_values( $args ) );
 
             $this->diagnostics += $args;
         } else {
