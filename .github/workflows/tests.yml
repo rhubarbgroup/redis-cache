@@ -39,8 +39,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
-        redis: [ '4.0.14', '5.0.12', '6.2.6' ]
+        php: ['7.2', '7.3', '7.4', '8.0', '8.1']
+        redis: ['3.2.13', '6.2.6', '7.0.4']
 
     steps:
       - name: Checkout
@@ -109,8 +109,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
-        redis: [ '5.0.12', '6.2.1' ]
+        php: ['7.2', '7.3', '7.4', '8.0', '8.1']
+        redis: ['3.2.13', '6.2.6', '7.0.4']
 
     steps:
       - name: Checkout
