@@ -56,6 +56,7 @@ jobs:
         uses: sjinks/setup-wordpress-test-library@master
         with:
           version: latest
+          cache_prefix: redis-cache-${{ github.ref }}
 
       - name: Install PHP Dependencies
         uses: ramsey/composer-install@v2
@@ -125,6 +126,7 @@ jobs:
         uses: sjinks/setup-wordpress-test-library@master
         with:
           version: latest
+          cache_prefix: redis-cache-${{ github.ref }}     
 
       - name: Install PHP Dependencies
         uses: ramsey/composer-install@v2
