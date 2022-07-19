@@ -2008,8 +2008,6 @@ LUA;
         }
 
         if ( function_exists( 'do_action' ) ) {
-            $execute_time = microtime( true ) - $start_time;
-
             /**
              * Fires on every cache set
              *
@@ -2036,7 +2034,11 @@ LUA;
      * @return bool[] Array of return values, grouped by key. Each value is always true.
      */
     public function set_multiple( array $data, $group = 'default', $expire = 0 ) {
-        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+        if (
+            $this->redis_status() &&
+            method_exists( $this->redis, 'pipeline' ) &&
+            ! $this->is_ignored_group( $group )
+        ) {
             return $this->set_multiple_at_once( $data, $group, $expire );
         }
 
@@ -2060,83 +2062,80 @@ LUA;
      */
     protected function set_multiple_at_once( array $data, $group = 'default', $expiration = 0 )
     {
-        $values = [];
-        $group = $this->sanitize_key_part( $group );
+        $start_time = microtime( true );
 
-        if ( ! $this->is_ignored_group( $group ) ) {
-            $start_time = microtime( true );
+        $san_group = $this->sanitize_key_part( $group );
+        $derived_keys = [];
 
-            $orig_exp = $expiration;
-            $expiration = $this->validate_expiration( $expiration );
-            $tx = $this->redis->pipeline();
-            $keys = array_keys( $data );
+        $orig_exp = $expiration;
+        $expiration = $this->validate_expiration( $expiration );
+        $expirations = [];
 
+        $tx = $this->redis->pipeline();
+        $keys = array_keys( $data );
+
+        foreach ( $data as $key => $value ) {
+            $san_key = $this->sanitize_key_part( $key );
+            $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
+
+            /**
+             * Filters the cache expiration time
+             *
+             * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+             * @param string $key        The cache key.
+             * @param string $group      The cache group.
+             * @param mixed  $orig_exp   The original expiration value before validation.
+             */
+            $expiration = $expirations[ $key ] = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
+
+            if ( $expiration ) {
+                $tx->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) );
+            } else {
+                $tx->set( $derived_key, $this->maybe_serialize( $value ) );
+            }
+        }
+
+        try {
+            $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+
+            $results = array_map( function ( $response ) {
+                return (bool) $this->parse_redis_response( $response );
+            }, $tx->{$method}() );
+
+            $results = array_combine( $keys, $results );
+
+            foreach ( $results as $key => $result ) {
+                if ( $result ) {
+                    $this->add_to_internal_cache( $derived_keys[ $key ], $value );
+                }
+            }
+        } catch ( Exception $exception ) {
+            $this->handle_exception( $exception );
+
+            return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
+        }
+
+        $execute_time = microtime( true ) - $start_time;
+
+        $this->cache_calls++;
+        $this->cache_time += $execute_time;
+
+        if ( function_exists( 'do_action' ) ) {
             foreach ( $data as $key => $value ) {
-                $key = $this->sanitize_key_part( $key );
-                $derived_key = $this->fast_build_key( $key, $group );
-
                 /**
-                 * Filters the cache expiration time
+                 * Fires on every cache set
                  *
-                 * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
-                 * @param string $key        The cache key.
-                 * @param string $group      The cache group.
-                 * @param mixed  $orig_exp   The original expiration value before validation.
+                 * @param string $key          The cache key.
+                 * @param mixed  $value        Value of the cache entry.
+                 * @param string $group        The group value appended to the $key.
+                 * @param int    $expiration   The time in seconds the entry expires. 0 for no expiry.
+                 * @param float  $execute_time Execution time for the request in seconds.
                  */
-                $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
-
-                $args = [ $derived_key, $this->maybe_serialize( $value ) ];
-
-                if ( $this->redis instanceof Predis\Client ) {
-                    $args[] = 'nx';
-
-                    if ( $expiration ) {
-                        $args[] = 'ex';
-                        $args[] = $expiration;
-                    }
-                } else {
-                    if ( $expiration ) {
-                        $args[] = [ 'nx', 'ex' => $expiration ];
-                    } else {
-                        $args[] = [ 'nx' ];
-                    }
-                }
-
-                $tx->set( ...$args );
-            }
-
-            try {
-                $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
-
-                $values = array_map( function ( $response ) {
-                    return (bool) $this->parse_redis_response( $response );
-                }, $tx->{$method}() );
-
-                if ( $values ) {
-                    $values = array_combine( $keys, $values );
-                }
-            } catch ( Exception $exception ) {
-                $this->handle_exception( $exception );
-
-                return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
-            }
-
-            $execute_time = microtime( true ) - $start_time;
-
-            $this->cache_calls++;
-            $this->cache_time += $execute_time;
-        }
-
-        foreach ($data as $key => $value) {
-            $key = $this->sanitize_key_part( $key );
-            $derived_key = $this->fast_build_key( $key, $group );
-
-            if ( isset( $values[ $key ] ) && $values[ $key ] ) {
-                $this->add_to_internal_cache( $derived_key, $value );
+                do_action( 'redis_object_cache_set', $key, $value, $group, $expirations[ $key ], $execute_time );
             }
         }
 
-        return $values;
+        return $results;
     }
 
     /**
