@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, relay, caching, cache, object cache, perf
 Requires at least: 3.3
 Tested up to: 6.0
 Requires PHP: 7.2
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,14 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.1.2 =
+
+- Fixed and improved `wp_cache_*_multiple()` logic
+- Call `redis_object_cache_set` action in `wp_cache_set_multiple()`
+- Call `redis_object_cache_delete` action in `wp_cache_delete_multiple()`
+- Check if raw group name is ignored, not sanitized name
+- Removed tracing
 
 = 2.1.1 =
 
@@ -572,6 +580,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.1.1 =
+= 2.1.2 =
 
 Bumped PHP requirement to 7.2, updated Predis to v2.0 and deprecated Credis and HHVM clients.
