@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.1.1
+ * Version: 2.1.2
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -320,49 +320,6 @@ function wp_cache_add_non_persistent_groups( $groups ) {
  */
 class WP_Object_Cache {
     /**
-     * Operation pertains to internal cache, not Redis.
-     *
-     * @since 2.0.18
-     * @var int
-     */
-    const TRACE_FLAG_INTERNAL = 1 << 0;
-    /**
-     * Operation resulted in a cache hit.
-     *
-     * @since 2.0.18
-     * @var int
-     */
-    const TRACE_FLAG_HIT = 1 << 1;
-    /**
-     * Read operation.
-     *
-     * @since 2.0.18
-     * @var int
-     */
-    const TRACE_FLAG_READ = 1 << 2;
-    /**
-     * Write operation.
-     *
-     * @since 2.0.18
-     * @var int
-     */
-    const TRACE_FLAG_WRITE = 1 << 3;
-    /**
-     * Delete operation.
-     *
-     * @since 2.0.18
-     * @var int
-     */
-    const TRACE_FLAG_DEL = 1 << 4;
-    /**
-     * Operation bypassed internal cache.
-     *
-     * @since 2.0.18
-     * @var int
-     */
-    const TRACE_FLAG_REFRESH = 1 << 5;
-
-    /**
      * The Redis client.
      *
      * @var mixed
@@ -403,13 +360,6 @@ class WP_Object_Cache {
      * @var array
      */
     public $diagnostics = null;
-
-    /**
-     * Holds the error messages.
-     *
-     * @var array
-     */
-    public $trace_enabled = false;
 
     /**
      * Holds the error messages.
@@ -497,18 +447,18 @@ class WP_Object_Cache {
     public $cache_misses = 0;
 
     /**
-     * Track how long request took.
-     *
-     * @var float
-     */
-    public $cache_time = 0;
-
-    /**
-     * Track how may calls were made.
+     * The amount of Redis commands made.
      *
      * @var int
      */
     public $cache_calls = 0;
+
+    /**
+     * The amount of microseconds (μs) waited for Redis commands.
+     *
+     * @var float
+     */
+    public $cache_time = 0;
 
     /**
      * Instantiate the Redis class.
@@ -536,8 +486,8 @@ class WP_Object_Cache {
 
         $this->cache_group_types();
 
-        if ( defined( 'WP_REDIS_TRACE' ) && WP_REDIS_TRACE ) {
-            $this->trace_enabled = true;
+        if ( defined( 'WP_REDIS_TRACE' ) && WP_REDIS_TRACE && function_exists( '_doing_it_wrong' ) ) {
+            _doing_it_wrong( __FUNCTION__ , 'Tracing feature was removed.' , '2.1.2' );
         }
 
         $client = $this->determine_client();
@@ -1180,7 +1130,11 @@ class WP_Object_Cache {
             return array_combine( array_keys( $data ), array_fill( 0, count( $data ), false ) );
         }
 
-        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+        if (
+            $this->redis_status() &&
+            method_exists( $this->redis, 'pipeline' ) &&
+            ! $this->is_ignored_group( $group )
+        ) {
             return $this->add_multiple_at_once( $data, $group, $expire );
         }
 
@@ -1206,84 +1160,76 @@ class WP_Object_Cache {
     protected function add_multiple_at_once( array $data, $group = 'default', $expire = 0 )
     {
         $keys = array_keys( $data );
-        $values = array_combine( $keys, array_fill( 0, count( $keys ), true ) );
-        $group = $this->sanitize_key_part( $group );
 
-        if ( ! $this->is_ignored_group( $group ) ) {
+        $san_group = $this->sanitize_key_part( $group );
+
+        $tx = $this->redis->pipeline();
+
+        $orig_exp = $expire;
+        $expire = $this->validate_expiration( $expire );
+
+        foreach ( $data as $key => $value ) {
+            /**
+             * Filters the cache expiration time
+             *
+             * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+             * @param string $key        The cache key.
+             * @param string $group      The cache group.
+             * @param mixed  $orig_exp   The original expiration value before validation.
+             */
+            $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
+
+            $san_key = $this->sanitize_key_part( $key );
+            $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
+
+            $args = [ $derived_key, $this->maybe_serialize( $value ) ];
+
+            if ( $this->redis instanceof Predis\Client ) {
+                $args[] = 'nx';
+
+                if ( $expire ) {
+                    $args[] = 'ex';
+                    $args[] = $expire;
+                }
+            } else {
+                if ( $expire ) {
+                    $args[] = [ 'nx', 'ex' => $expire ];
+                } else {
+                    $args[] = [ 'nx' ];
+                }
+            }
+
+            $tx->set( ...$args );
+        }
+
+        try {
             $start_time = microtime( true );
 
-            $orig_exp = $expire;
-            $expire = $this->validate_expiration( $expire );
-            $tx = $this->redis->pipeline();
-            $traceKV = [];
+            $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
 
-            foreach ( $data as $key => $value ) {
-                /** This action is documented in includes/object-cache.php */
-                $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
+            $results = array_map( function ( $response ) {
+                return (bool) $this->parse_redis_response( $response );
+            }, $tx->{$method}() );
 
-                $key = $this->sanitize_key_part( $key );
-                $derived_key = $this->fast_build_key( $key, $group );
+            $results = array_combine( $keys, $results );
 
-                $values[ $key ] = $derived_key || ! isset( $this->cache[ $derived_key ] );
-
-                $args = [ $derived_key, $this->maybe_serialize( $value ) ];
-
-                if ( $this->redis instanceof Predis\Client ) {
-                    $args[] = 'nx';
-
-                    if ( $expire ) {
-                        $args[] = 'ex';
-                        $args[] = $expire;
-                    }
-                } else {
-                    if ( $expire ) {
-                        $args[] = [ 'nx', 'ex' => $expire ];
-                    } else {
-                        $args[] = [ 'nx' ];
-                    }
+            foreach ( $results as $key => $result ) {
+                if ( $result ) {
+                    $this->add_to_internal_cache( $derived_keys[ $key ], $value );
                 }
-
-                $traceKV[ $key ] = [
-                    'value' => $value,
-                    'status' => self::TRACE_FLAG_WRITE,
-                ];
-
-                $tx->set( ...$args );
             }
 
-            try {
-                $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+            $execute_time = microtime( true ) - $start_time;
 
-                $values = array_map( function ( $response ) {
-                    return (bool) $this->parse_redis_response( $response );
-                }, $tx->{$method}() );
+            $this->cache_calls++;
+            $this->cache_time += $execute_time;
+        } catch ( Exception $exception ) {
+            $this->handle_exception( $exception );
 
-                if ( $values ) {
-                    $values = array_combine( $keys, $values );
-                }
-
-                $execute_time = microtime( true ) - $start_time;
-
-                if ( $this->trace_enabled ) {
-                    $this->trace_command( 'set', $group, $traceKV, microtime( true ) - $start_time );
-                }
-
-                $this->cache_calls++;
-                $this->cache_time += $execute_time;
-            } catch ( Exception $exception ) {
-                $this->handle_exception( $exception );
-
-                return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
-            }
+            return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
         }
 
-        foreach ( $values as $key => $value ) {
-            if ( $value ) {
-                $this->add_to_internal_cache( $this->fast_build_key( $key, $group ) , $value );
-            }
-        }
-
-        return $values;
+        return $results;
     }
 
     /**
@@ -1382,15 +1328,6 @@ class WP_Object_Cache {
 
                 $execute_time = microtime( true ) - $start_time;
 
-                if ( $this->trace_enabled ) {
-                    $this->trace_command( 'set', $group, [
-                        $key => [
-                            'value' => $value,
-                            'status' => self::TRACE_FLAG_WRITE,
-                        ],
-                    ], microtime( true ) - $start_time );
-                }
-
                 $this->cache_calls++;
                 $this->cache_time += $execute_time;
             } catch ( Exception $exception ) {
@@ -1447,15 +1384,6 @@ class WP_Object_Cache {
 
         $execute_time = microtime( true ) - $start_time;
 
-        if ( $this->trace_enabled ) {
-            $this->trace_command( 'del', $group, [
-                $key => [
-                    'value' => null,
-                    'status' => self::TRACE_FLAG_DEL,
-                ],
-            ], $execute_time );
-        }
-
         $this->cache_calls++;
         $this->cache_time += $execute_time;
 
@@ -1483,7 +1411,11 @@ class WP_Object_Cache {
      *                true on success, or false if the contents were not deleted.
      */
     public function delete_multiple( array $keys, $group = 'default' ) {
-        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+        if (
+            $this->redis_status() &&
+            method_exists( $this->redis, 'pipeline' ) &&
+            ! $this->is_ignored_group( $group )
+        ) {
             return $this->delete_multiple_at_once( $keys, $group );
         }
 
@@ -1506,43 +1438,12 @@ class WP_Object_Cache {
      */
     protected function delete_multiple_at_once( array $keys, $group = 'default' ) {
         $start_time = microtime( true );
-        $traceKV = [];
-
-        if ( $this->is_ignored_group( $group ) ) {
-            $results = [];
-
-            foreach ( $keys as $key ) {
-                $derived_key = $this->build_key( $key, $group );
-
-                $results[ $key ] = isset( $this->cache[ $derived_key ] );
-
-                $traceKV[ $key ] = [
-                    'value' => $this->cache[ $derived_key ],
-                    'status' => self::TRACE_FLAG_DEL,
-                ];
-
-                unset( $this->cache[ $derived_key ] );
-            }
-
-            $execute_time = microtime( true ) - $start_time;
-
-            if ( $this->trace_enabled ) {
-                $this->trace_command( 'set', $group, $traceKV, $execute_time );
-            }
-
-            return $results;
-        }
 
         try {
             $tx = $this->redis->pipeline();
 
-            foreach ($keys as $key) {
+            foreach ( $keys as $key ) {
                 $derived_key = $this->build_key( (string) $key, $group );
-
-                $traceKV[ $key ] = [
-                    'value' => $this->cache[ $derived_key ],
-                    'status' => self::TRACE_FLAG_DEL,
-                ];
 
                 $tx->del( $derived_key );
 
@@ -1556,17 +1457,27 @@ class WP_Object_Cache {
             }, $tx->{$method}() );
 
             $execute_time = microtime( true ) - $start_time;
-
-            if ( $this->trace_enabled ) {
-                $this->trace_command( 'set', $group, $traceKV, $execute_time );
-            }
-
-            return array_combine( $keys, $results );
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
             return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
         }
+
+        if ( function_exists( 'do_action' ) ) {
+            foreach ( $keys as $key ) {
+                /**
+                 * Fires on every cache key deletion
+                 *
+                 * @since 1.3.3
+                 * @param string $key          The cache key.
+                 * @param string $group        The group value appended to the $key.
+                 * @param float  $execute_time Execution time for the request in seconds.
+                 */
+                do_action( 'redis_object_cache_delete', $key, $group, $execute_time );
+            }
+        }
+
+        return array_combine( $keys, $results );
     }
 
     /**
@@ -1822,12 +1733,6 @@ LUA;
      * @return  bool|mixed         Cached object value.
      */
     public function get( $key, $group = 'default', $force = false, &$found = null ) {
-        $trace_flags = self::TRACE_FLAG_READ;
-
-        if ( $force ) {
-            $trace_flags |= self::TRACE_FLAG_REFRESH;
-        }
-
         $start_time = microtime( true );
 
         $san_key = $this->sanitize_key_part( $key );
@@ -1839,32 +1744,13 @@ LUA;
             $this->cache_hits++;
             $value = $this->get_from_internal_cache( $derived_key );
 
-            if ( $this->trace_enabled ) {
-                $this->trace_command( 'get', $group, [
-                    $key => [
-                        'value' => $value,
-                        'status' => $trace_flags | self::TRACE_FLAG_HIT | self::TRACE_FLAG_INTERNAL,
-                    ],
-                ], microtime( true ) - $start_time);
-            }
-
             return $value;
-        } elseif ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
+        } elseif ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             $found = false;
             $this->cache_misses++;
 
-            if ( $this->trace_enabled ) {
-                $this->trace_command( 'get', $group, [
-                    $key => [
-                        'value' => null,
-                        'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
-                    ],
-                ], microtime( true ) - $start_time );
-            }
-
             return false;
         }
-
 
         try {
             $result = $this->redis->get( $derived_key );
@@ -1883,15 +1769,6 @@ LUA;
             $found = false;
             $this->cache_misses++;
 
-            if ( $this->trace_enabled ) {
-                $this->trace_command( 'get', $group, [
-                    $key => [
-                        'value' => null,
-                        'status' => $trace_flags,
-                    ],
-                ], microtime( true ) - $start_time );
-            }
-
             return false;
         } else {
             $found = true;
@@ -1900,15 +1777,6 @@ LUA;
         }
 
         $this->add_to_internal_cache( $derived_key, $value );
-
-        if ( $this->trace_enabled ) {
-            $this->trace_command( 'get', $group, [
-                $key => [
-                    'value' => $value,
-                    'status' => $trace_flags | self::TRACE_FLAG_HIT,
-                ],
-            ], microtime( true ) - $start_time );
-        }
 
         if ( function_exists( 'do_action' ) ) {
             /**
@@ -1958,12 +1826,6 @@ LUA;
             return false;
         }
 
-        $trace_flags = self::TRACE_FLAG_READ;
-
-        if ( $force ) {
-            $trace_flags |= self::TRACE_FLAG_REFRESH;
-        }
-
         $cache = [];
         $derived_keys = [];
         $start_time = microtime( true );
@@ -1975,40 +1837,20 @@ LUA;
             $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
         }
 
-        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
-            $traceKV = [];
-
+        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             foreach ( $keys as $key ) {
                 $value = $this->get_from_internal_cache( $derived_keys[ $key ] );
                 $cache[ $key ] = $value;
 
                 if ($value === false) {
                     $this->cache_misses++;
-
-                    if ( $this->trace_enabled ) {
-                        $traceKV[ $key ] = [
-                            'value' => null,
-                            'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
-                        ];
-                    }
                 } else {
                     $this->cache_hits++;
-
-                    if ( $this->trace_enabled ) {
-                        $traceKV[ $key ] = [
-                            'value' => $value,
-                            'status' => $trace_flags | self::TRACE_FLAG_HIT | self::TRACE_FLAG_INTERNAL,
-                        ];
-                    }
                 }
             }
 
-            $this->trace_command( 'mget', $group, $traceKV, microtime( true ) - $start_time );
-
             return $cache;
         }
-
-        $traceKV = [];
 
         if ( ! $force ) {
             foreach ( $keys as $key ) {
@@ -2017,22 +1859,9 @@ LUA;
                 if ( $value === false ) {
                     $this->cache_misses++;
 
-                    if ( $this->trace_enabled ) {
-                        $traceKV[ $key ] = [
-                            'value' => null,
-                            'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
-                        ];
-                    }
                 } else {
                     $cache[ $key ] = $value;
                     $this->cache_hits++;
-
-                    if ( $this->trace_enabled ) {
-                        $traceKV[ $key ] = [
-                            'value' => $value,
-                            'status' => $trace_flags | self::TRACE_FLAG_HIT | self::TRACE_FLAG_INTERNAL,
-                        ];
-                    }
                 }
             }
         }
@@ -2045,9 +1874,6 @@ LUA;
         );
 
         if ( empty( $remaining_keys ) ) {
-            $this->trace_enabled
-                && $this->trace_command( 'mget', $group, $traceKV, microtime( true ) - $start_time );
-
             return $cache;
         }
 
@@ -2081,29 +1907,12 @@ LUA;
             if ( $value === null || $value === false ) {
                 $cache[ $key ] = false;
                 $this->cache_misses++;
-
-                if ( $this->trace_enabled ) {
-                    $traceKV[ $key ] = [
-                        'value' => null,
-                        'status' => $trace_flags,
-                    ];
-                }
             } else {
                 $cache[ $key ] = $this->maybe_unserialize( $value );
                 $this->add_to_internal_cache( $derived_keys[ $key ], $cache[ $key ] );
                 $this->cache_hits++;
-
-                if ( $this->trace_enabled ) {
-                    $traceKV[ $key ] = [
-                        'value' => $value,
-                        'status' => $trace_flags | self::TRACE_FLAG_HIT,
-                    ];
-                }
             }
         }
-
-        $this->trace_enabled
-            && $this->trace_command( 'mget', $group, $traceKV, $execute_time );
 
         if ( function_exists( 'do_action' ) ) {
             /**
@@ -2160,7 +1969,7 @@ LUA;
         $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         // Save if group not excluded from redis and redis is up.
-        if ( ! $this->is_ignored_group( $san_group ) && $this->redis_status() ) {
+        if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
             $orig_exp = $expiration;
             $expiration = $this->validate_expiration( $expiration );
 
@@ -2190,15 +1999,6 @@ LUA;
             $execute_time = microtime( true ) - $start_time;
             $this->cache_calls++;
             $this->cache_time += $execute_time;
-
-            if ( $this->trace_enabled ) {
-                $this->trace_command( 'set', $group, [
-                    $key => [
-                        'value' => null,
-                        'status' => self::TRACE_FLAG_WRITE,
-                    ],
-                ], $execute_time );
-            }
         }
 
         // If the set was successful, or we didn't go to redis.
@@ -2235,7 +2035,11 @@ LUA;
      * @return bool[] Array of return values, grouped by key. Each value is always true.
      */
     public function set_multiple( array $data, $group = 'default', $expire = 0 ) {
-        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+        if (
+            $this->redis_status() &&
+            method_exists( $this->redis, 'pipeline' ) &&
+            ! $this->is_ignored_group( $group )
+        ) {
             return $this->set_multiple_at_once( $data, $group, $expire );
         }
 
@@ -2259,85 +2063,80 @@ LUA;
      */
     protected function set_multiple_at_once( array $data, $group = 'default', $expiration = 0 )
     {
-        $values = [];
-        $group = $this->sanitize_key_part( $group );
+        $start_time = microtime( true );
 
-        if ( ! $this->is_ignored_group( $group ) ) {
-            $start_time = microtime( true );
+        $san_group = $this->sanitize_key_part( $group );
+        $derived_keys = [];
 
-            $orig_exp = $expiration;
-            $expiration = $this->validate_expiration( $expiration );
-            $tx = $this->redis->pipeline();
-            $keys = array_keys( $data );
-            $traceKV = [];
+        $orig_exp = $expiration;
+        $expiration = $this->validate_expiration( $expiration );
+        $expirations = [];
 
+        $tx = $this->redis->pipeline();
+        $keys = array_keys( $data );
+
+        foreach ( $data as $key => $value ) {
+            $san_key = $this->sanitize_key_part( $key );
+            $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
+
+            /**
+             * Filters the cache expiration time
+             *
+             * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+             * @param string $key        The cache key.
+             * @param string $group      The cache group.
+             * @param mixed  $orig_exp   The original expiration value before validation.
+             */
+            $expiration = $expirations[ $key ] = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
+
+            if ( $expiration ) {
+                $tx->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) );
+            } else {
+                $tx->set( $derived_key, $this->maybe_serialize( $value ) );
+            }
+        }
+
+        try {
+            $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+
+            $results = array_map( function ( $response ) {
+                return (bool) $this->parse_redis_response( $response );
+            }, $tx->{$method}() );
+
+            $results = array_combine( $keys, $results );
+
+            foreach ( $results as $key => $result ) {
+                if ( $result ) {
+                    $this->add_to_internal_cache( $derived_keys[ $key ], $value );
+                }
+            }
+        } catch ( Exception $exception ) {
+            $this->handle_exception( $exception );
+
+            return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
+        }
+
+        $execute_time = microtime( true ) - $start_time;
+
+        $this->cache_calls++;
+        $this->cache_time += $execute_time;
+
+        if ( function_exists( 'do_action' ) ) {
             foreach ( $data as $key => $value ) {
-                $key = $this->sanitize_key_part( $key );
-                $derived_key = $this->fast_build_key( $key, $group );
-
-                /** This action is documented in includes/object-cache.php */
-                $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
-
-                $args = [ $derived_key, $this->maybe_serialize( $value ) ];
-
-                if ( $this->redis instanceof Predis\Client ) {
-                    $args[] = 'nx';
-
-                    if ( $expiration ) {
-                        $args[] = 'ex';
-                        $args[] = $expiration;
-                    }
-                } else {
-                    if ( $expiration ) {
-                        $args[] = [ 'nx', 'ex' => $expiration ];
-                    } else {
-                        $args[] = [ 'nx' ];
-                    }
-                }
-
-                $traceKV[ $key ] = [
-                    'value' => $value,
-                    'status' => self::TRACE_FLAG_WRITE,
-                ];
-
-                $tx->set( ...$args );
-            }
-
-            try {
-                $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
-
-                $values = array_map( function ( $response ) {
-                    return (bool) $this->parse_redis_response( $response );
-                }, $tx->{$method}() );
-
-                if ( $values ) {
-                    $values = array_combine( $keys, $values );
-                }
-            } catch ( Exception $exception ) {
-                $this->handle_exception( $exception );
-
-                return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
-            }
-
-            $execute_time = microtime( true ) - $start_time;
-            $this->cache_calls++;
-            $this->cache_time += $execute_time;
-
-            if ( $this->trace_enabled ) {
-                $this->trace_command( 'set', $group, $traceKV, $execute_time );
+                /**
+                 * Fires on every cache set
+                 *
+                 * @param string $key          The cache key.
+                 * @param mixed  $value        Value of the cache entry.
+                 * @param string $group        The group value appended to the $key.
+                 * @param int    $expiration   The time in seconds the entry expires. 0 for no expiry.
+                 * @param float  $execute_time Execution time for the request in seconds.
+                 */
+                do_action( 'redis_object_cache_set', $key, $value, $group, $expirations[ $key ], $execute_time );
             }
         }
 
-        foreach ($data as $key => $value) {
-            $key = $this->sanitize_key_part( $key );
-            $derived_key = $this->fast_build_key( $key, $group );
-
-            if ( isset( $values[ $key ] ) && $values[ $key ] ) {
-                $this->add_to_internal_cache( $derived_key, $value );
-            }
-        }
-
-        return $values;
+        return $results;
     }
 
     /**
@@ -2356,22 +2155,12 @@ LUA;
         $san_group = $this->sanitize_key_part( $group );
 
         $derived_key = $this->fast_build_key( $san_key, $san_group );
-        $trace_flags = self::TRACE_FLAG_READ | self::TRACE_FLAG_WRITE;
 
         // If group is a non-Redis group, save to internal cache, not Redis.
-        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             $value = $this->get_from_internal_cache( $derived_key );
             $value += $offset;
             $this->add_to_internal_cache( $derived_key, $value );
-
-            if ( $this->trace_enabled ) {
-                $this->trace_command( 'incr', $group, [
-                    $key => [
-                        'value' => $value,
-                        'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
-                    ],
-                ], microtime( true ) - $start_time );
-            }
 
             return $value;
         }
@@ -2387,15 +2176,6 @@ LUA;
         }
 
         $execute_time = microtime( true ) - $start_time;
-
-        if ( $this->trace_enabled ) {
-            $this->trace_command( 'incr', $group, [
-                $key => [
-                    'value' => $result,
-                    'status' => $trace_flags,
-                ],
-            ], $execute_time );
-        }
 
         $this->cache_calls += 2;
         $this->cache_time += $execute_time;
@@ -2432,29 +2212,17 @@ LUA;
         $san_group = $this->sanitize_key_part( $group );
 
         $derived_key = $this->fast_build_key( $san_key, $san_group );
-        $trace_flags = self::TRACE_FLAG_READ | self::TRACE_FLAG_WRITE;
 
         // If group is a non-Redis group, save to internal cache, not Redis.
-        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             $value = $this->get_from_internal_cache( $derived_key );
             $value -= $offset;
             $this->add_to_internal_cache( $derived_key, $value );
 
-            if ( $this->trace_enabled ) {
-                $this->trace_command( 'decr', $group, [
-                    $key => [
-                        'value' => $value,
-                        'status' => $trace_flags | self::TRACE_FLAG_INTERNAL,
-                    ],
-                ], microtime( true ) - $start_time );
-            }
-
             return $value;
         }
 
-
         try {
-            // Save to Redis.
             $result = $this->parse_redis_response( $this->redis->decrBy( $derived_key, $offset ) );
 
             $this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
@@ -2465,15 +2233,6 @@ LUA;
         }
 
         $execute_time = microtime( true ) - $start_time;
-
-        if ( $this->trace_enabled ) {
-            $this->trace_command( 'decr', $group, [
-                $key => [
-                    'value' => $result,
-                    'status' => $trace_flags,
-                ],
-            ], $execute_time );
-        }
 
         $this->cache_calls += 2;
         $this->cache_time += $execute_time;
@@ -2592,8 +2351,6 @@ LUA;
         $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
 
         $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
-
-
         $prefix = trim( $prefix, '_-:$' );
 
         return "{$salt}{$prefix}:{$group}:{$key}";
@@ -2919,40 +2676,6 @@ LUA;
         }
 
         return false;
-    }
-
-    /**
-     * Invoke the `redis_object_cache_trace` hook.
-     *
-     * @param  string             $command
-     * @param  string             $group
-     * @param  array[string]array $keyValues
-     * @param  float              $duration
-     * @return void
-     */
-    private function trace_command ( $command, $group, $keyValues, $duration ) {
-        if ( ! $this->trace_enabled || ! function_exists( 'do_action' ) ) {
-            return;
-        }
-
-        /**
-         * Fires on every cache call.
-         *
-         * This hook is called on every cache request.
-         * It reports statistics per key involved. @see WP_Object_Cache::TRACE_FLAG_READ and friends.
-         *
-         * @param  string             $command   The command that was executed.
-         * @param  string             $group     Key group.
-         * @param  array[string]array $keyValues Maps keys to the returned values (if any) and the resulting status.
-         *  $keyValues = [
-         *      "foo" => ["value" => "bar", "status" => TRACE_FLAG_READ | TRACE_FLAG_HIT],                       // hit on redis (implies internal miss)
-         *      "baz" => ["value" => "quo", "status" => TRACE_FLAG_READ | TRACE_FLAG_HIT | TRACE_FLAG_INTERNAL], // hit on internal cache
-         *      "eta" => ["value" => null,  "status" => TRACE_FLAG_READ],                                        // miss
-         * ];
-         * @param  float              $duration  Duration of the request in microseconds.
-         * @return void
-         */
-        do_action( 'redis_object_cache_trace', $command, $group, $keyValues, $duration );
     }
 
     /**
