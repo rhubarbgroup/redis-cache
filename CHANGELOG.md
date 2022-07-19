@@ -4,6 +4,7 @@
 
 - Removed tracing
 - Check if raw group name is ignored, not sanitized name
+- Fixed and improved `wp_cache_*_multiple()` logic
 - Call `redis_object_cache_set` action in `wp_cache_set_multiple()`
 - Call `redis_object_cache_delete` action in `wp_cache_delete_multiple()`
 

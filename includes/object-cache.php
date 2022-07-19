@@ -1130,7 +1130,11 @@ class WP_Object_Cache {
             return array_combine( array_keys( $data ), array_fill( 0, count( $data ), false ) );
         }
 
-        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+        if (
+            $this->redis_status() &&
+            method_exists( $this->redis, 'pipeline' ) &&
+            ! $this->is_ignored_group( $group )
+        ) {
             return $this->add_multiple_at_once( $data, $group, $expire );
         }
 
@@ -1156,81 +1160,76 @@ class WP_Object_Cache {
     protected function add_multiple_at_once( array $data, $group = 'default', $expire = 0 )
     {
         $keys = array_keys( $data );
-        $values = array_combine( $keys, array_fill( 0, count( $keys ), true ) );
-        $group = $this->sanitize_key_part( $group );
 
-        if ( ! $this->is_ignored_group( $group ) ) {
+        $san_group = $this->sanitize_key_part( $group );
+
+        $tx = $this->redis->pipeline();
+
+        $orig_exp = $expire;
+        $expire = $this->validate_expiration( $expire );
+
+        foreach ( $data as $key => $value ) {
+            /**
+             * Filters the cache expiration time
+             *
+             * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+             * @param string $key        The cache key.
+             * @param string $group      The cache group.
+             * @param mixed  $orig_exp   The original expiration value before validation.
+             */
+            $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
+
+            $san_key = $this->sanitize_key_part( $key );
+            $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
+
+            $args = [ $derived_key, $this->maybe_serialize( $value ) ];
+
+            if ( $this->redis instanceof Predis\Client ) {
+                $args[] = 'nx';
+
+                if ( $expire ) {
+                    $args[] = 'ex';
+                    $args[] = $expire;
+                }
+            } else {
+                if ( $expire ) {
+                    $args[] = [ 'nx', 'ex' => $expire ];
+                } else {
+                    $args[] = [ 'nx' ];
+                }
+            }
+
+            $tx->set( ...$args );
+        }
+
+        try {
             $start_time = microtime( true );
 
-            $orig_exp = $expire;
-            $expire = $this->validate_expiration( $expire );
-            $tx = $this->redis->pipeline();
+            $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
 
-            foreach ( $data as $key => $value ) {
-                /**
-                 * Filters the cache expiration time
-                 *
-                 * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
-                 * @param string $key        The cache key.
-                 * @param string $group      The cache group.
-                 * @param mixed  $orig_exp   The original expiration value before validation.
-                 */
-                $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
+            $results = array_map( function ( $response ) {
+                return (bool) $this->parse_redis_response( $response );
+            }, $tx->{$method}() );
 
-                $key = $this->sanitize_key_part( $key );
-                $derived_key = $this->fast_build_key( $key, $group );
+            $results = array_combine( $keys, $results );
 
-                $values[ $key ] = $derived_key || ! isset( $this->cache[ $derived_key ] );
-
-                $args = [ $derived_key, $this->maybe_serialize( $value ) ];
-
-                if ( $this->redis instanceof Predis\Client ) {
-                    $args[] = 'nx';
-
-                    if ( $expire ) {
-                        $args[] = 'ex';
-                        $args[] = $expire;
-                    }
-                } else {
-                    if ( $expire ) {
-                        $args[] = [ 'nx', 'ex' => $expire ];
-                    } else {
-                        $args[] = [ 'nx' ];
-                    }
+            foreach ( $results as $key => $result ) {
+                if ( $result ) {
+                    $this->add_to_internal_cache( $derived_keys[ $key ], $value );
                 }
-
-                $tx->set( ...$args );
             }
 
-            try {
-                $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+            $execute_time = microtime( true ) - $start_time;
 
-                $values = array_map( function ( $response ) {
-                    return (bool) $this->parse_redis_response( $response );
-                }, $tx->{$method}() );
+            $this->cache_calls++;
+            $this->cache_time += $execute_time;
+        } catch ( Exception $exception ) {
+            $this->handle_exception( $exception );
 
-                if ( $values ) {
-                    $values = array_combine( $keys, $values );
-                }
-
-                $execute_time = microtime( true ) - $start_time;
-
-                $this->cache_calls++;
-                $this->cache_time += $execute_time;
-            } catch ( Exception $exception ) {
-                $this->handle_exception( $exception );
-
-                return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
-            }
+            return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
         }
 
-        foreach ( $values as $key => $value ) {
-            if ( $value ) {
-                $this->add_to_internal_cache( $this->fast_build_key( $key, $group ) , $value );
-            }
-        }
-
-        return $values;
+        return $results;
     }
 
     /**
