@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.3
+
+- Fixed bug in `wp_cache_add_multiple()` and `wp_cache_set_multiple()`
+
 ## 2.1.2
 
 - Fixed and improved `wp_cache_*_multiple()` logic

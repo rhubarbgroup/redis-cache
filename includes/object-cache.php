@@ -1215,7 +1215,7 @@ class WP_Object_Cache {
 
             foreach ( $results as $key => $result ) {
                 if ( $result ) {
-                    $this->add_to_internal_cache( $derived_keys[ $key ], $value );
+                    $this->add_to_internal_cache( $derived_keys[ $key ], $data[ $key ] );
                 }
             }
 
@@ -2107,7 +2107,7 @@ LUA;
 
             foreach ( $results as $key => $result ) {
                 if ( $result ) {
-                    $this->add_to_internal_cache( $derived_keys[ $key ], $value );
+                    $this->add_to_internal_cache( $derived_keys[ $key ], $data[ $key ] );
                 }
             }
         } catch ( Exception $exception ) {
