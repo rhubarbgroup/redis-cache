@@ -1744,7 +1744,7 @@ LUA;
             $value = $this->get_from_internal_cache( $derived_key );
 
             return $value;
-        } elseif ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
+        } elseif ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             $found = false;
             $this->cache_misses++;
 
@@ -1836,7 +1836,7 @@ LUA;
             $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
         }
 
-        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             foreach ( $keys as $key ) {
                 $value = $this->get_from_internal_cache( $derived_keys[ $key ] );
                 $cache[ $key ] = $value;
@@ -1968,7 +1968,7 @@ LUA;
         $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         // Save if group not excluded from redis and redis is up.
-        if ( ! $this->is_ignored_group( $san_group ) && $this->redis_status() ) {
+        if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
             $orig_exp = $expiration;
             $expiration = $this->validate_expiration( $expiration );
 
@@ -2155,7 +2155,7 @@ LUA;
         $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         // If group is a non-Redis group, save to internal cache, not Redis.
-        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             $value = $this->get_from_internal_cache( $derived_key );
             $value += $offset;
             $this->add_to_internal_cache( $derived_key, $value );
@@ -2212,7 +2212,7 @@ LUA;
         $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         // If group is a non-Redis group, save to internal cache, not Redis.
-        if ( $this->is_ignored_group( $san_group ) || ! $this->redis_status() ) {
+        if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
             $value = $this->get_from_internal_cache( $derived_key );
             $value -= $offset;
             $this->add_to_internal_cache( $derived_key, $value );

@@ -3,6 +3,7 @@
 ## 2.1.2
 
 - Removed tracing
+- Check if raw group name is ignored, not sanitized name
 
 ## 2.1.1
 
