@@ -1412,7 +1412,11 @@ class WP_Object_Cache {
      *                true on success, or false if the contents were not deleted.
      */
     public function delete_multiple( array $keys, $group = 'default' ) {
-        if ( $this->redis_status() && method_exists( $this->redis, 'pipeline' ) ) {
+        if (
+            $this->redis_status() &&
+            method_exists( $this->redis, 'pipeline' ) &&
+            ! $this->is_ignored_group( $group )
+        ) {
             return $this->delete_multiple_at_once( $keys, $group );
         }
 
@@ -1436,22 +1440,6 @@ class WP_Object_Cache {
     protected function delete_multiple_at_once( array $keys, $group = 'default' ) {
         $start_time = microtime( true );
 
-        if ( $this->is_ignored_group( $group ) ) {
-            $results = [];
-
-            foreach ( $keys as $key ) {
-                $derived_key = $this->build_key( $key, $group );
-
-                $results[ $key ] = isset( $this->cache[ $derived_key ] );
-
-                unset( $this->cache[ $derived_key ] );
-            }
-
-            $execute_time = microtime( true ) - $start_time;
-
-            return $results;
-        }
-
         try {
             $tx = $this->redis->pipeline();
 
@@ -1470,13 +1458,27 @@ class WP_Object_Cache {
             }, $tx->{$method}() );
 
             $execute_time = microtime( true ) - $start_time;
-
-            return array_combine( $keys, $results );
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
             return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
         }
+
+        if ( function_exists( 'do_action' ) ) {
+            foreach ( $keys as $key ) {
+                /**
+                 * Fires on every cache key deletion
+                 *
+                 * @since 1.3.3
+                 * @param string $key          The cache key.
+                 * @param string $group        The group value appended to the $key.
+                 * @param float  $execute_time Execution time for the request in seconds.
+                 */
+                do_action( 'redis_object_cache_delete', $key, $group, $execute_time );
+            }
+        }
+
+        return array_combine( $keys, $results );
     }
 
     /**
