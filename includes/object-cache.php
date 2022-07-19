@@ -1167,7 +1167,14 @@ class WP_Object_Cache {
             $tx = $this->redis->pipeline();
 
             foreach ( $data as $key => $value ) {
-                /** This action is documented in includes/object-cache.php */
+                /**
+                 * Filters the cache expiration time
+                 *
+                 * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+                 * @param string $key        The cache key.
+                 * @param string $group      The cache group.
+                 * @param mixed  $orig_exp   The original expiration value before validation.
+                 */
                 $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
 
                 $key = $this->sanitize_key_part( $key );
@@ -2067,7 +2074,14 @@ LUA;
                 $key = $this->sanitize_key_part( $key );
                 $derived_key = $this->fast_build_key( $key, $group );
 
-                /** This action is documented in includes/object-cache.php */
+                /**
+                 * Filters the cache expiration time
+                 *
+                 * @param int    $expiration The time in seconds the entry expires. 0 for no expiry.
+                 * @param string $key        The cache key.
+                 * @param string $group      The cache group.
+                 * @param mixed  $orig_exp   The original expiration value before validation.
+                 */
                 $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
 
                 $args = [ $derived_key, $this->maybe_serialize( $value ) ];
