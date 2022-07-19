@@ -1751,7 +1751,6 @@ LUA;
             return false;
         }
 
-
         try {
             $result = $this->redis->get( $derived_key );
         } catch ( Exception $exception ) {
@@ -2350,8 +2349,6 @@ LUA;
         $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
 
         $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
-
-
         $prefix = trim( $prefix, '_-:$' );
 
         return "{$salt}{$prefix}:{$group}:{$key}";
