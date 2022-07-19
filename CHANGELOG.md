@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.2
+
+- Removed tracing
+
 ## 2.1.1
 
 - Bumped PHP requirement to 7.2
