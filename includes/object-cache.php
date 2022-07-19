@@ -2008,6 +2008,8 @@ LUA;
         }
 
         if ( function_exists( 'do_action' ) ) {
+            $execute_time = microtime( true ) - $start_time;
+
             /**
              * Fires on every cache set
              *
