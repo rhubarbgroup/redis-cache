@@ -447,18 +447,18 @@ class WP_Object_Cache {
     public $cache_misses = 0;
 
     /**
-     * Track how long request took.
-     *
-     * @var float
-     */
-    public $cache_time = 0;
-
-    /**
-     * Track how may calls were made.
+     * The amount of Redis commands made.
      *
      * @var int
      */
     public $cache_calls = 0;
+
+    /**
+     * The amount of microseconds (μs) waited for Redis commands.
+     *
+     * @var float
+     */
+    public $cache_time = 0;
 
     /**
      * Instantiate the Redis class.
