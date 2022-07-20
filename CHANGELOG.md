@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.6
+
+- No changes since 2.1.5
+
 ## 2.1.5
 
 - Fixed `is_predis()` call
