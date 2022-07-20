@@ -31,14 +31,16 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
         "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
         "yoast/wp-test-utils": "^1.0",
-        "dms/phpunit-arraysubset-asserts": "^0.4.0"
+        "dms/phpunit-arraysubset-asserts": "^0.4.0",
+        "szepeviktor/phpstan-wordpress": "^1.1",
+        "php-stubs/wp-cli-stubs": "^2.6"
     },
     "autoload-dev": {
         "psr-4": {
             "Rhubarb\\RedisCache\\": "includes/",
             "Tests\\": "tests/"
         }
-    },    
+    },
     "extra": {
         "installer-paths": {
             "dependencies/predis/predis": ["predis/predis"],
@@ -50,13 +52,10 @@
         "ext-relay": "Required to use Relay as the object cache backend."
     },
     "scripts": {
-        "setup:phpstan": [
-            "mkdir php-tools",
-            "@composer require --working-dir=php-tools --dev szepeviktor/phpstan-wordpress php-stubs/wp-cli-stubs"
-        ],
         "analyze": [
-            "sed -e 's#WP_Object_Cache#Redis_Pro_WP_Object_Cache#;s#class Redis_Pro_WP_Object_Cache#& extends WP_Object_Cache#' includes/object-cache.php >php-tools/object-cache.php",
-            "php-tools/vendor/bin/phpstan analyze"
+            "mkdir php-tools",
+            "sed -e 's#WP_Object_Cache#Redis_Pro_WP_Object_Cache#;s#class Redis_Pro_WP_Object_Cache#& extends WP_Object_Cache#' includes/object-cache.php > php-tools/object-cache.php",
+            "phpstan analyze"
         ]
     },
     "config": {
