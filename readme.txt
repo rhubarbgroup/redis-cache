@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, relay, caching, cache, object cache, perf
 Requires at least: 3.3
 Tested up to: 6.0
 Requires PHP: 7.2
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
