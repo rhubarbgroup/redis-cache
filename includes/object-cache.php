@@ -1657,7 +1657,7 @@ LUA;
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
 
-            $args = is_predis() ? [ $script, 0 ] : [ $script ];
+            $args = $this->is_predis() ? [ $script, 0 ] : [ $script ];
 
             return call_user_func_array( [ $this->redis, 'eval' ], $args );
         };
