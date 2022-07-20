@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.5
+
+- Fixed `is_predis()` call
+
 ## 2.1.4
 
 - Added `is_predis()` helper

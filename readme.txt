@@ -83,6 +83,10 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 == Changelog ==
 
+= 2.1.5 =
+
+- Fixed `is_predis()` call
+
 = 2.1.4 =
 
 - Added `is_predis()` helper
@@ -588,6 +592,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.1.4 =
+= 2.1.5 =
 
 Bumped PHP requirement to 7.2, updated Predis to v2.0 and deprecated Credis and HHVM clients.
