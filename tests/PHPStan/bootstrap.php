@@ -6,6 +6,7 @@ const HHVM_VERSION = '0.0.0';
 const WP_CONTENT_DIR = './';
 const WP_DEBUG_DISPLAY = true;
 const WP_REDIS_PLUGIN_PATH = './';
+const WP_REDIS_PLUGIN_DIR = './';
 const WP_REDIS_FILE = 'plugin/plugin.php';
 const WP_REDIS_BASENAME = 'plugin.php';
 const WP_REDIS_DIR = './';
