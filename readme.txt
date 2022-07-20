@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, relay, caching, cache, object cache, perf
 Requires at least: 3.3
 Tested up to: 6.0
 Requires PHP: 7.2
-Stable tag: 2.1.3
+Stable tag: 2.1.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,10 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.1.4 =
+
+- Added `is_predis()` helper
 
 = 2.1.3 =
 
@@ -584,6 +588,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.1.3 =
+= 2.1.4 =
 
 Bumped PHP requirement to 7.2, updated Predis to v2.0 and deprecated Credis and HHVM clients.

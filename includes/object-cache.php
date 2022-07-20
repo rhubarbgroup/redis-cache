@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.1.3
+ * Version: 2.1.4
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -1184,7 +1184,7 @@ class WP_Object_Cache {
 
             $args = [ $derived_key, $this->maybe_serialize( $value ) ];
 
-            if ( $this->redis instanceof Predis\Client ) {
+            if ( $this->is_predis() ) {
                 $args[] = 'nx';
 
                 if ( $expire ) {
@@ -1205,7 +1205,7 @@ class WP_Object_Cache {
         try {
             $start_time = microtime( true );
 
-            $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+            $method = $this->is_predis() ? 'execute' : 'exec';
 
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
@@ -1295,7 +1295,7 @@ class WP_Object_Cache {
                 if ( $add ) {
                     $args = [ $derived_key, $this->maybe_serialize( $value ) ];
 
-                    if ( $this->redis instanceof Predis\Client ) {
+                    if ( $this->is_predis() ) {
                         $args[] = 'nx';
 
                         if ( $expiration ) {
@@ -1450,7 +1450,7 @@ class WP_Object_Cache {
                 unset( $this->cache[ $derived_key ] );
             }
 
-            $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+            $method = $this->is_predis() ? 'execute' : 'exec';
 
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
@@ -1657,9 +1657,7 @@ LUA;
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
 
-            $args = ( $this->redis instanceof Predis\Client )
-                ? [ $script, 0 ]
-                : [ $script ];
+            $args = is_predis() ? [ $script, 0 ] : [ $script ];
 
             return call_user_func_array( [ $this->redis, 'eval' ], $args );
         };
@@ -1711,7 +1709,7 @@ LUA;
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
 
-            $args = ( $this->redis instanceof Predis\Client )
+            $args = $this->is_predis()
                 ? array_merge( [ $script, count( $unflushable ) ], $unflushable )
                 : [ $script, $unflushable, count( $unflushable ) ];
 
@@ -2097,7 +2095,7 @@ LUA;
         }
 
         try {
-            $method = ( $this->redis instanceof Predis\Client ) ? 'execute' : 'exec';
+            $method = $this->is_predis() ? 'execute' : 'exec';
 
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
@@ -2729,6 +2727,15 @@ LUA;
         }
 
         return $cluster;
+    }
+
+    /**
+     * Check whether Predis client is in use.
+     *
+     * @return bool
+     */
+    protected function is_predis() {
+        return $this->redis instanceof Predis\Client;
     }
 
     /**
