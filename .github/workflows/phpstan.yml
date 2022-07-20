@@ -1,0 +1,27 @@
+name: PHPStan
+
+on:
+  push: null
+  pull_request: null
+
+jobs:
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          extensions: msgpack, igbinary, mbstring, redis-5.3.7
+
+      - name: Install PHP Dependencies
+        uses: ramsey/composer-install@v2
+
+      - name: Run PHPStan Analyze
+        run: composer run analyze

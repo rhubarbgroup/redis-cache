@@ -53,7 +53,7 @@
     },
     "scripts": {
         "analyze": [
-            "mkdir php-tools",
+            "@php -r \"is_dir('php-tools') || mkdir('php-tools');\"",
             "sed -e 's#WP_Object_Cache#Redis_Pro_WP_Object_Cache#;s#class Redis_Pro_WP_Object_Cache#& extends WP_Object_Cache#' includes/object-cache.php > php-tools/object-cache.php",
             "phpstan analyze"
         ]
