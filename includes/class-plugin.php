@@ -208,6 +208,8 @@ class Plugin {
             'dashboard_rediscache',
             __( 'Redis Object Cache', 'redis-cache' ),
             [ $this, 'show_dashboard_widget' ],
+            null,
+            null,
             'normal',
             'high'
         );
