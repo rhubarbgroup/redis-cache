@@ -17,6 +17,9 @@ parameters:
         - tests/PHPStan/query-monitor-stubs.php
         - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
 
+    scanFiles:
+        - php-tools/relay.stub.php
+        
     paths:
         - includes/
         - php-tools/object-cache.php
