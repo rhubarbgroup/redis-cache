@@ -19,7 +19,7 @@ parameters:
 
     scanFiles:
         - php-tools/relay.stub.php
-        
+
     paths:
         - includes/
         - php-tools/object-cache.php
