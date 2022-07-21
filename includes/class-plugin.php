@@ -364,7 +364,7 @@ class Plugin {
         wp_enqueue_script(
             'redis-cache-charts',
             plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
-            null,
+            [ ],
             WP_REDIS_VERSION,
             true
         );
