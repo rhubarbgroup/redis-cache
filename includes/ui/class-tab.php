@@ -179,8 +179,8 @@ class Tab {
          * Filters the tab's nav id
          *
          * @since 2.0.12
-         * @param string $nav_id The id attribute of the current tab's nav element.
-         * @param Tab    $this   The current tab.
+         * @param string $nav_id   The id attribute of the current tab's nav element.
+         * @param Tab    $instance The current tab.
          */
         return apply_filters( 'roc_tab_nav_id', $nav_id, $this );
     }
@@ -207,8 +207,8 @@ class Tab {
          * Filters the current tab's nav element css classes
          *
          * @since 2.0.12
-         * @param array $classes Array of css classes.
-         * @param Tab   $this    The current tab.
+         * @param array $classes  Array of css classes.
+         * @param Tab   $instance The current tab.
          */
         return implode( ' ', apply_filters( 'roc_tab_nav_classes', $classes, $this ) );
     }
@@ -225,8 +225,8 @@ class Tab {
          * Filters the tab's id
          *
          * @since 2.0.12
-         * @param string $tab_id The id attribute of the current tab element.
-         * @param Tab    $this   The current tab.
+         * @param string $tab_id   The id attribute of the current tab element.
+         * @param Tab    $instance The current tab.
          */
         return apply_filters( 'roc_tab_id', $tab_id, $this );
     }
@@ -250,8 +250,8 @@ class Tab {
          * Filters the current tab's css classes
          *
          * @since 2.0.12
-         * @param array $classes Array of css classes.
-         * @param Tab   $this    The current tab.
+         * @param array $classes  Array of css classes.
+         * @param Tab   $instance The current tab.
          */
         return implode( ' ', apply_filters( 'roc_tab_classes', $classes, $this ) );
     }
