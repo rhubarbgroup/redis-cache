@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 const HHVM_VERSION = '0.0.0';
+const WPINC = 'wp-includes';
 const WP_CONTENT_DIR = './';
 const WP_DEBUG_DISPLAY = true;
 const WP_REDIS_PLUGIN_PATH = './';
