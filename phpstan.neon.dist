@@ -7,6 +7,7 @@ parameters:
 
     inferPrivatePropertyTypeFromConstructor: true
 
+    phpVersion: 70200
     dynamicConstantNames:
         - WP_REDIS_SERVERS
 
