@@ -7,6 +7,8 @@
 
 defined( '\\ABSPATH' ) || exit;
 
+/** @var \Rhubarb\RedisCache\Plugin $roc */
+
 $status = $roc->get_redis_status();
 $redis_client = $roc->get_redis_client_name();
 $redis_prefix = $roc->get_redis_prefix();

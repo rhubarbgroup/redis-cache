@@ -45,7 +45,7 @@ class Plugin {
     /**
      * Plugin instance property
      *
-     * @var Plugin
+     * @var Plugin|null
      */
     private static $instance;
 
@@ -509,15 +509,15 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
-            return;
+            return null;
         }
 
         if ( ! $this->validate_object_cache_dropin() ) {
-            return;
+            return null;
         }
 
         if ( ! method_exists( $wp_object_cache, 'redis_status' ) ) {
-            return;
+            return null;
         }
 
         return $wp_object_cache->redis_status();
@@ -533,12 +533,14 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
-            return;
+            return null;
         }
 
-        if ( $this->validate_object_cache_dropin() && method_exists( $wp_object_cache, 'redis_version' ) ) {
-            return $wp_object_cache->redis_version();
+        if ( ! $this->validate_object_cache_dropin() || ! method_exists( $wp_object_cache, 'redis_version' ) ) {
+            return null;
         }
+
+        return $wp_object_cache->redis_version();
     }
 
     /**
@@ -553,9 +555,11 @@ class Plugin {
             return $wp_object_cache->diagnostics[ 'client' ];
         }
 
-        if ( defined( 'WP_REDIS_CLIENT' ) ) {
-            return WP_REDIS_CLIENT;
+        if ( ! defined( 'WP_REDIS_CLIENT' ) ) {
+            return null;
         }
+
+        return WP_REDIS_CLIENT;
     }
 
     /**
@@ -566,9 +570,11 @@ class Plugin {
     public function get_diagnostics() {
         global $wp_object_cache;
 
-        if ( $this->validate_object_cache_dropin() && property_exists( $wp_object_cache, 'diagnostics' ) ) {
-            return $wp_object_cache->diagnostics;
+        if ( ! $this->validate_object_cache_dropin() || ! property_exists( $wp_object_cache, 'diagnostics' ) ) {
+            return null;
         }
+
+        return $wp_object_cache->diagnostics;
     }
 
     /**
