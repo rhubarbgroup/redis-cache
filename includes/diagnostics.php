@@ -9,6 +9,7 @@ defined( '\\ABSPATH' ) || exit;
 
 global $wp_object_cache;
 
+/** @var \Rhubarb\RedisCache\Plugin $roc */
 $info = [];
 $filesystem = $roc->test_filesystem_writing();
 $dropin = $roc->validate_object_cache_dropin();
@@ -24,9 +25,7 @@ $info['Drop-in'] = $roc->object_cache_dropin_exists()
 $info['Disabled'] = $disabled ? 'Yes' : 'No';
 
 if ( $dropin && ! $disabled ) {
-    $info[ 'Ping' ] = isset( $wp_object_cache->diagnostics[ 'ping' ] )
-        ? $wp_object_cache->diagnostics[ 'ping' ]
-        : false;
+    $info[ 'Ping' ] = $wp_object_cache->diagnostics['ping'] ?? false;
 
     try {
         $cache = new WP_Object_Cache( false );

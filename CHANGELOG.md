@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed `wp_add_dashboard_widget` parameters.
+
 ## 2.1.6
 
 - No changes since 2.1.5

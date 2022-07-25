@@ -45,7 +45,7 @@ class Plugin {
     /**
      * Plugin instance property
      *
-     * @var Plugin
+     * @var Plugin|null
      */
     private static $instance;
 
@@ -208,6 +208,8 @@ class Plugin {
             'dashboard_rediscache',
             __( 'Redis Object Cache', 'redis-cache' ),
             [ $this, 'show_dashboard_widget' ],
+            null,
+            null,
             'normal',
             'high'
         );
@@ -281,7 +283,7 @@ class Plugin {
             return;
         }
 
-        wp_enqueue_style( 'redis-cache', WP_REDIS_PLUGIN_DIR . '/assets/css/admin.css', null, WP_REDIS_VERSION );
+        wp_enqueue_style( 'redis-cache', WP_REDIS_PLUGIN_DIR . '/assets/css/admin.css', [ ], WP_REDIS_VERSION );
     }
 
     /**
@@ -362,7 +364,7 @@ class Plugin {
         wp_enqueue_script(
             'redis-cache-charts',
             plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
-            null,
+            [ ],
             WP_REDIS_VERSION,
             true
         );
@@ -507,15 +509,15 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
-            return;
+            return null;
         }
 
         if ( ! $this->validate_object_cache_dropin() ) {
-            return;
+            return null;
         }
 
         if ( ! method_exists( $wp_object_cache, 'redis_status' ) ) {
-            return;
+            return null;
         }
 
         return $wp_object_cache->redis_status();
@@ -531,12 +533,14 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
-            return;
+            return null;
         }
 
-        if ( $this->validate_object_cache_dropin() && method_exists( $wp_object_cache, 'redis_version' ) ) {
-            return $wp_object_cache->redis_version();
+        if ( ! $this->validate_object_cache_dropin() || ! method_exists( $wp_object_cache, 'redis_version' ) ) {
+            return null;
         }
+
+        return $wp_object_cache->redis_version();
     }
 
     /**
@@ -551,9 +555,11 @@ class Plugin {
             return $wp_object_cache->diagnostics[ 'client' ];
         }
 
-        if ( defined( 'WP_REDIS_CLIENT' ) ) {
-            return WP_REDIS_CLIENT;
+        if ( ! defined( 'WP_REDIS_CLIENT' ) ) {
+            return null;
         }
+
+        return WP_REDIS_CLIENT;
     }
 
     /**
@@ -564,9 +570,11 @@ class Plugin {
     public function get_diagnostics() {
         global $wp_object_cache;
 
-        if ( $this->validate_object_cache_dropin() && property_exists( $wp_object_cache, 'diagnostics' ) ) {
-            return $wp_object_cache->diagnostics;
+        if ( ! $this->validate_object_cache_dropin() || ! property_exists( $wp_object_cache, 'diagnostics' ) ) {
+            return null;
         }
+
+        return $wp_object_cache->diagnostics;
     }
 
     /**

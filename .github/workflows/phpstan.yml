@@ -1,0 +1,32 @@
+name: PHPStan
+
+on:
+  push: null
+  pull_request: null
+
+jobs:
+
+  phpstan:
+    name: PHPStan (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: msgpack, igbinary, mbstring, redis-5.3.7
+
+      - name: Install PHP Dependencies
+        uses: ramsey/composer-install@v2
+
+      - name: Run PHPStan Analyze
+        run: composer run analyze

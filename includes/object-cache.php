@@ -428,9 +428,9 @@ class WP_Object_Cache {
     /**
      * Prefix used for non-global groups.
      *
-     * @var string
+     * @var int
      */
-    public $blog_prefix = '';
+    public $blog_prefix = 0;
 
     /**
      * Track how many requests were found in cache.
@@ -637,7 +637,7 @@ class WP_Object_Cache {
             $this->diagnostics[ 'shards' ] = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
             if ( is_string( WP_REDIS_CLUSTER ) ) {
-                $this->redis = new RedisCluster( WP_REDIS_CLUSTER  );
+                $this->redis = new RedisCluster( WP_REDIS_CLUSTER );
             } else {
                 $args = [
                     'cluster' => $this->build_cluster_connection_array(),
@@ -956,7 +956,7 @@ class WP_Object_Cache {
                 $params = array_filter( $_client );
 
                 if ( $params ) {
-                    $connection_string .= '?' . http_build_query( $params, null, '&' );
+                    $connection_string .= '?' . http_build_query( $params, '', '&' );
                 }
 
                 $clients[ $index ] = $connection_string;
@@ -968,7 +968,7 @@ class WP_Object_Cache {
                 'host' => $parameters['scheme'] === 'unix' ? $parameters['path'] : $parameters['host'],
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
-                'persistent' => null,
+                'persistent' => '',
                 'database' => $parameters['database'],
                 'password' => isset( $parameters['password'] ) ? $parameters['password'] : null,
             ];
@@ -1817,7 +1817,7 @@ LUA;
      * @param string $group Optional. Where the cache contents are grouped. Default empty.
      * @param bool   $force Optional. Whether to force an update of the local cache
      *                      from the persistent cache. Default false.
-     * @return array Array of values organized into groups.
+     * @return array|false Array of values organized into groups.
      */
     public function get_multiple( $keys, $group = 'default', $force = false ) {
         if ( ! is_array( $keys ) ) {
@@ -1876,6 +1876,7 @@ LUA;
         }
 
         $start_time = microtime( true );
+        $results = [];
 
         try {
             $remaining_ids = array_map(
@@ -1917,8 +1918,8 @@ LUA;
              * Fires on every cache get multiple request
              *
              * @since 2.0.6
-             * @param mixed  $value        Value of the cache entry.
-             * @param string $key          The cache key.
+             * @param array  $keys         Array of keys under which the cache contents are stored.
+             * @param array  $cache        Cache items.
              * @param string $group        The group value appended to the $key.
              * @param bool   $force        Whether a forced refetch has taken place rather than relying on the local cache.
              * @param float  $execute_time Execution time for the request in seconds.
@@ -2472,7 +2473,7 @@ LUA;
             return false;
         }
 
-        $this->blog_prefix = $_blog_id;
+        $this->blog_prefix = (int) $_blog_id;
 
         return true;
     }
