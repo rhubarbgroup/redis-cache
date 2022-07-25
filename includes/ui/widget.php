@@ -7,6 +7,8 @@
 
 defined( '\\ABSPATH' ) || exit;
 
+/** @var \Rhubarb\RedisCache\Plugin $this */
+
 ?>
 <div id="widget-redis-stats">
 

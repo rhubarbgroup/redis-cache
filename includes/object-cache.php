@@ -1167,6 +1167,7 @@ class WP_Object_Cache {
 
         $orig_exp = $expire;
         $expire = $this->validate_expiration( $expire );
+        $derived_keys = [];
 
         foreach ( $data as $key => $value ) {
             /**
@@ -1357,7 +1358,7 @@ class WP_Object_Cache {
      * @param   string $group      The group value appended to the $key.
      * @return  bool               Returns TRUE on success or FALSE on failure.
      */
-    public function delete( $key, $group = 'default' ) {
+    public function delete( $key, $group = 'default', $deprecated = false ) {
         $result = false;
 
         $san_key = $this->sanitize_key_part( $key );

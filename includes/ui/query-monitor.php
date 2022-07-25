@@ -7,6 +7,11 @@
 
 defined( '\\ABSPATH' ) || exit;
 
+/**
+ * @var \Rhubarb\RedisCache\QM_Output $this
+ * @var array<mixed> $data
+ */
+
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 echo $this->before_non_tabular_output();
 ?>

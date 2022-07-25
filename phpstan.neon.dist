@@ -1,5 +1,6 @@
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
+    - phpstan-baseline.neon
 
 parameters:
 
@@ -10,7 +11,9 @@ parameters:
     phpVersion: 70200
 
     dynamicConstantNames:
+        - WP_DEBUG_DISPLAY
         - WP_REDIS_SERVERS
+        - WP_REDIS_PASSWORD
 
     bootstrapFiles:
         - tests/PHPStan/bootstrap.php

@@ -1,0 +1,61 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Call to function is_string\\(\\) with array\\{'tcp\\://127\\.0\\.0\\.1…', 'tcp\\://127\\.0\\.0\\.2…', 'tcp\\://127\\.0\\.0\\.3…'\\} will always evaluate to false\\.$#"
+			count: 1
+			path: .php-tools/object-cache.php
+
+		-
+			message: "#^Class RedisCluster constructor invoked with 1 parameter, 2\\-6 required\\.$#"
+			count: 1
+			path: .php-tools/object-cache.php
+
+		-
+			message: "#^Parameter \\#1 \\$autoload_function of function spl_autoload_register expects callable\\(string\\)\\: void, array\\{\\$this\\(Rhubarb\\\\RedisCache\\\\Autoloader\\), 'load_class'\\} given\\.$#"
+			count: 1
+			path: includes/class-autoloader.php
+
+		-
+			message: "#^Access to private property WP_Object_Cache\\:\\:\\$cache\\.$#"
+			count: 2
+			path: includes/class-plugin.php
+
+		-
+			message: "#^Call to function is_array\\(\\) with string will always evaluate to false\\.$#"
+			count: 1
+			path: includes/diagnostics.php
+
+		-
+			message: "#^Call to function is_null\\(\\) with string will always evaluate to false\\.$#"
+			count: 1
+			path: includes/diagnostics.php
+
+		-
+			message: "#^Class WP_Object_Cache constructor invoked with 1 parameter, 0 required\\.$#"
+			count: 1
+			path: includes/diagnostics.php
+
+		-
+			message: "#^Offset 1 on \\*NEVER\\* in isset\\(\\) always exists and is always null\\.$#"
+			count: 1
+			path: includes/diagnostics.php
+
+		-
+			message: "#^Result of && is always false\\.$#"
+			count: 2
+			path: includes/diagnostics.php
+
+		-
+			message: "#^Call to protected method after_non_tabular_output\\(\\) of class QM_Output_Html\\.$#"
+			count: 1
+			path: includes/ui/query-monitor.php
+
+		-
+			message: "#^Call to protected method before_non_tabular_output\\(\\) of class QM_Output_Html\\.$#"
+			count: 1
+			path: includes/ui/query-monitor.php
+
+		-
+			message: "#^Access to private property Rhubarb\\\\RedisCache\\\\Plugin\\:\\:\\$page\\.$#"
+			count: 1
+			path: includes/ui/widget.php

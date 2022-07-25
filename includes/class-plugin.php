@@ -771,7 +771,7 @@ class Plugin {
 
                 $messages = get_settings_errors( 'redis-cache' );
 
-                if ( ! empty( $messages ) ) {
+                if ( 0 !== count( $messages ) ) {
                     set_transient( 'settings_errors', $messages, 30 );
 
                     wp_safe_redirect(
@@ -896,6 +896,7 @@ class Plugin {
      * @return void
      */
     public function maybe_print_comment() {
+        /** @var \WP_Object_Cache $wp_object_cache */
         global $wp_object_cache;
 
         if (
@@ -916,7 +917,6 @@ class Plugin {
         }
 
         if (
-            ! isset( $wp_object_cache->cache_hits ) ||
             ! isset( $wp_object_cache->diagnostics ) ||
             ! is_array( $wp_object_cache->cache )
         ) {
