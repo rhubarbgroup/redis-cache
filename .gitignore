@@ -1,7 +1,6 @@
 /.wp-test
 /.phpunit.cache
-/docker/apf.php
-/php-tools
+/.php-tools
 /vendor
 /reports
 .phpunit.result.cache

@@ -12,7 +12,7 @@ const WP_REDIS_FILE = 'plugin/plugin.php';
 const WP_REDIS_BASENAME = 'plugin.php';
 const WP_REDIS_DIR = './';
 const WP_REDIS_VERSION = '0.0.0';
-const WP_REDIS_PASSWORD = null;
+//const WP_REDIS_PASSWORD = null;
 const WP_REDIS_SERVERS = [
     'tcp://127.0.0.1:6379?database=5&alias=master',
     'tcp://127.0.0.2:6379?database=5&alias=replica-01',

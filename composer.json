@@ -53,9 +53,9 @@
     },
     "scripts": {
         "analyze": [
-            "@php -r \"is_dir('php-tools') || mkdir('php-tools');\"",
-            "curl https://cachewerk.s3.amazonaws.com/relay/dev/relay.stub.php -o ./php-tools/relay.stub.php",
-            "sed -e 's#WP_Object_Cache#Redis_Pro_WP_Object_Cache#;s#class Redis_Pro_WP_Object_Cache#& extends WP_Object_Cache#' includes/object-cache.php > php-tools/object-cache.php",
+            "@php -r \"is_dir('.php-tools') || mkdir('.php-tools');\"",
+            "@php -r \"file_exists('.php-tools/relay.stub.php') || system('curl https://cachewerk.s3.amazonaws.com/relay/dev/relay.stub.php -o ./.php-tools/relay.stub.php');\"",
+            "sed -e 's#WP_Object_Cache#Redis_Pro_WP_Object_Cache#;s#class Redis_Pro_WP_Object_Cache#& extends WP_Object_Cache#' includes/object-cache.php > .php-tools/object-cache.php",
             "phpstan analyze"
         ]
     },
