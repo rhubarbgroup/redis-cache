@@ -428,9 +428,9 @@ class WP_Object_Cache {
     /**
      * Prefix used for non-global groups.
      *
-     * @var string
+     * @var int
      */
-    public $blog_prefix = '';
+    public $blog_prefix = 0;
 
     /**
      * Track how many requests were found in cache.
@@ -2473,7 +2473,7 @@ LUA;
             return false;
         }
 
-        $this->blog_prefix = (string) $_blog_id;
+        $this->blog_prefix = (int) $_blog_id;
 
         return true;
     }
