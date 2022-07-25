@@ -745,7 +745,7 @@ class WP_Object_Cache {
 
             if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = $parameters['path'];
-                $args['port'] = null;
+                $args['port'] = -1;
             }
 
             $args['read_timeout'] = $parameters['read_timeout'];
