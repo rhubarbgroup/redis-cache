@@ -1056,11 +1056,15 @@ class WP_Object_Cache {
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $connectionID = current( $this->build_cluster_connection_array() );
+	        $client = $this->determine_client();
 
-            $info = $this->determine_client() === 'predis'
-                ? $this->redis->getClientFor( $connectionID )->info()
-                : $this->redis->info( $connectionID );
+		    if ( $client === 'predis' ) {
+			    $connectionID = current( $this->build_cluster_connection_array() );
+
+		        $info = $this->redis->getClientFor( $connectionID )->info();
+	        } elseif ( $client === 'phpredis' ) {
+			    $info = $this->redis->info( 'SERVER' );
+		    }
         } else {
             $info = $this->redis->info();
         }
