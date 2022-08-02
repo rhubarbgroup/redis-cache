@@ -817,7 +817,7 @@ class WP_Object_Cache {
         } elseif ( defined( 'WP_REDIS_SERVERS' ) ) {
             $servers = WP_REDIS_SERVERS;
             $parameters['servers'] = $servers;
-            $options['replication'] = true;
+            $options['replication'] = 'predis';
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $servers = $this->build_cluster_connection_array();
             $parameters['cluster'] = $servers;
