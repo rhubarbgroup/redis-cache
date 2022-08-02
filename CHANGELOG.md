@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Fixed `wp_add_dashboard_widget` parameters.
+- Fixed `wp_add_dashboard_widget` parameters
+- Fixed `WP_REDIS_SERVERS` replication issue with Predis v2.0
 
 ## 2.1.6
 
