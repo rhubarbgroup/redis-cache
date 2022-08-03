@@ -514,18 +514,13 @@ class WP_Object_Cache {
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+	            $connectionID = is_string( WP_REDIS_CLUSTER )
+                    ? WP_REDIS_CLUSTER
+                    : current( $this->build_cluster_connection_array() );
 
-	            if ( is_string( WP_REDIS_CLUSTER ) ) {
-		            $connectionID = WP_REDIS_CLUSTER;
-	            } else {
-		            $connectionID = current( $this->build_cluster_connection_array() );
-	            }
-
-	            if ( $client === 'predis' ) {
-		            $this->diagnostics[ 'ping' ] = $this->redis->getClientFor( $connectionID )->ping();
-	            } else {
-		            $this->diagnostics[ 'ping' ] = $this->redis->ping( $connectionID );
-	            }
+                $this->diagnostics[ 'ping' ] = $client === 'predis'
+                    ? $this->redis->getClientFor( $connectionID )->ping()
+                    : $this->redis->ping( $connectionID );
             } else {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }
@@ -1064,7 +1059,6 @@ class WP_Object_Cache {
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $client = $this->determine_client();
-
 	        $connectionID = current( $this->build_cluster_connection_array() );
 
 	        if ( $client === 'predis' ) {
