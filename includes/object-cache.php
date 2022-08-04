@@ -1058,8 +1058,9 @@ class WP_Object_Cache {
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $client = $this->determine_client();
-	        $connectionID = current( $this->build_cluster_connection_array() );
+            $connectionID = is_string( WP_REDIS_CLUSTER )
+                ? 'SERVER'
+                : current( $this->build_cluster_connection_array() );
 
             $info = $this->determine_client() === 'predis'
                 ? $this->redis->getClientFor( $connectionID )->info()
