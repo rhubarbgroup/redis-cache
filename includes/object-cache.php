@@ -1061,13 +1061,9 @@ class WP_Object_Cache {
             $client = $this->determine_client();
 	        $connectionID = current( $this->build_cluster_connection_array() );
 
-	        if ( $client === 'predis' ) {
-                $info = $this->redis->getClientFor( $connectionID )->info();
-            } elseif ( $client === 'phpredis' ) {
-                $info = $this->redis->info( 'SERVER' );
-            } else {
-		        $info = $this->redis->info( $connectionID );
-	        }
+            $info = $this->determine_client() === 'predis'
+                ? $this->redis->getClientFor( $connectionID )->info()
+                : $this->redis->info( $connectionID );
         } else {
             $info = $this->redis->info();
         }
