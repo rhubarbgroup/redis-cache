@@ -1340,7 +1340,7 @@ class WP_Object_Cache {
             }
         }
 
-        $exists = isset( $this->cache[ $derived_key ] );
+        $exists = array_key_exists( $derived_key, $this->cache );
 
         if ( (bool) $add === $exists ) {
             return false;
@@ -1368,7 +1368,7 @@ class WP_Object_Cache {
 
         $derived_key = $this->fast_build_key( $san_key, $san_group );
 
-        if ( isset( $this->cache[ $derived_key ] ) ) {
+        if ( array_key_exists( $derived_key, $this->cache ) ) {
             unset( $this->cache[ $derived_key ] );
             $result = true;
         }
@@ -1740,7 +1740,7 @@ LUA;
         $san_group = $this->sanitize_key_part( $group );
         $derived_key = $this->fast_build_key( $san_key, $san_group );
 
-        if ( isset( $this->cache[ $derived_key ] ) && ! $force ) {
+        if ( array_key_exists( $derived_key, $this->cache ) && ! $force ) {
             $found = true;
             $this->cache_hits++;
             $value = $this->get_from_internal_cache( $derived_key );
@@ -1870,7 +1870,7 @@ LUA;
         $remaining_keys = array_filter(
             $keys,
             function ( $key ) use ( $cache ) {
-                return ! isset( $cache[ $key ] );
+                return ! array_key_exists( $key, $cache );
             }
         );
 
@@ -2454,7 +2454,7 @@ LUA;
      * @return  bool|mixed              Value on success; false on failure.
      */
     public function get_from_internal_cache( $derived_key ) {
-        if ( ! isset( $this->cache[ $derived_key ] ) ) {
+        if ( ! array_key_exists( $derived_key, $this->cache ) ) {
             return false;
         }
 
