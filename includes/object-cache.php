@@ -653,9 +653,8 @@ class WP_Object_Cache {
                 }
 
                 $this->redis = new RedisCluster( null, ...array_values( $args ) );
+                $this->diagnostics += $args;
             }
-
-            $this->diagnostics += $args;
         } else {
             $this->redis = new Redis();
 
