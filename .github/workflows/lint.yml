@@ -1,8 +1,6 @@
-name: PHPStan
+name: Code style
 
-on:
-  push: null
-  pull_request: null
+on: [push, pull_request]
 
 jobs:
 
@@ -28,5 +26,18 @@ jobs:
       - name: Install PHP Dependencies
         uses: ramsey/composer-install@v2
 
-      - name: Run PHPStan Analyze
-        run: composer run analyze
+      - name: Run PHPStan
+        run: composer run stan
+
+  editorconfig:
+
+    name: EditorConfig
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check EditorConfig
+        uses: greut/eclint-action@v0
