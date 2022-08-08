@@ -1881,14 +1881,14 @@ LUA;
         $start_time = microtime( true );
         $results = [];
 
-        try {
-            $remaining_ids = array_map(
-                function ( $key ) use ( $derived_keys ) {
-                    return $derived_keys[ $key ];
-                },
-                $remaining_keys
-            );
+        $remaining_ids = array_map(
+            function ( $key ) use ( $derived_keys ) {
+                return $derived_keys[ $key ];
+            },
+            $remaining_keys
+        );
 
+        try {
             $results = array_combine(
                 $remaining_keys,
                 $this->redis->mget( $remaining_ids )
@@ -1897,7 +1897,10 @@ LUA;
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
-            $cache = array_fill( 0, count( $derived_keys ) - 1, false );
+            $results = array_combine(
+                $remaining_keys,
+                array_fill( 0, count( $remaining_ids ), false )
+            );
         }
 
         $execute_time = microtime( true ) - $start_time;
