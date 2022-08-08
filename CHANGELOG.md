@@ -5,6 +5,7 @@
 - Fixed `wp_add_dashboard_widget` parameters
 - Fixed `WP_REDIS_SERVERS` replication issue with Predis v2.0
 - Fixed `WP_REDIS_CLUSTER` string support
+- Fixed issue when `MGET` fails in `get_multiple()` call
 
 ## 2.1.6
 
