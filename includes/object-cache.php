@@ -2513,7 +2513,7 @@ LUA;
         static $groups_override        = null;
         static $removed_default_groups = null;
         
-        if ( is_null( $default_ignored_groups ) {
+        if ( is_null( $default_ignored_groups ) ) {
             // This is the first call to this method so we know that $this->ignored_groups only contains the default groups right now.
             $default_ignored_groups = $this->ignored_groups;
         }
