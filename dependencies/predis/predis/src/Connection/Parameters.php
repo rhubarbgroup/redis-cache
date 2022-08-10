@@ -20,9 +20,7 @@ namespace Predis\Connection;
  */
 class Parameters implements ParametersInterface
 {
-    private $parameters;
-
-    private static $defaults = array(
+    protected static $defaults = array(
         'scheme' => 'tcp',
         'host' => '127.0.0.1',
         'port' => 6379,
@@ -33,17 +31,21 @@ class Parameters implements ParametersInterface
      */
     public function __construct(array $parameters = array())
     {
-        $this->parameters = $this->filter($parameters) + $this->getDefaults();
+        $this->parameters = $this->filter($parameters + static::$defaults);
     }
 
     /**
-     * Returns some default parameters with their values.
+     * Filters parameters removing entries with NULL or 0-length string values.
+     *
+     * @params array $parameters Array of parameters to be filtered
      *
      * @return array
      */
-    protected function getDefaults()
+    protected function filter(array $parameters)
     {
-        return self::$defaults;
+        return array_filter($parameters, function ($value) {
+            return $value !== null && $value !== '';
+        });
     }
 
     /**
@@ -138,15 +140,11 @@ class Parameters implements ParametersInterface
     }
 
     /**
-     * Validates and converts each value of the connection parameters array.
-     *
-     * @param array $parameters Connection parameters.
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    protected function filter(array $parameters)
+    public function toArray()
     {
-        return $parameters ?: array();
+        return $this->parameters;
     }
 
     /**
@@ -170,9 +168,17 @@ class Parameters implements ParametersInterface
     /**
      * {@inheritdoc}
      */
-    public function toArray()
+    public function __toString()
     {
-        return $this->parameters;
+        if ($this->scheme === 'unix') {
+            return "$this->scheme:$this->path";
+        }
+
+        if (filter_var($this->host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            return "$this->scheme://[$this->host]:$this->port";
+        }
+
+        return "$this->scheme://$this->host:$this->port";
     }
 
     /**

@@ -1,5 +1,8 @@
-/docker/apf.php
-/php-tools
+/.wp-test
+/.phpunit.cache
+/.php-tools
 /vendor
 /reports
+.phpunit.result.cache
 composer.lock
+config.sh

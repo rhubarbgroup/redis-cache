@@ -52,22 +52,45 @@ class Credis_Sentinel
      * @var string
      */
     protected $_password = '';
-
     /**
+     * Store the AUTH username used by Credis_Client instances (Redis v6+)
+     * @var string
+     */
+    protected $_username = '';
+    /**
+     * @var null|float
+     */
+    protected $_timeout;
+    /**
+     * @var string
+     */
+    protected $_persistent;
+    /**
+     * @var int
+     */
+    protected $_db;
+    /**
+     * @var string|null
+     */
+    protected $_replicaCmd = null;
+    /**
+     * @var string|null
+     */
+    protected $_redisVersion = null;
+
+  /**
      * Connect with a Sentinel node. Sentinel will do the master and slave discovery
      *
      * @param Credis_Client $client
      * @param string $password (deprecated - use setClientPassword)
      * @throws CredisException
      */
-    public function __construct(Credis_Client $client, $password = NULL)
+    public function __construct(Credis_Client $client, $password = NULL, $username = NULL)
     {
-        if(!$client instanceof Credis_Client){
-            throw new CredisException('Sentinel client should be an instance of Credis_Client');
-        }
         $client->forceStandalone(); // SENTINEL command not currently supported by phpredis
         $this->_client     = $client;
         $this->_password   = $password;
+        $this->_username   = $username;
         $this->_timeout    = NULL;
         $this->_persistent = '';
         $this->_db         = 0;
@@ -122,6 +145,37 @@ class Credis_Sentinel
     }
 
     /**
+     * @param null|string $username
+     * @return $this
+     */
+    public function setClientUsername($username)
+    {
+      $this->_username = $username;
+      return $this;
+    }
+
+    /**
+     * @param null|string $replicaCmd
+     * @return $this
+     */
+    public function setReplicaCommand($replicaCmd)
+    {
+      $this->_replicaCmd = $replicaCmd;
+      return $this;
+    }
+
+    public function detectRedisVersion()
+    {
+      if ($this->_redisVersion !== null && $this->_replicaCmd !== null) {
+        return;
+      }
+      $serverInfo = $this->info('server');
+      $this->_redisVersion =  $serverInfo['redis_version'];
+      // Redis v7+ renames the replica command to 'replicas' instead of 'slaves'
+      $this->_replicaCmd = version_compare($this->_redisVersion, '7.0.0', '>=') ? 'replicas' : 'slaves';
+    }
+
+    /**
      * @return Credis_Sentinel
      * @deprecated
      */
@@ -144,7 +198,7 @@ class Credis_Sentinel
         if(!isset($master[0]) || !isset($master[1])){
             throw new CredisException('Master not found');
         }
-        return new Credis_Client($master[0], $master[1], $this->_timeout, $this->_persistent, $this->_db, $this->_password);
+        return new Credis_Client($master[0], $master[1], $this->_timeout, $this->_persistent, $this->_db, $this->_password, $this->_username);
     }
 
     /**
@@ -176,7 +230,7 @@ class Credis_Sentinel
                 throw new CredisException('Can\' retrieve slave status');
             }
             if(!strstr($slave[9],'s_down') && !strstr($slave[9],'disconnected')) {
-                $workingSlaves[] = new Credis_Client($slave[3], $slave[5], $this->_timeout, $this->_persistent, $this->_db, $this->_password);
+                $workingSlaves[] = new Credis_Client($slave[3], $slave[5], $this->_timeout, $this->_persistent, $this->_db, $this->_password, $this->_username);
             }
         }
         return $workingSlaves;
@@ -307,7 +361,10 @@ class Credis_Sentinel
      */
     public function slaves($name)
     {
-        return $this->_client->sentinel('slaves',$name);
+        if ($this->_replicaCmd === null) {
+          $this->detectRedisVersion();
+        }
+        return $this->_client->sentinel($this->_replicaCmd,$name);
     }
 
     /**

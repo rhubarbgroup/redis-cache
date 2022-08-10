@@ -9,7 +9,6 @@
     <file>.</file>
     <exclude-pattern>/vendor/</exclude-pattern>
     <exclude-pattern>/dependencies/</exclude-pattern>
-    <exclude-pattern>/docker/</exclude-pattern>
     <arg name="extensions" value="php" />
     <arg name="basepath" value="./" /><!-- Strip the file paths down to the relevant bit -->
 

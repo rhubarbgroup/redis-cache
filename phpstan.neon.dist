@@ -1,22 +1,33 @@
 includes:
-    - php-tools/vendor/szepeviktor/phpstan-wordpress/extension.neon
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
 parameters:
+
     level: 5
+
     inferPrivatePropertyTypeFromConstructor: true
+
+    phpVersion: 70200
+
     dynamicConstantNames:
         - WP_REDIS_SERVERS
+
     bootstrapFiles:
-        - tests/phpstan/bootstrap.php
+        - tests/PHPStan/bootstrap.php
         # Made with generate-stubs --classes --interfaces --traits --out=query-monitor-stubs.php classes/ output/
-        - tests/phpstan/query-monitor-stubs.php
-        - php-tools/vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
+        - tests/PHPStan/query-monitor-stubs.php
+        - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
+
+    scanFiles:
+        - .php-tools/relay.stub.php
+
     paths:
         - includes/
-        - php-tools/object-cache.php
-    excludes_analyse:
+        - .php-tools/object-cache.php
+
+    excludePaths:
         - includes/object-cache.php
+
     ignoreErrors:
         # Uses func_get_args()
         - '#^Function apply_filters(_ref_array)? invoked with [34567] parameters, 2 required\.$#'
-        # https://github.com/phpstan/phpstan/issues/3688
-        - '#^Parameter \#1 \$name of class RedisArray constructor expects string, array<int, mixed> given\.$#'

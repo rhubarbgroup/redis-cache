@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/colinmollenhour/credis.svg?branch=master)](https://travis-ci.org/colinmollenhour/credis)
+![Build Status](https://github.com/colinmollenhour/credis/actions/workflows/ci.yml/badge.svg)
 
 # Credis
 
@@ -43,6 +43,14 @@ $redis = new Credis_Client(/* connection string */);
 ### TLS connection string
 
 `tls://host[:port][/persistence_identifier]` 
+
+or 
+
+`tlsv1.2://host[:port][/persistence_identifier]`
+
+Before php 7.2, `tls://` only supports TLSv1.0, either `ssl://` or `tlsv1.2` can be used to force TLSv1.2 support.
+
+Recent versions of redis do not support the protocols/cyphers that older versions of php default to, which may result in cryptic connection failures.
 
 #### Enable transport level security (TLS)
 

@@ -2,13 +2,74 @@
 
 ## Unreleased
 
+- Fixed `wp_add_dashboard_widget` parameters
+- Fixed `WP_REDIS_SERVERS` replication issue with Predis v2.0
+- Fixed `WP_REDIS_CLUSTER` string support
+- Fixed issue when `MGET` fails in `get_multiple()` call
+
+## 2.1.6
+
+- No changes since 2.1.5
+
+## 2.1.5
+
+- Fixed `is_predis()` call
+
+## 2.1.4
+
+- Added `is_predis()` helper
+
+## 2.1.3
+
+- Fixed bug in `wp_cache_add_multiple()` and `wp_cache_set_multiple()`
+
+## 2.1.2
+
+- Fixed and improved `wp_cache_*_multiple()` logic
+- Call `redis_object_cache_set` action in `wp_cache_set_multiple()`
+- Call `redis_object_cache_delete` action in `wp_cache_delete_multiple()`
+- Check if raw group name is ignored, not sanitized name
+- Removed tracing
+
+## 2.1.1
+
+- Bumped PHP requirement to 7.2
+- Renamed `WP_REDIS_DIR` to `WP_REDIS_PLUGIN_DIR`
+- Fixed rare fatal error in diagnostics
+- Allow Predis v1.1 Composer installs
+- Support using `WP_REDIS_CLUSTER` string
+
+## 2.1.0
+
+- Bumped PHP requirement to 7.0
+- Deprecated Credis and HHVM clients
+- Updated Predis to v2.0.0
+- Updated Credis to v1.13.1
+- Improved cluster readability in diagnostics
+- Improved connecting to clusters
+- Fixed pinging clusters after connecting
+- Fixed several bugs in `connect_using_credis()`
+
+## 2.0.26
+
+- Fixed a bug in `wp_cache_delete_multiple()` when using Predis
+- Fixed a bug in `wp_cache_add_multiple()` when cache addition is suspended
+
+## 2.0.25
+
+- Removed broken `wp_cache_add_multiple()` function
+
+## 2.0.24
+
 - Improve metrics label/tooltip formatting
 - Fix metrics chart not rendering
 - Updated Predis to v1.1.10
+- Updated Credis to v1.13.0
 - Support `composer/installers` v1 and v2
 - Link to settings page when foreign drop-in was found
 - Added `wp_cache_flush_runtime()` function
-- Added `wp_cache_*delete*_multiple()` functions
+- Added `wp_cache_add_multiple()` function
+- Added `wp_cache_delete_multiple()` function
 
 ## 2.0.23
 

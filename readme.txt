@@ -1,22 +1,22 @@
 === Redis Object Cache ===
 Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
-Tags: redis, predis, phpredis, credis, hhvm, pecl, relay, caching, cache, object cache, performance, replication, clustering, keydb
+Tags: redis, predis, phpredis, credis, relay, caching, cache, object cache, performance, replication, clustering, keydb
 Requires at least: 3.3
-Tested up to: 5.9
-Requires PHP: 5.6
-Stable tag: 2.0.23
+Tested up to: 6.0
+Requires PHP: 7.2
+Stable tag: 2.1.6
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Credis, Relay, HHVM, replication, clustering and WP-CLI.
+A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
 
 
 == Description ==
 
-A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), [Credis](https://github.com/colinmollenhour/credis), [HHVM](https://github.com/facebook/hhvm/tree/master/hphp/system/php/redis), replication, clustering and [WP-CLI](http://wp-cli.org/).
+A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](http://wp-cli.org/).
 
-To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [Other Notes](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
+To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [our wiki](https://github.com/rhubarbgroup/redis-cache/wiki).
 
 = Object Cache Pro =
 
@@ -63,7 +63,7 @@ Please see the [configuration options wiki page](https://github.com/rhubarbgroup
 
 == Replication & Clustering ==
 
-To use Replication, Sharding or Clustering, make sure your server is running PHP7 or higher (HHVM is not supported) and you consulted the [Predis](https://github.com/predis/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
+To use Replication, Sharding or Clustering, make sure your server is running PHP7 or higher and you consulted the [Predis](https://github.com/predis/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
 
 Please see the [replication & clustering wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Replication-&-Clustering) for more information.
 
@@ -82,6 +82,70 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.1.6 =
+
+- Fixed SVN discrepancies
+
+= 2.1.5 =
+
+- Fixed `is_predis()` call
+
+= 2.1.4 =
+
+- Added `is_predis()` helper
+
+= 2.1.3 =
+
+- Fixed bug in `wp_cache_add_multiple()` and `wp_cache_set_multiple()`
+
+= 2.1.2 =
+
+- Fixed and improved `wp_cache_*_multiple()` logic
+- Call `redis_object_cache_set` action in `wp_cache_set_multiple()`
+- Call `redis_object_cache_delete` action in `wp_cache_delete_multiple()`
+- Check if raw group name is ignored, not sanitized name
+- Removed tracing
+
+= 2.1.1 =
+
+- Bumped PHP requirement to 7.2
+- Renamed `WP_REDIS_DIR` to `WP_REDIS_PLUGIN_DIR`
+- Fixed rare fatal error in diagnostics
+- Allow Predis v1.1 Composer installs
+- Support using `WP_REDIS_CLUSTER` string
+
+= 2.1.0 =
+
+- Bumped PHP requirement to 7.0
+- Deprecated Credis and HHVM clients
+- Updated Predis to v2.0.0
+- Updated Credis to v1.13.1
+- Improved cluster readability in diagnostics
+- Improved connecting to clusters
+- Fixed pinging clusters after connecting
+- Fixed several bugs in `connect_using_credis()`
+
+= 2.0.26 =
+
+- Fixed a bug in `wp_cache_delete_multiple()` when using Predis
+- Fixed a bug in `wp_cache_add_multiple()` when cache addition is suspended
+
+= 2.0.25 =
+
+- Removed broken `wp_cache_add_multiple()` function
+
+= 2.0.24 =
+
+- Improve metrics label/tooltip formatting
+- Fix metrics chart not rendering
+- Updated Predis to v1.1.10
+- Updated Credis to v1.13.0
+- Support `composer/installers` v1 and v2
+- Link to settings page when foreign drop-in was found
+- Added `wp_cache_flush_runtime()` function
+- Added `wp_cache_add_multiple()` function
+- Added `wp_cache_delete_multiple()` function
 
 = 2.0.23 =
 
@@ -532,6 +596,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.0.23 =
+= 2.1.6 =
 
-Added support for Relay. Minor UX fixes and improvements.
+Bumped PHP requirement to 7.2, updated Predis to v2.0 and deprecated Credis and HHVM clients.
