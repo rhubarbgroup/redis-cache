@@ -410,6 +410,17 @@ class WP_Object_Cache {
         'plugins',
         'themes',
     ];
+    
+    /**
+     * List of default ignored groups set by WordPress code.
+     *
+     * @var array
+     */
+    public $default_ignored_groups = [
+        'counts',
+        'plugins',
+        'themes',
+    ];
 
     /**
      * List of groups and their types.
@@ -2507,15 +2518,14 @@ LUA;
      * @param array $groups  List of groups that are to be ignored.
      */
     public function add_non_persistent_groups( $groups ) {
-        $groups          = (array) $groups;
-        $default_groups  = [ 'counts', 'plugins', 'themes' ];
+        $groups = (array) $groups;
 
         static $groups_override        = null;
         static $removed_default_groups = null;
 
         if ( is_null( $groups_override ) && defined( 'WP_REDIS_IGNORED_GROUPS' ) && is_array( WP_REDIS_IGNORED_GROUPS ) ) {
             $groups_override        = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_IGNORED_GROUPS );
-            $removed_default_groups = array_diff( $default_groups, $groups_override );
+            $removed_default_groups = array_diff( $this->default_ignored_groups, $groups_override );
         }
 
         if ( $removed_default_groups && array_intersect( $groups, $removed_default_groups ) ) {
