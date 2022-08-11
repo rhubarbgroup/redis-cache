@@ -2513,7 +2513,7 @@ LUA;
          * @since 2.1.7
          * @param string[] $groups List of groups to be ignored.
          */
-        $groups = apply_filters( 'redis_add_non_persistent_groups', (array) $groups );
+        $groups = apply_filters( 'redis_cache_add_non_persistent_groups', (array) $groups );
 
         $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
         $this->cache_group_types();
