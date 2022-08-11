@@ -2506,8 +2506,14 @@ LUA;
      *
      * @param array $groups  List of groups that are to be ignored.
      */
-    public function add_non_persistent_groups( $groups ) {
-        $groups = (array) $groups;
+    public function add_non_persistent_groups( $groups ) { 
+        /**
+         * Filters list of groups to be added to {@see self::$ignored_groups}
+         *
+         * @since 2.1.7
+         * @param string[] $groups List of groups to be ignored.
+         */
+        $groups = apply_filters( 'redis_cache_add_non_persistent_groups', (array) $groups );
 
         $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
         $this->cache_group_types();
