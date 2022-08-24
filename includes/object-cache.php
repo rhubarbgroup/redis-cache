@@ -1210,15 +1210,9 @@ class WP_Object_Cache {
 
             $method = $this->is_predis() ? 'execute' : 'exec';
 
-            $results = $tx->{$method}();
-
-            if ( ! is_array( $results ) ) {
-                $results = [];
-            }
-
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
-            }, $results );
+            }, $tx->{$method}() ?? [] );
 
             $results = array_combine( $keys, $results );
 
@@ -1461,15 +1455,9 @@ class WP_Object_Cache {
 
             $method = $this->is_predis() ? 'execute' : 'exec';
 
-            $results = $tx->{$method}();
-
-            if ( ! is_array( $results ) ) {
-                $results = [];
-            }
-
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
-            }, $results );
+            }, $tx->{$method}() ?? [] );
 
             $execute_time = microtime( true ) - $start_time;
         } catch ( Exception $exception ) {
@@ -2116,15 +2104,9 @@ LUA;
         try {
             $method = $this->is_predis() ? 'execute' : 'exec';
 
-            $results = $tx->{$method}();
-
-            if ( ! is_array( $results ) ) {
-                $results = [];
-            }
-
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
-            }, $results );
+            }, $tx->{$method}() ?? [] );
 
             $results = array_combine( $keys, $results );
 
