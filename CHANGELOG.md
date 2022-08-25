@@ -7,6 +7,7 @@
 - Fixed `WP_REDIS_SERVERS` replication issue with Predis v2.0
 - Fixed `WP_REDIS_CLUSTER` string support
 - Fixed issue when `MGET` fails in `get_multiple()` call
+- Fixed several warnings in the event of pipeline failures
 
 ## 2.1.6
 
