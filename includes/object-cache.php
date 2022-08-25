@@ -1212,7 +1212,7 @@ class WP_Object_Cache {
 
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
-            }, $tx->{$method}() );
+            }, $tx->{$method}() ?? [] );
 
             $results = array_combine( $keys, $results );
 
@@ -1457,7 +1457,7 @@ class WP_Object_Cache {
 
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
-            }, $tx->{$method}() );
+            }, $tx->{$method}() ?? [] );
 
             $execute_time = microtime( true ) - $start_time;
         } catch ( Exception $exception ) {
@@ -2106,7 +2106,7 @@ LUA;
 
             $results = array_map( function ( $response ) {
                 return (bool) $this->parse_redis_response( $response );
-            }, $tx->{$method}() );
+            }, $tx->{$method}() ?? [] );
 
             $results = array_combine( $keys, $results );
 
