@@ -5,7 +5,7 @@ Tags: redis, predis, phpredis, credis, relay, caching, cache, object cache, perf
 Requires at least: 3.3
 Tested up to: 6.0
 Requires PHP: 7.2
-Stable tag: 2.1.6
+Stable tag: 2.2.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,15 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.2.0 =
+
+- Added `redis_cache_add_non_persistent_groups` filter
+- Fixed `wp_add_dashboard_widget` parameters
+- Fixed `WP_REDIS_SERVERS` replication issue with Predis v2.0
+- Fixed `WP_REDIS_CLUSTER` string support
+- Fixed issue when `MGET` fails in `get_multiple()` call
+- Fixed several warnings in the event of pipeline failures
 
 = 2.1.6 =
 
@@ -596,6 +605,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.1.6 =
+= 2.2.0 =
 
 Bumped PHP requirement to 7.2, updated Predis to v2.0 and deprecated Credis and HHVM clients.

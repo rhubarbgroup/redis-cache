@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.2.0
 
 - Added `redis_cache_add_non_persistent_groups` filter
 - Fixed `wp_add_dashboard_widget` parameters
