@@ -11,6 +11,7 @@ parameters:
 
     dynamicConstantNames:
         - WP_REDIS_SERVERS
+        - WP_DEBUG_DISPLAY
 
     bootstrapFiles:
         - tests/PHPStan/bootstrap.php
