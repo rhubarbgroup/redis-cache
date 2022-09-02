@@ -1734,8 +1734,6 @@ LUA;
      * @return  bool|mixed         Cached object value.
      */
     public function get( $key, $group = 'default', $force = false, &$found = null ) {
-        $start_time = microtime( true );
-
         $san_key = $this->sanitize_key_part( $key );
         $san_group = $this->sanitize_key_part( $group );
         $derived_key = $this->fast_build_key( $san_key, $san_group );
@@ -1752,6 +1750,8 @@ LUA;
 
             return false;
         }
+
+        $start_time = microtime( true );
 
         try {
             $result = $this->redis->get( $derived_key );
