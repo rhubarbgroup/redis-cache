@@ -42,4 +42,4 @@ jobs:
       - name: Check EditorConfig
         uses: greut/eclint-action@v0
         with:
-          eclint_args: '-exclude dependencies/\*\*/\*'
+          eclint_args: -exclude 'dependencies/**/*'
