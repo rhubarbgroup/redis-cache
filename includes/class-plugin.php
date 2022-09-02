@@ -241,25 +241,25 @@ class Plugin {
     }
 
     /**
-	 * Adds plugin meta links on the plugin page
-	 *
-	 * @param string[] $plugin_meta An array of the plugin's metadata.
-	 * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
-	 * @return string[] An array of the plugin's metadata.
-	 */
-	public function add_plugin_row_meta( array $plugin_meta, $plugin_file ) {
-		if ( strpos( $plugin_file, 'redis-cache.php' ) === false ) {
-			return $plugin_meta;
-		}
+     * Adds plugin meta links on the plugin page
+     *
+     * @param string[] $plugin_meta An array of the plugin's metadata.
+     * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
+     * @return string[] An array of the plugin's metadata.
+     */
+    public function add_plugin_row_meta( array $plugin_meta, $plugin_file ) {
+        if ( strpos( $plugin_file, 'redis-cache.php' ) === false ) {
+            return $plugin_meta;
+        }
 
         $plugin_meta[] = sprintf(
-			'<a href="%1$s"><span class="dashicons dashicons-star-filled" aria-hidden="true" style="font-size: 14px; line-height: 1.3"></span>%2$s</a>',
-			'https://objectcache.pro/?ref=oss&amp;utm_source=wp-plugin&amp;utm_medium=meta-row',
-			esc_html_x( 'Upgrade to Pro', 'verb', 'redis-cache' )
-		);
+            '<a href="%1$s"><span class="dashicons dashicons-star-filled" aria-hidden="true" style="font-size: 14px; line-height: 1.3"></span>%2$s</a>',
+            'https://objectcache.pro/?ref=oss&amp;utm_source=wp-plugin&amp;utm_medium=meta-row',
+            esc_html_x( 'Upgrade to Pro', 'verb', 'redis-cache' )
+        );
 
-		return $plugin_meta;
-	}
+        return $plugin_meta;
+    }
 
     /**
      * Enqueues admin style resources

@@ -514,7 +514,7 @@ class WP_Object_Cache {
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-	            $connectionID = is_string( WP_REDIS_CLUSTER )
+                $connectionID = is_string( WP_REDIS_CLUSTER )
                     ? WP_REDIS_CLUSTER
                     : current( $this->build_cluster_connection_array() );
 
