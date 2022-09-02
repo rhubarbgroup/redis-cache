@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Avoid early `microtime()` calls in `WP_Object_Cache::get()`
+
 ## 2.2.0
 
 - Added `redis_cache_add_non_persistent_groups` filter
