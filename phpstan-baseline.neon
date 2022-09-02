@@ -2,7 +2,7 @@ parameters:
 	ignoreErrors:
 		-
 			message: "#^Call to function is_string\\(\\) with array\\{'tcp\\://127\\.0\\.0\\.1…', 'tcp\\://127\\.0\\.0\\.2…', 'tcp\\://127\\.0\\.0\\.3…'\\} will always evaluate to false\\.$#"
-			count: 1
+			count: 3
 			path: .php-tools/object-cache.php
 
 		-
