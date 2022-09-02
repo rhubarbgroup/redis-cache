@@ -771,7 +771,7 @@ class Plugin {
 
                 $messages = get_settings_errors( 'redis-cache' );
 
-                if ( 0 !== count( $messages ) ) {
+                if ( count( $messages ) !== 0 ) {
                     set_transient( 'settings_errors', $messages, 30 );
 
                     wp_safe_redirect(
