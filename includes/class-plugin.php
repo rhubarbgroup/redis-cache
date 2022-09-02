@@ -601,6 +601,10 @@ class Plugin {
      * @return void
      */
     public function show_admin_notices() {
+        if ( defined( '\RedisCachePro\Version' ) || defined( '\ObjectCachePro\Version' ) ) {
+            return;
+        }
+
         if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS ) {
             $this->pro_notice();
             $this->wc_pro_notice();
