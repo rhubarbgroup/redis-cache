@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Avoid early `microtime()` calls in `WP_Object_Cache::get()`
+- Throw exception of pipeline returns unexpected results
 
 ## 2.2.0
 
