@@ -7,8 +7,6 @@
 
 defined( '\\ABSPATH' ) || exit;
 
-use WP_Error;
-
 /** @var \Rhubarb\RedisCache\Plugin $roc */
 $status = $roc->get_redis_status();
 $redis_client = $roc->get_redis_client_name();
@@ -73,7 +71,7 @@ $diagnostics = $roc->get_diagnostics();
     <tr>
         <th><?php esc_html_e( 'Filesystem:', 'redis-cache' ); ?></th>
         <td>
-            <?php if ( $roc->test_filesystem_writing() instanceof WP_Error ) : ?>
+            <?php if ( $roc->test_filesystem_writing() instanceof \WP_Error ) : ?>
                 <span class="error">
                     <span class="dashicons dashicons-no"></span>
                     <?php esc_html_e( 'Not writeable', 'redis-cache' ); ?>
