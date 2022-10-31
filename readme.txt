@@ -5,7 +5,7 @@ Tags: redis, object cache, cache, object caching, caching performance, relay, pr
 Requires at least: 3.3
 Tested up to: 6.0
 Requires PHP: 7.2
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,14 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.2.1 =
+
+- Added WordPress 6.1 `wp_cache_supports()` function
+- Updated Predis to v2.0.3
+- Avoid early `microtime()` calls in `WP_Object_Cache::get()`
+- Support Query Monitor's new `QM_Data` class
+- Throw exception of pipeline returns unexpected results
 
 = 2.2.0 =
 
@@ -605,6 +613,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.2.0 =
+= 2.2.1 =
 
-Bumped PHP requirement to 7.2, updated Predis to v2.0 and deprecated Credis and HHVM clients.
+New WordPress 6.1 functions, updated Predis to v2.0.3 and various improvements.

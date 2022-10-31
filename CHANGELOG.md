@@ -1,12 +1,12 @@
 # Changelog
 
-## Unreleased
+## 2.2.1
 
 - Added WordPress 6.1 `wp_cache_supports()` function
-- Avoid early `microtime()` calls in `WP_Object_Cache::get()`
-- Throw exception of pipeline returns unexpected results
-- Support Query Monitor's new `QM_Data` class
 - Updated Predis to v2.0.3
+- Avoid early `microtime()` calls in `WP_Object_Cache::get()`
+- Support Query Monitor's new `QM_Data` class
+- Throw exception of pipeline returns unexpected results
 
 ## 2.2.0
 
