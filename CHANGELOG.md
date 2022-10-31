@@ -6,6 +6,7 @@
 - Avoid early `microtime()` calls in `WP_Object_Cache::get()`
 - Throw exception of pipeline returns unexpected results
 - Support Query Monitor's new `QM_Data` class
+- Updated Predis to v2.0.3
 
 ## 2.2.0
 

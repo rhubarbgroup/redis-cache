@@ -260,7 +260,7 @@ class StreamConnection extends AbstractConnection
         $socket = $this->getResource();
 
         while (($length = strlen($buffer)) > 0) {
-            $written = @fwrite($socket, $buffer);
+            $written = is_resource($socket) ? @fwrite($socket, $buffer) : false;
 
             if ($length === $written) {
                 return;
@@ -304,7 +304,7 @@ class StreamConnection extends AbstractConnection
                 $bytesLeft = ($size += 2);
 
                 do {
-                    $chunk = fread($socket, min($bytesLeft, 4096));
+                    $chunk = is_resource($socket) ? fread($socket, min($bytesLeft, 4096)) : false;
 
                     if ($chunk === false || $chunk === '') {
                         $this->onConnectionError('Error while reading bytes from the server.');
