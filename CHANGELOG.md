@@ -2,8 +2,10 @@
 
 ## Unreleased
 
+- Added WordPress 6.1 `wp_cache_supports()` function
 - Avoid early `microtime()` calls in `WP_Object_Cache::get()`
 - Throw exception of pipeline returns unexpected results
+- Support Query Monitor's new `QM_Data` class
 
 ## 2.2.0
 
