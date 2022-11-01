@@ -104,10 +104,11 @@ class QM_Collector extends Base_Collector {
             $this->data['object_cache_extensions'] = array_map(
                 'extension_loaded',
                 [
-                    'APCu' => 'APCu',
-                    'Memcache' => 'Memcache',
-                    'Memcached' => 'Memcached',
-                    'Redis' => 'Redis',
+                    'APCu' => 'apcu',
+                    'Redis' => 'redis',
+                    'Relay' => 'relay',
+                    'Memcache' => 'memcache',
+                    'Memcached' => 'memcached',
                 ]
             );
 
