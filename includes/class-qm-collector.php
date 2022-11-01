@@ -7,14 +7,16 @@
 
 namespace Rhubarb\RedisCache;
 
-use QM_Collector as Base_Collector;
+use QM_Data;
+use QM_Data_Cache;
+use QM_Collector as QM_BaseCollector;
 
 defined( '\\ABSPATH' ) || exit;
 
 /**
  * Query Monitor data collector class definition
  */
-class QM_Collector extends Base_Collector {
+class QM_Collector extends QM_BaseCollector {
 
     /**
      * Collector id
@@ -31,6 +33,15 @@ class QM_Collector extends Base_Collector {
     public function name() {
         return __( 'Object Cache', 'redis-cache' );
     }
+
+    /**
+     * The collector storage
+     *
+	 * @return \QM_Data
+	 */
+	public function get_storage(): QM_Data {
+		return new QM_Data_Cache;
+	}
 
     /**
      * Fills the collector with data
@@ -75,7 +86,7 @@ class QM_Collector extends Base_Collector {
         // These are used by Query Monitor
         $this->data['cache_hit_percentage'] = $info->ratio;
 
-        if ( $this->data instanceof \QM_Data ) {
+        if ( $this->data instanceof QM_Data_Cache ) {
             $this->data->stats['cache_hits'] = $info->hits;
             $this->data->stats['cache_misses'] = $info->misses;
         } else {

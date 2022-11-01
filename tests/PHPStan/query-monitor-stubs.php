@@ -506,6 +506,100 @@ abstract class QM_Collector
     }
 }
 /**
+ * @implements ArrayAccess<string,mixed>
+ */
+abstract class QM_Data implements \ArrayAccess {
+	/**
+	 * @var array<string, mixed>
+	 */
+	public $types = array();
+
+	/**
+	 * @var array<string, array<string, mixed>>
+	 * @phpstan-var array<string, array{
+	 *   component: string,
+	 *   ltime: float,
+	 *   types: array<array-key, int>,
+	 * }>
+	 */
+	public $component_times = array();
+
+	/**
+	 * @param mixed $offset
+	 * @param mixed $value
+	 * @return void
+	 */
+	#[ReturnTypeWillChange]
+	final public function offsetSet( $offset, $value ) {
+	}
+
+	/**
+	 * @param mixed $offset
+	 * @return bool
+	 */
+	#[ReturnTypeWillChange]
+	final public function offsetExists( $offset ) {
+	}
+
+	/**
+	 * @param mixed $offset
+	 * @return void
+	 */
+	#[ReturnTypeWillChange]
+	final public function offsetUnset( $offset ) {
+	}
+
+	/**
+	 * @param mixed $offset
+	 * @return mixed
+	 */
+	#[ReturnTypeWillChange]
+	final public function offsetGet( $offset ) {
+	}
+}
+/**
+ * Cache data transfer object.
+ *
+ * @package query-monitor
+ */
+class QM_Data_Cache extends QM_Data {
+	/**
+	 * @var bool
+	 */
+	public $has_object_cache;
+
+	/**
+	 * @var bool
+	 */
+	public $display_hit_rate_warning;
+
+	/**
+	 * @var bool
+	 */
+	public $has_opcode_cache;
+
+	/**
+	 * @var int
+	 */
+	public $cache_hit_percentage;
+
+	/**
+	 * @var array<string, mixed>
+	 */
+	public $stats;
+
+	/**
+	 * @var array<string, bool>
+	 */
+	public $object_cache_extensions;
+
+	/**
+	 * @var array<string, bool>
+	 */
+	public $opcode_cache_extensions;
+
+}
+/**
  * Plugin CLI command.
  *
  * @package query-monitor
