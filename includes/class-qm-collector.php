@@ -37,11 +37,11 @@ class QM_Collector extends QM_BaseCollector {
     /**
      * The collector storage
      *
-	 * @return \QM_Data
-	 */
-	public function get_storage(): QM_Data {
-		return new QM_Data_Cache;
-	}
+     * @return \QM_Data
+     */
+    public function get_storage(): QM_Data {
+        return new QM_Data_Cache;
+    }
 
     /**
      * Fills the collector with data

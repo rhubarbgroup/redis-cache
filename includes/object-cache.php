@@ -29,18 +29,18 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
  * @return bool True if the feature is supported, false otherwise.
  */
 function wp_cache_supports( $feature ) {
-	switch ( $feature ) {
-		case 'add_multiple':
-		case 'set_multiple':
-		case 'get_multiple':
-		case 'delete_multiple':
-		case 'flush_runtime':
-			return true;
+    switch ( $feature ) {
+        case 'add_multiple':
+        case 'set_multiple':
+        case 'get_multiple':
+        case 'delete_multiple':
+        case 'flush_runtime':
+            return true;
 
         case 'flush_group':
-		default:
-			return false;
-	}
+        default:
+            return false;
+    }
 }
 
 
