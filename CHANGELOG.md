@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Fixed `WP_Error` use statement non-compound name warning
+- Use `QM_Data_Cache` instead of `QM_Data`
+
 ## 2.2.1
 
 - Added WordPress 6.1 `wp_cache_supports()` function
