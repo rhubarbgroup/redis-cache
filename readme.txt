@@ -5,7 +5,7 @@ Tags: redis, object cache, cache, object caching, caching performance, relay, pr
 Requires at least: 3.3
 Tested up to: 6.0
 Requires PHP: 7.2
-Stable tag: 2.2.2-dev
+Stable tag: 2.2.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,11 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.2.2 =
+
+- Use `QM_Data_Cache` instead of `QM_Data`
+- Fixed `WP_Error` use statement non-compound name warning
 
 = 2.2.1 =
 
@@ -613,6 +618,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.2.1 =
+= 2.2.2 =
 
 New WordPress 6.1 functions, updated Predis to v2.0.3 and various improvements.

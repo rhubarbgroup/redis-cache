@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.2.2
 
-- Fixed `WP_Error` use statement non-compound name warning
 - Use `QM_Data_Cache` instead of `QM_Data`
+- Fixed `WP_Error` use statement non-compound name warning
 
 ## 2.2.1
 

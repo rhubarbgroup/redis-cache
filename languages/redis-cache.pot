@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Redis Object Cache 2.2.1\n"
+"Project-Id-Version: Redis Object Cache 2.2.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/redis-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-10-31T01:02:46+00:00\n"
+"POT-Creation-Date: 2022-11-05T23:18:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: redis-cache\n"
@@ -42,7 +42,7 @@ msgid "Redis"
 msgstr ""
 
 #: includes/class-plugin.php:178
-#: includes/ui/tabs/overview.php:24
+#: includes/ui/tabs/overview.php:22
 msgid "Overview"
 msgstr ""
 
@@ -97,7 +97,7 @@ msgid "Enable object cache to collect data."
 msgstr ""
 
 #: includes/class-plugin.php:483
-#: includes/class-qm-collector.php:66
+#: includes/class-qm-collector.php:77
 msgid "Disabled"
 msgstr ""
 
@@ -118,7 +118,7 @@ msgid "Not connected"
 msgstr ""
 
 #: includes/class-plugin.php:500
-#: includes/ui/tabs/overview.php:272
+#: includes/ui/tabs/overview.php:270
 msgid "Unknown"
 msgstr ""
 
@@ -225,12 +225,12 @@ msgstr ""
 msgid "Copied test file couldn’t be deleted."
 msgstr ""
 
-#: includes/class-qm-collector.php:32
+#: includes/class-qm-collector.php:34
 msgid "Object Cache"
 msgstr ""
 
-#: includes/class-qm-collector.php:66
-#: includes/ui/tabs/overview.php:94
+#: includes/class-qm-collector.php:77
+#: includes/ui/tabs/overview.php:92
 msgid "Yes"
 msgstr ""
 
@@ -394,133 +394,133 @@ msgstr ""
 msgid "The total amount of commands sent to Redis."
 msgstr ""
 
-#: includes/ui/tabs/overview.php:30
+#: includes/ui/tabs/overview.php:28
 msgid "Status:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:47
+#: includes/ui/tabs/overview.php:45
 msgid "Drop-in:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:52
+#: includes/ui/tabs/overview.php:50
 msgid "Not installed"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:57
+#: includes/ui/tabs/overview.php:55
 msgid "Outdated"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:62
+#: includes/ui/tabs/overview.php:60
 msgid "Valid"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:67
+#: includes/ui/tabs/overview.php:65
 msgid "Invalid"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:74
+#: includes/ui/tabs/overview.php:72
 msgid "Filesystem:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:79
+#: includes/ui/tabs/overview.php:77
 msgid "Not writeable"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:84
+#: includes/ui/tabs/overview.php:82
 msgid "Writeable"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:92
+#: includes/ui/tabs/overview.php:90
 msgid "Disabled:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:101
+#: includes/ui/tabs/overview.php:99
 msgid "Key Prefix:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:110
+#: includes/ui/tabs/overview.php:108
 msgid "Max. TTL:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:116
+#: includes/ui/tabs/overview.php:114
 msgid "This doesn’t appear to be a valid number."
 msgstr ""
 
-#: includes/ui/tabs/overview.php:128
+#: includes/ui/tabs/overview.php:126
 msgid "Connection"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:135
+#: includes/ui/tabs/overview.php:133
 msgid "Client:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:144
+#: includes/ui/tabs/overview.php:142
 msgid "Host:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:151
+#: includes/ui/tabs/overview.php:149
 msgid "Cluster:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:164
+#: includes/ui/tabs/overview.php:162
 msgid "Shards:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:177
+#: includes/ui/tabs/overview.php:175
 msgid "Servers:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:190
+#: includes/ui/tabs/overview.php:188
 msgid "Port:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:197
+#: includes/ui/tabs/overview.php:195
 msgid "Username:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:204
+#: includes/ui/tabs/overview.php:202
 msgid "Password:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:213
+#: includes/ui/tabs/overview.php:211
 msgid "Database:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:220
+#: includes/ui/tabs/overview.php:218
 msgid "Connection Timeout:"
 msgstr ""
 
 #. translators: %s = Redis connection/read timeout in seconds.
-#: includes/ui/tabs/overview.php:226
-#: includes/ui/tabs/overview.php:243
+#: includes/ui/tabs/overview.php:224
+#: includes/ui/tabs/overview.php:241
 msgid "%ss"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:237
+#: includes/ui/tabs/overview.php:235
 msgid "Read Timeout:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:254
+#: includes/ui/tabs/overview.php:252
 msgid "Retry Interval:"
 msgstr ""
 
 #. translators: %s = Redis retry interval in milliseconds.
-#: includes/ui/tabs/overview.php:260
+#: includes/ui/tabs/overview.php:258
 msgid "%sms"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:271
+#: includes/ui/tabs/overview.php:269
 msgid "Redis Version:"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:284
+#: includes/ui/tabs/overview.php:282
 msgid "Flush Cache"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:290
+#: includes/ui/tabs/overview.php:288
 msgid "Disable Object Cache"
 msgstr ""
 
-#: includes/ui/tabs/overview.php:294
+#: includes/ui/tabs/overview.php:292
 msgid "Enable Object Cache"
 msgstr ""
