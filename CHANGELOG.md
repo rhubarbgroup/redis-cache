@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Updated Credis to v1.14.0
+
 ## 2.2.2
 
 - Use `QM_Data_Cache` instead of `QM_Data`
