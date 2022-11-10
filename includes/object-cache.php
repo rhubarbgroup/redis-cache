@@ -152,6 +152,20 @@ function wp_cache_flush( $delay = 0 ) {
 }
 
 /**
+ * Invalidate all items in the cache with the `WP_REDIS_PREFIX` prefix.
+ *
+ * @param int $delay  Number of seconds to wait before invalidating the items.
+ *
+ * @return bool       Returns TRUE on success or FALSE on failure.
+ */
+function wp_cache_flush_group($delay = 0)
+{
+    global $wp_object_cache;
+
+    return $wp_object_cache->flushSelective($delay);
+}
+
+/**
  * Removes all cache items from the in-memory runtime cache.
  *
  * @return bool True on success, false on failure.
@@ -1622,6 +1636,85 @@ class WP_Object_Cache {
 
         foreach ( $results as $result ) {
             if ( ! $result ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Invalidate all items prefixed with the `WP_REDIS_PREFIX` in the cache.
+     *
+     * @param   int $delay      Number of seconds to wait before invalidating the items.
+     * @return  bool            Returns TRUE on success or FALSE on failure.
+     */
+    public function flushSelective($delay = 0)
+    {
+        $delay = abs((int) $delay);
+
+        if ($delay) {
+            sleep($delay);
+        }
+
+        $results = [];
+        $this->cache = [];
+
+        if ($this->redis_status()) {
+            $salt = defined('WP_REDIS_PREFIX') ? trim(WP_REDIS_PREFIX) : null;
+
+            $start_time = microtime(true);
+
+            if ($salt) {
+                $script = $this->get_flush_closure($salt);
+
+                if (defined('WP_REDIS_CLUSTER')) {
+                    try {
+                        foreach ($this->redis->_masters() as $master) {
+                            $redis = new Redis();
+                            $redis->connect($master[0], $master[1]);
+                            $results[] = $this->parse_redis_response($script());
+                            unset($redis);
+                        }
+                    } catch (Exception $exception) {
+                        $this->handle_exception($exception);
+
+                        return false;
+                    }
+                } else {
+                    try {
+                        $results[] = $this->parse_redis_response($script());
+                    } catch (Exception $exception) {
+                        $this->handle_exception($exception);
+
+                        return false;
+                    }
+                }
+            }
+
+            if (function_exists('do_action')) {
+                $execute_time = microtime(true) - $start_time;
+
+                /**
+                 * Fires on every cache flush
+                 *
+                 * @since 1.3.5
+                 * @param null|array $results      Array of flush results.
+                 * @param int        $delay        Given number of seconds to waited before invalidating the items.
+                 * @param bool       $seletive     Whether a selective flush took place.
+                 * @param string     $salt         The defined key prefix.
+                 * @param float      $execute_time Execution time for the request in seconds.
+                 */
+                do_action('redis_object_cache_flush', $results, $delay, true, $salt, $execute_time);
+            }
+        }
+
+        if (empty($results)) {
+            return false;
+        }
+
+        foreach ($results as $result) {
+            if (! $result) {
                 return false;
             }
         }
