@@ -152,17 +152,16 @@ function wp_cache_flush( $delay = 0 ) {
 }
 
 /**
- * Invalidate all items in the cache with the `WP_REDIS_PREFIX` prefix.
+ * Removes all cache items in a group.
  *
- * @param string $group  ...
- *
- * @return bool       Returns TRUE on success or FALSE on failure.
+ * @param string $group Name of group to remove from cache.
+ * @return true Returns TRUE on success or FALSE on failure.
  */
-function wp_cache_flush_group($group)
+function wp_cache_flush_group( $group )
 {
     global $wp_object_cache;
 
-    return $wp_object_cache->flush_group($group);
+    return $wp_object_cache->flush_group( $group );
 }
 
 /**
@@ -1644,17 +1643,17 @@ class WP_Object_Cache {
     }
 
     /**
-     * Invalidate all items prefixed with the `WP_REDIS_PREFIX` in the cache.
-     *
-     * @param   string|int $group Number of seconds to wait before invalidating the items.
-     * @return  bool            Returns TRUE on success or FALSE on failure.
-     */
-    public function flush_group($group)
+	 * Removes all cache items in a group.
+	 *
+	 * @param string $group Name of group to remove from cache.
+	 * @return true Returns TRUE on success or FALSE on failure.
+	 */
+    public function flush_group( $group )
     {
         $san_group = $this->sanitize_key_part( $group );
 
         if ( is_multisite() && ! $this->is_global_group( $san_group ) ) {
-            $salt = str_replace("{$this->blog_prefix}:", '*:', $this->fast_build_key( '*', $san_group ));
+            $salt = str_replace( "{$this->blog_prefix}:", '*:', $this->fast_build_key( '*', $san_group ) );
         } else {
             $salt = $this->fast_build_key( '*', $san_group );
         }
@@ -1689,11 +1688,11 @@ class WP_Object_Cache {
             return false;
         }
 
-        if (function_exists('do_action')) {
-            $execute_time = microtime(true) - $start_time;
+        if ( function_exists( 'do_action' ) ) {
+            $execute_time = microtime( true ) - $start_time;
 
             /**
-             * Fires on every cache flush
+             * Fires on every group cache flush
              *
              * @param null|array $results Array of flush results.
              * @param string $salt The defined key prefix.
@@ -1703,8 +1702,8 @@ class WP_Object_Cache {
             do_action('redis_object_cache_flush_group', $results, $salt, $execute_time);
         }
 
-        foreach ($results as $result) {
-            if (! $result) {
+        foreach ( $results as $result ) {
+            if ( ! $result ) {
                 return false;
             }
         }
