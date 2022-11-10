@@ -141,14 +141,12 @@ function wp_cache_delete_multiple( array $keys, $group = '' ) {
  * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
  * only keys prefixed with the `WP_REDIS_PREFIX` are flushed.
  *
- * @param int $delay  Number of seconds to wait before invalidating the items.
- *
  * @return bool       Returns TRUE on success or FALSE on failure.
  */
-function wp_cache_flush( $delay = 0 ) {
+function wp_cache_flush() {
     global $wp_object_cache;
 
-    return $wp_object_cache->flush( $delay );
+    return $wp_object_cache->flush();
 }
 
 /**
@@ -1533,16 +1531,9 @@ class WP_Object_Cache {
      * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
      * only keys prefixed with the `WP_REDIS_PREFIX` are flushed.
      *
-     * @param   int $delay      Number of seconds to wait before invalidating the items.
-     * @return  bool            Returns TRUE on success or FALSE on failure.
+     * @return bool True on success, false on failure.
      */
-    public function flush( $delay = 0 ) {
-        $delay = abs( (int) $delay );
-
-        if ( $delay ) {
-            sleep( $delay );
-        }
-
+    public function flush() {
         $results = [];
         $this->cache = [];
 
@@ -1607,12 +1598,12 @@ class WP_Object_Cache {
                  *
                  * @since 1.3.5
                  * @param null|array $results      Array of flush results.
-                 * @param int        $delay        Given number of seconds to waited before invalidating the items.
+                 * @param int        $deprecated   Unused. Default 0.
                  * @param bool       $seletive     Whether a selective flush took place.
                  * @param string     $salt         The defined key prefix.
                  * @param float      $execute_time Execution time for the request in seconds.
                  */
-                do_action( 'redis_object_cache_flush', $results, $delay, $selective, $salt, $execute_time );
+                do_action( 'redis_object_cache_flush', $results, 0, $selective, $salt, $execute_time );
             }
         }
 

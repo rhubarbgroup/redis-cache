@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Updated Credis to v1.14.0
+- Drop `$delay` parameter from `wp_cache_flush()`
 
 ## 2.2.2
 
