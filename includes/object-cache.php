@@ -162,7 +162,7 @@ function wp_cache_flush_group($delay = 0)
 {
     global $wp_object_cache;
 
-    return $wp_object_cache->flushSelective($delay);
+    return $wp_object_cache->flush_group($delay);
 }
 
 /**
@@ -1649,7 +1649,7 @@ class WP_Object_Cache {
      * @param   int $delay      Number of seconds to wait before invalidating the items.
      * @return  bool            Returns TRUE on success or FALSE on failure.
      */
-    public function flushSelective($delay = 0)
+    public function flush_group($delay = 0)
     {
         $delay = abs((int) $delay);
 
