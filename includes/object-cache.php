@@ -1650,7 +1650,6 @@ class WP_Object_Cache {
 	 */
     public function flush_group( $group )
     {
-
         $san_group = $this->sanitize_key_part( $group );
 
         if ( is_multisite() && ! $this->is_global_group( $san_group ) ) {
@@ -1679,7 +1678,7 @@ class WP_Object_Cache {
         $script = $this->lua_flush_closure( $salt, false );
 
         try {
-            if (defined('WP_REDIS_CLUSTER')) {
+            if ( defined( 'WP_REDIS_CLUSTER' ) ) {
                 foreach ( $this->redis->_masters() as $master ) {
                     $redis = new Redis;
                     $redis->connect( $master[0], $master[1] );
@@ -1706,7 +1705,7 @@ class WP_Object_Cache {
              * @param float $execute_time Execution time for the request in seconds.
              * @since 2.2.3
              */
-            do_action('redis_object_cache_flush_group', $results, $salt, $execute_time);
+            do_action( 'redis_object_cache_flush_group', $results, $salt, $execute_time );
         }
 
         foreach ( $results as $result ) {
