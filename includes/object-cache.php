@@ -410,7 +410,7 @@ class WP_Object_Cache {
     /**
      * List of global groups.
      *
-     * @var array
+     * @var array<string>
      */
     public $global_groups = [
         'blog-details',
@@ -1646,7 +1646,7 @@ class WP_Object_Cache {
 	 * Removes all cache items in a group.
 	 *
 	 * @param string $group Name of group to remove from cache.
-	 * @return true Returns TRUE on success or FALSE on failure.
+	 * @return bool Returns TRUE on success or FALSE on failure.
 	 */
     public function flush_group( $group )
     {
@@ -1672,6 +1672,8 @@ class WP_Object_Cache {
         if ( ! $this->redis_status() ) {
             return false;
         }
+
+        $results = [];
 
         $start_time = microtime( true );
         $script = $this->lua_flush_closure( $salt, false );
