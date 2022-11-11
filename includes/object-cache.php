@@ -1650,6 +1650,7 @@ class WP_Object_Cache {
 	 */
     public function flush_group( $group )
     {
+
         $san_group = $this->sanitize_key_part( $group );
 
         if ( is_multisite() && ! $this->is_global_group( $san_group ) ) {
@@ -1658,7 +1659,11 @@ class WP_Object_Cache {
             $salt = $this->fast_build_key( '*', $san_group );
         }
 
-        $this->cache = []; // TODO: remove all matching keys from  $this->cache
+        foreach ( $this->cache as $key => $value ) {
+            if ( strpos( $key, "{$san_group}:" ) === 0 || strpos( $key, ":{$san_group}:" ) !== false ) {
+                unset( $this->cache[ $key ] );
+            }
+        }
 
         if ( in_array( $san_group, $this->unflushable_groups ) ) {
             return false;
