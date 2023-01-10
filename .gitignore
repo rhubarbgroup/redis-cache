@@ -2,7 +2,7 @@
 /.phpunit.cache
 /vendor
 /reports
+/tests/PHPStan/object-cache.php
 .phpunit.result.cache
 composer.lock
 config.sh
-/tests/PHPStan/object-cache.php
