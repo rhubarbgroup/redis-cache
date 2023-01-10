@@ -5,14 +5,14 @@ on: [push, pull_request]
 jobs:
 
   phpstan:
-    name: PHPStan (PHP ${{ matrix.php }})
+    name: PHPStan (PHP ${{ matrix.php }}; Relay ${{ matrix.relay }})
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4','8.0','8.1']
-        relay: ['0.4.6','0.5.1']
+        php: ['7.4', '8.0', '8.1']
+        relay: ['0.4.6', '0.5.1']
 
     steps:
       - name: Checkout
