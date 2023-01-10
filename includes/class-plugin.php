@@ -997,6 +997,7 @@ class Plugin {
      * @return true|WP_Error
      */
     public function test_filesystem_writing() {
+        /** @var \WP_Filesystem_Base $wp_filesystem */
         global $wp_filesystem;
 
         if ( ! $this->initialize_filesystem( '', true ) ) {

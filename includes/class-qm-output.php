@@ -24,8 +24,8 @@ class QM_Output extends QM_Output_Html {
     public function __construct( QM_Collector $collector ) {
         parent::__construct( $collector );
 
-        add_filter( 'qm/output/menus', [ $this, 'admin_menu' ], 30 ); // @phpstan-ignore-line
-        add_filter( 'qm/output/panel_menus', [ $this, 'panel_menu' ] ); // @phpstan-ignore-line
+        add_filter( 'qm/output/menus', [ $this, 'admin_menu' ], 30 );
+        add_filter( 'qm/output/panel_menus', [ $this, 'panel_menu' ] );
     }
 
     /**

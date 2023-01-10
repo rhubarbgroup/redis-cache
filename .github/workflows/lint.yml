@@ -11,7 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.2']
+        php: ['7.4','8.0','8.1']
+        relay: ['0.5.1']
 
     steps:
       - name: Checkout
@@ -22,6 +23,17 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: msgpack, igbinary, mbstring, redis-5.3.7
+
+      - name: Install Relay PHP extension
+        run: |
+          curl -L "https://builds.r2.relay.so/${{ matrix.relay }}/relay-${{ matrix.relay }}-php${{ matrix.php }}-debian-x86-64.tar.gz" | tar xz
+          cd relay-${{ matrix.relay }}-php${{ matrix.php }}-debian-x86-64/
+          sudo cp -v relay.ini $(php-config --ini-dir)
+          sudo cp -v relay-pkg.so $(php-config --extension-dir)/relay.so
+          sudo sed -i -e "s/00000000-0000-0000-0000-000000000000/$(cat /proc/sys/kernel/random/uuid)/" $(php-config --extension-dir)/relay.so
+
+      - name: Show Relay configuration
+        run: php --ri relay
 
       - name: Install PHP Dependencies
         uses: ramsey/composer-install@v2
