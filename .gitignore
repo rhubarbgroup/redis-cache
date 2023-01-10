@@ -1,8 +1,8 @@
 /.wp-test
 /.phpunit.cache
-/.php-tools
 /vendor
 /reports
+/tests/PHPStan/object-cache.php
 .phpunit.result.cache
 composer.lock
 config.sh
