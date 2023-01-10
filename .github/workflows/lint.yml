@@ -26,8 +26,8 @@ jobs:
 
       - name: Install Relay PHP extension
         run: |
-          curl -L "https://builds.r2.relay.so/${{ matrix.relay }}/relay-${{ matrix.relay }}-php${{ matrix.php }}-debian-x86-64.tar.gz" | tar xz
-          cd relay-${{ matrix.relay }}-php${{ matrix.php }}-debian-x86-64/
+          curl -L "https://builds.r2.relay.so/v${{ matrix.relay }}/relay-v${{ matrix.relay }}-php${{ matrix.php }}-debian-x86-64.tar.gz" | tar xz
+          cd relay-v${{ matrix.relay }}-php${{ matrix.php }}-debian-x86-64/
           sudo cp -v relay.ini $(php-config --ini-dir)
           sudo cp -v relay-pkg.so $(php-config --extension-dir)/relay.so
           sudo sed -i -e "s/00000000-0000-0000-0000-000000000000/$(cat /proc/sys/kernel/random/uuid)/" $(php-config --extension-dir)/relay.so
