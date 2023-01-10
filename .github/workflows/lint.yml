@@ -23,6 +23,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: msgpack, igbinary, mbstring, redis-5.3.7
+          coverage: none
 
       - name: Install Relay PHP extension
         run: |
