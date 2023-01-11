@@ -5,7 +5,7 @@ Tags: redis, object cache, cache, object caching, caching performance, relay, pr
 Requires at least: 3.3
 Tested up to: 6.1
 Requires PHP: 7.2
-Stable tag: 2.2.3-dev
+Stable tag: 2.2.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,13 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.2.3 =
+
+- Added `wp_cache_flush_group()` support
+- Updated Credis to v1.14.0
+- Drop `$delay` parameter from `wp_cache_flush()`
+- Prevent rare error in diagnostics when reading connection errors
 
 = 2.2.2 =
 

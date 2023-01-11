@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.2.3
 
 - Added `wp_cache_flush_group()` support
 - Updated Credis to v1.14.0
