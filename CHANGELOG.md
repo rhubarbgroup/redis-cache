@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.2.3
+
+- Added `wp_cache_flush_group()` support
+- Updated Credis to v1.14.0
+- Drop `$delay` parameter from `wp_cache_flush()`
+- Prevent rare error in diagnostics when reading connection errors
+
 ## 2.2.2
 
 - Use `QM_Data_Cache` instead of `QM_Data`

@@ -33,10 +33,8 @@ if ( $dropin && ! $disabled ) {
         $info[ 'Connection Exception' ] = sprintf( '%s (%s)', $exception->getMessage(), get_class( $exception ) );
     }
 
-    $info[ 'Errors' ] = wp_json_encode(
-        array_values( $wp_object_cache->errors ),
-        JSON_PRETTY_PRINT
-    );
+    $errors = is_array( $wp_object_cache->errors ) ? $wp_object_cache->errors : [];
+    $info[ 'Errors' ] = wp_json_encode( array_values( $errors ), JSON_PRETTY_PRINT );
 }
 
 $info['PhpRedis'] = class_exists( 'Redis' ) ? phpversion( 'redis' ) : 'Not loaded';
@@ -87,6 +85,7 @@ $constants = [
     'WP_REDIS_MAXTTL',
     'WP_REDIS_PREFIX',
     'WP_CACHE_KEY_SALT',
+    'WP_REDIS_PLUGIN_PATH',
     'WP_REDIS_GLOBAL_GROUPS',
     'WP_REDIS_IGNORED_GROUPS',
     'WP_REDIS_UNFLUSHABLE_GROUPS',
@@ -103,15 +102,16 @@ foreach ( $constants as $constant ) {
 }
 
 if ( defined( 'WP_REDIS_PASSWORD' ) ) {
+    /** @var string|array|null $password */
     $password = WP_REDIS_PASSWORD;
 
     if ( is_array( $password ) ) {
-        if ( isset( $password[1] ) && ! is_null( $password[1] ) && '' !== $password[1] ) {
+        if ( isset( $password[1] ) && '' !== $password[1] ) {
             $password[1] = str_repeat( '•', 8 );
         }
 
         $info['WP_REDIS_PASSWORD'] = wp_json_encode( $password, JSON_UNESCAPED_UNICODE );
-    } elseif ( ! is_null( $password ) && '' !== $password ) {
+    } elseif ( is_string( $password ) && '' !== $password ) {
         $info['WP_REDIS_PASSWORD'] = str_repeat( '•', 8 );
     }
 }

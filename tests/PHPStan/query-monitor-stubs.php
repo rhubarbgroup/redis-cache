@@ -51,6 +51,7 @@ abstract class Debug_Bar_Panel
 class QM_Dispatchers implements \IteratorAggregate
 {
     private $items = array();
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
     }
@@ -299,7 +300,7 @@ abstract class QM_Plugin
     /**
      * Populates and returns the current plugin info.
      */
-    private final function _plugin($item, $file = '')
+    private function _plugin($item, $file = '')
     {
     }
     public static function php_version_met()
@@ -401,6 +402,7 @@ class QM_Collectors implements \IteratorAggregate
 {
     private $items = array();
     private $processed = \false;
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
     }

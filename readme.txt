@@ -3,18 +3,18 @@ Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, object cache, cache, object caching, caching performance, relay, predis, phpredis
 Requires at least: 3.3
-Tested up to: 6.0
+Tested up to: 6.1
 Requires PHP: 7.2
-Stable tag: 2.2.2
+Stable tag: 2.2.3
 License: GPLv3
-License URI: http://www.gnu.org/licenses/gpl-3.0.html
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
 
 
 == Description ==
 
-A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](http://wp-cli.org/).
+A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](https://wp-cli.org/).
 
 To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [our wiki](https://github.com/rhubarbgroup/redis-cache/wiki).
 
@@ -37,12 +37,12 @@ Learn more about [Object Cache Pro](https://objectcache.pro/?ref=oss&amp;utm_sou
 
 == Installation ==
 
-For detailed installation instructions, please read the [standard installation procedure for WordPress plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
+For detailed installation instructions, please read the [standard installation procedure for WordPress plugins](https://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 
-1. Make sure [Redis is installed and running](http://redis.io/topics/quickstart).
+1. Make sure [Redis is installed and running](https://redis.io/topics/quickstart).
 2. Install and activate plugin.
 3. Enable the object cache under _Settings -> Redis_, or in Multisite setups under _Network Admin -> Settings -> Redis_.
-4. If necessary, adjust [connection parameters](http://wordpress.org/extend/plugins/redis-cache/other_notes/).
+4. If necessary, adjust [connection parameters](https://wordpress.org/extend/plugins/redis-cache/other_notes/).
 
 If your server doesn't support the [WordPress Filesystem API](https://codex.wordpress.org/Filesystem_API), you have to manually copy the `object-cache.php` file from the `/plugins/redis-cache/includes/` directory to the `/wp-content/` directory.
 
@@ -82,6 +82,13 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.2.3 =
+
+- Added `wp_cache_flush_group()` support
+- Updated Credis to v1.14.0
+- Drop `$delay` parameter from `wp_cache_flush()`
+- Prevent rare error in diagnostics when reading connection errors
 
 = 2.2.2 =
 

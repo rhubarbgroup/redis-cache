@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.2.2
+ * Version: 2.2.3
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -35,9 +35,9 @@ function wp_cache_supports( $feature ) {
         case 'get_multiple':
         case 'delete_multiple':
         case 'flush_runtime':
+        case 'flush_group':
             return true;
 
-        case 'flush_group':
         default:
             return false;
     }
@@ -141,14 +141,25 @@ function wp_cache_delete_multiple( array $keys, $group = '' ) {
  * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
  * only keys prefixed with the `WP_REDIS_PREFIX` are flushed.
  *
- * @param int $delay  Number of seconds to wait before invalidating the items.
- *
  * @return bool       Returns TRUE on success or FALSE on failure.
  */
-function wp_cache_flush( $delay = 0 ) {
+function wp_cache_flush() {
     global $wp_object_cache;
 
-    return $wp_object_cache->flush( $delay );
+    return $wp_object_cache->flush();
+}
+
+/**
+ * Removes all cache items in a group.
+ *
+ * @param string $group Name of group to remove from cache.
+ * @return true Returns TRUE on success or FALSE on failure.
+ */
+function wp_cache_flush_group( $group )
+{
+    global $wp_object_cache;
+
+    return $wp_object_cache->flush_group( $group );
 }
 
 /**
@@ -397,7 +408,7 @@ class WP_Object_Cache {
     /**
      * List of global groups.
      *
-     * @var array
+     * @var array<string>
      */
     public $global_groups = [
         'blog-details',
@@ -1533,16 +1544,9 @@ class WP_Object_Cache {
      * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
      * only keys prefixed with the `WP_REDIS_PREFIX` are flushed.
      *
-     * @param   int $delay      Number of seconds to wait before invalidating the items.
-     * @return  bool            Returns TRUE on success or FALSE on failure.
+     * @return bool True on success, false on failure.
      */
-    public function flush( $delay = 0 ) {
-        $delay = abs( (int) $delay );
-
-        if ( $delay ) {
-            sleep( $delay );
-        }
-
+    public function flush() {
         $results = [];
         $this->cache = [];
 
@@ -1607,17 +1611,92 @@ class WP_Object_Cache {
                  *
                  * @since 1.3.5
                  * @param null|array $results      Array of flush results.
-                 * @param int        $delay        Given number of seconds to waited before invalidating the items.
+                 * @param int        $deprecated   Unused. Default 0.
                  * @param bool       $seletive     Whether a selective flush took place.
                  * @param string     $salt         The defined key prefix.
                  * @param float      $execute_time Execution time for the request in seconds.
                  */
-                do_action( 'redis_object_cache_flush', $results, $delay, $selective, $salt, $execute_time );
+                do_action( 'redis_object_cache_flush', $results, 0, $selective, $salt, $execute_time );
             }
         }
 
         if ( empty( $results ) ) {
             return false;
+        }
+
+        foreach ( $results as $result ) {
+            if ( ! $result ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+	 * Removes all cache items in a group.
+	 *
+	 * @param string $group Name of group to remove from cache.
+	 * @return bool Returns TRUE on success or FALSE on failure.
+	 */
+    public function flush_group( $group )
+    {
+        $san_group = $this->sanitize_key_part( $group );
+
+        if ( is_multisite() && ! $this->is_global_group( $san_group ) ) {
+            $salt = str_replace( "{$this->blog_prefix}:", '*:', $this->fast_build_key( '*', $san_group ) );
+        } else {
+            $salt = $this->fast_build_key( '*', $san_group );
+        }
+
+        foreach ( $this->cache as $key => $value ) {
+            if ( strpos( $key, "{$san_group}:" ) === 0 || strpos( $key, ":{$san_group}:" ) !== false ) {
+                unset( $this->cache[ $key ] );
+            }
+        }
+
+        if ( in_array( $san_group, $this->unflushable_groups ) ) {
+            return false;
+        }
+
+        if ( ! $this->redis_status() ) {
+            return false;
+        }
+
+        $results = [];
+
+        $start_time = microtime( true );
+        $script = $this->lua_flush_closure( $salt, false );
+
+        try {
+            if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+                foreach ( $this->redis->_masters() as $master ) {
+                    $redis = new Redis;
+                    $redis->connect( $master[0], $master[1] );
+                    $results[] = $this->parse_redis_response( $script() );
+                    unset( $redis );
+                }
+            } else {
+                $results[] = $this->parse_redis_response( $script() );
+            }
+        } catch ( Exception $exception ) {
+            $this->handle_exception( $exception );
+
+            return false;
+        }
+
+        if ( function_exists( 'do_action' ) ) {
+            $execute_time = microtime( true ) - $start_time;
+
+            /**
+             * Fires on every group cache flush
+             *
+             * @param null|array $results Array of flush results.
+             * @param string $salt The defined key prefix.
+             * @param float $execute_time Execution time for the request in seconds.
+             * @since 2.2.3
+             */
+            do_action( 'redis_object_cache_flush_group', $results, $salt, $execute_time );
         }
 
         foreach ( $results as $result ) {
@@ -1668,10 +1747,11 @@ class WP_Object_Cache {
      * Returns a closure ready to be called to flush selectively ignoring unflushable groups.
      *
      * @param   string $salt  The salt to be used to differentiate.
+     * @param   bool $escape ...
      * @return  callable      Generated callable executing the lua script.
      */
-    protected function lua_flush_closure( $salt ) {
-        $salt = $this->glob_quote( $salt );
+    protected function lua_flush_closure( $salt, $escape = true ) {
+        $salt = $escape ? $this->glob_quote( $salt ) : $salt;
 
         return function () use ( $salt ) {
             $script = <<<LUA
