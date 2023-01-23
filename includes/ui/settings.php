@@ -101,8 +101,9 @@ defined( '\\ABSPATH' ) || exit;
                 <?php $is_php7 = version_compare( phpversion(), '7.2', '>=' ); ?>
                 <?php $is_phpredis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
                 <?php $phpredis_installed = (bool) phpversion( 'redis' ); ?>
+                <?php $relay_installed = (bool) phpversion( 'relay' ); ?>
 
-                <?php if ( $is_php7 && $is_phpredis311 ) : ?>
+                <?php if ( $is_php7 && ( $is_phpredis311 || $relay_installed ) ) : ?>
 
                     <p class="compatibility">
                         <span class="dashicons dashicons-yes"></span>
