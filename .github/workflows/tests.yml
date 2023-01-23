@@ -1,8 +1,10 @@
 name: Run Tests
 
-on:
-  push: null
-  pull_request: null
+on: push
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
