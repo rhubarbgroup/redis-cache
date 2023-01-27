@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Added Relay extension check
+- Prevent Perflab from overwriting the object cache drop-in
+- Fallback to `wp redis-cache` if `wp redis` is already registered
+
 ## 2.2.3
 
 - Added `wp_cache_flush_group()` support
