@@ -52,7 +52,7 @@
         "ext-relay": "Required to use Relay as the object cache backend."
     },
     "scripts": {
-        "stan": [
+        "phpstan": [
             "sed -e 's#WP_Object_Cache#Redis_Pro_WP_Object_Cache#;s#class Redis_Pro_WP_Object_Cache#& extends WP_Object_Cache#' includes/object-cache.php > tests/PHPStan/object-cache.php",
             "phpstan analyze"
         ]

@@ -44,7 +44,7 @@ jobs:
         uses: ramsey/composer-install@v2
 
       - name: Run PHPStan
-        run: composer run stan
+        run: composer run phpstan
 
   editorconfig:
 

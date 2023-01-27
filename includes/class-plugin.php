@@ -285,7 +285,7 @@ class Plugin {
             return;
         }
 
-        wp_enqueue_style( 'redis-cache', WP_REDIS_PLUGIN_DIR . '/assets/css/admin.css', [ ], WP_REDIS_VERSION );
+        wp_enqueue_style( 'redis-cache', WP_REDIS_PLUGIN_DIR . '/assets/css/admin.css', [], WP_REDIS_VERSION );
     }
 
     /**
@@ -313,12 +313,12 @@ class Plugin {
             return;
         }
 
-        $clipboard = file_exists( ABSPATH .WPINC . '/js/clipboard.min.js' );
+        $clipboard = file_exists( ABSPATH . WPINC . '/js/clipboard.min.js' );
 
         wp_enqueue_script(
             'redis-cache',
             plugins_url( 'assets/js/admin.js', WP_REDIS_FILE ),
-            array_merge( [ 'jquery', 'underscore' ], $clipboard ? [ 'clipboard' ] : [ ] ),
+            array_merge( [ 'jquery', 'underscore' ], $clipboard ? [ 'clipboard' ] : [] ),
             WP_REDIS_VERSION,
             true
         );
@@ -366,7 +366,7 @@ class Plugin {
         wp_enqueue_script(
             'redis-cache-charts',
             plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
-            [ ],
+            [],
             WP_REDIS_VERSION,
             true
         );
