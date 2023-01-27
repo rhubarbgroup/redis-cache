@@ -115,6 +115,8 @@ class Plugin {
 
         add_filter( 'qm/collectors', [ $this, 'register_qm_collector' ], 25 );
         add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
+        
+        add_filter( 'perflab_disable_object_cache_dropin', '__return_true' );
     }
 
     /**
