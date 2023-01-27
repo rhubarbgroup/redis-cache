@@ -115,7 +115,7 @@ class Plugin {
 
         add_filter( 'qm/collectors', [ $this, 'register_qm_collector' ], 25 );
         add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
-        
+
         add_filter( 'perflab_disable_object_cache_dropin', '__return_true' );
     }
 
@@ -603,14 +603,8 @@ class Plugin {
      * @return void
      */
     public function show_admin_notices() {
-        if ( defined( '\RedisCachePro\Version' ) || defined( '\ObjectCachePro\Version' ) ) {
-            return;
-        }
-
-        if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS ) {
-            $this->pro_notice();
-            $this->wc_pro_notice();
-        }
+        $this->pro_notice();
+        $this->wc_pro_notice();
 
         // Only show admin notices to users with the right capability.
         if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
@@ -619,6 +613,10 @@ class Plugin {
 
         // Do not display the dropin message if you want
         if ( defined( 'WP_REDIS_DISABLE_DROPIN_BANNERS' ) && WP_REDIS_DISABLE_DROPIN_BANNERS ) {
+            return;
+        }
+
+        if ( defined( 'RedisCachePro\Version' ) || defined( 'ObjectCachePro\Version' ) ) {
             return;
         }
 
@@ -821,6 +819,25 @@ class Plugin {
             return;
         }
 
+        if ( $screen->id === $this->screen && ( defined( 'RedisCachePro\Version' ) || defined( 'ObjectCachePro\Version' ) ) ) {
+            printf(
+                '<div class="notice notice-warning"><p>%s</p></div>',
+                wp_kses_post(
+                    sprintf(
+                        // translators: %s = Action link to update the drop-in.
+                        __( 'The Object Cache Pro plugin appears to be installed and should be used. You can safely <a href="%s">uninstall Redis Object Cache</a>.', 'redis-cache' ),
+                        esc_url( network_admin_url( 'plugins.php?plugin_status=all&s=redis%20object%20cache' ) )
+                    )
+                )
+            );
+
+            return;
+        }
+
+        if ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS ) {
+            return;
+        }
+
         if ( ! in_array( $screen->id, [ 'dashboard', 'dashboard-network' ], true ) ) {
             return;
         }
@@ -851,6 +868,10 @@ class Plugin {
      * @return void
      */
     public function wc_pro_notice() {
+        if ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS ) {
+            return;
+        }
+
         if ( ! class_exists( 'WooCommerce' ) ) {
             return;
         }
