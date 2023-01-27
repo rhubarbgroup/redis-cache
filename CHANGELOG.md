@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-- Added Relay extension check
+- Register `wp redis` CLI command late
+- Don't compete with Object Cache Pro for `wp redis` command
 - Prevent Perflab from overwriting the object cache drop-in
-- Fallback to `wp redis-cache` if `wp redis` is already registered
 
 ## 2.2.3
 
