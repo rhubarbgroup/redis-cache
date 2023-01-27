@@ -5,6 +5,7 @@
 - Register `wp redis` CLI command late
 - Don't compete with Object Cache Pro for `wp redis` command
 - Prevent Perflab from overwriting the object cache drop-in
+- Updated Predis to v2.1.1
 
 ## 2.2.3
 
