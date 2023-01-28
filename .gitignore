@@ -4,5 +4,6 @@
 /reports
 /tests/PHPStan/object-cache.php
 .phpunit.result.cache
+.php-cs-fixer.cache
 composer.lock
 config.sh

@@ -34,7 +34,7 @@ class QM_Output extends QM_Output_Html {
      * @return string
      */
     public function name() {
-        return __( 'Object Cache', 'redis cache' );
+        return __( 'Object Cache', 'redis-cache' );
     }
 
     /**
