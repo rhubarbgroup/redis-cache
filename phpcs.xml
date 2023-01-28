@@ -7,18 +7,20 @@
 >
     <description>Coding standards</description>
 
-    <!-- File pattern definitions -->
     <file>.</file>
-    <exclude-pattern>/vendor/</exclude-pattern>
     <exclude-pattern>/dependencies/</exclude-pattern>
+    <exclude-pattern>/tests/</exclude-pattern>
+    <exclude-pattern>/vendor/</exclude-pattern>
+
     <arg name="extensions" value="php" />
-    <arg name="basepath" value="./" /><!-- Strip the file paths down to the relevant bit -->
+    <arg name="basepath" value="./" />
 
     <arg name="colors" />
-    <arg name="parallel" value="8" /><!-- Enables parallel processing when available for faster results. -->
+    <arg name="parallel" value="8" />
 
-    <config name="testVersion" value="5.6-" />
+    <config name="testVersion" value="7.2-" />
     <rule ref="PHPCompatibilityWP" />
+
     <rule ref="WordPress">
         <exclude name="WordPress.PHP.DisallowShortTernary" />
         <exclude name="WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys" />
@@ -29,15 +31,18 @@
         <exclude name="WordPress.PHP.YodaConditions.NotYoda" />
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound" />
     </rule>
+
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
             <property name="prefixes" type="array" value="redis_object_cache" />
         </properties>
     </rule>
+
     <rule ref="WordPress.WP.I18n">
         <properties>
             <property name="text_domain" type="array" value="redis-cache" />
         </properties>
     </rule>
+
     <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
 </ruleset>

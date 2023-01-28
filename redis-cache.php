@@ -35,9 +35,12 @@ $autoloader->register();
 $autoloader->add_namespace( 'Rhubarb\RedisCache', WP_REDIS_PLUGIN_PATH . '/includes' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI && ! defined( 'RedisCachePro\Version' ) && ! defined( 'ObjectCachePro\Version' ) ) {
-    add_action('plugins_loaded', function () {
-        WP_CLI::add_command( 'redis', Rhubarb\RedisCache\CLI\Commands::class );
-    });
+    add_action(
+        'plugins_loaded',
+        function () {
+            WP_CLI::add_command( 'redis', Rhubarb\RedisCache\CLI\Commands::class );
+        }
+    );
 }
 
 register_activation_hook(
