@@ -834,6 +834,10 @@ class Plugin {
             return;
         }
 
+        if ( defined( 'RedisCachePro\Version' ) || defined( 'ObjectCachePro\Version' ) ) {
+            return;
+        }
+
         if ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS ) {
             return;
         }
@@ -868,6 +872,10 @@ class Plugin {
      * @return void
      */
     public function wc_pro_notice() {
+        if ( defined( 'RedisCachePro\Version' ) || defined( 'ObjectCachePro\Version' ) ) {
+            return;
+        }
+
         if ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS ) {
             return;
         }
