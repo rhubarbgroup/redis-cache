@@ -144,7 +144,7 @@ class Plugin {
             is_multisite() ? 'settings.php' : 'options-general.php',
             __( 'Redis Object Cache', 'redis-cache' ),
             __( 'Redis', 'redis-cache' ),
-            is_multisite() ? 'manage_network_options' : 'manage_options',
+            $this->manage_redis_capability(),
             'redis-cache',
             [ $this, 'show_admin_page' ]
         );
@@ -609,7 +609,7 @@ class Plugin {
         $this->wc_pro_notice();
 
         // Only show admin notices to users with the right capability.
-        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+        if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
 
@@ -657,6 +657,10 @@ class Plugin {
             return;
         }
 
+        if ( ! $this->current_user_can_manage_redis() ) {
+            return;
+        }
+
         $wp_admin_bar->add_node(
             [
                 'id'    => 'redis-cache',
@@ -664,14 +668,16 @@ class Plugin {
             ]
         );
 
-        $wp_admin_bar->add_node(
-            [
-                'parent' => 'redis-cache',
-                'id'     => 'redis-cache-flush',
-                'title'  => __( 'Flush Cache', 'redis-cache' ),
-                'href'   => $this->action_link( 'flush-cache' ),
-            ]
-        );
+        if ( $this->get_redis_status() ) {
+            $wp_admin_bar->add_node(
+                [
+                    'parent' => 'redis-cache',
+                    'id' => 'redis-cache-flush',
+                    'title' => __( 'Flush Cache', 'redis-cache' ),
+                    'href' => $this->action_link( 'flush-cache' ),
+                ]
+            );
+        }
 
         if ( Metrics::is_enabled() ) {
             $wp_admin_bar->add_node(
@@ -888,7 +894,7 @@ class Plugin {
             return;
         }
 
-        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+        if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
 
@@ -936,7 +942,7 @@ class Plugin {
             return;
         }
 
-        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+        if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
 
@@ -1140,7 +1146,7 @@ class Plugin {
             return;
         }
 
-        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+        if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
 
@@ -1231,5 +1237,23 @@ class Plugin {
             network_admin_url( add_query_arg( 'action', $action, $this->page ) ),
             $action
         );
+    }
+
+    /**
+     * The capability required to manage Redis.
+     *
+     * @return string
+     */
+    public function manage_redis_capability() {
+        return is_multisite() ? 'manage_network_options' : 'manage_options';
+    }
+
+    /**
+     * Does the current user have the capability to manage Redis?
+     *
+     * @return bool
+     */
+    public function current_user_can_manage_redis() {
+        return current_user_can( $this->manage_redis_capability() );
     }
 }
