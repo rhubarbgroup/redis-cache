@@ -694,14 +694,9 @@ class Plugin {
             [
                 'id' => 'redis-cache-info',
                 'parent' => 'redis-cache',
-            ]
-        );
-
-        $wp_admin_bar->add_node(
-            [
-                'parent' => 'redis-cache-info',
-                'id' => 'redis-cache-info-status',
-                'title' => sprintf( '%s %s', __( 'Status:', 'redis-cache' ), $this->get_status() ),
+                'meta' => [
+                    'class' => 'ab-sub-secondary',
+                ],
             ]
         );
 
