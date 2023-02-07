@@ -101,6 +101,8 @@ class Plugin {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_redis_metrics' ] );
 
+        add_action( 'admin_bar_menu', [ $this, 'render_admin_bar' ], 998 );
+
         add_action( 'load-settings_page_redis-cache', [ $this, 'do_admin_actions' ] );
 
         add_action( 'wp_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
@@ -184,7 +186,7 @@ class Plugin {
         UI::register_tab(
             'metrics',
             __( 'Metrics', 'redis-cache' ),
-            [ 'disabled' => defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ]
+            [ 'disabled' => ! Metrics::is_enabled() ]
         );
 
         UI::register_tab(
@@ -202,7 +204,7 @@ class Plugin {
      * @return void
      */
     public function setup_dashboard_widget() {
-        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
+        if ( ! Metrics::is_enabled() ) {
             return;
         }
 
@@ -640,6 +642,46 @@ class Plugin {
             if ( isset( $message ) ) {
                 printf( '<div class="update-nag notice notice-warning inline">%s</div>', wp_kses_post( $message ) );
             }
+        }
+    }
+
+    /**
+     * Display the admin bar menu item.
+     *
+     * @param WP_Admin_Bar $wp_admin_bar
+     *
+     * @return void
+     */
+    public function render_admin_bar( $wp_admin_bar ) {
+        if ( defined( 'WP_REDIS_DISABLE_ADMINBAR' ) && WP_REDIS_DISABLE_ADMINBAR ) {
+            return;
+        }
+
+        $wp_admin_bar->add_node(
+            [
+                'id'    => 'redis-cache',
+                'title' => __( 'Object Cache', 'redis-cache' ),
+            ]
+        );
+
+        $wp_admin_bar->add_node(
+            [
+                'parent' => 'redis-cache',
+                'id'     => 'redis-cache-flush',
+                'title'  => __( 'Flush Cache', 'redis-cache' ),
+                'href'   => $this->action_link( 'flush-cache' ),
+            ]
+        );
+
+        if ( Metrics::is_enabled() ) {
+            $wp_admin_bar->add_node(
+                [
+                    'parent' => 'redis-cache',
+                    'id' => 'redis-cache-metrics',
+                    'title' => __( 'Show Metrics', 'redis-cache' ),
+                    'href' => network_admin_url( $this->page . '#metrics' ),
+                ]
+            );
         }
     }
 
