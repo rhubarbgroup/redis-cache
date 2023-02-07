@@ -689,6 +689,41 @@ class Plugin {
                 ]
             );
         }
+
+        $wp_admin_bar->add_group(
+            [
+                'id' => 'redis-cache-info',
+                'parent' => 'redis-cache',
+            ]
+        );
+
+        $wp_admin_bar->add_node(
+            [
+                'parent' => 'redis-cache-info',
+                'id' => 'redis-cache-info-status',
+                'title' => sprintf( '%s %s', __( 'Status:', 'redis-cache' ), $this->get_status() ),
+            ]
+        );
+
+        if ( $this->get_redis_status() ) {
+            global $wp_object_cache;
+
+            $info = $wp_object_cache->info();
+
+            $wp_admin_bar->add_node(
+                [
+                    'parent' => 'redis-cache-info',
+                    'id' => 'redis-cache-info-details',
+                    'title' => sprintf(
+                        '%s%%&nbsp;&nbsp;%d/%d&nbsp;&nbsp;%s',
+                        $info->ratio,
+                        $info->hits,
+                        $info->misses,
+                        size_format( $info->bytes )
+                    ),
+                ]
+            );
+        }
     }
 
     /**
