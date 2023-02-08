@@ -716,6 +716,7 @@ class Plugin {
                         number_format( $info->misses ),
                         size_format( $info->bytes )
                     ),
+                    'href' => Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
                 ]
             );
         }
