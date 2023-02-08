@@ -710,10 +710,10 @@ class Plugin {
                     'parent' => 'redis-cache-info',
                     'id' => 'redis-cache-info-details',
                     'title' => sprintf(
-                        '%s%%&nbsp;&nbsp;%d/%d&nbsp;&nbsp;%s',
+                        '%s%%&nbsp;&nbsp;%s/%s&nbsp;&nbsp;%s',
                         $info->ratio,
-                        $info->hits,
-                        $info->misses,
+                        number_format( $info->hits ),
+                        number_format( $info->misses ),
                         size_format( $info->bytes )
                     ),
                 ]
