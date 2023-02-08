@@ -648,7 +648,7 @@ class Plugin {
     /**
      * Display the admin bar menu item.
      *
-     * @param WP_Admin_Bar $wp_admin_bar
+     * @param \WP_Admin_Bar $wp_admin_bar
      *
      * @return void
      */
