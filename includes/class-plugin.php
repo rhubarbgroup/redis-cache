@@ -677,15 +677,6 @@ class Plugin {
                     'href' => $this->action_link( 'flush-cache' ),
                 ]
             );
-        } else {
-            $wp_admin_bar->add_node(
-                [
-                    'parent' => 'redis-cache',
-                    'id' => 'redis-cache-enable',
-                    'title' => __( 'Enable Cache', 'redis-cache' ),
-                    'href' => $this->action_link( 'enable-cache' ),
-                ]
-            );
         }
 
         if ( Metrics::is_enabled() ) {
