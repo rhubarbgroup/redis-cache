@@ -684,8 +684,8 @@ class Plugin {
                 [
                     'parent' => 'redis-cache',
                     'id' => 'redis-cache-metrics',
-                    'title' => __( 'Show Metrics', 'redis-cache' ),
-                    'href' => network_admin_url( $this->page . '#metrics' ),
+                    'title' => __( 'Settings', 'redis-cache' ),
+                    'href' => network_admin_url( $this->page ),
                 ]
             );
         }
