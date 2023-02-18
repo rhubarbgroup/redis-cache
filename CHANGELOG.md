@@ -6,6 +6,7 @@
 - Don't compete with Object Cache Pro for `wp redis` command
 - Prevent Perflab from overwriting the object cache drop-in
 - Updated Predis to v2.1.1
+- Avoid type error when transaction fails
 
 ## 2.2.3
 
