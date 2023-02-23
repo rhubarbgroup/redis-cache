@@ -7,6 +7,7 @@
 - Prevent Perflab from overwriting the object cache drop-in
 - Updated Predis to v2.1.1
 - Avoid type error when transaction fails
+- Check for incompatible content type headers
 
 ## 2.2.3
 
