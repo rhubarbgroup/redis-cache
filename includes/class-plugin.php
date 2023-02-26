@@ -952,7 +952,7 @@ class Plugin {
         }
 
         if (
-            ! isset( $wp_object_cache->diagnostics ) ||
+            ! isset( $wp_object_cache->cache, $wp_object_cache->diagnostics ) ||
             ! is_array( $wp_object_cache->cache )
         ) {
             return;
