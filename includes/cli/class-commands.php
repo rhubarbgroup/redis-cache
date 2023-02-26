@@ -10,14 +10,12 @@ namespace Rhubarb\RedisCache\CLI;
 use WP_CLI;
 use WP_CLI_Command;
 
-use WP_Filesystem;
-
 use Rhubarb\RedisCache\Plugin;
 
 defined( '\\ABSPATH' ) || exit;
 
 /**
- * Enables, disabled, updates, and checks the status of the Redis object cache.
+ * Enables, disabled, flushes, and checks the status of the object cache.
  *
  * @package wp-cli
  */

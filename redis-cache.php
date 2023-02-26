@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.2.3
+ * Version: 2.2.4
  * Text Domain: redis-cache
  * Domain Path: /languages
  * Network: true
@@ -34,8 +34,13 @@ $autoloader = new Rhubarb\RedisCache\Autoloader();
 $autoloader->register();
 $autoloader->add_namespace( 'Rhubarb\RedisCache', WP_REDIS_PLUGIN_PATH . '/includes' );
 
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-    WP_CLI::add_command( 'redis', Rhubarb\RedisCache\CLI\Commands::class );
+if ( defined( 'WP_CLI' ) && WP_CLI && ! defined( 'RedisCachePro\Version' ) && ! defined( 'ObjectCachePro\Version' ) ) {
+    add_action(
+        'plugins_loaded',
+        function () {
+            WP_CLI::add_command( 'redis', Rhubarb\RedisCache\CLI\Commands::class );
+        }
+    );
 }
 
 register_activation_hook(

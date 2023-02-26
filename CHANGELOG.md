@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.2.4
+
+- Register `wp redis` CLI command late
+- Don't compete with Object Cache Pro for `wp redis` command
+- Prevent Perflab from overwriting the object cache drop-in
+- Updated Predis to v2.1.1
+- Avoid type error when transaction fails
+- Check for incompatible content type headers
+
 ## 2.2.3
 
 - Added `wp_cache_flush_group()` support

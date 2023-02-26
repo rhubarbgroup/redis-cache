@@ -26,14 +26,15 @@
         "colinmollenhour/credis": "^1.12.1"
     },
     "require-dev": {
-        "wp-coding-standards/wpcs": "^2.3",
-        "phpcompatibility/phpcompatibility-wp": "^2.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-        "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
-        "yoast/wp-test-utils": "^1.0",
         "dms/phpunit-arraysubset-asserts": "^0.4.0",
+        "php-stubs/wp-cli-stubs": "^2.7",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
+        "squizlabs/php_codesniffer": "^3.7",
         "szepeviktor/phpstan-wordpress": "^1.1",
-        "php-stubs/wp-cli-stubs": "^2.7"
+        "wp-coding-standards/wpcs": "^2.3",
+        "yoast/wp-test-utils": "^1.0"
     },
     "autoload-dev": {
         "psr-4": {
@@ -52,12 +53,15 @@
         "ext-relay": "Required to use Relay as the object cache backend."
     },
     "scripts": {
-        "stan": [
+        "phpcs": "phpcs",
+        "phpcs:fix": "phpcbf",
+        "phpstan": [
             "sed -e 's#WP_Object_Cache#Redis_Pro_WP_Object_Cache#;s#class Redis_Pro_WP_Object_Cache#& extends WP_Object_Cache#' includes/object-cache.php > tests/PHPStan/object-cache.php",
             "phpstan analyze"
         ]
     },
     "config": {
+        "sort-packages": true,
         "allow-plugins": {
             "composer/installers": true,
             "mnsami/composer-custom-directory-installer": true,

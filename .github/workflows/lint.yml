@@ -1,6 +1,10 @@
 name: Code style
 
-on: [push, pull_request]
+on: push
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
@@ -22,25 +26,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: msgpack, igbinary, mbstring, redis-5.3.7
+          extensions: msgpack, igbinary, mbstring, redis, relay
           coverage: none
-
-      - name: Install Relay PHP extension
-        run: |
-          curl -L "https://builds.r2.relay.so/v${{ matrix.relay }}/relay-v${{ matrix.relay }}-php${{ matrix.php }}-debian-x86-64.tar.gz" | tar xz
-          cd relay-v${{ matrix.relay }}-php${{ matrix.php }}-debian-x86-64/
-          sudo cp -v relay.ini $(php-config --ini-dir)
-          sudo cp -v relay-pkg.so $(php-config --extension-dir)/relay.so
-          sudo sed -i -e "s/00000000-0000-0000-0000-000000000000/$(cat /proc/sys/kernel/random/uuid)/" $(php-config --extension-dir)/relay.so
-
-      - name: Show Relay configuration
-        run: php --ri relay
 
       - name: Install PHP Dependencies
         uses: ramsey/composer-install@v2
 
       - name: Run PHPStan
-        run: composer run stan
+        run: composer run phpstan
 
   editorconfig:
 

@@ -5,7 +5,7 @@ Tags: redis, object cache, cache, object caching, caching performance, relay, pr
 Requires at least: 3.3
 Tested up to: 6.1
 Requires PHP: 7.2
-Stable tag: 2.2.3
+Stable tag: 2.2.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -82,6 +82,15 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.2.4 =
+
+- Register `wp redis` CLI command late
+- Don't compete with Object Cache Pro for `wp redis` command
+- Prevent Perflab from overwriting the object cache drop-in
+- Updated Predis to v2.1.1
+- Avoid type error when transaction fails
+- Check for incompatible content type headers
 
 = 2.2.3 =
 
@@ -625,6 +634,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.2.2 =
+= 2.2.4 =
 
-New WordPress 6.1 functions, updated Predis to v2.0.3 and various improvements.
+Updated Predis to v2.1.1 and various bug fixes.
