@@ -31,45 +31,45 @@ parameters:
     excludePaths:
         - includes/object-cache.php
 
-	ignoreErrors:
-		# https://github.com/phpredis/phpredis/blob/b193a6d051969a4d5bec33c958e9033f0d983110/redis_cluster.stub.php#L50
-		-
-			message: "#^Class RedisCluster constructor invoked with 1 parameter, 2\\-6 required\\.$#"
-			count: 1
-			path: tests/PHPStan/object-cache.php
+    ignoreErrors:
+        # https://github.com/phpredis/phpredis/blob/b193a6d051969a4d5bec33c958e9033f0d983110/redis_cluster.stub.php#L50
+        -
+            message: "#^Class RedisCluster constructor invoked with 1 parameter, 2\\-6 required\\.$#"
+            count: 1
+            path: tests/PHPStan/object-cache.php
 
-		# PHPStan shortcoming
-		-
-			message: "#^Parameter \\#1 \\$autoload_function of function spl_autoload_register expects callable\\(string\\)\\: void, array\\{\\$this\\(Rhubarb\\\\RedisCache\\\\Autoloader\\), 'load_class'\\} given\\.$#"
-			count: 1
-			path: includes/class-autoloader.php
+        # PHPStan shortcoming
+        -
+            message: "#^Parameter \\#1 \\$autoload_function of function spl_autoload_register expects callable\\(string\\)\\: void, array\\{\\$this\\(Rhubarb\\\\RedisCache\\\\Autoloader\\), 'load_class'\\} given\\.$#"
+            count: 1
+            path: includes/class-autoloader.php
 
-		# Redis Cache implementation differs from core
-		-
-			message: "#^Class WP_Object_Cache constructor invoked with 1 parameter, 0 required\\.$#"
-			count: 1
-			path: includes/diagnostics.php
+        # Redis Cache implementation differs from core
+        -
+            message: "#^Class WP_Object_Cache constructor invoked with 1 parameter, 0 required\\.$#"
+            count: 1
+            path: includes/diagnostics.php
 
-		# Included template calling protected method
-		-
-			message: "#^Call to protected method after_non_tabular_output\\(\\) of class QM_Output_Html\\.$#"
-			count: 1
-			path: includes/ui/query-monitor.php
+        # Included template calling protected method
+        -
+            message: "#^Call to protected method after_non_tabular_output\\(\\) of class QM_Output_Html\\.$#"
+            count: 1
+            path: includes/ui/query-monitor.php
 
-		# Included template calling protected method
-		-
-			message: "#^Call to protected method before_non_tabular_output\\(\\) of class QM_Output_Html\\.$#"
-			count: 1
-			path: includes/ui/query-monitor.php
+        # Included template calling protected method
+        -
+            message: "#^Call to protected method before_non_tabular_output\\(\\) of class QM_Output_Html\\.$#"
+            count: 1
+            path: includes/ui/query-monitor.php
 
-		# Included template using private property
-		-
-			message: "#^Access to private property Rhubarb\\\\RedisCache\\\\Plugin\\:\\:\\$page\\.$#"
-			count: 1
-			path: includes/ui/widget.php
+        # Included template using private property
+        -
+            message: "#^Access to private property Rhubarb\\\\RedisCache\\\\Plugin\\:\\:\\$page\\.$#"
+            count: 1
+            path: includes/ui/widget.php
 
-		# WP_FilesystemBase::delete() is an impure function
-		-
-			message: "#^Negated boolean expression is always false\\.$#"
-			count: 1
-			path: includes/class-plugin.php
+        # WP_FilesystemBase::delete() is an impure function
+        -
+            message: "#^Negated boolean expression is always false\\.$#"
+            count: 1
+            path: includes/class-plugin.php
