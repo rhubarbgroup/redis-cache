@@ -66,9 +66,3 @@ parameters:
             message: "#^Access to private property Rhubarb\\\\RedisCache\\\\Plugin\\:\\:\\$page\\.$#"
             count: 1
             path: includes/ui/widget.php
-
-        # WP_FilesystemBase::delete() is an impure function
-        -
-            message: "#^Negated boolean expression is always false\\.$#"
-            count: 1
-            path: includes/class-plugin.php
