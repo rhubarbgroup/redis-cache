@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.2.4
 
 - Register `wp redis` CLI command late
 - Don't compete with Object Cache Pro for `wp redis` command
