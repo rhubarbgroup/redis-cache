@@ -9,7 +9,9 @@ includes/ui/* linguist-language=HTML+PHP
 .editorconfig export-ignore
 .gitattributes export-ignore
 .gitignore export-ignore
+CHANGELOG.md export-ignore
 composer.json export-ignore
 phpcs.xml export-ignore
+phpstan.neon.dist export-ignore
 phpunit.xml.dist export-ignore
 readme.txt export-ignore
