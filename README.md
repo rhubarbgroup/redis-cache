@@ -42,9 +42,15 @@ The plugin comes with vast set of configuration options.
 | `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis: `predis`, `phpredis` or `relay` |
 | `WP_REDIS_TIMEOUT`                   | `1`         | The connection timeout in seconds |
 | `WP_REDIS_READ_TIMEOUT`              | `1`         | The timeout in seconds when reading/writing  |
+| `WP_REDIS_IGNORED_GROUPS`            | `[]`        | Groups that should not be cached between requests in Redis |
+
+<details>
+<summary>Advanced configuration options</summary>
+
+| Configuration constant               | Default     | Description                                   |
+| ------------------------------------ | ----------- | --------------------------------------------- |
 | `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries |
 | `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
-| `WP_REDIS_IGNORED_GROUPS`            | `[]`        | Groups that should not be cached between requests in Redis |
 | `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored |
 | `WP_REDIS_IGBINARY`                  | `false`     | Whether to use the igbinary PHP extension for serialization |
 | `WP_REDIS_SERIALIZER`                |             | The PhpRedis/Relay serializer used for data serialization |
@@ -53,6 +59,11 @@ The plugin comes with vast set of configuration options.
 | `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners |
 | `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update |
 
+</details>
+
+<details>
+<summary><em>Unsupported</em> configuration options</summary>
+
 Options that exist, but **should not**, **may break without notice** in future releases and **won't receive any support** whatsoever from our team:
 
 | Configuration constant        | Default     | Description                                                         |
@@ -60,6 +71,8 @@ Options that exist, but **should not**, **may break without notice** in future r
 | `WP_REDIS_GRACEFUL`           | `false`     | Prevents exceptions from being thrown, but can cause data coruption |
 | `WP_REDIS_SELECTIVE_FLUSH`    | `false`     | Uses terribly slow Lua script for flushing                          |
 | `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | Uses terribly slow Lua script to prevent groups from being flushed  |
+
+</details>
 
 ## Connections
 
