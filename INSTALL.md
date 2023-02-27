@@ -1,6 +1,6 @@
 # Installing Redis Object Cache
 
-## 1. Installing Redis Server
+## 1. Installing Redis server
 
 This plugin requires [Redis Server](https://redis.io) to be installed and running.
 You can [install it yourself](http://redis.io/topics/quickstart), or ask your hosting company for assistance.
@@ -19,6 +19,10 @@ After installing and activating the plugin, go to `WordPress -> Settings -> Redi
 > >or use the WP CLI `wp redis enable` command.
 
 By default _Redis Object Cache_ will connect 
+
+By default the object cache drop-in will connect to Redis over TCP at `127.0.0.1:6379` and select database `0`.
+
+To adjust the connection parameters, client, timeouts and intervals, please see the [connection parameters wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Connection-Parameters).
 
 >If necessary, adjust [connection parameters](Connection-Parameters).
 

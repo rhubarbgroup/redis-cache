@@ -12,40 +12,100 @@ A **business class** Redis object cache backend. Truly reliable, highly optimize
 * 100% WordPress API compliant
 * Faster serialization and compression
 * Easy debugging & logging
-* Cache prefetching and analytics
+* Cache prefetching and advanced analytics
 * Fully unit tested (100% code coverage)
-* Secure connections with TLS
-* Health checks via WordPress & WP CLI
 * Optimized for WooCommerce, Jetpack & Yoast SEO
-
-Learn more about [Object Cache Pro](https://objectcache.pro/?ref=oss&amp;utm_source=wp-plugin&amp;utm_medium=readme).
+* [And much more...](https://objectcache.pro/?ref=oss&amp;utm_source=wp-plugin&amp;utm_medium=readme)
 
 ## Installation
 
-For detailed installation instructions, please see the [installation wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Installation).
+To get started, please see the [INSTALL.md](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md).
 
-## Connection Parameters
-
-By default the object cache drop-in will connect to Redis over TCP at `127.0.0.1:6379` and select database `0`.
-
-To adjust the connection parameters, client, timeouts and intervals, please see the [connection parameters wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Connection-Parameters).
-
-## Configuration Options
+## Configuration
 
 The plugin comes with quite a few configuration options, such as key prefixes, a maximum time-to-live for keys, ignored group and many more.
 
 Please see the [configuration options wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Configuration-Options) for a full list.
 
-## Replication & Clustering
+## WP CLI commands
 
-To use Replication, Sharding or Clustering, make sure your server is running PHP7 or higher and you consulted the [Predis](https://github.com/predis/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
+Redis Object Cache has various WP CLI commands, for more information run `wp help redis`.
 
-Please see the [replication & clustering wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Replication-&-Clustering) for more information.
+| Command                  | Description                                   |
+| ------------------------ | --------------------------------------------- |
+| `wp redis status`        | Shows the object cache status and diagnostics |
+| `wp redis enable`        | Enables the object cache                      |
+| `wp redis disable`       | Disables the object cache                     |
+| `wp redis update-dropin` | Updates the object cache drop-in              |
 
-### WP-CLI Commands
+## Actions & Filters
 
-To see a list of all available WP-CLI commands, please see the [WP CLI commands wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/WP-CLI-Commands).
+Redis Object Cache has various hooks and the commonly used ones are listed below.
 
-### Development
+| Filter / Action                         | Description                                       |
+| --------------------------------------- | ------------------------------------------------- |
+| `redis_cache_expiration`                | Filters the cache expiration for individual keys  |
+| `redis_cache_validate_dropin`           | Filters whether the drop-in is valid              |
+| `redis_cache_add_non_persistent_groups` | Filters the groups to be marked as non persistent |
 
-Head over to the [Local development wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Local-Development) for more information.
+## Replication
+
+Redis Object Cache offers various replication, sharding, cluster and sentinel setups to users with advanced technical knowledge of Redis and PHP, that have consulted the [Predis](https://github.com/predis/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
+
+<details>
+<summary>Replication</summary>
+
+```php
+define( 'WP_REDIS_CLIENT', 'predis' );
+
+define( 'WP_REDIS_SERVERS', [
+    'tcp://127.0.0.1:6379?database=5&alias=master',
+    'tcp://127.0.0.2:6379?database=5&alias=replica-01',
+] );
+```
+
+</details>
+
+<details>
+<summary>Sharding</summary>
+
+```php
+define( 'WP_REDIS_CLIENT', 'phpredis' );
+
+define( 'WP_REDIS_SHARDS', [
+    'tcp://127.0.0.1:6379?database=10&alias=shard-01',
+    'tcp://127.0.0.2:6379?database=10&alias=shard-02',
+    'tcp://127.0.0.3:6379?database=10&alias=shard-03',
+] );
+```
+
+</details>
+
+<details>
+<summary>Redis Sentinel</summary>
+
+```php
+define( 'WP_REDIS_CLIENT', 'predis' );
+
+define( 'WP_REDIS_SENTINEL', 'my-sentinel' );
+define( 'WP_REDIS_SERVERS', [
+    'tcp://127.0.0.1:5380',
+    'tcp://127.0.0.2:5381',
+    'tcp://127.0.0.3:5382',
+] );
+```
+
+</details>
+
+<details>
+<summary>Redis Cluster</summary>
+
+```php
+define( 'WP_REDIS_CLUSTER', [
+    'tcp://127.0.0.1:6379?alias=node-01',
+    'tcp://127.0.0.2:6379?alias=node-02',
+    'tcp://127.0.0.3:6379?alias=node-03',
+] );
+```
+
+</details>
