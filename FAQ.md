@@ -3,7 +3,7 @@
 Answers to common questions and troubleshooting of common errors.
 
 <details>
-<summary><h4>Status: Not connected<br>connection timed out<br>read error on connection</h3></summary>
+<summary>Status: <code>Not connected</code></summary>
 
 Did you follow the [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md)?
 
@@ -13,7 +13,19 @@ Did you follow the [installation instructions](https://github.com/rhubarbgroup/r
 </details>
 
 <details>
-<summary><h4>NOAUTH Authentication required</h4></summary>
+<summary><code>connection timed out</code></summary>
+
+See answer to "Status: <code>Not connected</code>"
+</details>
+
+<details>
+<summary><code>read error on connection</code></summary>
+
+See answer to "Status: <code>Not connected</code>"
+</details>
+
+<details>
+<summary><code>NOAUTH Authentication required</code></summary>
 
 You either need to add the `WP_REDIS_PASSWORD` constant to your `wp-config.php` file, or move the constant above higher up in your `wp-config.php` file, above these lines:
 
@@ -24,7 +36,7 @@ require_once(ABSPATH . 'wp-settings.php');
 </details>
 
 <details>
-<summary><h4>Allowed memory size of ??? bytes exhausted</h4></summary>
+<summary><code>Allowed memory size of ??? bytes exhausted</code></summary>
 
 This can happen when using a persistent object cache. Increase PHP's memory limit.
 
@@ -33,7 +45,7 @@ This can happen when using a persistent object cache. Increase PHP's memory limi
 </details>
 
 <details>
-<summary><h4>Cache is flushed constantly</h4></summary>
+<summary>Cache is flushed constantly</summary>
 
 If you don't see metrics building up, or your site is not getting faster, you might have an active plugin that flushes the object cache frequently. To diagnose this issue you can use the following snippet to find the source of the cache flush:
 
