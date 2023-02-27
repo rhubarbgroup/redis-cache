@@ -36,19 +36,26 @@ The plugin comes with vast set of configuration options.
 | `WP_REDIS_PATH`               |             | The unix socket of Redis server |
 | `WP_REDIS_SCHEME`             | `tcp`       | The scheme used to connect: `tcp` or `unix` |
 | `WP_REDIS_DATABASE`           | `0`         | The database used by the cache |
+| `WP_REDIS_PREFIX`             |             | ... |
+| `WP_CACHE_KEY_SALT`           |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
+| `WP_REDIS_CLIENT`             |             | The client used to communicate with Redis: `predis`, `phpredis` |
 | `WP_REDIS_TIMEOUT`            | `1`         | The connection timeout in seconds |
 | `WP_REDIS_READ_TIMEOUT`       | `1`         | The timeout in seconds when reading/writing  |
 | `WP_REDIS_RETRY_INTERVAL`     |             | ... |
-| `WP_REDIS_CLIENT`             |             | The client used to communicate with Redis: `predis`, `phpredis` |
-| `WP_REDIS_IGBINARY`           |             | ... |
-| `WP_REDIS_SERIALIZER`         |             | ... |
-| `WP_REDIS_MAXTTL`             | `0`         | ... |
-| `WP_REDIS_PREFIX`             |             | ... |
+| `WP_REDIS_MAXTTL`             | `0`         | The maximum time-to-live of cache keys |
 | `WP_REDIS_GLOBAL_GROUPS`      | `[]`        | ... |
 | `WP_REDIS_IGNORED_GROUPS`     | `[]`        | ... |
-| `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | ... |
 | `WP_REDIS_METRICS_MAX_TIME`   | `3600`      | ... |
-| `WP_REDIS_DISABLED`           |             | ... |
+| `WP_REDIS_IGBINARY`           |             | Whether to use the igbinary PHP extension for serialization |
+| `WP_REDIS_SERIALIZER`         |             | The PhpRedis/Relay serializer used for data serialization |
+| `WP_REDIS_DISABLED`           | `false`     | When set to `true` the cache will be bypassed |
+
+Options that exist, but **should not**, **may break without notice** in future releases and **won't receive any support** whatsoever from our team:
+
+| Configuration constant        | Default     | Description                                   |
+| ----------------------------- | ----------- | --------------------------------------------- |
+| `WP_REDIS_SELECTIVE_FLUSH`    | `false`     | Uses terribly slow Lua script for flushing    |
+| `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | Uses terribly slow Lua script to prevent some groups from not being flushed |
 
 ## WP CLI commands
 
