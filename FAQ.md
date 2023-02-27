@@ -55,7 +55,7 @@ This may be an issue with WordPress 6.1's [query caching](https://make.wordpress
 
 ```php
 add_action( 'parse_query', function ( $wp_query ) {
-   $wp_query->query_vars[ 'cache_results' ] = false;
+    $wp_query->query_vars[ 'cache_results' ] = false;
 } );
 ```
 
