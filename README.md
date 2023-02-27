@@ -29,34 +29,37 @@ Answers to common questions and troubleshooting of common errors are located in 
 
 The plugin comes with vast set of configuration options.
 
-| Configuration constant        | Default     | Description                                   |
-| ----------------------------- | ----------- | --------------------------------------------- |
-| `WP_REDIS_HOST`               | `127.0.0.1` | The hostname of the Redis server |
-| `WP_REDIS_PORT`               | `6379`      | The port of the Redis server |
-| `WP_REDIS_PATH`               |             | The path to the unix socket of the Redis server |
-| `WP_REDIS_SCHEME`             | `tcp`       | The scheme used to connect: `tcp` or `unix` |
-| `WP_REDIS_DATABASE`           | `0`         | The database used by the cache: `0-15` |
-| `WP_REDIS_PREFIX`             |             | The prefix used for all cache keys to avoid data collisions |
-| `WP_CACHE_KEY_SALT`           |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
-| `WP_REDIS_MAXTTL`             | `0`         | The maximum time-to-live of cache keys |
-| `WP_REDIS_CLIENT`             |             | The client used to communicate with Redis: `predis`, `phpredis` |
-| `WP_REDIS_TIMEOUT`            | `1`         | The connection timeout in seconds |
-| `WP_REDIS_READ_TIMEOUT`       | `1`         | The timeout in seconds when reading/writing  |
-| `WP_REDIS_RETRY_INTERVAL`     |             | The number of milliseconds between retries |
-| `WP_REDIS_GLOBAL_GROUPS`      | `[]`        | Additional groups that are considered global on multisite networks |
-| `WP_REDIS_IGNORED_GROUPS`     | `[]`        | Groups that should not be cached between requests in Redis |
-| `WP_REDIS_METRICS_MAX_TIME`   | `3600`      | The maximum number of seconds metrics should be stored |
-| `WP_REDIS_IGBINARY`           | `false`     | Whether to use the igbinary PHP extension for serialization |
-| `WP_REDIS_SERIALIZER`         |             | The PhpRedis/Relay serializer used for data serialization |
-| `WP_REDIS_DISABLED`           | `false`     | When set to `true` the cache will be bypassed |
+| Configuration constant               | Default     | Description                                   |
+| ------------------------------------ | ----------- | --------------------------------------------- |
+| `WP_REDIS_HOST`                      | `127.0.0.1` | The hostname of the Redis server |
+| `WP_REDIS_PORT`                      | `6379`      | The port of the Redis server |
+| `WP_REDIS_PATH`                      |             | The path to the unix socket of the Redis server |
+| `WP_REDIS_SCHEME`                    | `tcp`       | The scheme used to connect: `tcp` or `unix` |
+| `WP_REDIS_DATABASE`                  | `0`         | The database used by the cache: `0-15` |
+| `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions |
+| `WP_CACHE_KEY_SALT`                  |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
+| `WP_REDIS_MAXTTL`                    | `0`         | The maximum time-to-live of cache keys |
+| `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis: `predis`, `phpredis` |
+| `WP_REDIS_TIMEOUT`                   | `1`         | The connection timeout in seconds |
+| `WP_REDIS_READ_TIMEOUT`              | `1`         | The timeout in seconds when reading/writing  |
+| `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries |
+| `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
+| `WP_REDIS_IGNORED_GROUPS`            | `[]`        | Groups that should not be cached between requests in Redis |
+| `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored |
+| `WP_REDIS_IGBINARY`                  | `false`     | Whether to use the igbinary PHP extension for serialization |
+| `WP_REDIS_SERIALIZER`                |             | The PhpRedis/Relay serializer used for data serialization |
+| `WP_REDIS_DISABLED`                  | `false`     | Emergency switch to bypass the object cache without deleting the drop-in |
+| `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
+| `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners |
+| `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update |
 
 Options that exist, but **should not**, **may break without notice** in future releases and **won't receive any support** whatsoever from our team:
 
-| Configuration constant        | Default     | Description                                   |
-| ----------------------------- | ----------- | --------------------------------------------- |
-| `WP_REDIS_GRACEFUL`           | `false`     | Prevents server errors, but can cause data coruption |
-| `WP_REDIS_SELECTIVE_FLUSH`    | `false`     | Uses terribly slow Lua script for flushing    |
-| `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | Uses terribly slow Lua script to prevent some groups from not being flushed |
+| Configuration constant        | Default     | Description                                                         |
+| ----------------------------- | ----------- | ------------------------------------------------------------------- |
+| `WP_REDIS_GRACEFUL`           | `false`     | Prevents exceptions from being thrown, but can cause data coruption |
+| `WP_REDIS_SELECTIVE_FLUSH`    | `false`     | Uses terribly slow Lua script for flushing                          |
+| `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | Uses terribly slow Lua script to prevent groups from being flushed  |
 
 ## WP CLI commands
 
