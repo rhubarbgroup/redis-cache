@@ -19,13 +19,36 @@ A **business class** Redis object cache backend. Truly reliable, highly optimize
 
 ## Installation
 
-To get started, please see the [INSTALL.md](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md).
+To get started, please see the [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md).
+
+## FAQ & Troubleshooting
+
+Answers to common questions and troubleshooting of common errors are located in the [FAQ](https://github.com/rhubarbgroup/redis-cache/blob/develop/FAQ.md).
 
 ## Configuration
 
-The plugin comes with quite a few configuration options, such as key prefixes, a maximum time-to-live for keys, ignored group and many more.
+The plugin comes with vast set of configuration options.
 
-Please see the [configuration options wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Configuration-Options) for a full list.
+| Configuration constant        | Default     | Description                                   |
+| ----------------------------- | ----------- | --------------------------------------------- |
+| `WP_REDIS_HOST`               | `127.0.0.1` | The hostname of the Redis server |
+| `WP_REDIS_PORT`               | `6379`      | The port of the Redis server |
+| `WP_REDIS_PATH`               |             | The unix socket of Redis server |
+| `WP_REDIS_SCHEME`             | `tcp`       | The scheme used to connect: `tcp` or `unix` |
+| `WP_REDIS_DATABASE`           | `0`         | The database used by the cache |
+| `WP_REDIS_TIMEOUT`            | `1`         | The connection timeout in seconds |
+| `WP_REDIS_READ_TIMEOUT`       | `1`         | The timeout in seconds when reading/writing  |
+| `WP_REDIS_RETRY_INTERVAL`     |             | ... |
+| `WP_REDIS_CLIENT`             |             | The client used to communicate with Redis: `predis`, `phpredis` |
+| `WP_REDIS_IGBINARY`           |             | ... |
+| `WP_REDIS_SERIALIZER`         |             | ... |
+| `WP_REDIS_MAXTTL`             | `0`         | ... |
+| `WP_REDIS_PREFIX`             |             | ... |
+| `WP_REDIS_GLOBAL_GROUPS`      | `[]`        | ... |
+| `WP_REDIS_IGNORED_GROUPS`     | `[]`        | ... |
+| `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | ... |
+| `WP_REDIS_METRICS_MAX_TIME`   | `3600`      | ... |
+| `WP_REDIS_DISABLED`           |             | ... |
 
 ## WP CLI commands
 

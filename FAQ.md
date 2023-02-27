@@ -1,41 +1,66 @@
 # FAQ & Troubleshooting
 
-This page aims to list potential issues while running the plugin and how to diagnose or even remedy these issues.
+Answers to common questions and troubleshooting of common errors.
 
-## "Not connected"
-
-```
-Resource temporarily unavailable
-Connection timed out
-read error on connection
-```
-
-## Cache is flushed constantly
+> FAQ: My site is slower after activing the cache. Never the case. Is Redis Server connected or configured well?
+> FAQ: Multiple WordPress installations same server, also mention this in the installation instructions....
+> FAQ: OOM Redis, set an eviction policy or `WP_REDIS_MAXTTL`
 
 <details>
-<summary>Redis Sentinel</summary>
+<summary>Status: <code>Not connected</code></summary>
 
-### Symptoms
-* Metrics show nothing or only small amounts of hits
-* Site is not getting faster with the plugin and a correct configuration
+Did you follow the [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md)?
 
-### Diagnosing the issue
+1. Confirm Redis Server installed and running using `redis-cli` 
+2. Confirm your `wp-config.php` file contains the correct `WP_REDIS_*` configuration
+3. Confirm your `WP_REDIS_*` constants are defined high up in your `wp-config.php` above the lines `/* That's all, stop editing! Happy publishing. */` and `require_once(ABSPATH . 'wp-settings.php');`
+</details>
 
-You might have a plugin active that flushes the object cache frequently or during inopportune moments. To diagnose this issue you can use the following snippet to find the source of the cache flush (please keep in mind that such code should not be used in production environments as it significantly worsen site performance):
+<details>
+<summary><code>read error on connection</code> and <code>connection timed out</code></summary>
+
+1. Confirm Redis Server installed and running using `redis-cli` 
+2. Confirm your `wp-config.php` file contains the correct `WP_REDIS_*` configuration
+3. Confirm your `WP_REDIS_*` constants are defined high up in your `wp-config.php` above the lines `/* That's all, stop editing! Happy publishing. */` and `require_once(ABSPATH . 'wp-settings.php');`
+</details>
+
+<details>
+<summary><code>NOAUTH Authentication required</code></summary>
+
+You either need to add the `WP_REDIS_PASSWORD` constant to your `wp-config.php` file, or move the constant above higher up in your `wp-config.php` file, above these lines:
 
 ```php
-add_action( 'redis_object_cache_flush', function( $results, $delay, $selective, $salt, $execute_time ) {
-  ob_start();
-  echo date( 'c' ) . PHP_EOL;
-  debug_print_backtrace();
-  var_dump( func_get_args() );
-  error_log( ABSPATH . '/redis-cache-flush.log', 3, ob_get_clean() );
-}, 10, 5 );
+/* That's all, stop editing! Happy publishing. */
+require_once(ABSPATH . 'wp-settings.php');
+```
+</details>
+
+<details>
+<summary><code>Allowed memory size of ??? bytes exhausted</code></summary>
+
+This can happen when using a persistent object cache. Increase PHP's memory limit.
+
+- https://wordpress.org/documentation/article/common-wordpress-errors/#allowed-memory-size-exhausted
+- https://woocommerce.com/document/increasing-the-wordpress-memory-limit/
+</details>
+
+<details>
+<summary>Cache is flushed constantly</summary>
+
+If you don't see metrics building up, or your site is not getting faster, you might have an active plugin that flushes the object cache frequently. To diagnose this issue you can use the following snippet to find the source of the cache flush:
+
+```php
+add_action(
+    'redis_object_cache_flush',
+    function( $results, $delay, $selective, $salt, $execute_time ) {
+        ob_start();
+        echo date( 'c' ) . PHP_EOL;
+        debug_print_backtrace();
+        var_dump( func_get_args() );
+        error_log( ABSPATH . '/redis-cache-flush.log', 3, ob_get_clean() );
+    }, 10, 5
+);
 ```
 
-The code will print the callstack on every cache flush to a log file in your root WordPress directory or alternatively do nothing if no cache flushes happened so far.
-
-### Remedy
-Sadly if you found the plugin responsible for the cache flushes you can only try to contact the plugin developer reporting the issue.
-
+Once you found the plugin responsible by checking `redis-cache-flush.log`, you can contact the plugin author(s) and reporting the issue.
 </details>
