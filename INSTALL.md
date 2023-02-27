@@ -55,6 +55,11 @@ wp redis enable
 
 # Check the connection:
 wp redis status
+
+# Configure the plugin
+wp config set WP_REDIS_HOST "127.0.0.1"
+wp config set WP_REDIS_PORT "6379"
+wp config set WP_REDIS_DATABASE "15"
 ```
 
 - [Configuration options](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#configuration).

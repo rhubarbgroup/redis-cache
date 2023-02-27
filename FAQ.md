@@ -2,12 +2,8 @@
 
 Answers to common questions and troubleshooting of common errors.
 
-> FAQ: My site is slower after activing the cache. Never the case. Is Redis Server connected or configured well?
-> FAQ: Multiple WordPress installations same server, also mention this in the installation instructions....
-> FAQ: OOM Redis, set an eviction policy or `WP_REDIS_MAXTTL`
-
 <details>
-<summary>Status: <code>Not connected</code></summary>
+<summary><h3>Status: <code>Not connected</code></h3></summary>
 
 Did you follow the [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md)?
 
@@ -17,7 +13,7 @@ Did you follow the [installation instructions](https://github.com/rhubarbgroup/r
 </details>
 
 <details>
-<summary><code>read error on connection</code> and <code>connection timed out</code></summary>
+<summary><h3><code>read error on connection</code> and <code>connection timed out</code></h3></summary>
 
 1. Confirm Redis Server installed and running using `redis-cli` 
 2. Confirm your `wp-config.php` file contains the correct `WP_REDIS_*` configuration
@@ -25,7 +21,7 @@ Did you follow the [installation instructions](https://github.com/rhubarbgroup/r
 </details>
 
 <details>
-<summary><code>NOAUTH Authentication required</code></summary>
+<summary><h3><code>NOAUTH Authentication required</code></h3></summary>
 
 You either need to add the `WP_REDIS_PASSWORD` constant to your `wp-config.php` file, or move the constant above higher up in your `wp-config.php` file, above these lines:
 
@@ -45,7 +41,7 @@ This can happen when using a persistent object cache. Increase PHP's memory limi
 </details>
 
 <details>
-<summary>Cache is flushed constantly</summary>
+<summary><h3>Cache is flushed constantly<</h3>/summary>
 
 If you don't see metrics building up, or your site is not getting faster, you might have an active plugin that flushes the object cache frequently. To diagnose this issue you can use the following snippet to find the source of the cache flush:
 

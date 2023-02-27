@@ -45,7 +45,7 @@ The plugin comes with vast set of configuration options.
 | `WP_REDIS_IGNORED_GROUPS`            | `[]`        | Groups that should not be cached between requests in Redis |
 
 <details>
-<summary>Advanced configuration options</summary>
+<summary><h3>Advanced configuration options</h3></summary>
 
 | Configuration constant               | Default     | Description                                   |
 | ------------------------------------ | ----------- | --------------------------------------------- |
@@ -62,7 +62,7 @@ The plugin comes with vast set of configuration options.
 </details>
 
 <details>
-<summary><em>Unsupported</em> configuration options</summary>
+<summary><h3><em>Unsupported</em> configuration options</h3></summary>
 
 Options that exist, but **should not**, **may break without notice** in future releases and **won't receive any support** whatsoever from our team:
 
@@ -77,7 +77,7 @@ Options that exist, but **should not**, **may break without notice** in future r
 ## Connections
 
 <details>
-<summary>Connecting over Unix socket</summary>
+<summary><h3>Connecting over Unix socket</h3></summary>
 
 ```php
 define( 'WP_REDIS_SCHEME', 'unix' );
@@ -87,7 +87,7 @@ define( 'WP_REDIS_PATH', '/var/run/redis.sock' );
 </details>
 
 <details>
-<summary>Connecting over TCP+TLS</summary>
+<summary><h3>Connecting over TCP+TLS</h3></summary>
 
 ```php
 define( 'WP_REDIS_SCHEME', 'tls' );
@@ -102,7 +102,7 @@ define( 'WP_REDIS_PORT', 6379 );
 Redis Object Cache offers various replication, sharding, cluster and sentinel setups to users with advanced technical knowledge of Redis and PHP, that have consulted the [Predis](https://github.com/predis/predis), [PhpRedis](https://github.com/phpredis/phpredis) or [Relay](https://relay.so/docs) documentation.
 
 <details>
-<summary>Relay</summary>
+<summary><h3>Relay</h3></summary>
 
 Relay is a next-generation cache that keeps a partial replica of Redis' dataset in PHP's memory for ridiculously fast lookups, especially when Redis Server is not on the same machine as WordPress.
 
@@ -122,7 +122,7 @@ define( 'WP_REDIS_PREFIX', 'db3:' );
 </details>
 
 <details>
-<summary>Replication</summary>
+<summary><h3>Replication</h3></summary>
 
 <https://redis.io/docs/management/replication/>
 
@@ -138,7 +138,7 @@ define( 'WP_REDIS_SERVERS', [
 </details>
 
 <details>
-<summary>Sharding</summary>
+<summary><h3>Sharding</h3></summary>
 
 This is a PhpRedis specific feature using [`RedisArray`](https://github.com/phpredis/phpredis/blob/develop/array.md).
 
@@ -155,7 +155,7 @@ define( 'WP_REDIS_SHARDS', [
 </details>
 
 <details>
-<summary>Redis Sentinel</summary>
+<summary><h3>Redis Sentinel</h3></summary>
 
 <https://redis.io/docs/management/sentinel/>
 
@@ -173,7 +173,7 @@ define( 'WP_REDIS_SERVERS', [
 </details>
 
 <details>
-<summary>Redis Cluster</summary>
+<summary><h3>Redis Cluster</h3></summary>
 
 <https://redis.io/docs/management/scaling/>
 
