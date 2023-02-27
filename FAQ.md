@@ -3,7 +3,7 @@
 Answers to common questions and troubleshooting of common errors.
 
 <details>
-<summary><h3>Status: <code>Not connected</code></h3></summary>
+<summary><h4>Status: Not connected<br>connection timed out<br>read error on connection</h3></summary>
 
 Did you follow the [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md)?
 
@@ -13,15 +13,7 @@ Did you follow the [installation instructions](https://github.com/rhubarbgroup/r
 </details>
 
 <details>
-<summary><h3><code>read error on connection</code> and <code>connection timed out</code></h3></summary>
-
-1. Confirm Redis Server installed and running using `redis-cli` 
-2. Confirm your `wp-config.php` file contains the correct `WP_REDIS_*` configuration
-3. Confirm your `WP_REDIS_*` constants are defined high up in your `wp-config.php` above the lines `/* That's all, stop editing! Happy publishing. */` and `require_once(ABSPATH . 'wp-settings.php');`
-</details>
-
-<details>
-<summary><h3><code>NOAUTH Authentication required</code></h3></summary>
+<summary><h4>NOAUTH Authentication required</h4></summary>
 
 You either need to add the `WP_REDIS_PASSWORD` constant to your `wp-config.php` file, or move the constant above higher up in your `wp-config.php` file, above these lines:
 
@@ -32,7 +24,7 @@ require_once(ABSPATH . 'wp-settings.php');
 </details>
 
 <details>
-<summary><code>Allowed memory size of ??? bytes exhausted</code></summary>
+<summary><h4>Allowed memory size of ??? bytes exhausted</h4></summary>
 
 This can happen when using a persistent object cache. Increase PHP's memory limit.
 
@@ -41,7 +33,7 @@ This can happen when using a persistent object cache. Increase PHP's memory limi
 </details>
 
 <details>
-<summary><h3>Cache is flushed constantly<</h3>/summary>
+<summary><h4>Cache is flushed constantly</h4></summary>
 
 If you don't see metrics building up, or your site is not getting faster, you might have an active plugin that flushes the object cache frequently. To diagnose this issue you can use the following snippet to find the source of the cache flush:
 
