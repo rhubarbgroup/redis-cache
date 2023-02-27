@@ -37,24 +37,19 @@ Learn more about [Object Cache Pro](https://objectcache.pro/?ref=oss&amp;utm_sou
 
 == Installation ==
 
-For detailed installation instructions, please read the [standard installation procedure for WordPress plugins](https://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
+For detailed installation instructions, please read the extensive [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md).
 
-1. Make sure [Redis is installed and running](https://redis.io/topics/quickstart).
-2. Install and activate plugin.
-3. Enable the object cache under _Settings -> Redis_, or in Multisite setups under _Network Admin -> Settings -> Redis_.
-4. If necessary, adjust [connection parameters](https://wordpress.org/extend/plugins/redis-cache/other_notes/).
+== Troubleshooting ==
 
-If your server doesn't support the [WordPress Filesystem API](https://codex.wordpress.org/Filesystem_API), you have to manually copy the `object-cache.php` file from the `/plugins/redis-cache/includes/` directory to the `/wp-content/` directory.
+Answers to common questions and troubleshooting of common errors can be found in the [FAQ](https://github.com/rhubarbgroup/redis-cache/blob/develop/FAQ.md). Reading these is always faster than waiting for a response in the support forums.
 
+== Configuration ==
 
-== Connection Parameters ==
+The plugin comes with vast set of [configuration options](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#configuration) and [connection examples](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#connections). Advanced users may consult [Scaling and replication](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#scaling)
 
-== Configuration Options ==
+== WP CLI commands ==
 
-== Replication & Clustering ==
-
-== WP-CLI Commands ==
-
+Redis Object Cache has various WP CLI commands, for more information run `wp help redis` after installing the plugin.
 
 == Screenshots ==
 

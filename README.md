@@ -23,7 +23,7 @@ To get started, please see the [installation instructions](https://github.com/rh
 
 ## FAQ & Troubleshooting
 
-Answers to common questions and troubleshooting of common errors are located in the [FAQ](https://github.com/rhubarbgroup/redis-cache/blob/develop/FAQ.md).
+Answers to common questions and troubleshooting of common errors can be found in the [FAQ](https://github.com/rhubarbgroup/redis-cache/blob/develop/FAQ.md).
 
 ## Configuration
 
