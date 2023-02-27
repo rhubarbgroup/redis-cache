@@ -39,7 +39,7 @@ The plugin comes with vast set of configuration options.
 | `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions |
 | `WP_CACHE_KEY_SALT`                  |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
 | `WP_REDIS_MAXTTL`                    | `0`         | The maximum time-to-live of cache keys |
-| `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis: `predis`, `phpredis` |
+| `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis: `predis`, `phpredis` or `relay` |
 | `WP_REDIS_TIMEOUT`                   | `1`         | The connection timeout in seconds |
 | `WP_REDIS_READ_TIMEOUT`              | `1`         | The timeout in seconds when reading/writing  |
 | `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries |
@@ -61,6 +61,119 @@ Options that exist, but **should not**, **may break without notice** in future r
 | `WP_REDIS_SELECTIVE_FLUSH`    | `false`     | Uses terribly slow Lua script for flushing                          |
 | `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | Uses terribly slow Lua script to prevent groups from being flushed  |
 
+## Connections
+
+<details>
+<summary>Connecting over Unix socket</summary>
+
+```php
+define( 'WP_REDIS_SCHEME', 'unix' );
+define( 'WP_REDIS_PATH', '/var/run/redis.sock' );
+```
+
+</details>
+
+<details>
+<summary>Connecting over TCP+TLS</summary>
+
+```php
+define( 'WP_REDIS_SCHEME', 'tls' );
+define( 'WP_REDIS_HOST', 'master.ncit.ameaqx.use1.cache.amazonaws.com' );
+define( 'WP_REDIS_PORT', 6379 );
+```
+
+</details>
+
+## Scaling
+
+Redis Object Cache offers various replication, sharding, cluster and sentinel setups to users with advanced technical knowledge of Redis and PHP, that have consulted the [Predis](https://github.com/predis/predis), [PhpRedis](https://github.com/phpredis/phpredis) or [Relay](https://relay.so/docs) documentation.
+
+<details>
+<summary>Relay</summary>
+
+Relay is a next-generation cache that keeps a partial replica of Redis' dataset in PHP's memory for ridiculously fast lookups, especially when Redis Server is not on the same machine as WordPress.
+
+```php
+define( 'WP_REDIS_CLIENT', 'relay' );
+define( 'WP_REDIS_SERIALIZER', 'igbinary' );
+
+define( 'WP_REDIS_HOST', '127.0.0.1' );
+define( 'WP_REDIS_PORT', 6379 );
+
+// when using Relay, each WordPress installation
+// MUST a dedicated Redis database and unique prefix
+define( 'WP_REDIS_DATABASE', 0 );
+define( 'WP_REDIS_PREFIX', 'db3:' );
+```
+
+</details>
+
+<details>
+<summary>Replication</summary>
+
+<https://redis.io/docs/management/replication/>
+
+```php
+define( 'WP_REDIS_CLIENT', 'predis' );
+
+define( 'WP_REDIS_SERVERS', [
+    'tcp://127.0.0.1:6379?database=5&alias=master',
+    'tcp://127.0.0.2:6379?database=5&alias=replica-01',
+] );
+```
+
+</details>
+
+<details>
+<summary>Sharding</summary>
+
+This is a PhpRedis specific feature using [`RedisArray`](https://github.com/phpredis/phpredis/blob/develop/array.md).
+
+```php
+define( 'WP_REDIS_CLIENT', 'phpredis' );
+
+define( 'WP_REDIS_SHARDS', [
+    'tcp://127.0.0.1:6379?database=10&alias=shard-01',
+    'tcp://127.0.0.2:6379?database=10&alias=shard-02',
+    'tcp://127.0.0.3:6379?database=10&alias=shard-03',
+] );
+```
+
+</details>
+
+<details>
+<summary>Redis Sentinel</summary>
+
+<https://redis.io/docs/management/sentinel/>
+
+```php
+define( 'WP_REDIS_CLIENT', 'predis' );
+
+define( 'WP_REDIS_SENTINEL', 'my-sentinel' );
+define( 'WP_REDIS_SERVERS', [
+    'tcp://127.0.0.1:5380',
+    'tcp://127.0.0.2:5381',
+    'tcp://127.0.0.3:5382',
+] );
+```
+
+</details>
+
+<details>
+<summary>Redis Cluster</summary>
+
+<https://redis.io/docs/management/scaling/>
+
+```php
+define( 'WP_REDIS_CLUSTER', [
+    'tcp://127.0.0.1:6379?alias=node-01',
+    'tcp://127.0.0.2:6379?alias=node-02',
+    'tcp://127.0.0.3:6379?alias=node-03',
+] );
+```
+
+</details>
+
 ## WP CLI commands
 
 Redis Object Cache has various WP CLI commands, for more information run `wp help redis`.
@@ -81,65 +194,3 @@ Redis Object Cache has various hooks and the commonly used ones are listed below
 | `redis_cache_expiration`                | Filters the cache expiration for individual keys  |
 | `redis_cache_validate_dropin`           | Filters whether the drop-in is valid              |
 | `redis_cache_add_non_persistent_groups` | Filters the groups to be marked as non persistent |
-
-## Replication
-
-Redis Object Cache offers various replication, sharding, cluster and sentinel setups to users with advanced technical knowledge of Redis and PHP, that have consulted the [Predis](https://github.com/predis/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
-
-<details>
-<summary>Replication</summary>
-
-```php
-define( 'WP_REDIS_CLIENT', 'predis' );
-
-define( 'WP_REDIS_SERVERS', [
-    'tcp://127.0.0.1:6379?database=5&alias=master',
-    'tcp://127.0.0.2:6379?database=5&alias=replica-01',
-] );
-```
-
-</details>
-
-<details>
-<summary>Sharding</summary>
-
-```php
-define( 'WP_REDIS_CLIENT', 'phpredis' );
-
-define( 'WP_REDIS_SHARDS', [
-    'tcp://127.0.0.1:6379?database=10&alias=shard-01',
-    'tcp://127.0.0.2:6379?database=10&alias=shard-02',
-    'tcp://127.0.0.3:6379?database=10&alias=shard-03',
-] );
-```
-
-</details>
-
-<details>
-<summary>Redis Sentinel</summary>
-
-```php
-define( 'WP_REDIS_CLIENT', 'predis' );
-
-define( 'WP_REDIS_SENTINEL', 'my-sentinel' );
-define( 'WP_REDIS_SERVERS', [
-    'tcp://127.0.0.1:5380',
-    'tcp://127.0.0.2:5381',
-    'tcp://127.0.0.3:5382',
-] );
-```
-
-</details>
-
-<details>
-<summary>Redis Cluster</summary>
-
-```php
-define( 'WP_REDIS_CLUSTER', [
-    'tcp://127.0.0.1:6379?alias=node-01',
-    'tcp://127.0.0.2:6379?alias=node-02',
-    'tcp://127.0.0.3:6379?alias=node-03',
-] );
-```
-
-</details>

@@ -12,11 +12,10 @@ Next, install the `Redis Object Cache` plugin via the WordPress Dashboard, or us
 
 ## 3. Configuring the plugin
 
-After installing and activating the plugin, go to `WordPress -> Settings -> Redis` or `Network Admin -> Settings -> Redis` on Multisite networks.
+After installing and activating the plugin, go to `WordPress -> Settings -> Redis` or `Network Admin -> Settings -> Redis` on Multisite networks. There, enable the cache and check if the plugin can connect automatically.
 
-Next, enable the cache and check if the plugin can connect automatically, or if you need to configure the connection to Redis. By default the object cache will connect to Redis over TCP at `127.0.0.1:6379` and use database `0`.
-
-To adjust the connection parameters and configuration options please see the [README](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md).
+By default the object cache will connect to Redis Server over TCP at `127.0.0.1:6379` and use database `0`,
+if you see `Status: Not connected` either ask your hosting provider for assistance, or [configure the connection yourself](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#configuration).
 
 A good starting configuration is:
 
@@ -25,28 +24,23 @@ A good starting configuration is:
 define( 'WP_REDIS_HOST', '127.0.0.1' );
 define( 'WP_REDIS_PORT', 6379 );
 
-// TODO: mention socket connections...
-
-// change the database (0-15) for each site to avoid cache data collisions
-define( 'WP_REDIS_DATABASE', 0 );
+// change the prefix and database for each site to avoid cache data collisions
+define( 'WP_REDIS_PREFIX', 'my-moms-site' );
+define( 'WP_REDIS_DATABASE', 0 ); // 0-15
 
 // reasonable connection and read+write timeouts
 define( 'WP_REDIS_TIMEOUT', 1 );
 define( 'WP_REDIS_READ_TIMEOUT', 1 );
 ```
 
-## 4. Common pitfalls
-
-1. Using the same Redis database for multiple WordPress installations. Data will conflict. Use `WP_REDIS_DATABASE` or `WP_REDIS_PREFIX`.
-2. Defining `WP_REDIS_*` constants too late:
-
-Find the line:
+When editing your `wp-config.php` file, it is important that `WP_REDIS_*` constants are defined high up in the file, above these lines:
 
 ```php
 /* That's all, stop editing! Happy publishing. */
-
 require_once(ABSPATH . 'wp-settings.php');
 ```
+
+For more connection examples see [Connections](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#connections) and [Scaling](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#scaling) sections.
 
 ## Composer instructions
 
@@ -63,4 +57,6 @@ wp redis enable
 wp redis status
 ```
 
-TODO: configuration....
+- [Configuration options](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#configuration).
+- [Connection examples](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#connections)
+- [Scaling and replication](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#scaling)
