@@ -16,7 +16,7 @@ A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, R
 
 A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](https://wp-cli.org/).
 
-To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [our wiki](https://github.com/rhubarbgroup/redis-cache/wiki).
+To adjust the connection parameters, prefix cache keys or configure replication/clustering, see the [configuration options](https://github.com/rhubarbgroup/redis-cache/#configuration).
 
 = Object Cache Pro =
 
@@ -45,7 +45,7 @@ Answers to common questions and troubleshooting of common errors can be found in
 
 == Configuration ==
 
-The plugin comes with vast set of [configuration options](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#configuration) and [connection examples](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#connections). Advanced users may consult [Scaling and replication](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#scaling)
+The plugin comes with vast set of [configuration options](https://github.com/rhubarbgroup/redis-cache/#configuration) and [connection examples](https://github.com/rhubarbgroup/redis-cache/#connections). Advanced users may consult [Scaling and replication](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#scaling)
 
 == WP CLI commands ==
 

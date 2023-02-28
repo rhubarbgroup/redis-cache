@@ -15,7 +15,7 @@ Next, install the `Redis Object Cache` plugin via the WordPress Dashboard, or us
 After installing and activating the plugin, go to `WordPress -> Settings -> Redis` or `Network Admin -> Settings -> Redis` on Multisite networks. There, enable the cache and check if the plugin can connect automatically.
 
 By default the object cache will connect to Redis Server over TCP at `127.0.0.1:6379` and use database `0`,
-if you see `Status: Not connected` either ask your hosting provider for assistance, or [configure the connection yourself](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#configuration).
+if you see `Status: Not connected` either ask your hosting provider for assistance, or [configure the connection yourself](https://github.com/rhubarbgroup/redis-cache/#configuration).
 
 A good starting configuration is:
 
@@ -40,7 +40,7 @@ When editing your `wp-config.php` file, it is important that `WP_REDIS_*` consta
 require_once(ABSPATH . 'wp-settings.php');
 ```
 
-For more connection examples see [Connections](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#connections) and [Scaling](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#scaling) sections.
+For more connection examples see [Connections](https://github.com/rhubarbgroup/redis-cache/#connections) and [Scaling](https://github.com/rhubarbgroup/redis-cache/#scaling) sections.
 
 ## Composer instructions
 
@@ -62,6 +62,6 @@ wp config set WP_REDIS_PORT "6379"
 wp config set WP_REDIS_DATABASE "15"
 ```
 
-- [Configuration options](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#configuration).
-- [Connection examples](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#connections)
-- [Scaling and replication](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#scaling)
+- [Configuration options](https://github.com/rhubarbgroup/redis-cache/#configuration).
+- [Connection examples](https://github.com/rhubarbgroup/redis-cache/#connections)
+- [Scaling and replication](https://github.com/rhubarbgroup/redis-cache/#scaling)

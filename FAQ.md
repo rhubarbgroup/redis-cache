@@ -13,22 +13,27 @@ This plugin is **not the issue**, it's just providing WordPress with `wp_cache_*
 <details>
 <summary>Status: <code>Not connected</code></summary>
 
-Looks like the plugin cannot connect to Redis Server. First, make sure you followed the [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md).
+This means that either [Redis Server](https://redis.io) is not installed and running, or the plugin is not configured correctly. 
+    
+First, make sure you followed the [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md) and that Redis Server is up and running:
 
-Next, confirm your `wp-config.php` file contains the correct `WP_REDIS_*` constants and all `WP_REDIS_*` constants are defined high up in your `wp-config.php` above the lines:
+```bash
+redis-cli PING
+
+# or specify a custom host/port
+redis-cli -h 127.0.0.1 -p 6379 PING
+```
+
+If Redis Server is not installed and running, follow the installation instructions, or ask your hosting company for assistance.
+
+Next, make sure confirm the `wp-config.php` file contains the correct `WP_REDIS_*` constants and configuration constants are defined high up in the `wp-config.php` **above the lines**:
 
 ```php
 /* That's all, stop editing! Happy publishing. */
 require_once(ABSPATH . 'wp-settings.php');
 ```
 
-If that didn't work, confirm Redis Server installed and running using `redis-cli`:
-
-```bash
-redis-cli -h 127.0.01 -p 6379
-```
-
-If that's too technical, ask your hosting provider for assistance.
+If you moved all constants above those lines and the plugin still shows `Not Connected`, double check your [connection options](https://github.com/rhubarbgroup/redis-cache#connections), or ask your hosting provider for assistance.
 </details>
 
 <details>
