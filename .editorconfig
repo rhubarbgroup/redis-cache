@@ -20,6 +20,3 @@ indent_size = 2
 
 [LICENSE.md]
 indent_style = unset
-
-[phpstan-baseline.neon]
-indent_style = tab
