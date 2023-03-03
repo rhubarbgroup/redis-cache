@@ -663,12 +663,14 @@ class Plugin {
 
         $wp_admin_bar->add_node(
             [
-                'id'    => 'redis-cache',
+                'id' => 'redis-cache',
                 'title' => __( 'Object Cache', 'redis-cache' ),
             ]
         );
 
-        if ( $this->get_redis_status() ) {
+        $redis_status = $this->get_redis_status();
+
+        if ( $redis_status ) {
             $wp_admin_bar->add_node(
                 [
                     'parent' => 'redis-cache',
@@ -679,16 +681,14 @@ class Plugin {
             );
         }
 
-        if ( Metrics::is_enabled() ) {
-            $wp_admin_bar->add_node(
-                [
-                    'parent' => 'redis-cache',
-                    'id' => 'redis-cache-metrics',
-                    'title' => __( 'Settings', 'redis-cache' ),
-                    'href' => network_admin_url( $this->page ),
-                ]
-            );
-        }
+        $wp_admin_bar->add_node(
+            [
+                'parent' => 'redis-cache',
+                'id' => 'redis-cache-metrics',
+                'title' => __( 'Settings', 'redis-cache' ),
+                'href' => network_admin_url( $this->page ),
+            ]
+        );
 
         $wp_admin_bar->add_group(
             [
@@ -700,7 +700,7 @@ class Plugin {
             ]
         );
 
-        if ( $this->get_redis_status() ) {
+        if ( $redis_status ) {
             global $wp_object_cache;
 
             $info = $wp_object_cache->info();
