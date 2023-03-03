@@ -202,6 +202,10 @@ class Plugin {
      * @return void
      */
     public function setup_dashboard_widget() {
+        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+            return;
+        }
+
         if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
             return;
         }
