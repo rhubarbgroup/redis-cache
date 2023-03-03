@@ -4,6 +4,7 @@
 
 - Improved documentation
 - Show dashboard widget only to admins
+- Fixed group flushing when group happends to end with blog id
 
 ## 2.2.4
 
