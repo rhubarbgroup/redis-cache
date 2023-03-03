@@ -1644,7 +1644,7 @@ class WP_Object_Cache {
         $san_group = $this->sanitize_key_part( $group );
 
         if ( is_multisite() && ! $this->is_global_group( $san_group ) ) {
-            $salt = str_replace( "{$this->blog_prefix}:", '*:', $this->fast_build_key( '*', $san_group ) );
+            $salt = str_replace( "{$this->blog_prefix}:{$san_group}", "*:{$san_group}", $this->fast_build_key( '*', $san_group ) );
         } else {
             $salt = $this->fast_build_key( '*', $san_group );
         }
