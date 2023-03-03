@@ -1031,9 +1031,13 @@ class Plugin {
         }
 
         if (
-            ! isset( $wp_object_cache->diagnostics ) ||
+            ! isset( $wp_object_cache->cache, $wp_object_cache->diagnostics ) ||
             ! is_array( $wp_object_cache->cache )
         ) {
+            return;
+        }
+
+        if ($this->incompatible_content_type()) {
             return;
         }
 
@@ -1064,6 +1068,51 @@ class Plugin {
             $message, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             esc_html( $debug )
         );
+    }
+
+    /**
+     * Whether incompatible content type headers were sent.
+     *
+     * @return bool
+     */
+    protected function incompatible_content_type()
+    {
+        $jsonContentType = static function ($headers) {
+            foreach ($headers as $header => $value) {
+                if (stripos((string) $header, 'content-type') === false) {
+                    continue;
+                }
+
+                if (stripos((string) $value, '/json') === false) {
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
+        };
+
+        if (function_exists('headers_list')) {
+            $headers = [];
+
+            foreach (headers_list() as $header) {
+                [$name, $value] = explode(':', $header);
+                $headers[$name] = $value;
+            }
+
+            if ($jsonContentType($headers)) {
+                return true;
+            }
+        }
+
+        if (function_exists('apache_response_headers')) {
+            if ($headers = apache_response_headers()) {
+                return $jsonContentType($headers);
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -5,7 +5,7 @@ Tags: redis, object cache, cache, object caching, caching performance, relay, pr
 Requires at least: 3.3
 Tested up to: 6.1
 Requires PHP: 7.2
-Stable tag: 2.2.4-dev
+Stable tag: 2.2.5-dev
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,7 +16,7 @@ A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, R
 
 A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](https://wp-cli.org/).
 
-To adjust the connection parameters, prefix cache keys or configure replication/clustering, please see [our wiki](https://github.com/rhubarbgroup/redis-cache/wiki).
+To adjust the connection parameters, prefix cache keys or configure replication/clustering, see the [configuration options](https://github.com/rhubarbgroup/redis-cache/#configuration).
 
 = Object Cache Pro =
 
@@ -37,41 +37,19 @@ Learn more about [Object Cache Pro](https://objectcache.pro/?ref=oss&amp;utm_sou
 
 == Installation ==
 
-For detailed installation instructions, please read the [standard installation procedure for WordPress plugins](https://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
+For detailed installation instructions, please read the extensive [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md).
 
-1. Make sure [Redis is installed and running](https://redis.io/topics/quickstart).
-2. Install and activate plugin.
-3. Enable the object cache under _Settings -> Redis_, or in Multisite setups under _Network Admin -> Settings -> Redis_.
-4. If necessary, adjust [connection parameters](https://wordpress.org/extend/plugins/redis-cache/other_notes/).
+== Troubleshooting ==
 
-If your server doesn't support the [WordPress Filesystem API](https://codex.wordpress.org/Filesystem_API), you have to manually copy the `object-cache.php` file from the `/plugins/redis-cache/includes/` directory to the `/wp-content/` directory.
+Answers to common questions and troubleshooting of common errors can be found in the [FAQ](https://github.com/rhubarbgroup/redis-cache/blob/develop/FAQ.md). Reading these is always faster than waiting for a response in the support forums.
 
+== Configuration ==
 
-== Connection Parameters ==
+The plugin comes with vast set of [configuration options](https://github.com/rhubarbgroup/redis-cache/#configuration) and [connection examples](https://github.com/rhubarbgroup/redis-cache/#connections). Advanced users may consult [Scaling and replication](https://github.com/rhubarbgroup/redis-cache/blob/develop/README.md#scaling)
 
-By default the object cache drop-in will connect to Redis over TCP at `127.0.0.1:6379` and select database `0`.
+== WP CLI commands ==
 
-To adjust the connection parameters, client, timeouts and intervals, please see the [connection parameters wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Connection-Parameters).
-
-
-== Configuration Options ==
-
-The plugin comes with quite a few configuration options, such as key prefixes, a maximum time-to-live for keys, ignored group and many more.
-
-Please see the [configuration options wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Configuration-Options) for a full list.
-
-
-== Replication & Clustering ==
-
-To use Replication, Sharding or Clustering, make sure your server is running PHP7 or higher and you consulted the [Predis](https://github.com/predis/predis) or [PhpRedis](https://github.com/phpredis/phpredis) documentation.
-
-Please see the [replication & clustering wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/Replication-&-Clustering) for more information.
-
-
-== WP-CLI Commands ==
-
-To see a list of all available WP-CLI commands, please see the [WP CLI commands wiki page](https://github.com/rhubarbgroup/redis-cache/wiki/WP-CLI-Commands).
-
+Redis Object Cache has various WP CLI commands, for more information run `wp help redis` after installing the plugin.
 
 == Screenshots ==
 
@@ -82,6 +60,15 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 
 == Changelog ==
+
+= 2.2.4 =
+
+- Register `wp redis` CLI command late
+- Don't compete with Object Cache Pro for `wp redis` command
+- Prevent Perflab from overwriting the object cache drop-in
+- Updated Predis to v2.1.1
+- Avoid type error when transaction fails
+- Check for incompatible content type headers
 
 = 2.2.3 =
 
@@ -625,6 +612,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.2.2 =
+= 2.2.4 =
 
-New WordPress 6.1 functions, updated Predis to v2.0.3 and various improvements.
+Updated Predis to v2.1.1 and various bug fixes.
