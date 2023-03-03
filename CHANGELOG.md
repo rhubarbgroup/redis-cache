@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Improved documentation
+- Show dashboard widget only to admins
+
 ## 2.2.4
 
 - Register `wp redis` CLI command late
