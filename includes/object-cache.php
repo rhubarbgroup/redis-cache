@@ -866,6 +866,10 @@ class WP_Object_Cache {
             $options['cluster'] = 'redis';
         }
 
+        if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
+            unset($parameters['host'], $parameters['port']);
+        }
+
         if ( isset( $parameters['read_timeout'] ) && $parameters['read_timeout'] ) {
             $parameters['read_write_timeout'] = $parameters['read_timeout'];
         }

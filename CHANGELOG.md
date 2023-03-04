@@ -4,12 +4,13 @@
 
 - Show dashboard widget only to admins
 - Throw errors when connection error occur
+- Added support for usernames when using Predis
+- Added support for loading Predis from `WP_REDIS_PLUGIN_PATH`
+- Made Predis unix socket connections stricter
 - Fixed rare group flushing bug
 - Fixed cluster ping when using Predis
 - Updated Predis to v2.1.2
 - Improved documentation
-- Added support for loading Predis from `WP_REDIS_PLUGIN_PATH`
-- Added support for usernames when using Predis
 
 ## 2.2.4
 

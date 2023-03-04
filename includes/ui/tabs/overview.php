@@ -137,10 +137,10 @@ $diagnostics = $roc->get_diagnostics();
         </tr>
     <?php endif; ?>
 
-    <?php if ( ! empty( $diagnostics['host'] ) ) : ?>
+    <?php if ( ! empty( $diagnostics['host'] ) || ! empty( $diagnostics['path'] ) ) : ?>
         <tr>
             <th><?php esc_html_e( 'Host:', 'redis-cache' ); ?></th>
-            <td><code><?php echo esc_html( $diagnostics['host'] ); ?></code></td>
+            <td><code><?php echo esc_html( $diagnostics['host'] ?? $diagnostics['path'] ); ?></code></td>
         </tr>
     <?php endif; ?>
 
@@ -183,7 +183,7 @@ $diagnostics = $roc->get_diagnostics();
         </tr>
     <?php endif; ?>
 
-    <?php if ( ! empty( $diagnostics['port'] ) ) : ?>
+    <?php if ( ! empty( $diagnostics['port'] ) && $diagnostics['port'] > 0 ) : ?>
         <tr>
             <th><?php esc_html_e( 'Port:', 'redis-cache' ); ?></th>
             <td><code><?php echo esc_html( $diagnostics['port'] ); ?></code></td>
