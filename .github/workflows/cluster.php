@@ -22,6 +22,9 @@ define('WP_REDIS_CLUSTER', [
     'tcp://127.0.0.1:7005',
 ]);
 
+function apply_filters($filter, ...$args) { }
+function do_action($action, ...$args) { }
+
 printf('Loading cache...');
 
 require __DIR__ . '/../../includes/object-cache.php';
