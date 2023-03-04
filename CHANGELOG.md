@@ -8,7 +8,8 @@
 - Fixed cluster ping when using Predis
 - Updated Predis to v2.1.2
 - Improved documentation
-- Support loading Predis from `WP_REDIS_PLUGIN_PATH`
+- Added support for loading Predis from `WP_REDIS_PLUGIN_PATH`
+- Added support for usernames when using Predis
 
 ## 2.2.4
 

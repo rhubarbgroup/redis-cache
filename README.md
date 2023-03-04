@@ -36,8 +36,8 @@ The plugin comes with vast set of configuration options.
 | `WP_REDIS_PATH`                      |             | The path to the unix socket of the Redis server |
 | `WP_REDIS_SCHEME`                    | `tcp`       | The scheme used to connect: `tcp` or `unix` |
 | `WP_REDIS_DATABASE`                  | `0`         | The database used by the cache: `0-15` |
-| `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions |
-| `WP_CACHE_KEY_SALT`                  |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
+| `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions, replaces `WP_CACHE_KEY_SALT` |
+| `WP_REDIS_PASSWORD`                  |             | The password of the Redis server, supports ACLs array: `['username', 'password']` |
 | `WP_REDIS_MAXTTL`                    | `0`         | The maximum time-to-live of cache keys |
 | `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis: `predis`, `phpredis` or `relay` |
 | `WP_REDIS_TIMEOUT`                   | `1`         | The connection timeout in seconds |
@@ -49,6 +49,7 @@ The plugin comes with vast set of configuration options.
 
 | Configuration constant               | Default     | Description                                   |
 | ------------------------------------ | ----------- | --------------------------------------------- |
+| `WP_CACHE_KEY_SALT`                  |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
 | `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries |
 | `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
 | `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored |

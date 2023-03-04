@@ -877,7 +877,12 @@ class WP_Object_Cache {
                 }
 
                 if ( isset( $parameters['password'] ) ) {
-                    $options['parameters']['password'] = WP_REDIS_PASSWORD;
+                    if ( is_array( $parameters['password'] ) ) {
+                        $options['parameters']['username'] = WP_REDIS_PASSWORD[0];
+                        $options['parameters']['password'] = WP_REDIS_PASSWORD[1];
+                    } else {
+                        $options['parameters']['password'] = WP_REDIS_PASSWORD;
+                    }
                 }
             }
         }
