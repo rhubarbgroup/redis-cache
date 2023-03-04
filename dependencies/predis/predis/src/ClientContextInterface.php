@@ -3,7 +3,8 @@
 /*
  * This file is part of the Predis package.
  *
- * (c) Daniele Alessandri <suppakilla@gmail.com>
+ * (c) 2009-2020 Daniele Alessandri
+ * (c) 2021-2023 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +14,10 @@ namespace Predis;
 
 use Predis\Command\Argument\Geospatial\ByInterface;
 use Predis\Command\Argument\Geospatial\FromInterface;
+use Predis\Command\Argument\Server\LimitOffsetCount;
 use Predis\Command\Argument\Server\To;
 use Predis\Command\CommandInterface;
+use Predis\Command\Redis\Container\FunctionContainer;
 
 /**
  * Interface defining a client-side context such as a pipeline or transaction.
@@ -23,8 +26,9 @@ use Predis\Command\CommandInterface;
  * @method $this del(array|string $keys)
  * @method $this dump($key)
  * @method $this exists($key)
- * @method $this expire($key, $seconds)
- * @method $this expireat($key, $timestamp)
+ * @method $this expire($key, $seconds, string $expireOption = '')
+ * @method $this expireat($key, $timestamp, string $expireOption = '')
+ * @method $this expiretime(string $key)
  * @method $this keys($pattern)
  * @method $this move($key, $db)
  * @method $this object($subcommand, $key)
@@ -37,13 +41,14 @@ use Predis\Command\CommandInterface;
  * @method $this renamenx($key, $target)
  * @method $this scan($cursor, array $options = null)
  * @method $this sort($key, array $options = null)
+ * @method $this sort_ro(string $key, ?string $byPattern = null, ?LimitOffsetCount $limit = null, array $getPatterns = [], ?string $sorting = null, bool $alpha = false)
  * @method $this ttl($key)
  * @method $this type($key)
  * @method $this append($key, $value)
- * @method $this bitcount($key, $start = null, $end = null)
+ * @method $this bitcount($key, $start = null, $end = null, string $index = 'byte')
  * @method $this bitop($operation, $destkey, $key)
  * @method $this bitfield($key, $subcommand, ...$subcommandArg)
- * @method $this bitpos($key, $bit, $start = null, $end = null)
+ * @method $this bitpos($key, $bit, $start = null, $end = null, string $index = 'byte')
  * @method $this blmpop(int $timeout, array $keys, string $modifier = 'left', int $count = 1)
  * @method $this bzpopmax(array $keys, int $timeout)
  * @method $this bzpopmin(array $keys, int $timeout)
@@ -51,6 +56,7 @@ use Predis\Command\CommandInterface;
  * @method $this decr($key)
  * @method $this decrby($key, $decrement)
  * @method $this failover(?To $to = null, bool $abort = false, int $timeout = -1)
+ * @method $this fcall(string $function, array $keys, ...$args)
  * @method $this get($key)
  * @method $this getbit($key, $offset)
  * @method $this getex(string $key, $modifier = '', $value = false)
@@ -90,6 +96,7 @@ use Predis\Command\CommandInterface;
  * @method $this blpop(array|string $keys, $timeout)
  * @method $this brpop(array|string $keys, $timeout)
  * @method $this brpoplpush($source, $destination, $timeout)
+ * @method $this lcs(string $key1, string $key2, bool $len = false, bool $idx = false, int $minMatchLen = 0, bool $withMatchLen = false)
  * @method $this lindex($key, $index)
  * @method $this linsert($key, $whence, $pivot, $value)
  * @method $this llen($key)
@@ -111,6 +118,7 @@ use Predis\Command\CommandInterface;
  * @method $this sdiff(array|string $keys)
  * @method $this sdiffstore($destination, array|string $keys)
  * @method $this sinter(array|string $keys)
+ * @method $this sintercard(array $keys, int $limit = 0)
  * @method $this sinterstore($destination, array|string $keys)
  * @method $this sismember($key, $member)
  * @method $this smembers($key)
@@ -152,6 +160,7 @@ use Predis\Command\CommandInterface;
  * @method $this zrevrangebylex($key, $start, $stop, array $options = null)
  * @method $this zremrangebylex($key, $min, $max)
  * @method $this zlexcount($key, $min, $max)
+ * @method $this pexpiretime(string $key)
  * @method $this pfadd($key, array $elements)
  * @method $this pfmerge($destinationKey, array|string $sourceKeys)
  * @method $this pfcount(array|string $keys)
@@ -163,7 +172,9 @@ use Predis\Command\CommandInterface;
  * @method $this unwatch()
  * @method $this watch($key)
  * @method $this eval($script, $numkeys, $keyOrArg1 = null, $keyOrArgN = null)
+ * @method $this eval_ro(string $script, array $keys, ...$argument)
  * @method $this evalsha($script, $numkeys, $keyOrArg1 = null, $keyOrArgN = null)
+ * @method $this evalsha_ro(string $sha1, array $keys, ...$argument)
  * @method $this script($subcommand, $argument = null)
  * @method $this auth($password)
  * @method $this echo($message)
@@ -192,7 +203,8 @@ use Predis\Command\CommandInterface;
  * @method $this geosearch(string $key, FromInterface $from, ByInterface $by, ?string $sorting = null, int $count = -1, bool $any = false, bool $withCoord = false, bool $withDist = false, bool $withHash = false)
  * @method $this geosearchstore(string $destination, string $source, FromInterface $from, ByInterface $by, ?string $sorting = null, int $count = -1, bool $any = false, bool $storeDist = false)
  *
- * @author Daniele Alessandri <suppakilla@gmail.com>
+ * Container commands
+ * @property FunctionContainer $function
  */
 interface ClientContextInterface
 {

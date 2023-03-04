@@ -250,9 +250,8 @@ function wp_cache_init() {
     }
 
     if ( ! ( $wp_object_cache instanceof WP_Object_Cache ) ) {
-        $fail_gracefully = ! defined( 'WP_REDIS_GRACEFUL' ) || WP_REDIS_GRACEFUL;
+        $fail_gracefully = defined( 'WP_REDIS_GRACEFUL' ) && WP_REDIS_GRACEFUL;
 
-        // We need to override this WordPress global in order to inject our cache.
         // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
         $wp_object_cache = new WP_Object_Cache( $fail_gracefully );
     }
@@ -502,7 +501,7 @@ class WP_Object_Cache {
      *
      * @param bool $fail_gracefully Handles and logs errors if true throws exceptions otherwise.
      */
-    public function __construct( $fail_gracefully = true ) {
+    public function __construct( $fail_gracefully = false ) {
         global $blog_id, $table_prefix;
 
         $this->fail_gracefully = $fail_gracefully;
@@ -551,13 +550,13 @@ class WP_Object_Cache {
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                $connectionID = is_string( WP_REDIS_CLUSTER )
+                $connectionId = is_string( WP_REDIS_CLUSTER )
                     ? WP_REDIS_CLUSTER
                     : current( $this->build_cluster_connection_array() );
 
                 $this->diagnostics[ 'ping' ] = $client === 'predis'
-                    ? $this->redis->getClientFor( $connectionID )->ping()
-                    : $this->redis->ping( $connectionID );
+                    ? $this->redis->getClientBy( 'id', $connectionId )->ping()
+                    : $this->redis->ping( $connectionId );
             } else {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }
@@ -827,13 +826,18 @@ class WP_Object_Cache {
 
         // Load bundled Predis library.
         if ( ! class_exists( 'Predis\Client' ) ) {
-            $predis = sprintf(
-                '%s/redis-cache/dependencies/predis/predis/autoload.php',
-                defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins'
-            );
+            $predis = '/dependencies/predis/predis/autoload.php';
 
-            if ( is_readable( $predis ) ) {
-                require_once $predis;
+            $pluginDir = defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR . '/redis-cache' : null;
+            $contentDir = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/plugins/redis-cache' : null;
+            $pluginPath = defined( 'WP_REDIS_PLUGIN_PATH' ) ? WP_REDIS_PLUGIN_PATH : null;
+
+            if ( $pluginDir && is_readable( $pluginDir . $predis ) ) {
+                require_once $pluginDir . $predis;
+            } elseif ( $contentDir && is_readable( $contentDir . $predis ) ) {
+                require_once $contentDir . $predis;
+            } elseif ( $pluginPath && is_readable( $pluginPath . $predis ) ) {
+                require_once $pluginPath . $predis;
             } else {
                 throw new Exception(
                     'Predis library not found. Re-install Redis Cache plugin or delete the object-cache.php.'
@@ -873,7 +877,12 @@ class WP_Object_Cache {
                 }
 
                 if ( isset( $parameters['password'] ) ) {
-                    $options['parameters']['password'] = WP_REDIS_PASSWORD;
+                    if ( is_array( $parameters['password'] ) ) {
+                        $options['parameters']['username'] = WP_REDIS_PASSWORD[0];
+                        $options['parameters']['password'] = WP_REDIS_PASSWORD[1];
+                    } else {
+                        $options['parameters']['password'] = WP_REDIS_PASSWORD;
+                    }
                 }
             }
         }
@@ -1094,13 +1103,13 @@ class WP_Object_Cache {
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $connectionID = is_string( WP_REDIS_CLUSTER )
+            $connectionId = is_string( WP_REDIS_CLUSTER )
                 ? 'SERVER'
                 : current( $this->build_cluster_connection_array() );
 
             $info = $this->determine_client() === 'predis'
-                ? $this->redis->getClientFor( $connectionID )->info()
-                : $this->redis->info( $connectionID );
+                ? $this->redis->getClientBy( 'id', $connectionId )->info()
+                : $this->redis->info( $connectionId );
         } else {
             $info = $this->redis->info();
         }

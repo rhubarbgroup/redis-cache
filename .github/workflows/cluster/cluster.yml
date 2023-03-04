@@ -1,0 +1,84 @@
+name: Cluster Test
+
+on: push
+
+concurrency:
+  group: cluster
+  cancel-in-progress: true
+
+jobs:
+
+  cluster:
+
+    name: Cluster ${{ matrix.redis }} (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2']
+        redis: ['7.0.3']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: redis
+
+      - name: Test PhpRedis
+        run: php .github/workflows/cluster.php phpredis
+
+      - name: Test Predis
+        run: php .github/workflows/cluster.php predis
+
+    services:
+      redis-0:
+        image: bitnami/redis-cluster:${{ matrix.redis }}
+        env:
+          REDIS_PASSWORD: secret
+          REDIS_NODES: redis-0 redis-1 redis-2 redis-3 redis-4 redis-5
+        ports: ['7000:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis-1:
+        image: bitnami/redis-cluster:${{ matrix.redis }}
+        env:
+          REDIS_PASSWORD: secret
+          REDIS_NODES: redis-0 redis-1 redis-2 redis-3 redis-4 redis-5
+        ports: ['7001:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis-2:
+        image: bitnami/redis-cluster:${{ matrix.redis }}
+        env:
+          REDIS_PASSWORD: secret
+          REDIS_NODES: redis-0 redis-1 redis-2 redis-3 redis-4 redis-5
+        ports: ['7002:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis-3:
+        image: bitnami/redis-cluster:${{ matrix.redis }}
+        env:
+          REDIS_PASSWORD: secret
+          REDIS_NODES: redis-0 redis-1 redis-2 redis-3 redis-4 redis-5
+        ports: ['7003:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis-4:
+        image: bitnami/redis-cluster:${{ matrix.redis }}
+        env:
+          REDIS_PASSWORD: secret
+          REDIS_NODES: redis-0 redis-1 redis-2 redis-3 redis-4 redis-5
+        ports: ['7004:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis-5:
+        image: bitnami/redis-cluster:${{ matrix.redis }}
+        env:
+          REDIS_PASSWORD: secret
+          REDISCLI_AUTH: secret
+          REDIS_CLUSTER_REPLICA: 1
+          REDIS_NODES: redis-0 redis-1 redis-2 redis-3 redis-4 redis-5
+          REDIS_CLUSTER_CREATOR: yes
+        ports: ['7005:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
