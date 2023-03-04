@@ -5,6 +5,7 @@
 - Improved documentation
 - Show dashboard widget only to admins
 - Fixed group flushing when group happends to end with blog id
+- Support loading Predis from `WP_REDIS_PLUGIN_PATH`
 
 ## 2.2.4
 
