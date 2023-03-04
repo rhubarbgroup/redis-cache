@@ -2,12 +2,13 @@
 
 ## Unreleased
 
-- Improved documentation
 - Show dashboard widget only to admins
-- Fixed group flushing when group happends to end with blog id
-- Support loading Predis from `WP_REDIS_PLUGIN_PATH`
-- Fixed cluster ping when using Predis
 - Throw errors when connection error occur
+- Fixed rare group flushing bug
+- Fixed cluster ping when using Predis
+- Updated Predis to v2.1.2
+- Improved documentation
+- Support loading Predis from `WP_REDIS_PLUGIN_PATH`
 
 ## 2.2.4
 
