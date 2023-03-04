@@ -101,6 +101,8 @@ class Plugin {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_redis_metrics' ] );
 
+        add_action( 'admin_bar_menu', [ $this, 'render_admin_bar' ], 998 );
+
         add_action( 'load-settings_page_redis-cache', [ $this, 'do_admin_actions' ] );
 
         add_action( 'wp_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
@@ -142,7 +144,7 @@ class Plugin {
             is_multisite() ? 'settings.php' : 'options-general.php',
             __( 'Redis Object Cache', 'redis-cache' ),
             __( 'Redis', 'redis-cache' ),
-            is_multisite() ? 'manage_network_options' : 'manage_options',
+            $this->manage_redis_capability(),
             'redis-cache',
             [ $this, 'show_admin_page' ]
         );
@@ -184,7 +186,7 @@ class Plugin {
         UI::register_tab(
             'metrics',
             __( 'Metrics', 'redis-cache' ),
-            [ 'disabled' => defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ]
+            [ 'disabled' => ! Metrics::is_enabled() ]
         );
 
         UI::register_tab(
@@ -202,11 +204,11 @@ class Plugin {
      * @return void
      */
     public function setup_dashboard_widget() {
-        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+        if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
 
-        if ( defined( 'WP_REDIS_DISABLE_METRICS' ) && WP_REDIS_DISABLE_METRICS ) {
+        if ( ! Metrics::is_enabled() ) {
             return;
         }
 
@@ -611,7 +613,7 @@ class Plugin {
         $this->wc_pro_notice();
 
         // Only show admin notices to users with the right capability.
-        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+        if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
 
@@ -644,6 +646,83 @@ class Plugin {
             if ( isset( $message ) ) {
                 printf( '<div class="update-nag notice notice-warning inline">%s</div>', wp_kses_post( $message ) );
             }
+        }
+    }
+
+    /**
+     * Display the admin bar menu item.
+     *
+     * @param \WP_Admin_Bar $wp_admin_bar
+     *
+     * @return void
+     */
+    public function render_admin_bar( $wp_admin_bar ) {
+        if ( defined( 'WP_REDIS_DISABLE_ADMINBAR' ) && WP_REDIS_DISABLE_ADMINBAR ) {
+            return;
+        }
+
+        if ( ! $this->current_user_can_manage_redis() ) {
+            return;
+        }
+
+        $wp_admin_bar->add_node(
+            [
+                'id' => 'redis-cache',
+                'title' => __( 'Object Cache', 'redis-cache' ),
+            ]
+        );
+
+        $redis_status = $this->get_redis_status();
+
+        if ( $redis_status ) {
+            $wp_admin_bar->add_node(
+                [
+                    'parent' => 'redis-cache',
+                    'id' => 'redis-cache-flush',
+                    'title' => __( 'Flush Cache', 'redis-cache' ),
+                    'href' => $this->action_link( 'flush-cache' ),
+                ]
+            );
+        }
+
+        $wp_admin_bar->add_node(
+            [
+                'parent' => 'redis-cache',
+                'id' => 'redis-cache-metrics',
+                'title' => __( 'Settings', 'redis-cache' ),
+                'href' => network_admin_url( $this->page ),
+            ]
+        );
+
+        $wp_admin_bar->add_group(
+            [
+                'id' => 'redis-cache-info',
+                'parent' => 'redis-cache',
+                'meta' => [
+                    'class' => 'ab-sub-secondary',
+                ],
+            ]
+        );
+
+        if ( $redis_status ) {
+            global $wp_object_cache;
+
+            $info = $wp_object_cache->info();
+
+            $wp_admin_bar->add_node(
+                [
+                    'parent' => 'redis-cache-info',
+                    'id' => 'redis-cache-info-details',
+                    'title' => sprintf(
+                        '%s%%&nbsp;&nbsp;%s/%s&nbsp;&nbsp;%s',
+                        $info->ratio,
+                        number_format( $info->hits ),
+                        number_format( $info->misses ),
+                        size_format( $info->bytes )
+                    ),
+                    'href' => Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
+                ]
+            );
         }
     }
 
@@ -850,7 +929,7 @@ class Plugin {
             return;
         }
 
-        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+        if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
 
@@ -898,7 +977,7 @@ class Plugin {
             return;
         }
 
-        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+        if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
 
@@ -1151,7 +1230,7 @@ class Plugin {
             return;
         }
 
-        if ( ! current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' ) ) {
+        if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
 
@@ -1242,5 +1321,23 @@ class Plugin {
             network_admin_url( add_query_arg( 'action', $action, $this->page ) ),
             $action
         );
+    }
+
+    /**
+     * The capability required to manage Redis.
+     *
+     * @return string
+     */
+    public function manage_redis_capability() {
+        return is_multisite() ? 'manage_network_options' : 'manage_options';
+    }
+
+    /**
+     * Does the current user have the capability to manage Redis?
+     *
+     * @return bool
+     */
+    public function current_user_can_manage_redis() {
+        return current_user_can( $this->manage_redis_capability() );
     }
 }
