@@ -24,16 +24,17 @@ define('WP_REDIS_CLUSTER', [
 
 function apply_filters($filter, ...$args) { }
 function do_action($action, ...$args) { }
+function _doing_it_wrong($action, ...$args) { }
 
-printf('Loading cache...');
+printf('Loading cache...' . PHP_EOL);
 
 require __DIR__ . '/../../includes/object-cache.php';
 
-printf('Initialize cache...');
+printf('Initialize cache...' . PHP_EOL);
 
 wp_cache_init();
 
-printf('Initialize cache...');
+printf('Initialize cache...' . PHP_EOL);
 
 var_dump(
     wp_cache_set('foo', 'bar', 'test')

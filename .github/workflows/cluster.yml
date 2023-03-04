@@ -36,10 +36,10 @@ jobs:
       - name: Test Predis
         run: php .github/workflows/cluster.php predis
 
-      - name: Test Predis
+      - name: Test Credis
         run: php .github/workflows/cluster.php credis
 
-      - name: Test Predis
+      - name: Test Relay
         run: php .github/workflows/cluster.php relay
 
     services:
