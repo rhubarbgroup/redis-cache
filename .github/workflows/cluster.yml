@@ -30,9 +30,11 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: redis
 
-      - name: Test connection
-        run: |
-          php .github/workflows/cluster.php
+      - name: Test Predis
+        run: php .github/workflows/cluster.php predis
+
+      - name: Test PhpRedis
+        run: php .github/workflows/cluster.php phpredis
 
     services:
       redis-0:

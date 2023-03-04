@@ -827,13 +827,18 @@ class WP_Object_Cache {
 
         // Load bundled Predis library.
         if ( ! class_exists( 'Predis\Client' ) ) {
-            $predis = sprintf(
-                '%s/redis-cache/dependencies/predis/predis/autoload.php',
-                defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins'
-            );
+            $predis = '/dependencies/predis/predis/autoload.php';
 
-            if ( is_readable( $predis ) ) {
-                require_once $predis;
+            $pluginDir = defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR . '/redis-cache' : null;
+            $contentDir = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/plugins/redis-cache' : null;
+            $pluginPath = defined( 'WP_REDIS_PLUGIN_PATH' ) ? WP_REDIS_PLUGIN_PATH : null;
+
+            if ( $pluginDir && is_readable( $pluginDir . $predis ) ) {
+                require_once $pluginDir . $predis;
+            } elseif ( $contentDir && is_readable( $contentDir . $predis ) ) {
+                require_once $contentDir . $predis;
+            } elseif ( $pluginPath && is_readable( $pluginPath . $predis ) ) {
+                require_once $pluginPath . $predis;
             } else {
                 throw new Exception(
                     'Predis library not found. Re-install Redis Cache plugin or delete the object-cache.php.'
