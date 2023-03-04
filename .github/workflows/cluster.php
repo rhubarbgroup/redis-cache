@@ -33,5 +33,11 @@ wp_cache_init();
 printf('Initialize cache...');
 
 var_dump(
-    wp_cache_get('foo', 'bar')
+    wp_cache_set('foo', 'bar', 'test')
+);
+
+sleep(1);
+
+var_dump(
+    wp_cache_get('foo', 'test')
 );

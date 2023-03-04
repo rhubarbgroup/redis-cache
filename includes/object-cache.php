@@ -556,7 +556,7 @@ class WP_Object_Cache {
                     : current( $this->build_cluster_connection_array() );
 
                 $this->diagnostics[ 'ping' ] = $client === 'predis'
-                    ? $this->redis->getClientFor( $connectionID )->ping()
+                    ? $this->redis->getClientBy( 'id', $connectionID )->ping()
                     : $this->redis->ping( $connectionID );
             } else {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
