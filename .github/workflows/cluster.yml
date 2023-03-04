@@ -36,6 +36,12 @@ jobs:
       - name: Test Predis
         run: php .github/workflows/cluster.php predis
 
+      - name: Test Predis
+        run: php .github/workflows/cluster.php credis
+
+      - name: Test Predis
+        run: php .github/workflows/cluster.php relay
+
     services:
       redis-0:
         image: bitnami/redis-cluster:${{ matrix.redis }}
