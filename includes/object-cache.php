@@ -250,9 +250,8 @@ function wp_cache_init() {
     }
 
     if ( ! ( $wp_object_cache instanceof WP_Object_Cache ) ) {
-        $fail_gracefully = ! defined( 'WP_REDIS_GRACEFUL' ) || WP_REDIS_GRACEFUL;
+        $fail_gracefully = defined( 'WP_REDIS_GRACEFUL' ) && WP_REDIS_GRACEFUL;
 
-        // We need to override this WordPress global in order to inject our cache.
         // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
         $wp_object_cache = new WP_Object_Cache( $fail_gracefully );
     }
@@ -502,7 +501,7 @@ class WP_Object_Cache {
      *
      * @param bool $fail_gracefully Handles and logs errors if true throws exceptions otherwise.
      */
-    public function __construct( $fail_gracefully = true ) {
+    public function __construct( $fail_gracefully = false ) {
         global $blog_id, $table_prefix;
 
         $this->fail_gracefully = $fail_gracefully;
