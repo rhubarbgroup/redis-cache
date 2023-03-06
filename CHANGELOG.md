@@ -11,6 +11,7 @@
 - Fixed cluster ping when using Predis
 - Updated Predis to v2.1.2
 - Improved documentation
+- New admin bar menu added
 
 ## 2.2.4
 

@@ -47,18 +47,19 @@ The plugin comes with vast set of configuration options.
 <details>
 <summary>Advanced configuration options</summary>
 
-| Configuration constant               | Default     | Description                                   |
-| ------------------------------------ | ----------- | --------------------------------------------- |
-| `WP_CACHE_KEY_SALT`                  |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
-| `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries |
-| `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
-| `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored |
-| `WP_REDIS_IGBINARY`                  | `false`     | Whether to use the igbinary PHP extension for serialization |
-| `WP_REDIS_SERIALIZER`                |             | The PhpRedis/Relay serializer used for data serialization |
-| `WP_REDIS_DISABLED`                  | `false`     | Emergency switch to bypass the object cache without deleting the drop-in |
-| `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
-| `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners |
-| `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update |
+| Configuration constant               | Default | Description                                                              |
+|--------------------------------------|---------|--------------------------------------------------------------------------|
+| `WP_CACHE_KEY_SALT`                  |         | Deprecated. Replaced by `WP_REDIS_PREFIX`                                |
+| `WP_REDIS_RETRY_INTERVAL`            |         | The number of milliseconds between retries                               |
+| `WP_REDIS_GLOBAL_GROUPS`             | `[]`    | Additional groups that are considered global on multisite networks       |
+| `WP_REDIS_METRICS_MAX_TIME`          | `3600`  | The maximum number of seconds metrics should be stored                   |
+| `WP_REDIS_IGBINARY`                  | `false` | Whether to use the igbinary PHP extension for serialization              |
+| `WP_REDIS_SERIALIZER`                |         | The PhpRedis/Relay serializer used for data serialization                |
+| `WP_REDIS_DISABLED`                  | `false` | Emergency switch to bypass the object cache without deleting the drop-in |
+| `WP_REDIS_DISABLE_ADMINBAR`          | `false` | Disables admin bar display                                               |
+| `WP_REDIS_DISABLE_METRICS`           | `false` | Disables metrics collection and display                                  |
+| `WP_REDIS_DISABLE_BANNERS`           | `false` | Disables promotional banners                                             |
+| `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false` | Disables the drop-in auto-update                                         |
 
 </details>
 
