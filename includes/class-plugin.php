@@ -710,20 +710,31 @@ class Plugin {
 
         $title = $this->get_status();
         $href = network_admin_url( $this->page );
+        $meta_title = __( 'Status: ', 'redis-cache' ) . $title;
 
         if ( $redis_status ) {
             global $wp_object_cache;
 
             $info = $wp_object_cache->info();
+            $hits = number_format( $info->hits );
+            $misses = number_format( $info->misses );
+            $size = size_format( $info->bytes );
 
             $title = sprintf(
                 '%s%%&nbsp;&nbsp;%s/%s&nbsp;&nbsp;%s',
                 $info->ratio,
-                number_format( $info->hits ),
-                number_format( $info->misses ),
-                size_format( $info->bytes )
+                $hits,
+                $misses,
+                $size
             );
             $href = Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '';
+            $meta_title = sprintf(
+                __( 'Hit Ratio: %s%%, Hits %s, Misses: %s, Size: %s', 'redis-cache' ),
+                $info->ratio,
+                $hits,
+                $misses,
+                $size
+            );
         }
 
         $wp_admin_bar->add_node(
@@ -732,6 +743,9 @@ class Plugin {
                 'id' => 'redis-cache-info-details',
                 'title' => $title,
                 'href' => $href,
+                'meta' => [
+                    'title' => $meta_title,
+                ],
             ]
         );
     }
