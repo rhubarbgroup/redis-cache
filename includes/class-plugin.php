@@ -665,14 +665,18 @@ class Plugin {
             return;
         }
 
+        $redis_status = $this->get_redis_status();
+
         $wp_admin_bar->add_node(
             [
                 'id' => 'redis-cache',
                 'title' => __( 'Object Cache', 'redis-cache' ),
+                'meta' => [
+                    'html' => '<style>#wpadminbar ul li.redis-cache-error { background: #c00; } #wpadminbar:not(.mobile) .ab-top-menu>li.redis-cache-error:hover>.ab-item { background: #b30000; color: #fff; }</style>',
+                    'class' => $redis_status === false ? 'redis-cache-error' : '',
+                ],
             ]
         );
-
-        $redis_status = $this->get_redis_status();
 
         if ( $redis_status ) {
             $wp_admin_bar->add_node(
@@ -704,26 +708,32 @@ class Plugin {
             ]
         );
 
+        $title = $this->get_status();
+        $href = network_admin_url( $this->page );
+
         if ( $redis_status ) {
             global $wp_object_cache;
 
             $info = $wp_object_cache->info();
 
-            $wp_admin_bar->add_node(
-                [
-                    'parent' => 'redis-cache-info',
-                    'id' => 'redis-cache-info-details',
-                    'title' => sprintf(
-                        '%s%%&nbsp;&nbsp;%s/%s&nbsp;&nbsp;%s',
-                        $info->ratio,
-                        number_format( $info->hits ),
-                        number_format( $info->misses ),
-                        size_format( $info->bytes )
-                    ),
-                    'href' => Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
-                ]
+            $title = sprintf(
+                '%s%%&nbsp;&nbsp;%s/%s&nbsp;&nbsp;%s',
+                $info->ratio,
+                number_format( $info->hits ),
+                number_format( $info->misses ),
+                size_format( $info->bytes )
             );
+            $href = Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '';
         }
+
+        $wp_admin_bar->add_node(
+            [
+                'parent' => 'redis-cache-info',
+                'id' => 'redis-cache-info-details',
+                'title' => $title,
+                'href' => $href,
+            ]
+        );
     }
 
     /**
