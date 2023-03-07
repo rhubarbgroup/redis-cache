@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added Admin Bar node (disable using `WP_REDIS_DISABLE_ADMINBAR`)
 - Show dashboard widget only to admins
 - Throw errors when connection error occur
 - Added support for usernames when using Predis
