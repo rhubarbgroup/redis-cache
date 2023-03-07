@@ -727,7 +727,7 @@ class Plugin {
                 $misses,
                 $size
             );
-            $href = Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '';
+
             $meta_title = sprintf(
                 __( 'Hit Ratio: %s%%, Hits %s, Misses: %s, Size: %s', 'redis-cache' ),
                 $info->ratio,
@@ -742,7 +742,7 @@ class Plugin {
                 'parent' => 'redis-cache-info',
                 'id' => 'redis-cache-info-details',
                 'title' => $title,
-                'href' => $href,
+                'href' => Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
                 'meta' => [
                     'title' => $meta_title,
                 ],
