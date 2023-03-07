@@ -48,7 +48,7 @@ The plugin comes with vast set of configuration options.
 <summary>Advanced configuration options</summary>
 
 | Configuration constant               | Default     | Description                                   |
- | ------------------------------------ | ----------- | --------------------------------------------- |
+| ------------------------------------ | ----------- | --------------------------------------------- |
 | `WP_CACHE_KEY_SALT`                  |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
 | `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries |
 | `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
