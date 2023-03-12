@@ -42,6 +42,14 @@ If the error occurs rarely, ignore it, Redis Server is having a hiccup. If it pe
 </details>
 
 <details>
+<summary>How can I exclude a page from the cache?</summary>
+
+Object caching caches only **objects**, not **pages**. You cannot exclude a page from using the object cache, because object caching is not URL-centric. You also cannot exclude the WordPress admin dashboard from using object caching, because then you risk the cache going stale and even loosing data.
+
+If you’re experiencing a compatibility issue with another plugin in combination with Redis Object Cache, please contact the support team of the plugin regarding the issue and ask them to ensure it's compatible with persistent object cache backends, like Redis.
+</details>
+
+<details>
 <summary>My site is getting redirected another domain</summary>
 
 That happens when the same `WP_REDIS_DATABASE` index is used for multiple WordPress installations. You **MUST** set a separate `WP_REDIS_DATABASE` and `WP_REDIS_PREFIX` for each domain to avoid data collision.
@@ -50,6 +58,24 @@ Once your site is being redirected, you **MUST** flush the entire Redis Server u
 
 ```bash
 redis-cli -h 127.0.01 -p 6379 FLUSHALL
+```
+</details>
+
+<details>
+<summary>Are transients stored in Redis?</summary>
+
+Yes. The WordPress [Transients API](https://developer.wordpress.org/apis/transients/) will use Redis to store transients and not the `options` table.
+
+After enabling Redis Object Cache, consider deleting all database transients:
+
+```bash
+wp transient delete-all
+```
+
+```sql
+DELETE FROM `wp_options`
+WHERE `option_name` LIKE '_transient_%'
+OR `option_name` LIKE '_site_transient_%';
 ```
 </details>
 
@@ -139,4 +165,12 @@ add_action(
 ```
 
 Once you found the plugin responsible by checking `redis-cache-flush.log`, you can contact the plugin author(s) and reporting the issue.
+</details>
+
+<details>
+<summary>How can I uninstall the cache?</summary>
+
+Before [uninstalling the plugin](https://wordpress.org/documentation/article/manage-plugins/#uninstalling-plugins-1), be sure to disable the cache via `WordPress -> Settings -> Redis`.
+
+If you already removed the plugin before doing so, you can delete the `object-cache.php` file in your `/wp-content/` directly.
 </details>
