@@ -176,7 +176,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <ul>
                     <?php foreach ( $diagnostics['servers'] as $node ) : ?>
-                        <li><code><?php echo esc_html( $node ); ?></code></li>
+                        <li><code><?php echo esc_html( preg_replace('/password=(.+[a-zA-Z])(?=&{0,1})/um', 'password=********', $node) ); ?></code></li>
                     <?php endforeach; ?>
                 </ul>
             </td>
