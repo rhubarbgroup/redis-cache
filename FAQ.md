@@ -168,6 +168,20 @@ Once you found the plugin responsible by checking `redis-cache-flush.log`, you c
 </details>
 
 <details>
+<summary>Flushing the cache regularly</summary>
+
+It's considered a bad practise to flush the frequently, but sometimes 3rd party plugins and themes just don't play nice with persistent object caches. When the plugin/theme authors refuse to fix their code you can use [WP Cron](https://developer.wordpress.org/plugins/cron/) to flush the Redis object cache frequently.
+
+```php
+if ( ! wp_next_scheduled( 'flush_redis_cache' ) ) {
+    wp_schedule_event( time(), 'hourly', 'flush_redis_cache' );
+}
+
+add_action( 'flush_redis_cache', 'wp_cache_flush' );
+```
+</details>
+
+<details>
 <summary>How can I uninstall the cache?</summary>
 
 Before [uninstalling the plugin](https://wordpress.org/documentation/article/manage-plugins/#uninstalling-plugins-1), be sure to disable the cache via `WordPress -> Settings -> Redis`.
