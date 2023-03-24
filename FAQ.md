@@ -168,24 +168,17 @@ Once you found the plugin responsible by checking `redis-cache-flush.log`, you c
 </details>
 
 <details>
-<summary>Flush the cache regularly</summary>
+<summary>Flushing the cache regularly</summary>
 
-If you don't see metrics building up, or your site is not getting faster, you might have an active plugin that flushes the object cache frequently. To diagnose this issue you can use the following snippet to find the source of the cache flush:
+It's considered a bad practise to flush the frequently, but sometimes 3rd party plugins and themes just don't play nice with persistent object caches. When the plugin/theme authors refuse to fix their code you can use [WP Cron](https://developer.wordpress.org/plugins/cron/) to flush the Redis object cache frequently.
 
 ```php
-add_action(
-    'redis_object_cache_flush',
-    function( $results, $delay, $selective, $salt, $execute_time ) {
-        ob_start();
-        echo date( 'c' ) . PHP_EOL;
-        debug_print_backtrace();
-        var_dump( func_get_args() );
-        error_log( ABSPATH . '/redis-cache-flush.log', 3, ob_get_clean() );
-    }, 10, 5
-);
-```
+if ( ! wp_next_scheduled( 'flush_redis_cache' ) ) {
+    wp_schedule_event( time(), 'hourly', 'flush_redis_cache' );
+}
 
-Once you found the plugin responsible by checking `redis-cache-flush.log`, you can contact the plugin author(s) and reporting the issue.
+add_action( 'flush_redis_cache', 'wp_cache_flush' );
+```
 </details>
 
 <details>
