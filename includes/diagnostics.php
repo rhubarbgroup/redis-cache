@@ -117,6 +117,10 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
     }
 }
 
+if ( defined( 'WP_REDIS_SERVERS' ) ) {
+    $info['WP_REDIS_SERVERS'] = preg_replace('/password=(.+[a-zA-Z])(?=&{0,1})/um', 'password=********', $info['WP_REDIS_SERVERS']);
+}
+
 if ( $dropin && ! $disabled ) {
     $info['Global Groups'] = wp_json_encode(
         array_values( $wp_object_cache->global_groups ?? [] ),
