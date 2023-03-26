@@ -704,9 +704,6 @@ class WP_Object_Cache {
             $this->diagnostics += $args;
         }
 
-        if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
-            $this->redis->setOption( Redis::OPT_SERIALIZER, WP_REDIS_SERIALIZER );
-        }
     }
 
     /**
@@ -772,9 +769,6 @@ class WP_Object_Cache {
             $this->diagnostics += $args;
         }
 
-        if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
-            $this->redis->setOption( Relay\Relay::OPT_SERIALIZER, WP_REDIS_SERIALIZER );
-        }
     }
 
     /**
@@ -2545,9 +2539,6 @@ LUA;
      * @return mixed            Unserialized data can be any type.
      */
     protected function maybe_unserialize( $original ) {
-        if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
-            return $original;
-        }
 
         if ( defined( 'WP_REDIS_IGBINARY' ) && WP_REDIS_IGBINARY && function_exists( 'igbinary_unserialize' ) ) {
             return igbinary_unserialize( $original );
@@ -2573,10 +2564,6 @@ LUA;
     protected function maybe_serialize( $data ) {
         if ( is_object( $data ) ) {
             $data = clone $data;
-        }
-
-        if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
-            return $data;
         }
 
         if ( defined( 'WP_REDIS_IGBINARY' ) && WP_REDIS_IGBINARY && function_exists( 'igbinary_serialize' ) ) {

@@ -83,6 +83,10 @@ To see a list of all available WP-CLI commands, please see the [WP CLI commands 
 
 == Changelog ==
 
+= 2.1.7 =
+
+- removed WP_REDIS_SERIALIZER option, leaving only php and igbinary as the available serializers. To use igbinary, add  `define('WP_REDIS_IGBINARY', true);` to the wp-config.php file.
+
 = 2.1.6 =
 
 - Fixed SVN discrepancies
