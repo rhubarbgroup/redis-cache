@@ -57,6 +57,10 @@
 - Fixed issue when `MGET` fails in `get_multiple()` call
 - Fixed several warnings in the event of pipeline failures
 
+## 2.2.5
+
+- removed WP_REDIS_SERIALIZER option, leaving only php and igbinary as the available serializers. To use igbinary, add `define('WP_REDIS_IGBINARY', true);` to the wp-config.php file.
+
 ## 2.1.6
 
 - No changes since 2.1.5
