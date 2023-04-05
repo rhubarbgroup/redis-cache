@@ -890,6 +890,10 @@ class WP_Object_Cache {
                 }
             }
         }
+ 
+        if ( isset( $parameters['password'] ) ) {
+            $parameters['username'] = WP_REDIS_USERNAME;
+        }
 
         $this->redis = new Predis\Client( $servers ?: $parameters, $options );
         $this->redis->connect();
