@@ -624,6 +624,7 @@ class WP_Object_Cache {
             'scheme' => 'tcp',
             'host' => '127.0.0.1',
             'port' => 6379,
+            'username' => '',
             'database' => 0,
             'timeout' => 1,
             'read_timeout' => 1,
@@ -636,6 +637,7 @@ class WP_Object_Cache {
             'host',
             'port',
             'path',
+            'username',
             'password',
             'database',
             'timeout',
@@ -653,6 +655,11 @@ class WP_Object_Cache {
 
         if ( isset( $parameters[ 'password' ] ) && $parameters[ 'password' ] === '' ) {
             unset( $parameters[ 'password' ] );
+        }
+        
+
+        if ( isset( $parameters[ 'username' ] ) && $parameters[ 'username' ] === '' ) {
+            unset( $parameters[ 'username' ] );
         }
 
         return $parameters;
