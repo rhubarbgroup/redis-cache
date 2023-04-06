@@ -641,6 +641,7 @@ class WP_Object_Cache {
             'timeout',
             'read_timeout',
             'retry_interval',
+            'ssl'
         ];
 
         foreach ( $settings as $setting ) {
@@ -708,6 +709,7 @@ class WP_Object_Cache {
                     $parameters['scheme'],
                     str_replace( 'tls://', '', $parameters['host'] )
                 );
+                $args['ssl'] = $parameters['ssl'];
             }
 
             if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
