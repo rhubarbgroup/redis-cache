@@ -60,6 +60,7 @@ The plugin comes with vast set of configuration options.
 | `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
 | `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners |
 | `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update |
+| `WP_REDIS_SSL_CONTEXT`               | `[]`        | TLS connection options for `tls` or `rediss` scheme |
 
 </details>
 
@@ -95,6 +96,15 @@ define( 'WP_REDIS_PATH', '/var/run/redis.sock' );
 define( 'WP_REDIS_SCHEME', 'tls' );
 define( 'WP_REDIS_HOST', 'master.ncit.ameaqx.use1.cache.amazonaws.com' );
 define( 'WP_REDIS_PORT', 6379 );
+```
+
+Additional TLS/SSL stream connection options for connections can be defined using `WP_REDIS_SSL_CONTEXT`:
+
+```php
+define( 'WP_REDIS_SSL_CONTEXT', [
+    'verify_host' => false,
+    'verify_host_name' => false,
+]);
 ```
 
 </details>

@@ -69,6 +69,7 @@ $constants = [
     'WP_REDIS_DISABLED',
     'WP_REDIS_CLIENT',
     'WP_REDIS_SCHEME',
+    'WP_REDIS_SSL_CONTEXT',
     'WP_REDIS_PATH',
     'WP_REDIS_HOST',
     'WP_REDIS_PORT',

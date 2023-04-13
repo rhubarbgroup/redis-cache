@@ -702,21 +702,25 @@ class WP_Object_Cache {
                 'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
+            if ( version_compare( $version, '3.1.3', '>=' ) ) {
+                $args['read_timeout'] = $parameters['read_timeout'];
+            }
+
             if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = sprintf(
                     '%s://%s',
                     $parameters['scheme'],
                     str_replace( 'tls://', '', $parameters['host'] )
                 );
+
+                if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
+                    $args['others']['stream'] = WP_REDIS_SSL_CONTEXT;
+                }
             }
 
             if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = $parameters['path'];
                 $args['port'] = -1;
-            }
-
-            if ( version_compare( $version, '3.1.3', '>=' ) ) {
-                $args['read_timeout'] = $parameters['read_timeout'];
             }
 
             call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
@@ -772,20 +776,24 @@ class WP_Object_Cache {
                 'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
+            $args['read_timeout'] = $parameters['read_timeout'];
+
             if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = sprintf(
                     '%s://%s',
                     $parameters['scheme'],
                     str_replace( 'tls://', '', $parameters['host'] )
                 );
+
+                if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
+                    $args['others']['stream'] = WP_REDIS_SSL_CONTEXT;
+                }
             }
 
             if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = $parameters['path'];
                 $args['port'] = -1;
             }
-
-            $args['read_timeout'] = $parameters['read_timeout'];
 
             call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
 
@@ -889,6 +897,10 @@ class WP_Object_Cache {
                     }
                 }
             }
+        }
+
+        if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
+            $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
         }
 
         $this->redis = new Predis\Client( $servers ?: $parameters, $options );
