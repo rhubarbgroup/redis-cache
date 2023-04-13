@@ -103,7 +103,7 @@ Additional TLS/SSL stream connection options for connections can be defined usin
 ```php
 define( 'WP_REDIS_SSL_CONTEXT', [
     'verify_host' => false,
-    'verify_host_name' => false
+    'verify_host_name' => false,
 ]);
 ```
 
