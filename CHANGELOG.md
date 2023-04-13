@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.3.0
+
+- Show dashboard widget only to admins
+- Added Admin Bar node (disable using `WP_REDIS_DISABLE_ADMINBAR`)
+- Added `WP_REDIS_SSL_CONTEXT` configuration constant
+- Throw errors when connection error occurs
+- Added support for usernames when using Predis
+- Added support for loading Predis from `WP_REDIS_PLUGIN_PATH`
+- Made Predis unix socket connections stricter
+- Fixed rare group flushing bug
+- Fixed cluster ping when using Predis
+- Updated Predis to v2.1.2
+- Improved documentation
+
 ## 2.2.4
 
 - Register `wp redis` CLI command late

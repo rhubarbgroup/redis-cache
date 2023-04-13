@@ -11,8 +11,8 @@
         }
     ],
     "support": {
-        "docs": "https://github.com/leocolomb/redis-cache/wiki",
-        "issues": "https://github.com/leocolomb/redis-cache/issues"
+        "docs": "https://github.com/rhubarbgroup/redis-cache",
+        "issues": "https://github.com/rhubarbgroup/redis-cache/issues"
     },
     "keywords": [
         "redis",

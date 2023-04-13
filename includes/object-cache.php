@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.2.4
+ * Version: 2.3.0
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -250,9 +250,8 @@ function wp_cache_init() {
     }
 
     if ( ! ( $wp_object_cache instanceof WP_Object_Cache ) ) {
-        $fail_gracefully = ! defined( 'WP_REDIS_GRACEFUL' ) || WP_REDIS_GRACEFUL;
+        $fail_gracefully = defined( 'WP_REDIS_GRACEFUL' ) && WP_REDIS_GRACEFUL;
 
-        // We need to override this WordPress global in order to inject our cache.
         // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
         $wp_object_cache = new WP_Object_Cache( $fail_gracefully );
     }
@@ -502,7 +501,7 @@ class WP_Object_Cache {
      *
      * @param bool $fail_gracefully Handles and logs errors if true throws exceptions otherwise.
      */
-    public function __construct( $fail_gracefully = true ) {
+    public function __construct( $fail_gracefully = false ) {
         global $blog_id, $table_prefix;
 
         $this->fail_gracefully = $fail_gracefully;
@@ -551,13 +550,13 @@ class WP_Object_Cache {
             }
 
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                $connectionID = is_string( WP_REDIS_CLUSTER )
+                $connectionId = is_string( WP_REDIS_CLUSTER )
                     ? WP_REDIS_CLUSTER
                     : current( $this->build_cluster_connection_array() );
 
                 $this->diagnostics[ 'ping' ] = $client === 'predis'
-                    ? $this->redis->getClientFor( $connectionID )->ping()
-                    : $this->redis->ping( $connectionID );
+                    ? $this->redis->getClientBy( 'id', $connectionId )->ping()
+                    : $this->redis->ping( $connectionId );
             } else {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }
@@ -703,21 +702,25 @@ class WP_Object_Cache {
                 'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
+            if ( version_compare( $version, '3.1.3', '>=' ) ) {
+                $args['read_timeout'] = $parameters['read_timeout'];
+            }
+
             if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = sprintf(
                     '%s://%s',
                     $parameters['scheme'],
                     str_replace( 'tls://', '', $parameters['host'] )
                 );
+
+                if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
+                    $args['others']['stream'] = WP_REDIS_SSL_CONTEXT;
+                }
             }
 
             if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = $parameters['path'];
                 $args['port'] = -1;
-            }
-
-            if ( version_compare( $version, '3.1.3', '>=' ) ) {
-                $args['read_timeout'] = $parameters['read_timeout'];
             }
 
             call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
@@ -773,20 +776,24 @@ class WP_Object_Cache {
                 'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
+            $args['read_timeout'] = $parameters['read_timeout'];
+
             if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = sprintf(
                     '%s://%s',
                     $parameters['scheme'],
                     str_replace( 'tls://', '', $parameters['host'] )
                 );
+
+                if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
+                    $args['others']['stream'] = WP_REDIS_SSL_CONTEXT;
+                }
             }
 
             if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = $parameters['path'];
                 $args['port'] = -1;
             }
-
-            $args['read_timeout'] = $parameters['read_timeout'];
 
             call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
 
@@ -827,13 +834,18 @@ class WP_Object_Cache {
 
         // Load bundled Predis library.
         if ( ! class_exists( 'Predis\Client' ) ) {
-            $predis = sprintf(
-                '%s/redis-cache/dependencies/predis/predis/autoload.php',
-                defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins'
-            );
+            $predis = '/dependencies/predis/predis/autoload.php';
 
-            if ( is_readable( $predis ) ) {
-                require_once $predis;
+            $pluginDir = defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR . '/redis-cache' : null;
+            $contentDir = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/plugins/redis-cache' : null;
+            $pluginPath = defined( 'WP_REDIS_PLUGIN_PATH' ) ? WP_REDIS_PLUGIN_PATH : null;
+
+            if ( $pluginDir && is_readable( $pluginDir . $predis ) ) {
+                require_once $pluginDir . $predis;
+            } elseif ( $contentDir && is_readable( $contentDir . $predis ) ) {
+                require_once $contentDir . $predis;
+            } elseif ( $pluginPath && is_readable( $pluginPath . $predis ) ) {
+                require_once $pluginPath . $predis;
             } else {
                 throw new Exception(
                     'Predis library not found. Re-install Redis Cache plugin or delete the object-cache.php.'
@@ -862,6 +874,10 @@ class WP_Object_Cache {
             $options['cluster'] = 'redis';
         }
 
+        if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
+            unset($parameters['host'], $parameters['port']);
+        }
+
         if ( isset( $parameters['read_timeout'] ) && $parameters['read_timeout'] ) {
             $parameters['read_write_timeout'] = $parameters['read_timeout'];
         }
@@ -873,9 +889,18 @@ class WP_Object_Cache {
                 }
 
                 if ( isset( $parameters['password'] ) ) {
-                    $options['parameters']['password'] = WP_REDIS_PASSWORD;
+                    if ( is_array( $parameters['password'] ) ) {
+                        $options['parameters']['username'] = WP_REDIS_PASSWORD[0];
+                        $options['parameters']['password'] = WP_REDIS_PASSWORD[1];
+                    } else {
+                        $options['parameters']['password'] = WP_REDIS_PASSWORD;
+                    }
                 }
             }
+        }
+
+        if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
+            $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
         }
 
         $this->redis = new Predis\Client( $servers ?: $parameters, $options );
@@ -1094,13 +1119,13 @@ class WP_Object_Cache {
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $connectionID = is_string( WP_REDIS_CLUSTER )
+            $connectionId = is_string( WP_REDIS_CLUSTER )
                 ? 'SERVER'
                 : current( $this->build_cluster_connection_array() );
 
             $info = $this->determine_client() === 'predis'
-                ? $this->redis->getClientFor( $connectionID )->info()
-                : $this->redis->info( $connectionID );
+                ? $this->redis->getClientBy( 'id', $connectionId )->info()
+                : $this->redis->info( $connectionId );
         } else {
             $info = $this->redis->info();
         }
@@ -1644,7 +1669,7 @@ class WP_Object_Cache {
         $san_group = $this->sanitize_key_part( $group );
 
         if ( is_multisite() && ! $this->is_global_group( $san_group ) ) {
-            $salt = str_replace( "{$this->blog_prefix}:", '*:', $this->fast_build_key( '*', $san_group ) );
+            $salt = str_replace( "{$this->blog_prefix}:{$san_group}", "*:{$san_group}", $this->fast_build_key( '*', $san_group ) );
         } else {
             $salt = $this->fast_build_key( '*', $san_group );
         }
