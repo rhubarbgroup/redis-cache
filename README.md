@@ -98,7 +98,7 @@ define( 'WP_REDIS_HOST', 'master.ncit.ameaqx.use1.cache.amazonaws.com' );
 define( 'WP_REDIS_PORT', 6379 );
 ```
 
-Additional stream connection options for `phpredis`, `relay`, and `predis` connections can be defined using `WP_REDIS_SSL_CONTEXT`
+Additional TLS/SSL stream connection options for connections can be defined using `WP_REDIS_SSL_CONTEXT`:
 
 ```php
 define( 'WP_REDIS_SSL_CONTEXT', [
