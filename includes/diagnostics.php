@@ -91,7 +91,7 @@ $constants = [
     'WP_REDIS_IGNORED_GROUPS',
     'WP_REDIS_UNFLUSHABLE_GROUPS',
     'WP_REDIS_SELECTIVE_FLUSH',
-    'WP_REDIS_TLS'
+    'WP_REDIS_SSL_CONTEXT'
 ];
 
 foreach ( $constants as $constant ) {

@@ -640,7 +640,7 @@ class WP_Object_Cache {
             'database',
             'timeout',
             'read_timeout',
-            'retry_interval'
+            'retry_interval',
         ];
 
         foreach ( $settings as $setting ) {
@@ -712,8 +712,8 @@ class WP_Object_Cache {
                     $parameters['scheme'],
                     str_replace( 'tls://', '', $parameters['host'] )
                 );
-                if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_TLS' ) && !empty(WP_REDIS_TLS) ) {
-                    $args['others']['stream'] = WP_REDIS_TLS;
+                if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && !empty(WP_REDIS_SSL_CONTEXT) ) {
+                    $args['others']['stream'] = WP_REDIS_SSL_CONTEXT;
                 }
             }
 
@@ -775,20 +775,23 @@ class WP_Object_Cache {
                 'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
+            $args['read_timeout'] = $parameters['read_timeout'];
+
             if ( strcasecmp( 'tls', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = sprintf(
                     '%s://%s',
                     $parameters['scheme'],
                     str_replace( 'tls://', '', $parameters['host'] )
                 );
+                if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && !empty(WP_REDIS_SSL_CONTEXT) ) {
+                    $args['others']['stream'] = WP_REDIS_SSL_CONTEXT;
+                }
             }
 
             if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
                 $args['host'] = $parameters['path'];
                 $args['port'] = -1;
             }
-
-            $args['read_timeout'] = $parameters['read_timeout'];
 
             call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
 
@@ -894,8 +897,8 @@ class WP_Object_Cache {
             }
         }
 
-        if ( defined( 'WP_REDIS_TLS' ) && !empty(WP_REDIS_TLS) ) {
-            $parameters['ssl'] = WP_REDIS_TLS;
+        if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && !empty(WP_REDIS_SSL_CONTEXT) ) {
+            $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
         }
 
         $this->redis = new Predis\Client( $servers ?: $parameters, $options );
