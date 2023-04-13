@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.3.0
 
 - Show dashboard widget only to admins
 - Added Admin Bar node (disable using `WP_REDIS_DISABLE_ADMINBAR`)

@@ -5,7 +5,7 @@ Tags: redis, object cache, cache, object caching, caching performance, relay, pr
 Requires at least: 3.3
 Tested up to: 6.2
 Requires PHP: 7.2
-Stable tag: 2.2.5-dev
+Stable tag: 2.3.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -60,6 +60,20 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 
 == Changelog ==
+
+= 2.3.0 =
+
+- Show dashboard widget only to admins
+- Added Admin Bar node (disable using `WP_REDIS_DISABLE_ADMINBAR`)
+- Added `WP_REDIS_SSL_CONTEXT` configuration constant
+- Throw errors when connection error occurs
+- Added support for usernames when using Predis
+- Added support for loading Predis from `WP_REDIS_PLUGIN_PATH`
+- Made Predis unix socket connections stricter
+- Fixed rare group flushing bug
+- Fixed cluster ping when using Predis
+- Updated Predis to v2.1.2
+- Improved documentation
 
 = 2.2.4 =
 
@@ -612,6 +626,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.2.4 =
+= 2.3.0 =
 
-Updated Predis to v2.1.1 and various bug fixes.
+ Software version 2.3.0 includes general performance and stability improvements.
