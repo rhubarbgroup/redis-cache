@@ -712,7 +712,8 @@ class WP_Object_Cache {
                     $parameters['scheme'],
                     str_replace( 'tls://', '', $parameters['host'] )
                 );
-                if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && !empty(WP_REDIS_SSL_CONTEXT) ) {
+
+                if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
                     $args['others']['stream'] = WP_REDIS_SSL_CONTEXT;
                 }
             }
@@ -783,7 +784,8 @@ class WP_Object_Cache {
                     $parameters['scheme'],
                     str_replace( 'tls://', '', $parameters['host'] )
                 );
-                if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && !empty(WP_REDIS_SSL_CONTEXT) ) {
+
+                if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
                     $args['others']['stream'] = WP_REDIS_SSL_CONTEXT;
                 }
             }
@@ -897,7 +899,7 @@ class WP_Object_Cache {
             }
         }
 
-        if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && !empty(WP_REDIS_SSL_CONTEXT) ) {
+        if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
             $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
         }
 
