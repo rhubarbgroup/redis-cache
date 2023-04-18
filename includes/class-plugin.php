@@ -729,8 +729,8 @@ class Plugin {
             );
 
             $meta_title = sprintf(
-                // translators: %1$d = hit ratio. %2$d = hits. %3$d = misses. %4$s = human-readable size of cache.
-                __( 'Hit Ratio: %1$d%%, Hits %2$d, Misses: %3$d, Size: %4$s', 'redis-cache' ),
+                // translators: 1: Hit ratio, 2: Hits, 3: Misses. 4: Human-readable size of cache.
+                __( 'Hit Ratio: %1$s%%, Hits %2$s, Misses: %3$s, Size: %4$s', 'redis-cache' ),
                 $info->ratio,
                 $hits,
                 $misses,
