@@ -891,7 +891,7 @@ class WP_Object_Cache {
             }
         }
  
-        if ( isset( $parameters['password'] ) ) {
+        if ( isset( $parameters['password'] ) && defined( 'WP_REDIS_USERNAME' ) ) {
             $parameters['username'] = WP_REDIS_USERNAME;
         }
 
