@@ -4,6 +4,7 @@
 
 - Support `WP_REDIS_USERNAME` when using Predis
 - Show cache hit ratio decimal points in Admin Bar node
+- removed WP_REDIS_SERIALIZER option, leaving only php and igbinary as the available serializers. To use igbinary, add `define('WP_REDIS_IGBINARY', true);` to the wp-config.php file.
 
 ## 2.3.0
 
@@ -56,10 +57,6 @@
 - Fixed `WP_REDIS_CLUSTER` string support
 - Fixed issue when `MGET` fails in `get_multiple()` call
 - Fixed several warnings in the event of pipeline failures
-
-## 2.2.5
-
-- removed WP_REDIS_SERIALIZER option, leaving only php and igbinary as the available serializers. To use igbinary, add `define('WP_REDIS_IGBINARY', true);` to the wp-config.php file.
 
 ## 2.1.6
 
