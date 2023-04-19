@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Deprecated risky `WP_REDIS_SERIALIZER` configuration constant, use `WP_REDIS_IGBINARY` instead
 - Support `WP_REDIS_USERNAME` when using Predis
 - Show cache hit ratio decimal points in Admin Bar node
 

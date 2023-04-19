@@ -522,8 +522,10 @@ class WP_Object_Cache {
 
         $this->cache_group_types();
 
-        if ( defined( 'WP_REDIS_TRACE' ) && WP_REDIS_TRACE && function_exists( '_doing_it_wrong' ) ) {
-            _doing_it_wrong( __FUNCTION__ , 'Tracing feature was removed.' , '2.1.2' );
+        if ( function_exists( '_doing_it_wrong' ) ) {
+            if ( defined( 'WP_REDIS_TRACE' ) && WP_REDIS_TRACE ) {
+                _doing_it_wrong( __FUNCTION__ , 'Tracing feature was removed.' , '2.1.2' );
+            }
         }
 
         $client = $this->determine_client();
@@ -747,6 +749,10 @@ class WP_Object_Cache {
 
         if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
             $this->redis->setOption( Redis::OPT_SERIALIZER, WP_REDIS_SERIALIZER );
+
+            if ( function_exists( '_doing_it_wrong' ) ) {
+                _doing_it_wrong( __FUNCTION__ , 'The `WP_REDIS_SERIALIZER` configuration constant has been deprecated, use `WP_REDIS_IGBINARY` instead.', '2.3.1' );
+            }
         }
     }
 
@@ -819,6 +825,10 @@ class WP_Object_Cache {
 
         if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
             $this->redis->setOption( Relay\Relay::OPT_SERIALIZER, WP_REDIS_SERIALIZER );
+
+            if ( function_exists( '_doing_it_wrong' ) ) {
+                _doing_it_wrong( __FUNCTION__ , 'The `WP_REDIS_SERIALIZER` configuration constant has been deprecated, use `WP_REDIS_IGBINARY` instead.', '2.3.1' );
+            }
         }
     }
 
@@ -898,7 +908,7 @@ class WP_Object_Cache {
                 }
             }
         }
- 
+
         if ( isset( $parameters['password'] ) && defined( 'WP_REDIS_USERNAME' ) ) {
             $parameters['username'] = WP_REDIS_USERNAME;
         }

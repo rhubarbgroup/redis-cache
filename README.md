@@ -54,7 +54,6 @@ The plugin comes with vast set of configuration options.
 | `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
 | `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored |
 | `WP_REDIS_IGBINARY`                  | `false`     | Whether to use the igbinary PHP extension for serialization |
-| `WP_REDIS_SERIALIZER`                |             | The PhpRedis/Relay serializer used for data serialization |
 | `WP_REDIS_DISABLED`                  | `false`     | Emergency switch to bypass the object cache without deleting the drop-in |
 | `WP_REDIS_DISABLE_ADMINBAR`          | `false`     | Disables admin bar display |
 | `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
@@ -120,7 +119,6 @@ Relay is a next-generation cache that keeps a partial replica of Redis' dataset 
 
 ```php
 define( 'WP_REDIS_CLIENT', 'relay' );
-define( 'WP_REDIS_SERIALIZER', 'igbinary' );
 
 define( 'WP_REDIS_HOST', '127.0.0.1' );
 define( 'WP_REDIS_PORT', 6379 );
@@ -129,6 +127,9 @@ define( 'WP_REDIS_PORT', 6379 );
 // MUST a dedicated Redis database and unique prefix
 define( 'WP_REDIS_DATABASE', 0 );
 define( 'WP_REDIS_PREFIX', 'db3:' );
+
+// consume less memory
+define( 'WP_REDIS_IGBINARY', true );
 ```
 
 </details>
