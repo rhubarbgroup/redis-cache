@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Support `WP_REDIS_USERNAME` when using Predis
+- Show cache hit ratio decimal points in Admin Bar node
+
 ## 2.3.0
 
 - Show dashboard widget only to admins
