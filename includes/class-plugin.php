@@ -720,7 +720,7 @@ class Plugin {
             $misses = number_format( $info->misses );
             $size = size_format( $info->bytes );
 
-            $title = sprintf(
+            $value = sprintf(
                 '%s%%&nbsp;&nbsp;%s/%s&nbsp;&nbsp;%s',
                 $info->ratio,
                 $hits,
@@ -728,7 +728,7 @@ class Plugin {
                 $size
             );
 
-            $meta_title = sprintf(
+            $title = sprintf(
                 // translators: 1: Hit ratio, 2: Hits, 3: Misses. 4: Human-readable size of cache.
                 __( 'Hit Ratio: %1$s%%, Hits %2$s, Misses: %3$s, Size: %4$s', 'redis-cache' ),
                 $info->ratio,
@@ -742,10 +742,10 @@ class Plugin {
             [
                 'parent' => 'redis-cache-info',
                 'id' => 'redis-cache-info-details',
-                'title' => $title,
+                'title' => $value,
                 'href' => Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
                 'meta' => [
-                    'title' => $meta_title,
+                    'title' => $title,
                 ],
             ]
         );
