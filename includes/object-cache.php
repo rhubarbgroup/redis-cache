@@ -898,6 +898,10 @@ class WP_Object_Cache {
                 }
             }
         }
+ 
+        if ( isset( $parameters['password'] ) && defined( 'WP_REDIS_USERNAME' ) ) {
+            $parameters['username'] = WP_REDIS_USERNAME;
+        }
 
         if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
             $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
