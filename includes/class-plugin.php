@@ -730,7 +730,7 @@ class Plugin {
 
             $title = sprintf(
                 // translators: 1: Hit ratio, 2: Hits, 3: Misses. 4: Human-readable size of cache.
-                __( 'Hit Ratio: %1$s%%, Hits %2$s, Misses: %3$s, Size: %4$s', 'redis-cache' ),
+                __( '(Current page) Hit Ratio: %1$s%%, Hits %2$s, Misses: %3$s, Size: %4$s', 'redis-cache' ),
                 $info->ratio,
                 $hits,
                 $misses,
@@ -791,6 +791,8 @@ class Plugin {
 
                 // do we have filesystem credentials?
                 if ( $this->initialize_filesystem( $url, true ) ) {
+
+                    // TODO: wp_cache_flush();
 
                     if ( $action === 'enable-cache' ) {
                         $result = $wp_filesystem->copy(
