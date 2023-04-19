@@ -176,7 +176,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <ul>
                     <?php foreach ( $diagnostics['servers'] as $node ) : ?>
-                        <li><code><?php echo esc_html( $node ); ?></code></li>
+                        <li><code><?php echo esc_html( $roc->obscure_url_secrets( $node ) ); ?></code></li>
                     <?php endforeach; ?>
                 </ul>
             </td>

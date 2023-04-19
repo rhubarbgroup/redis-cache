@@ -1349,6 +1349,20 @@ class Plugin {
     }
 
     /**
+     * Obscure `password` URL parameter.
+     *
+     * @param string $url
+     * @return string
+     */
+    public function obscure_url_secrets( $url ) {
+        return preg_replace(
+            '/password=[^&]+/',
+            'password=*****',
+            (string) $url
+        );
+    }
+
+    /**
      * The capability required to manage Redis.
      *
      * @return string

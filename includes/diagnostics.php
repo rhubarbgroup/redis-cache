@@ -117,6 +117,10 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
     }
 }
 
+if ( isset( $info['WP_REDIS_SERVERS'] ) ) {
+    $info['WP_REDIS_SERVERS'] = $roc->obscure_url_secrets( $info['WP_REDIS_SERVERS'] );
+}
+
 if ( $dropin && ! $disabled ) {
     $info['Global Groups'] = wp_json_encode(
         array_values( $wp_object_cache->global_groups ?? [] ),
