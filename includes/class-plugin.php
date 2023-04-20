@@ -708,9 +708,8 @@ class Plugin {
             ]
         );
 
-        $title = $this->get_status();
-        $href = network_admin_url( $this->page );
-        $meta_title = __( 'Status: ', 'redis-cache' ) . $title;
+        $value = $this->get_status();
+        $title = __( 'Status: ', 'redis-cache' ) . $value;
 
         if ( $redis_status ) {
             global $wp_object_cache;
