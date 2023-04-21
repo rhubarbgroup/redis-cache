@@ -2438,7 +2438,7 @@ LUA;
         <?php echo (int) $this->cache_misses; ?>
         <br />
         <strong>Cache Size:</strong>
-        <?php echo number_format( strlen( serialize( $this->cache ) ) / 1024, 2 ); ?> KB
+        <?php echo number_format_i18n( strlen( serialize( $this->cache ) ) / 1024, 2 ); ?> KB
     </p>
         <?php
     }
