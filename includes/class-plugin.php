@@ -715,8 +715,8 @@ class Plugin {
             global $wp_object_cache;
 
             $info = $wp_object_cache->info();
-            $hits = number_format( $info->hits );
-            $misses = number_format( $info->misses );
+            $hits = number_format_i18n( $info->hits );
+            $misses = number_format_i18n( $info->misses );
             $size = size_format( $info->bytes );
 
             $value = sprintf(
