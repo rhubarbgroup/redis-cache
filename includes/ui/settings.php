@@ -74,8 +74,11 @@ defined( '\\ABSPATH' ) || exit;
 
                 <div class="card">
                     <h2 class="title" style="line-height: 1.4">
-                        Need more performance and reliability?<br>
-                        Check out <span style="color: #dc2626;">Object Cache Pro</span>!
+                        <?php esc_html_e( 'Need more performance and reliability?', 'redis-cache' ); ?><br>
+                        <?php
+                        // translators: %s = Object Cache Pro.
+                        printf( esc_html__( 'Check out %s', 'redis-cache' ), '<span style="color: #dc2626;">' . esc_html__( 'Object Cache Pro', 'redis-cache' ) . '</span>' );
+                        ?>
                     </h2>
                     <p>
                         <?php wp_kses_post( __( '<strong>A business class object cache backend.</strong> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.', 'redis-cache' ) ); ?>
