@@ -18,11 +18,7 @@ $diagnostics = $roc->get_diagnostics();
 
 ?>
 
-<h2 class="title">
-    <?php esc_html_e( 'Overview', 'redis-cache' ); ?>
-</h2>
-
-<table class="form-table">
+<table class="form-table" style="margin-top: 20px;">
 
     <tr>
         <th><?php esc_html_e( 'Status:', 'redis-cache' ); ?></th>
@@ -36,33 +32,6 @@ $diagnostics = $roc->get_diagnostics();
                 <span class="error">
                     <span class="dashicons dashicons-no"></span>
                     <?php echo esc_html( $roc->get_status() ); ?>
-                </span>
-            <?php endif; ?>
-        </td>
-    </tr>
-
-    <tr>
-        <th><?php esc_html_e( 'Drop-in:', 'redis-cache' ); ?></th>
-        <td>
-            <?php if ( ! $roc->object_cache_dropin_exists() ) : ?>
-                <span class="error">
-                    <span class="dashicons dashicons-no"></span>
-                    <?php esc_html_e( 'Not installed', 'redis-cache' ); ?>
-                </span>
-            <?php elseif ( $roc->object_cache_dropin_outdated() ) : ?>
-                <span class="warning">
-                    <span class="dashicons dashicons-no"></span>
-                    <?php esc_html_e( 'Outdated', 'redis-cache' ); ?>
-                </span>
-            <?php elseif ( $roc->validate_object_cache_dropin() ) : ?>
-                <span class="success">
-                    <span class="dashicons dashicons-yes"></span>
-                    <?php esc_html_e( 'Valid', 'redis-cache' ); ?>
-                </span>
-            <?php else : ?>
-                <span class="error">
-                    <span class="dashicons dashicons-no"></span>
-                    <?php esc_html_e( 'Invalid', 'redis-cache' ); ?>
                 </span>
             <?php endif; ?>
         </td>
@@ -84,15 +53,6 @@ $diagnostics = $roc->get_diagnostics();
             <?php endif; ?>
         </td>
     </tr>
-
-    <?php if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) : ?>
-        <tr>
-            <th><?php esc_html_e( 'Disabled:', 'redis-cache' ); ?></th>
-            <td>
-                <code><?php esc_html_e( 'Yes', 'redis-cache' ); ?></code>
-            </td>
-        </tr>
-    <?php endif; ?>
 
     <?php if ( ! is_null( $redis_prefix ) && trim( $redis_prefix ) !== '' ) : ?>
         <tr>
