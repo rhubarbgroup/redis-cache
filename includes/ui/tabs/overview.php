@@ -25,12 +25,12 @@ $diagnostics = $roc->get_diagnostics();
         <td>
             <?php if ( $status ) : ?>
                 <span class="success">
-                    <span class="dashicons dashicons-yes"></span>
+                    <span class="dashicons dashicons-yes-alt"></span>
                     <?php echo esc_html( $roc->get_status() ); ?>
                 </span>
             <?php else : ?>
-                <span class="error">
-                    <span class="dashicons dashicons-no"></span>
+                <span class="warning">
+                    <span class="dashicons dashicons-warning"></span>
                     <?php echo esc_html( $roc->get_status() ); ?>
                 </span>
             <?php endif; ?>
@@ -42,12 +42,12 @@ $diagnostics = $roc->get_diagnostics();
         <td>
             <?php if ( $roc->test_filesystem_writing() instanceof \WP_Error ) : ?>
                 <span class="error">
-                    <span class="dashicons dashicons-no"></span>
+                    <span class="dashicons dashicons-dismiss"></span>
                     <?php esc_html_e( 'Not writeable', 'redis-cache' ); ?>
                 </span>
             <?php else : ?>
                 <span class="success">
-                    <span class="dashicons dashicons-yes"></span>
+                    <span class="dashicons dashicons-yes-alt"></span>
                     <?php esc_html_e( 'Writeable', 'redis-cache' ); ?>
                 </span>
             <?php endif; ?>
