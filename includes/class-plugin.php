@@ -532,6 +532,66 @@ class Plugin {
     }
 
     /**
+     * Build the connection parameters from config constants.
+     *
+     * @return array
+     */
+    protected function build_parameters() {
+        $parameters = [
+            'scheme' => 'tcp',
+            'host' => '127.0.0.1',
+            'port' => 6379,
+            'database' => 0,
+            'timeout' => 1,
+            'read_timeout' => 1,
+            'retry_interval' => null,
+            'persistent' => false,
+        ];
+
+        $settings = [
+            'scheme',
+            'host',
+            'port',
+            'path',
+            'password',
+            'database',
+            'timeout',
+            'read_timeout',
+            'retry_interval',
+        ];
+
+        foreach ( $settings as $setting ) {
+            $constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
+
+            if ( defined( $constant ) ) {
+                $parameters[ $setting ] = constant( $constant );
+            }
+        }
+
+        if ( isset( $parameters['password'] ) && $parameters['password'] === '' ) {
+            unset( $parameters['password'] );
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * Check whether we can connect to Redis vis Predis.
+     *
+     * @return bool
+     */
+    public function check_redis_connection() {
+        try {
+            $predis = new Predis( $this->build_parameters() );
+            $predis->connect();
+        } catch ( \Exception $e ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Returns the redis version if possible
      *
      * @see WP_Object_Cache::redis_version()

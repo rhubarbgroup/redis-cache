@@ -13,6 +13,7 @@ $redis_client = $roc->get_redis_client_name();
 $redis_prefix = $roc->get_redis_prefix();
 $redis_maxttl = $roc->get_redis_maxttl();
 $redis_version = $roc->get_redis_version();
+$redis_reachable = $roc->check_redis_connection();
 
 $diagnostics = $roc->get_diagnostics();
 
@@ -49,6 +50,23 @@ $diagnostics = $roc->get_diagnostics();
                 <span class="success">
                     <span class="dashicons dashicons-yes-alt"></span>
                     <?php esc_html_e( 'Writeable', 'redis-cache' ); ?>
+                </span>
+            <?php endif; ?>
+        </td>
+    </tr>
+
+    <tr>
+        <th><?php esc_html_e( 'Redis:', 'redis-cache' ); ?></th>
+        <td>
+            <?php if ( $redis_reachable ) : ?>
+                <span class="success">
+                    <span class="dashicons dashicons-yes-alt"></span>
+                    <?php esc_html_e( 'Reachable', 'redis-cache' ); ?>
+                </span>
+            <?php else : ?>
+                <span class="error">
+                    <span class="dashicons dashicons-dismiss"></span>
+                    <?php esc_html_e( 'Unreachable', 'redis-cache' ); ?>
                 </span>
             <?php endif; ?>
         </td>
