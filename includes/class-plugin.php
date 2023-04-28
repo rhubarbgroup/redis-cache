@@ -578,14 +578,14 @@ class Plugin {
     /**
      * Check whether we can connect to Redis vis Predis.
      *
-     * @return bool
+     * @return bool|string
      */
     public function check_redis_connection() {
         try {
             $predis = new Predis( $this->build_parameters() );
             $predis->connect();
         } catch ( \Exception $e ) {
-            return false;
+            return $e->getMessage();
         }
 
         return true;

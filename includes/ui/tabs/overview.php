@@ -19,6 +19,12 @@ $diagnostics = $roc->get_diagnostics();
 
 ?>
 
+<?php if ( is_string( $redis_reachable ) ) : ?>
+    <div class="notice notice-error">
+        <p><strong><?php esc_html_e( 'Redis is unreachable:', 'redis-cache' ); ?></strong> <?php echo esc_html( $redis_reachable ); ?></p>
+    </div>
+<?php endif; ?>
+
 <table class="form-table" style="margin-top: 20px;">
 
     <tr>
@@ -58,7 +64,7 @@ $diagnostics = $roc->get_diagnostics();
     <tr>
         <th><?php esc_html_e( 'Redis:', 'redis-cache' ); ?></th>
         <td>
-            <?php if ( $redis_reachable ) : ?>
+            <?php if ( $redis_reachable === true ) : ?>
                 <span class="success">
                     <span class="dashicons dashicons-yes-alt"></span>
                     <?php esc_html_e( 'Reachable', 'redis-cache' ); ?>
