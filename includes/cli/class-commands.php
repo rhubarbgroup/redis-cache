@@ -58,6 +58,11 @@ class Commands extends WP_CLI_Command {
                 WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
             }
         } else {
+            $redis_reachable = $plugin->check_redis_connection();
+
+            if ( is_string( $redis_reachable ) ) {
+                WP_CLI::error( __( 'Object cache could not be enabled as Redis is unreachable:', 'redis-cache' ) . ' ' . $redis_reachable );
+            }
 
             WP_Filesystem();
 
