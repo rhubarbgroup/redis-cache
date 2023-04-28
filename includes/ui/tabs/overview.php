@@ -13,6 +13,7 @@ $redis_client = $roc->get_redis_client_name();
 $redis_prefix = $roc->get_redis_prefix();
 $redis_maxttl = $roc->get_redis_maxttl();
 $redis_version = $roc->get_redis_version();
+$filesystem_writable = $roc->test_filesystem_writing();
 $redis_reachable = $roc->check_redis_connection();
 
 $diagnostics = $roc->get_diagnostics();
@@ -47,7 +48,7 @@ $diagnostics = $roc->get_diagnostics();
     <tr>
         <th><?php esc_html_e( 'Filesystem:', 'redis-cache' ); ?></th>
         <td>
-            <?php if ( $roc->test_filesystem_writing() instanceof \WP_Error ) : ?>
+            <?php if ( $filesystem_writable instanceof \WP_Error ) : ?>
                 <span class="error">
                     <span class="dashicons dashicons-dismiss"></span>
                     <?php esc_html_e( 'Not writeable', 'redis-cache' ); ?>
@@ -272,9 +273,15 @@ $diagnostics = $roc->get_diagnostics();
             <?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?>
         </a>
     <?php else : ?>
-        <a href="<?php echo esc_attr( $roc->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">
-            <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
-        </a>
+        <?php if ( $filesystem_writable && $redis_reachable === true ) : ?>
+            <a href="<?php echo esc_attr( $roc->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">
+                <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
+            </a>
+        <?php else: ?>
+            <a href="#!" class="button button-primary button-large" disabled>
+                <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
+            </a>
+        <?php endif; ?>
     <?php endif; ?>
 
 </p>
