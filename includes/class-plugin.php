@@ -492,7 +492,11 @@ class Plugin {
         }
 
         if ( ! $this->object_cache_dropin_exists() ) {
-            return __( 'Drop-in not installed', 'redis-cache' );
+            return __( 'Not enabled', 'redis-cache' );
+        }
+
+        if ( $this->object_cache_dropin_outdated() ) {
+            return __( 'Drop-in is outdated', 'redis-cache' );
         }
 
         if ( ! $this->validate_object_cache_dropin() ) {
@@ -501,7 +505,7 @@ class Plugin {
 
         if ( method_exists( $wp_object_cache, 'redis_status' ) ) {
             return $wp_object_cache->redis_status()
-                ? __( 'Connected', 'redis-cache' )
+                ? __( 'Good', 'redis-cache' )
                 : __( 'Not connected', 'redis-cache' );
         }
 
@@ -517,6 +521,10 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
+            return null;
+        }
+
+        if ( $this->object_cache_dropin_outdated() ) {
             return null;
         }
 
