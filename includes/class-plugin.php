@@ -666,38 +666,68 @@ class Plugin {
             return;
         }
 
+        $html = <<<HTML
+            <style>
+                #wpadminbar ul li.redis-cache-error { background: #c00; }
+                #wpadminbar:not(.mobile) .ab-top-menu > li.redis-cache-error:hover > .ab-item { background: #b30000; color: #fff; }
+            </style>
+            <script>
+                document.querySelector('#wp-admin-bar-redis-cache-flush > a')
+                    .addEventListener('click', async function (event) {
+                        event.preventDefault();
+
+                        var node = document.querySelector('#wp-admin-bar-redis-cache');
+                        var textNode = document.querySelector('#wp-admin-bar-redis-cache > .ab-item:first-child');
+
+                        node.classList.remove('hover');
+                        textNode.innerText = 'Flushing cache...';
+
+                        try {
+                            var response = await fetch(qm_l10n.ajaxurl, {
+                                method: 'POST',
+                                body: 'action=flush_cache&nonce=...'
+                            });
+
+                            var responseText = await response.text();
+                            textNode.innerText = responseText;
+
+                            setTimeout(function () {
+                                textNode.innerText = 'Object Cache';
+                            }, 3000);
+                        } catch (error) {
+                            textNode.innerText = responseText;
+                            alert('Object cache could not be flushed: ' + error);
+                        }
+                    });
+            </script>
+HTML;
+
         $redis_status = $this->get_redis_status();
 
-        $wp_admin_bar->add_node(
-            [
-                'id' => 'redis-cache',
-                'title' => __( 'Object Cache', 'redis-cache' ),
-                'meta' => [
-                    'html' => '<style>#wpadminbar ul li.redis-cache-error { background: #c00; } #wpadminbar:not(.mobile) .ab-top-menu>li.redis-cache-error:hover>.ab-item { background: #b30000; color: #fff; }</style>',
-                    'class' => $redis_status === false ? 'redis-cache-error' : '',
-                ],
-            ]
-        );
+        $wp_admin_bar->add_node([
+            'id' => 'redis-cache',
+            'title' => __( 'Object Cache', 'redis-cache' ),
+            'meta' => [
+                'html' => preg_replace( '/\s+/', ' ', $html ),
+                'class' => $redis_status === false ? 'redis-cache-error' : '',
+            ],
+        ]);
 
         if ( $redis_status ) {
-            $wp_admin_bar->add_node(
-                [
-                    'parent' => 'redis-cache',
-                    'id' => 'redis-cache-flush',
-                    'title' => __( 'Flush Cache', 'redis-cache' ),
-                    'href' => $this->action_link( 'flush-cache' ),
-                ]
-            );
+            $wp_admin_bar->add_node([
+                'parent' => 'redis-cache',
+                'id' => 'redis-cache-flush',
+                'title' => __( 'Flush Cache', 'redis-cache' ),
+                'href' => $this->action_link( 'flush-cache' ),
+            ]);
         }
 
-        $wp_admin_bar->add_node(
-            [
-                'parent' => 'redis-cache',
-                'id' => 'redis-cache-metrics',
-                'title' => __( 'Settings', 'redis-cache' ),
-                'href' => network_admin_url( $this->page ),
-            ]
-        );
+        $wp_admin_bar->add_node([
+            'parent' => 'redis-cache',
+            'id' => 'redis-cache-metrics',
+            'title' => __( 'Settings', 'redis-cache' ),
+            'href' => network_admin_url( $this->page ),
+        ]);
 
         $wp_admin_bar->add_group(
             [
@@ -738,17 +768,15 @@ class Plugin {
             );
         }
 
-        $wp_admin_bar->add_node(
-            [
-                'parent' => 'redis-cache-info',
-                'id' => 'redis-cache-info-details',
-                'title' => $value,
-                'href' => Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
-                'meta' => [
-                    'title' => $title,
-                ],
-            ]
-        );
+        $wp_admin_bar->add_node([
+            'parent' => 'redis-cache-info',
+            'id' => 'redis-cache-info-details',
+            'title' => $value,
+            'href' => $redis_status && Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
+            'meta' => [
+                'title' => $title,
+            ],
+        ]);
     }
 
     /**
