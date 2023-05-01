@@ -19,15 +19,15 @@ A **business class** Redis object cache backend. Truly reliable, highly optimize
 
 ## Installation
 
-To get started, please see the [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md).
+To get started, please see the [installation instructions](INSTALL.md).
 
 ## FAQ & Troubleshooting
 
-Answers to common questions and troubleshooting of common errors can be found in the [FAQ](https://github.com/rhubarbgroup/redis-cache/blob/develop/FAQ.md).
+Answers to common questions and troubleshooting of common errors can be found in the [FAQ](FAQ.md).
 
 ## Configuration
 
-The plugin comes with vast set of configuration options.
+The Redis Object Cache plugin comes with vast set of configuration options. If you're unsure how to use them read the [installation instructions](INSTALL.md).
 
 | Configuration constant               | Default     | Description                                   |
 | ------------------------------------ | ----------- | --------------------------------------------- |
