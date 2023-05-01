@@ -544,7 +544,7 @@ class Plugin {
      *
      * @return array
      */
-    protected function build_parameters() {
+    public function build_parameters() {
         $parameters = [
             'scheme' => 'tcp',
             'host' => '127.0.0.1',
@@ -584,7 +584,7 @@ class Plugin {
     }
 
     /**
-     * Check whether we can connect to Redis vis Predis.
+     * Check whether we can connect to Redis via Predis.
      *
      * @return bool|string
      */
@@ -859,7 +859,13 @@ class Plugin {
                 // do we have filesystem credentials?
                 if ( $this->initialize_filesystem( $url, true ) ) {
 
-                    // TODO: wp_cache_flush();
+                    try {
+                        $predis = new Predis( $this->build_parameters() );
+                        $predis->flush();
+                    } catch ( \Exception $exception ) {
+                        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                        error_log( $exception );
+                    }
 
                     if ( $action === 'enable-cache' ) {
                         $result = $wp_filesystem->copy(

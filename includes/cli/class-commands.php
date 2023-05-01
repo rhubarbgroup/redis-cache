@@ -7,6 +7,7 @@
 
 namespace Rhubarb\RedisCache\CLI;
 
+use Rhubarb\RedisCache\Predis;
 use WP_CLI;
 use WP_CLI_Command;
 
@@ -58,10 +59,10 @@ class Commands extends WP_CLI_Command {
                 WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
             }
         } else {
-            $redis_reachable = $plugin->check_redis_connection();
+            $flush_redis = $this->flush_redis();
 
-            if ( is_string( $redis_reachable ) ) {
-                WP_CLI::error( __( 'Object cache could not be enabled as Redis is unreachable:', 'redis-cache' ) . ' ' . $redis_reachable );
+            if ( is_string( $flush_redis ) ) {
+                WP_CLI::error( __( 'Object cache could not be enabled as Redis is unreachable:', 'redis-cache' ) . ' ' . $flush_redis );
             }
 
             WP_Filesystem();
@@ -109,6 +110,7 @@ class Commands extends WP_CLI_Command {
                 WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
 
             } else {
+                $this->flush_redis();
 
                 WP_Filesystem();
 
@@ -139,6 +141,8 @@ class Commands extends WP_CLI_Command {
 
         WP_Filesystem();
 
+        $this->flush_redis();
+
         $copy = $wp_filesystem->copy(
             WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
             WP_CONTENT_DIR . '/object-cache.php',
@@ -152,6 +156,31 @@ class Commands extends WP_CLI_Command {
             WP_CLI::error( __( 'Object cache drop-in could not be updated.', 'redis-cache' ) );
         }
 
+    }
+
+    /**
+     * Flush the Redis cache via Predis.
+     *
+     * @return bool|string
+     */
+    protected function flush_redis() {
+        $plugin = Plugin::instance();
+
+        try {
+            $predis = new Predis( $plugin->build_parameters() );
+            $predis->connect();
+        } catch ( \Exception $exception ) {
+            return $exception->getMessage();
+        }
+
+        try {
+            $predis->flush();
+        } catch ( \Exception $exception ) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( $exception );
+        }
+
+        return true;
     }
 
 }

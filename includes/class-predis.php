@@ -103,6 +103,35 @@ class Predis {
     }
 
     /**
+     * Invalidate all items in the cache.
+     *
+     * @return bool True on success, false on failure.
+     */
+    public function flush() {
+        if ( is_null( $this->redis ) ) {
+            $this->connect();
+        }
+
+        if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+            try {
+                foreach ( $this->redis->_masters() as $master ) {
+                    $this->redis->flushdb( $master );
+                }
+            } catch ( \Exception $exception ) {
+                return false;
+            }
+        } else {
+            try {
+                $this->redis->flushdb();
+            } catch ( \Exception $exception ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Builds a clean connection array out of redis clusters array.
      *
      * @return  array
