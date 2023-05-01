@@ -455,6 +455,22 @@
             }
         );
 
+        $('#wp-admin-bar-redis-cache-flush > a').on('click', function (e) {
+            var menu = $(e.currentTarget).parents('.menupop'),
+                el = menu.children(':first'),
+                title = el.text();
+
+            e.preventDefault();
+            menu.removeClass('hover');
+            el.text('Flushing cache...');
+            $.post( ajaxurl, { action: 'flush_cache' }, function (response) {
+                el.text(response);
+                setTimeout(function () {
+                    el.text(title);
+                }, 1000);
+            });
+        });
+
         if ( $( '#redis-cache-copy-button' ).length ) {
             if ( typeof ClipboardJS === 'undefined' ) {
                 $( '#redis-cache-copy-button' ).remove();

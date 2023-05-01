@@ -109,6 +109,7 @@ class Plugin {
         add_action( 'wp_network_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
 
         add_action( 'wp_ajax_roc_dismiss_notice', [ $this, 'dismiss_notice' ] );
+        add_action( 'wp_ajax_flush_cache', [ $this, 'flush_cache' ] );
 
         add_filter( 'plugin_row_meta', [ $this, 'add_plugin_row_meta' ], 10, 2 );
         add_filter( sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME ), [ $this, 'add_plugin_actions_links' ] );
@@ -914,6 +915,15 @@ class Plugin {
         }
 
         wp_die();
+    }
+
+    /**
+     * Flushes object cache
+     *
+     * @return void
+     */
+    public function flush_cache() {
+        wp_die( __( wp_cache_flush() ? 'Object cache flushed.' : 'Object cache could not be flushed.' , 'redis-cache' ) );
     }
 
     /**
