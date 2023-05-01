@@ -273,7 +273,7 @@ $diagnostics = $roc->get_diagnostics();
             <?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?>
         </a>
     <?php else : ?>
-        <?php if ( $filesystem_writable && $redis_reachable === true ) : ?>
+        <?php if ( ! $filesystem_writable instanceof \WP_Error && $redis_reachable === true ) : ?>
             <a href="<?php echo esc_attr( $roc->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">
                 <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
             </a>
