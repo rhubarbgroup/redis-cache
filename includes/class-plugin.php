@@ -110,6 +110,8 @@ class Plugin {
 
         add_action( 'wp_ajax_roc_dismiss_notice', [ $this, 'dismiss_notice' ] );
 
+        add_filter( 'gettext_redis-cache', [ $this, 'get_text' ], 10, 2 );
+
         add_filter( 'plugin_row_meta', [ $this, 'add_plugin_row_meta' ], 10, 2 );
         add_filter( sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME ), [ $this, 'add_plugin_actions_links' ] );
 
@@ -249,6 +251,21 @@ class Plugin {
     }
 
     /**
+     * Ensure Author URI has UTM parameters.
+     *
+     * @param string $translation Translated text.
+     * @param string $text Text to translate.
+     * @return string
+     */
+    public function get_text( $translation, $text ) {
+        if ( $text === 'https://objectcache.pro' ) {
+            return $this->link_to_ocp( 'author', false );
+        }
+
+        return $translation;
+    }
+
+    /**
      * Adds plugin meta links on the plugin page
      *
      * @param string[] $plugin_meta An array of the plugin's metadata.
@@ -262,11 +279,34 @@ class Plugin {
 
         $plugin_meta[] = sprintf(
             '<a href="%1$s"><span class="dashicons dashicons-star-filled" aria-hidden="true" style="font-size: 14px; line-height: 1.3"></span>%2$s</a>',
-            'https://objectcache.pro/?ref=oss&amp;utm_source=wp-plugin&amp;utm_medium=meta-row',
+            $this->link_to_ocp('meta-row'),
             esc_html_x( 'Upgrade to Pro', 'verb', 'redis-cache' )
         );
 
         return $plugin_meta;
+    }
+
+    /**
+     * Returns the link to Object Cache Pro.
+     *
+     * @param string $medium
+     * @param bool $as_html
+     * @return string
+     */
+    public function link_to_ocp($medium, $as_html = true)
+    {
+        $ref = 'oss';
+
+        if (
+            ( defined( 'WP_ROCKET_WEB_MAIN' ) && strpos( (string) WP_ROCKET_WEB_MAIN, 'cloudlinux.com' ) ) ||
+            ( defined( 'WP_ROCKET_UPDATE_PATH' ) && strpos( (string) WP_ROCKET_UPDATE_PATH, 'cloudlinux' ) )
+        ) {
+            $ref = 'oss-cl';
+        }
+
+        $url = "https://objectcache.pro/?ref={$ref}&utm_source=wp-plugin&utm_medium={$medium}";
+
+        return $as_html ? str_replace('&', '&amp;', $url) : $url;
     }
 
     /**
