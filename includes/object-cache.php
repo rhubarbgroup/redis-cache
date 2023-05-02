@@ -2860,13 +2860,13 @@ LUA;
         // When Redis is unavailable, fall back to the internal cache by forcing all groups to be "no redis" groups.
         $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $this->global_groups ) );
 
+        error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
         if ( ! $this->fail_gracefully ) {
-            throw $exception;
+            $this->show_error_and_die( $exception );
         }
 
         $this->errors[] = $exception->getMessage();
-
-        error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
         if ( function_exists( 'do_action' ) ) {
             /**
@@ -2877,6 +2877,42 @@ LUA;
              */
             do_action( 'redis_object_cache_error', $exception );
         }
+    }
+
+    /**
+     * Show Redis connection error screen, or load custom `/db-error.php`.
+     *
+     * @return void
+     */
+    protected function show_error_and_die( \Exception $exception ) {
+        wp_load_translations_early();
+
+        // Load custom DB error template, if present.
+        if ( file_exists( WP_CONTENT_DIR . '/db-error.php' ) ) {
+            require_once WP_CONTENT_DIR . '/db-error.php';
+            die();
+        }
+
+        $message = '<h1>' . __( 'Error establishing a Redis connection' ) . "</h1>\n";
+
+        if ( wp_installing() || defined( 'WP_ADMIN' ) ) {
+            $message .= '<p>' . sprintf(
+                __( 'This means that the connection information in your %1$s file is incorrect or that Redis is unreachable.' ),
+                '<code>wp-config.php</code>',
+            ) . "</p>\n";
+
+            $message .= "<ul>\n";
+            $message .= '<li>' . __( 'Are you sure you have the correct Redis host and port?' ) . "</li>\n";
+            $message .= '<li>' . __( 'Are you sure Redis is running?' ) . "</li>\n";
+            $message .= "</ul>\n";
+
+            $message .= '<p>' . sprintf(
+                __( 'If you still need help, please read the extensive <a href="%s">installation instructions</a>.' ),
+                __( 'https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md' )
+            ) . "</p>\n";
+        }
+
+        wp_die( $message );
     }
 
     /**
