@@ -2880,7 +2880,7 @@ LUA;
     }
 
     /**
-     * Show Redis connection error screen, or load custom `/db-error.php`.
+     * Show Redis connection error screen, or load custom `/redis-error.php`.
      *
      * @return void
      */
@@ -2888,8 +2888,8 @@ LUA;
         wp_load_translations_early();
 
         // Load custom DB error template, if present.
-        if ( file_exists( WP_CONTENT_DIR . '/db-error.php' ) ) {
-            require_once WP_CONTENT_DIR . '/db-error.php';
+        if ( file_exists( WP_CONTENT_DIR . '/redis-error.php' ) ) {
+            require_once WP_CONTENT_DIR . '/redis-error.php';
             die();
         }
 
