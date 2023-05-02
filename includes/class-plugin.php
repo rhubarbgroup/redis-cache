@@ -791,8 +791,6 @@ class Plugin {
                 // do we have filesystem credentials?
                 if ( $this->initialize_filesystem( $url, true ) ) {
 
-                    // TODO: wp_cache_flush();
-
                     if ( $action === 'enable-cache' ) {
                         $result = $wp_filesystem->copy(
                             WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
