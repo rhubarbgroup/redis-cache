@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature request
+    url: https://github.com/orgs/rhubarbgroup/discussions/categories/ideas-roc
+    about: Suggest an idea for the plugin
+  - name: Support inquiry or question
+    url: https://github.com/orgs/rhubarbgroup/discussions/categories/support-roc
+    about: Get help using the plugin

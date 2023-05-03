@@ -1,7 +1,5 @@
 # FAQ & Troubleshooting
 
- (also pinned post)
-
 When in doubt try flushing the cache, you'd be surprised how often this resolves issues. Welcome to WordPress ✌️
 
 <details>

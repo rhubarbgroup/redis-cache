@@ -6,6 +6,7 @@
 - Support `WP_REDIS_USERNAME` when using Predis
 - Show cache hit ratio decimal points in Admin Bar node
 - Obscure secrets when displaying `WP_REDIS_SERVERS`
+- Improved CloudLinux's Accelerate WP compatibility
 
 ## 2.3.0
 
