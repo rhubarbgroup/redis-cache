@@ -109,7 +109,8 @@ class Plugin {
         add_action( 'wp_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
         add_action( 'wp_network_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
 
-        add_action( 'wp_ajax_roc_dismiss_notice', [ $this, 'dismiss_notice' ] );
+        add_action( 'wp_ajax_roc_dismiss_notice', [ $this, 'ajax_dismiss_notice' ] );
+        add_action( 'wp_ajax_roc_flush_cache', [ $this, 'ajax_flush_cache' ] );
 
         add_filter( 'gettext_redis-cache', [ $this, 'get_text' ], 10, 2 );
 
@@ -729,39 +730,73 @@ class Plugin {
         if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
+        
+        $nodeTitle = __( 'Object Cache', 'redis-cache' );
+        $flushMessage = __( 'Flushing cache...', 'redis-cache' );
+
+        $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
+        $nonce = wp_create_nonce();
+
+        $html = <<<HTML
+            <style>
+                #wpadminbar ul li.redis-cache-error { background: #c00; }
+                #wpadminbar:not(.mobile) .ab-top-menu > li.redis-cache-error:hover > .ab-item { background: #b30000; color: #fff; }
+            </style>
+            <script>
+                document.querySelector('#wp-admin-bar-redis-cache-flush > a')
+                    .addEventListener('click', async function (event) {
+                        event.preventDefault();
+
+                        var node = document.querySelector('#wp-admin-bar-redis-cache');
+                        var textNode = node.querySelector('.ab-item:first-child');
+
+                        node.classList.remove('hover');
+                        textNode.innerText = '{$flushMessage}';
+
+                        try {
+                            var data = new FormData();
+                            data.append('action', 'roc_flush_cache');
+                            data.append('nonce', '{$nonce}');
+
+                            var response = await fetch('{$ajaxurl}', { method: 'POST', body: data });
+
+                            textNode.innerText = await response.text();
+
+                            setTimeout(function () { textNode.innerText = '{$nodeTitle}'; }, 3000);
+                        } catch (error) {
+                            textNode.innerText = '{$nodeTitle}';
+                            alert('Object cache could not be flushed: ' + error);
+                        }
+                    });
+            </script>
+HTML;
 
         $redis_status = $this->get_redis_status();
 
-        $wp_admin_bar->add_node(
-            [
-                'id' => 'redis-cache',
-                'title' => __( 'Object Cache', 'redis-cache' ),
-                'meta' => [
-                    'html' => '<style>#wpadminbar ul li.redis-cache-error { background: #c00; } #wpadminbar:not(.mobile) .ab-top-menu>li.redis-cache-error:hover>.ab-item { background: #b30000; color: #fff; }</style>',
-                    'class' => $redis_status === false ? 'redis-cache-error' : '',
-                ],
-            ]
-        );
+        $wp_admin_bar->add_node([
+            'id' => 'redis-cache',
+            'title' => $nodeTitle,
+            'meta' => [
+                'html' => preg_replace( '/\s+/', ' ', $html ),
+                'class' => $redis_status === false ? 'redis-cache-error' : '',
+            ],
+        ]);
 
         if ( $redis_status ) {
-            $wp_admin_bar->add_node(
-                [
-                    'parent' => 'redis-cache',
-                    'id' => 'redis-cache-flush',
-                    'title' => __( 'Flush Cache', 'redis-cache' ),
-                    'href' => $this->action_link( 'flush-cache' ),
-                ]
-            );
+            $wp_admin_bar->add_node([
+                'parent' => 'redis-cache',
+                'id' => 'redis-cache-flush',
+                'title' => __( 'Flush Cache', 'redis-cache' ),
+                'href' => $this->action_link( 'flush-cache' ),
+            ]);
         }
 
-        $wp_admin_bar->add_node(
-            [
-                'parent' => 'redis-cache',
-                'id' => 'redis-cache-metrics',
-                'title' => __( 'Settings', 'redis-cache' ),
-                'href' => network_admin_url( $this->page ),
-            ]
-        );
+        $wp_admin_bar->add_node([
+            'parent' => 'redis-cache',
+            'id' => 'redis-cache-metrics',
+            'title' => __( 'Settings', 'redis-cache' ),
+            'href' => network_admin_url( $this->page ),
+        ]);
 
         $wp_admin_bar->add_group(
             [
@@ -774,7 +809,7 @@ class Plugin {
         );
 
         $value = $this->get_status();
-        $title = __( 'Status: ', 'redis-cache' ) . $value;
+        $title = sprintf( __( 'Status: %s', 'redis-cache' ), $value );
 
         if ( $redis_status ) {
             global $wp_object_cache;
@@ -802,17 +837,15 @@ class Plugin {
             );
         }
 
-        $wp_admin_bar->add_node(
-            [
-                'parent' => 'redis-cache-info',
-                'id' => 'redis-cache-info-details',
-                'title' => $value,
-                'href' => Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
-                'meta' => [
-                    'title' => $title,
-                ],
-            ]
-        );
+        $wp_admin_bar->add_node([
+            'parent' => 'redis-cache-info',
+            'id' => 'redis-cache-info-details',
+            'title' => $value,
+            'href' => $redis_status && Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
+            'meta' => [
+                'title' => $title,
+            ],
+        ]);
     }
 
     /**
@@ -984,7 +1017,7 @@ class Plugin {
      *
      * @return void
      */
-    public function dismiss_notice() {
+    public function ajax_dismiss_notice() {
         if ( isset( $_POST['notice'] ) ) {
             check_ajax_referer( 'roc_dismiss_notice' );
 
@@ -997,6 +1030,23 @@ class Plugin {
         }
 
         wp_die();
+    }
+
+    /**
+     * Flushes object cache
+     *
+     * @return void
+     */
+    public function ajax_flush_cache() {
+        if ( ! wp_verify_nonce( $_POST['nonce'] ) ) {
+            $message = 'Invalid Nonce.';
+        } else if ( wp_cache_flush() ) {
+            $message = 'Object cache flushed.';
+        } else {
+            $message = 'Object cache could not be flushed.';
+        }
+
+        wp_die( __( $message , 'redis-cache' ) );
     }
 
     /**
