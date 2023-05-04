@@ -7,7 +7,7 @@
 - Show cache hit ratio decimal points in Admin Bar node
 - Obscure secrets when displaying `WP_REDIS_SERVERS`
 - Improved CloudLinux's Accelerate WP compatibility
-- Flush Redis database when enabling object cache
+- Flush cache when toggling the object cache
 - Show a custom error message when Redis is unreachable
 - Don't allow object cache to be enabled when Redis is unreachable
 

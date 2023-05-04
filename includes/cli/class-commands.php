@@ -142,8 +142,6 @@ class Commands extends WP_CLI_Command {
 
         WP_Filesystem();
 
-        $this->flush_redis();
-
         $copy = $wp_filesystem->copy(
             WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
             WP_CONTENT_DIR . '/object-cache.php',

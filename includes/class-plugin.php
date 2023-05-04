@@ -856,14 +856,6 @@ class Plugin {
                 // do we have filesystem credentials?
                 if ( $this->initialize_filesystem( $url, true ) ) {
 
-                    try {
-                        $predis = new Predis();
-                        $predis->flush();
-                    } catch ( Exception $exception ) {
-                        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                        error_log( $exception );
-                    }
-
                     if ( $action === 'enable-cache' ) {
                         $result = $wp_filesystem->copy(
                             WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php',
@@ -871,6 +863,16 @@ class Plugin {
                             true,
                             FS_CHMOD_FILE
                         );
+
+                        if ( $result ) {
+                            try {
+                                $predis = new Predis();
+                                $predis->flush();
+                            } catch ( Exception $exception ) {
+                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                                error_log( $exception );
+                            }
+                        }
 
                         /**
                          * Fires on cache enable event
@@ -897,6 +899,16 @@ class Plugin {
 
                     if ( $action === 'disable-cache' ) {
                         $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
+
+                        if ( $result ) {
+                            try {
+                                $predis = new Predis();
+                                $predis->flush();
+                            } catch ( Exception $exception ) {
+                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                                error_log( $exception );
+                            }
+                        }
 
                         /**
                          * Fires on cache enable event
