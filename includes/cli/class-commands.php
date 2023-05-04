@@ -63,6 +63,7 @@ class Commands extends WP_CLI_Command {
             $flush = $this->flush_redis();
 
             if ( is_string( $flush ) ) {
+                // translators: %s = The Redis connection error message.
                 WP_CLI::error( sprintf( __( "Object cache could not be enabled. Redis server is unreachable: %s", 'redis-cache' ), $flush ) );
             }
 
@@ -154,6 +155,7 @@ class Commands extends WP_CLI_Command {
             $flush = $this->flush_redis();
 
             if ( is_string( $flush ) ) {
+                // translators: %s = The Redis connection error message.
                 WP_CLI::error( sprintf( __( "Object cache drop-in could not be updated. Redis server is unreachable: %s", 'redis-cache' ), $flush ) );
             }
 

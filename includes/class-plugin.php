@@ -809,6 +809,7 @@ HTML;
         );
 
         $value = $this->get_status();
+        // translators: %s = The status of the Redis connection.
         $title = sprintf( __( 'Status: %s', 'redis-cache' ), $value );
 
         if ( $redis_status ) {
