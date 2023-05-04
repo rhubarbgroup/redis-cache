@@ -8,6 +8,7 @@
 namespace Rhubarb\RedisCache;
 
 use WP_Error;
+use Exception;
 
 defined( '\\ABSPATH' ) || exit;
 
@@ -632,8 +633,8 @@ class Plugin {
         try {
             $predis = new Predis( $this->build_parameters() );
             $predis->connect();
-        } catch ( \Exception $e ) {
-            return $e->getMessage();
+        } catch ( Exception $error ) {
+            return $error->getMessage();
         }
 
         return true;
@@ -902,7 +903,7 @@ class Plugin {
                     try {
                         $predis = new Predis( $this->build_parameters() );
                         $predis->flush();
-                    } catch ( \Exception $exception ) {
+                    } catch ( Exception $exception ) {
                         // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
                         error_log( $exception );
                     }

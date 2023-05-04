@@ -7,6 +7,8 @@
 
 namespace Rhubarb\RedisCache;
 
+use Exception;
+
 defined( '\\ABSPATH' ) || exit;
 
 class Predis {
@@ -117,13 +119,13 @@ class Predis {
                 foreach ( $this->redis->_masters() as $master ) {
                     $this->redis->flushdb( $master );
                 }
-            } catch ( \Exception $exception ) {
+            } catch ( Exception $exception ) {
                 return false;
             }
         } else {
             try {
                 $this->redis->flushdb();
-            } catch ( \Exception $exception ) {
+            } catch ( Exception $exception ) {
                 return false;
             }
         }

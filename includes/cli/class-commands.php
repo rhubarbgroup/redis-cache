@@ -7,11 +7,12 @@
 
 namespace Rhubarb\RedisCache\CLI;
 
-use Rhubarb\RedisCache\Predis;
 use WP_CLI;
 use WP_CLI_Command;
+use Exception;
 
 use Rhubarb\RedisCache\Plugin;
+use Rhubarb\RedisCache\Predis;
 
 defined( '\\ABSPATH' ) || exit;
 
@@ -169,13 +170,13 @@ class Commands extends WP_CLI_Command {
         try {
             $predis = new Predis( $plugin->build_parameters() );
             $predis->connect();
-        } catch ( \Exception $exception ) {
+        } catch ( Exception $exception ) {
             return $exception->getMessage();
         }
 
         try {
             $predis->flush();
-        } catch ( \Exception $exception ) {
+        } catch ( Exception $exception ) {
             // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             error_log( $exception );
         }
