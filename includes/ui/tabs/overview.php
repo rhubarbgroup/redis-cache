@@ -13,56 +13,36 @@ $redis_client = $roc->get_redis_client_name();
 $redis_prefix = $roc->get_redis_prefix();
 $redis_maxttl = $roc->get_redis_maxttl();
 $redis_version = $roc->get_redis_version();
+$redis_connection = $roc->check_redis_connection();
+$filesystem_writable = $roc->test_filesystem_writing();
 
 $diagnostics = $roc->get_diagnostics();
 
 ?>
 
-<h2 class="title">
-    <?php esc_html_e( 'Overview', 'redis-cache' ); ?>
-</h2>
+<?php if ( is_string( $redis_connection ) ) : ?>
+    <div class="notice notice-error">
+        <p>
+            <strong><?php esc_html_e( 'Redis is unreachable:', 'redis-cache' ); ?></strong>
+            <?php echo esc_html( $redis_connection ); ?>
+        </p>
+    </div>
+<?php endif; ?>
 
-<table class="form-table">
+<table class="form-table" style="margin-top: 20px;">
 
     <tr>
         <th><?php esc_html_e( 'Status:', 'redis-cache' ); ?></th>
         <td>
             <?php if ( $status ) : ?>
                 <span class="success">
-                    <span class="dashicons dashicons-yes"></span>
+                    <span class="dashicons dashicons-yes-alt"></span>
                     <?php echo esc_html( $roc->get_status() ); ?>
                 </span>
             <?php else : ?>
-                <span class="error">
-                    <span class="dashicons dashicons-no"></span>
-                    <?php echo esc_html( $roc->get_status() ); ?>
-                </span>
-            <?php endif; ?>
-        </td>
-    </tr>
-
-    <tr>
-        <th><?php esc_html_e( 'Drop-in:', 'redis-cache' ); ?></th>
-        <td>
-            <?php if ( ! $roc->object_cache_dropin_exists() ) : ?>
-                <span class="error">
-                    <span class="dashicons dashicons-no"></span>
-                    <?php esc_html_e( 'Not installed', 'redis-cache' ); ?>
-                </span>
-            <?php elseif ( $roc->object_cache_dropin_outdated() ) : ?>
                 <span class="warning">
-                    <span class="dashicons dashicons-no"></span>
-                    <?php esc_html_e( 'Outdated', 'redis-cache' ); ?>
-                </span>
-            <?php elseif ( $roc->validate_object_cache_dropin() ) : ?>
-                <span class="success">
-                    <span class="dashicons dashicons-yes"></span>
-                    <?php esc_html_e( 'Valid', 'redis-cache' ); ?>
-                </span>
-            <?php else : ?>
-                <span class="error">
-                    <span class="dashicons dashicons-no"></span>
-                    <?php esc_html_e( 'Invalid', 'redis-cache' ); ?>
+                    <span class="dashicons dashicons-warning"></span>
+                    <?php echo esc_html( $roc->get_status() ); ?>
                 </span>
             <?php endif; ?>
         </td>
@@ -71,28 +51,36 @@ $diagnostics = $roc->get_diagnostics();
     <tr>
         <th><?php esc_html_e( 'Filesystem:', 'redis-cache' ); ?></th>
         <td>
-            <?php if ( $roc->test_filesystem_writing() instanceof \WP_Error ) : ?>
+            <?php if ( $filesystem_writable instanceof \WP_Error ) : ?>
                 <span class="error">
-                    <span class="dashicons dashicons-no"></span>
+                    <span class="dashicons dashicons-dismiss"></span>
                     <?php esc_html_e( 'Not writeable', 'redis-cache' ); ?>
                 </span>
             <?php else : ?>
                 <span class="success">
-                    <span class="dashicons dashicons-yes"></span>
+                    <span class="dashicons dashicons-yes-alt"></span>
                     <?php esc_html_e( 'Writeable', 'redis-cache' ); ?>
                 </span>
             <?php endif; ?>
         </td>
     </tr>
 
-    <?php if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) : ?>
-        <tr>
-            <th><?php esc_html_e( 'Disabled:', 'redis-cache' ); ?></th>
-            <td>
-                <code><?php esc_html_e( 'Yes', 'redis-cache' ); ?></code>
-            </td>
-        </tr>
-    <?php endif; ?>
+    <tr>
+        <th><?php esc_html_e( 'Redis:', 'redis-cache' ); ?></th>
+        <td>
+            <?php if ( $redis_connection === true ) : ?>
+                <span class="success">
+                    <span class="dashicons dashicons-yes-alt"></span>
+                    <?php esc_html_e( 'Reachable', 'redis-cache' ); ?>
+                </span>
+            <?php else : ?>
+                <span class="error">
+                    <span class="dashicons dashicons-dismiss"></span>
+                    <?php esc_html_e( 'Unreachable', 'redis-cache' ); ?>
+                </span>
+            <?php endif; ?>
+        </td>
+    </tr>
 
     <?php if ( ! is_null( $redis_prefix ) && trim( $redis_prefix ) !== '' ) : ?>
         <tr>
@@ -176,7 +164,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <ul>
                     <?php foreach ( $diagnostics['servers'] as $node ) : ?>
-                        <li><code><?php echo esc_html( $node ); ?></code></li>
+                        <li><code><?php echo esc_html( $roc->obscure_url_secrets( $node ) ); ?></code></li>
                     <?php endforeach; ?>
                 </ul>
             </td>
@@ -288,9 +276,15 @@ $diagnostics = $roc->get_diagnostics();
             <?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?>
         </a>
     <?php else : ?>
-        <a href="<?php echo esc_attr( $roc->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">
-            <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
-        </a>
+        <?php if ( ! $filesystem_writable instanceof \WP_Error && $redis_connection === true ) : ?>
+            <a href="<?php echo esc_attr( $roc->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">
+                <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
+            </a>
+        <?php else: ?>
+            <a href="#!" class="button button-primary button-large" disabled>
+                <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
+            </a>
+        <?php endif; ?>
     <?php endif; ?>
 
 </p>

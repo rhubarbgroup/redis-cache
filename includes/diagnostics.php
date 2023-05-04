@@ -40,7 +40,7 @@ if ( $dropin && ! $disabled ) {
 $info['PhpRedis'] = class_exists( 'Redis' ) ? phpversion( 'redis' ) : 'Not loaded';
 $info['Relay'] = class_exists( 'Relay\Relay' ) ? phpversion( 'relay' ) : 'Not loaded';
 $info['Predis'] = class_exists( 'Predis\Client' ) ? Predis\Client::VERSION : 'Not loaded';
-$info['Credis'] = class_exists( 'Credis_Client' ) ? Credis_Client::VERSION : 'Not loaded';
+$info['Credis'] = class_exists( 'Credis_Client' ) ? 'v1.14.0' : 'Not loaded';
 
 if ( defined( 'PHP_VERSION' ) ) {
     $info['PHP Version'] = PHP_VERSION;
@@ -82,7 +82,6 @@ $constants = [
     'WP_REDIS_SHARDS',
     'WP_REDIS_SENTINEL',
     'WP_REDIS_IGBINARY',
-    'WP_REDIS_SERIALIZER',
     'WP_REDIS_MAXTTL',
     'WP_REDIS_PREFIX',
     'WP_CACHE_KEY_SALT',
@@ -116,6 +115,10 @@ if ( defined( 'WP_REDIS_PASSWORD' ) ) {
     } elseif ( is_string( $password ) && '' !== $password ) {
         $info['WP_REDIS_PASSWORD'] = str_repeat( '•', 8 );
     }
+}
+
+if ( isset( $info['WP_REDIS_SERVERS'] ) ) {
+    $info['WP_REDIS_SERVERS'] = $roc->obscure_url_secrets( $info['WP_REDIS_SERVERS'] );
 }
 
 if ( $dropin && ! $disabled ) {

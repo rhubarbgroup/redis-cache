@@ -3,6 +3,12 @@
 When in doubt try flushing the cache, you'd be surprised how often this resolves issues. Welcome to WordPress ✌️
 
 <details>
+<summary>HELP! My site is down!1!!11!!11</summary>
+
+The easist way to to disable Redis on your site is deleting the `wp-content/object-cache.php` drop-in file. Alternatively, you can set the `WP_REDIS_DISABLED` constant to `true` to bypass loading it.
+</details>
+
+<details>
 <summary>Plugin is incompatible with OtherPlugin</summary>
 
 Unfortunately many plugin authors don't bother testing their plugins with a persistent object cache. If you’re experiencing a compatibility issue with another plugin in combination with Redis Object Cache, please contact the support team of the **other plugin** regarding the issue.

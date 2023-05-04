@@ -66,3 +66,15 @@ parameters:
             message: "#^Access to private property Rhubarb\\\\RedisCache\\\\Plugin\\:\\:\\$page\\.$#"
             count: 1
             path: includes/ui/widget.php
+
+        # False positive
+        -
+            message: "#^Variable \\$this might not be defined#"
+            count: 1
+            path: includes/ui/settings.php
+
+        # False positive
+        -
+            message: "#^Access to undefined constant Credis_Client::VERSION#"
+            count: 1
+            path: tests/PHPStan/object-cache.php

@@ -19,15 +19,15 @@ A **business class** Redis object cache backend. Truly reliable, highly optimize
 
 ## Installation
 
-To get started, please see the [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md).
+To get started, please see the [installation instructions](INSTALL.md).
 
 ## FAQ & Troubleshooting
 
-Answers to common questions and troubleshooting of common errors can be found in the [FAQ](https://github.com/rhubarbgroup/redis-cache/blob/develop/FAQ.md).
+Answers to common questions and troubleshooting of common errors can be found in the [FAQ](FAQ.md).
 
 ## Configuration
 
-The plugin comes with vast set of configuration options.
+The Redis Object Cache plugin comes with vast set of configuration options. If you're unsure how to use them read the [installation instructions](INSTALL.md).
 
 | Configuration constant               | Default     | Description                                   |
 | ------------------------------------ | ----------- | --------------------------------------------- |
@@ -36,7 +36,7 @@ The plugin comes with vast set of configuration options.
 | `WP_REDIS_PATH`                      |             | The path to the unix socket of the Redis server |
 | `WP_REDIS_SCHEME`                    | `tcp`       | The scheme used to connect: `tcp` or `unix` |
 | `WP_REDIS_DATABASE`                  | `0`         | The database used by the cache: `0-15` |
-| `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions, replaces `WP_CACHE_KEY_SALT` |
+| `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions, replaces `WP_CACHE_KEY_SALT`. Should be human readable, not a "salt". |
 | `WP_REDIS_PASSWORD`                  |             | The password of the Redis server, supports ACLs array: `['username', 'password']` |
 | `WP_REDIS_MAXTTL`                    | `0`         | The maximum time-to-live of cache keys |
 | `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis: `predis`, `phpredis` or `relay` |
@@ -54,7 +54,6 @@ The plugin comes with vast set of configuration options.
 | `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
 | `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored |
 | `WP_REDIS_IGBINARY`                  | `false`     | Whether to use the igbinary PHP extension for serialization |
-| `WP_REDIS_SERIALIZER`                |             | The PhpRedis/Relay serializer used for data serialization |
 | `WP_REDIS_DISABLED`                  | `false`     | Emergency switch to bypass the object cache without deleting the drop-in |
 | `WP_REDIS_DISABLE_ADMINBAR`          | `false`     | Disables admin bar display |
 | `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
@@ -120,7 +119,6 @@ Relay is a next-generation cache that keeps a partial replica of Redis' dataset 
 
 ```php
 define( 'WP_REDIS_CLIENT', 'relay' );
-define( 'WP_REDIS_SERIALIZER', 'igbinary' );
 
 define( 'WP_REDIS_HOST', '127.0.0.1' );
 define( 'WP_REDIS_PORT', 6379 );
@@ -129,6 +127,9 @@ define( 'WP_REDIS_PORT', 6379 );
 // MUST a dedicated Redis database and unique prefix
 define( 'WP_REDIS_DATABASE', 0 );
 define( 'WP_REDIS_PREFIX', 'db3:' );
+
+// consume less memory
+define( 'WP_REDIS_IGBINARY', true );
 ```
 
 </details>

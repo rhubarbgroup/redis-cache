@@ -1,11 +1,11 @@
 === Redis Object Cache ===
-Contributors: tillkruess
+Contributors: tillkruess, a5hleyrich
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, object cache, cache, object caching, caching performance, relay, predis, phpredis
 Requires at least: 3.3
 Tested up to: 6.2
 Requires PHP: 7.2
-Stable tag: 2.3.0
+Stable tag: 2.4.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -60,6 +60,18 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 
 == Changelog ==
+
+= 2.4.0 =
+
+- Flush cache when toggling the object cache
+- Show a custom error message when Redis is unreachable
+- Don't allow object cache to be enabled when Redis is unreachable
+- Deprecated risky `WP_REDIS_SERIALIZER` configuration constant, use `WP_REDIS_IGBINARY` instead
+- Support `WP_REDIS_USERNAME` when using Predis
+- Show cache hit ratio decimal points in Admin Bar node
+- Obscure secrets when displaying `WP_REDIS_SERVERS`
+- Improved CloudLinux's Accelerate WP compatibility
+- Admin bar cache flush now uses AJAX
 
 = 2.3.0 =
 
@@ -626,6 +638,6 @@ Since Predis isn't maintained any longer, it's highly recommended to switch over
 
 == Upgrade Notice ==
 
-= 2.3.0 =
+= 2.4.0 =
 
- Software version 2.3.0 includes general performance and stability improvements.
+Version 2.4.0 includes several stability and QoL improvements.
