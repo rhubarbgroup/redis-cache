@@ -13,27 +13,11 @@ defined( '\\ABSPATH' ) || exit;
 
 class Predis {
     /**
-     * Connection parameters.
-     *
-     * @var array
-     */
-    protected $parameters;
-
-    /**
      * The Redis client.
      *
      * @var mixed
      */
     protected $redis;
-
-    /**
-     * Instantiate the Predis class.
-     *
-     * @param array $parameters Connection parameters.
-     */
-    public function __construct( $parameters ) {
-        $this->parameters = $parameters;
-    }
 
     /**
      * Connect to Redis.
@@ -49,40 +33,72 @@ class Predis {
         $servers = false;
         $options = [];
 
+        $parameters = [
+            'scheme' => 'tcp',
+            'host' => '127.0.0.1',
+            'port' => 6379,
+            'database' => 0,
+            'timeout' => 1,
+            'read_timeout' => 1,
+        ];
+
+        $settings = [
+            'scheme',
+            'host',
+            'port',
+            'path',
+            'password',
+            'database',
+            'timeout',
+            'read_timeout',
+        ];
+
+        foreach ( $settings as $setting ) {
+            $constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
+
+            if ( defined( $constant ) ) {
+                $parameters[ $setting ] = constant( $constant );
+            }
+        }
+
+        if ( isset( $parameters['password'] ) && $parameters['password'] === '' ) {
+            unset( $parameters['password'] );
+        }
+
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
             $servers = WP_REDIS_SHARDS;
-            $this->parameters['shards'] = $servers;
+            $parameters['shards'] = $servers;
         } elseif ( defined( 'WP_REDIS_SENTINEL' ) ) {
             $servers = WP_REDIS_SERVERS;
-            $this->parameters['servers'] = $servers;
+            $parameters['servers'] = $servers;
             $options['replication'] = 'sentinel';
             $options['service'] = WP_REDIS_SENTINEL;
         } elseif ( defined( 'WP_REDIS_SERVERS' ) ) {
             $servers = WP_REDIS_SERVERS;
-            $this->parameters['servers'] = $servers;
+            $parameters['servers'] = $servers;
             $options['replication'] = 'predis';
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $servers = $this->build_cluster_connection_array();
-            $this->parameters['cluster'] = $servers;
+            $parameters['cluster'] = $servers;
             $options['cluster'] = 'redis';
         }
 
-        if ( strcasecmp( 'unix', $this->parameters['scheme'] ) === 0 ) {
-            unset( $this->parameters['host'], $this->parameters['port'] );
+        if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
+            unset( $parameters['host'], $parameters['port'] );
         }
 
-        if ( isset( $this->parameters['read_timeout'] ) && $this->parameters['read_timeout'] ) {
-            $this->parameters['read_write_timeout'] = $this->parameters['read_timeout'];
+        if ( isset( $parameters['read_timeout'] ) && $parameters['read_timeout'] ) {
+            $parameters['read_write_timeout'] = $parameters['read_timeout'];
         }
 
         foreach ( [ 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ] as $constant ) {
             if ( defined( $constant ) ) {
-                if ( $this->parameters['database'] ) {
-                    $options['parameters']['database'] = $this->parameters['database'];
+                if ( $parameters['database'] ) {
+                    $options['parameters']['database'] = $parameters['database'];
                 }
 
-                if ( isset( $this->parameters['password'] ) ) {
-                    if ( is_array( $this->parameters['password'] ) ) {
+                if ( isset( $parameters['password'] ) ) {
+                    if ( is_array( $parameters['password'] ) ) {
                         $options['parameters']['username'] = WP_REDIS_PASSWORD[0];
                         $options['parameters']['password'] = WP_REDIS_PASSWORD[1];
                     } else {
@@ -92,15 +108,15 @@ class Predis {
             }
         }
 
-        if ( isset( $this->parameters['password'] ) && defined( 'WP_REDIS_USERNAME' ) ) {
-            $this->parameters['username'] = WP_REDIS_USERNAME;
+        if ( isset( $parameters['password'] ) && defined( 'WP_REDIS_USERNAME' ) ) {
+            $parameters['username'] = WP_REDIS_USERNAME;
         }
 
         if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
-            $this->parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
+            $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
         }
 
-        $this->redis = new \Predis\Client( $servers ?: $this->parameters, $options );
+        $this->redis = new \Predis\Client( $servers ?: $parameters, $options );
         $this->redis->connect();
     }
 

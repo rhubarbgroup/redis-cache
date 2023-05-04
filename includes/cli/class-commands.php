@@ -165,10 +165,8 @@ class Commands extends WP_CLI_Command {
      * @return bool|string
      */
     protected function flush_redis() {
-        $plugin = Plugin::instance();
-
         try {
-            $predis = new Predis( $plugin->build_parameters() );
+            $predis = new Predis();
             $predis->connect();
         } catch ( Exception $exception ) {
             return $exception->getMessage();

@@ -581,57 +581,13 @@ class Plugin {
     }
 
     /**
-     * Build the connection parameters from config constants.
-     *
-     * @return array
-     */
-    public function build_parameters() {
-        $parameters = [
-            'scheme' => 'tcp',
-            'host' => '127.0.0.1',
-            'port' => 6379,
-            'database' => 0,
-            'timeout' => 1,
-            'read_timeout' => 1,
-            'retry_interval' => null,
-            'persistent' => false,
-        ];
-
-        $settings = [
-            'scheme',
-            'host',
-            'port',
-            'path',
-            'password',
-            'database',
-            'timeout',
-            'read_timeout',
-            'retry_interval',
-        ];
-
-        foreach ( $settings as $setting ) {
-            $constant = sprintf( 'WP_REDIS_%s', strtoupper( $setting ) );
-
-            if ( defined( $constant ) ) {
-                $parameters[ $setting ] = constant( $constant );
-            }
-        }
-
-        if ( isset( $parameters['password'] ) && $parameters['password'] === '' ) {
-            unset( $parameters['password'] );
-        }
-
-        return $parameters;
-    }
-
-    /**
      * Check whether we can connect to Redis via Predis.
      *
      * @return bool|string
      */
     public function check_redis_connection() {
         try {
-            $predis = new Predis( $this->build_parameters() );
+            $predis = new Predis();
             $predis->connect();
         } catch ( Exception $error ) {
             return $error->getMessage();
@@ -901,7 +857,7 @@ class Plugin {
                 if ( $this->initialize_filesystem( $url, true ) ) {
 
                     try {
-                        $predis = new Predis( $this->build_parameters() );
+                        $predis = new Predis();
                         $predis->flush();
                     } catch ( Exception $exception ) {
                         // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
