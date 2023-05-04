@@ -546,7 +546,7 @@ class Plugin {
 
         if ( method_exists( $wp_object_cache, 'redis_status' ) ) {
             return $wp_object_cache->redis_status()
-                ? __( 'Good', 'redis-cache' )
+                ? __( 'Connected', 'redis-cache' )
                 : __( 'Not connected', 'redis-cache' );
         }
 
