@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.4.0
 
 - Flush cache when toggling the object cache
 - Show a custom error message when Redis is unreachable
