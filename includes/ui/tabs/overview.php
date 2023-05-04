@@ -13,16 +13,19 @@ $redis_client = $roc->get_redis_client_name();
 $redis_prefix = $roc->get_redis_prefix();
 $redis_maxttl = $roc->get_redis_maxttl();
 $redis_version = $roc->get_redis_version();
+$redis_connection = $roc->check_redis_connection();
 $filesystem_writable = $roc->test_filesystem_writing();
-$redis_reachable = $roc->check_redis_connection();
 
 $diagnostics = $roc->get_diagnostics();
 
 ?>
 
-<?php if ( is_string( $redis_reachable ) ) : ?>
+<?php if ( is_string( $redis_connection ) ) : ?>
     <div class="notice notice-error">
-        <p><strong><?php esc_html_e( 'Redis is unreachable:', 'redis-cache' ); ?></strong> <?php echo esc_html( $redis_reachable ); ?></p>
+        <p>
+            <strong><?php esc_html_e( 'Redis is unreachable:', 'redis-cache' ); ?></strong>
+            <?php echo esc_html( $redis_connection ); ?>
+        </p>
     </div>
 <?php endif; ?>
 
@@ -65,7 +68,7 @@ $diagnostics = $roc->get_diagnostics();
     <tr>
         <th><?php esc_html_e( 'Redis:', 'redis-cache' ); ?></th>
         <td>
-            <?php if ( $redis_reachable === true ) : ?>
+            <?php if ( $redis_connection === true ) : ?>
                 <span class="success">
                     <span class="dashicons dashicons-yes-alt"></span>
                     <?php esc_html_e( 'Reachable', 'redis-cache' ); ?>
@@ -273,7 +276,7 @@ $diagnostics = $roc->get_diagnostics();
             <?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?>
         </a>
     <?php else : ?>
-        <?php if ( ! $filesystem_writable instanceof \WP_Error && $redis_reachable === true ) : ?>
+        <?php if ( ! $filesystem_writable instanceof \WP_Error && $redis_connection === true ) : ?>
             <a href="<?php echo esc_attr( $roc->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">
                 <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
             </a>
