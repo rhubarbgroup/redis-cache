@@ -2884,7 +2884,7 @@ LUA;
      *
      * @return void
      */
-    protected function show_error_and_die( \Exception $exception ) {
+    protected function show_error_and_die( Exception $exception ) {
         wp_load_translations_early();
 
         // Load custom DB error template, if present.
@@ -2895,19 +2895,21 @@ LUA;
 
         $message = '<h1>' . __( 'Error establishing a Redis connection' ) . "</h1>\n";
 
-        if ( wp_installing() || defined( 'WP_ADMIN' ) ) {
+        if ( wp_installing() || defined( 'WP_ADMIN' ) || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+            $message .= "<p><code>" . $exception->getMessage() . "</code></p>\n";
+
             $message .= '<p>' . sprintf(
-                __( 'This means that the connection information in your %1$s file is incorrect or that Redis is unreachable.' ),
+                __( 'This means that the connection information in your %1$s file are incorrect or that the Redis server is unreachable.' ),
                 '<code>wp-config.php</code>',
             ) . "</p>\n";
 
             $message .= "<ul>\n";
             $message .= '<li>' . __( 'Are you sure you have the correct Redis host and port?' ) . "</li>\n";
-            $message .= '<li>' . __( 'Are you sure Redis is running?' ) . "</li>\n";
+            $message .= '<li>' . __( 'Are you sure Redis server is running?' ) . "</li>\n";
             $message .= "</ul>\n";
 
             $message .= '<p>' . sprintf(
-                __( 'If you still need help, please read the extensive <a href="%s">installation instructions</a>.' ),
+                __( 'If you need help, please read the <a href="%s">installation instructions</a>.' ),
                 __( 'https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md' )
             ) . "</p>\n";
         }
