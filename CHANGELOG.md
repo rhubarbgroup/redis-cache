@@ -7,6 +7,7 @@
 - Show cache hit ratio decimal points in Admin Bar node
 - Obscure secrets when displaying `WP_REDIS_SERVERS`
 - Improved CloudLinux's Accelerate WP compatibility
+- Admin bar cache flush now uses AJAX 
 
 ## 2.3.0
 
