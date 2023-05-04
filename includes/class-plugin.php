@@ -108,8 +108,8 @@ class Plugin {
         add_action( 'wp_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
         add_action( 'wp_network_dashboard_setup', [ $this, 'setup_dashboard_widget' ] );
 
-        add_action( 'wp_ajax_roc_dismiss_notice', [ $this, 'dismiss_notice' ] );
-        add_action( 'wp_ajax_flush_cache', [ $this, 'flush_cache' ] );
+        add_action( 'wp_ajax_roc_dismiss_notice', [ $this, 'ajax_dismiss_notice' ] );
+        add_action( 'wp_ajax_roc_flush_cache', [ $this, 'ajax_flush_cache' ] );
 
         add_filter( 'plugin_row_meta', [ $this, 'add_plugin_row_meta' ], 10, 2 );
         add_filter( sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME ), [ $this, 'add_plugin_actions_links' ] );
@@ -690,7 +690,7 @@ class Plugin {
 
                         try {
                             var data = new FormData();
-                            data.append('action', 'flush_cache');
+                            data.append('action', 'roc_flush_cache');
                             data.append('nonce', '{$nonce}');
 
                             var response = await fetch('{$ajaxurl}', { method: 'POST', body: data });
@@ -744,7 +744,7 @@ HTML;
         );
 
         $value = $this->get_status();
-        $title = __( 'Status: ', 'redis-cache' ) . $value;
+        $title = sprintf( __( 'Status: %s', 'redis-cache' ), $value );
 
         if ( $redis_status ) {
             global $wp_object_cache;
@@ -934,7 +934,7 @@ HTML;
      *
      * @return void
      */
-    public function dismiss_notice() {
+    public function ajax_dismiss_notice() {
         if ( isset( $_POST['notice'] ) ) {
             check_ajax_referer( 'roc_dismiss_notice' );
 
@@ -954,13 +954,15 @@ HTML;
      *
      * @return void
      */
-    public function flush_cache() {
-        $nonce = sanitize_key($_POST['nonce']);
-        if (wp_verify_nonce($nonce) && wp_cache_flush()) {
+    public function ajax_flush_cache() {
+        if ( ! wp_verify_nonce( $_POST['nonce'] ) ) {
+            $message = 'Invalid Nonce.';
+        } else if ( wp_cache_flush() ) {
             $message = 'Object cache flushed.';
         } else {
             $message = 'Object cache could not be flushed.';
         }
+
         wp_die( __( $message , 'redis-cache' ) );
     }
 
