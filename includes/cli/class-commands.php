@@ -60,10 +60,10 @@ class Commands extends WP_CLI_Command {
                 WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
             }
         } else {
-            $flush_redis = $this->flush_redis();
+            $flush = $this->flush_redis();
 
-            if ( is_string( $flush_redis ) ) {
-                WP_CLI::error( __( 'Object cache could not be enabled as Redis is unreachable:', 'redis-cache' ) . ' ' . $flush_redis );
+            if ( is_string( $flush ) ) {
+                WP_CLI::error( sprintf( __( "Object cache could not be enabled. Redis server is unreachable: %s", 'redis-cache' ), $flush ) );
             }
 
             WP_Filesystem();
@@ -111,11 +111,12 @@ class Commands extends WP_CLI_Command {
                 WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
 
             } else {
-                $this->flush_redis();
 
                 WP_Filesystem();
 
                 if ( $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' ) ) {
+                    $this->flush_redis();
+
                     WP_CLI::success( __( 'Object cache disabled.', 'redis-cache' ) );
                 } else {
                     WP_CLI::error( __( 'Object cache could not be disabled.', 'redis-cache' ) );
@@ -150,6 +151,12 @@ class Commands extends WP_CLI_Command {
         );
 
         if ( $copy ) {
+            $flush = $this->flush_redis();
+
+            if ( is_string( $flush ) ) {
+                WP_CLI::error( sprintf( __( "Object cache drop-in could not be updated. Redis server is unreachable: %s", 'redis-cache' ), $flush ) );
+            }
+
             WP_CLI::success( __( 'Updated object cache drop-in and enabled Redis object cache.', 'redis-cache' ) );
         } else {
             WP_CLI::error( __( 'Object cache drop-in could not be updated.', 'redis-cache' ) );

@@ -730,7 +730,7 @@ class Plugin {
         if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
-        
+
         $nodeTitle = __( 'Object Cache', 'redis-cache' );
         $flushMessage = __( 'Flushing cache...', 'redis-cache' );
 

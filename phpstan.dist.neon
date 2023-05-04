@@ -72,3 +72,9 @@ parameters:
             message: "#^Variable \\$this might not be defined#"
             count: 1
             path: includes/ui/settings.php
+
+        # False positive
+        -
+            message: "#^Access to undefined constant Credis_Client::VERSION#"
+            count: 1
+            path: tests/PHPStan/object-cache.php
