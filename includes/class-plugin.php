@@ -666,6 +666,10 @@ class Plugin {
             return;
         }
 
+        $nonce = wp_create_nonce();
+        $message = __( 'Flushshing cache...', 'redis-cache' );
+        $ajaxurl = esc_url(admin_url('admin-ajax.php'));
+
         $html = <<<HTML
             <style>
                 #wpadminbar ul li.redis-cache-error { background: #c00; }
@@ -677,25 +681,27 @@ class Plugin {
                         event.preventDefault();
 
                         var node = document.querySelector('#wp-admin-bar-redis-cache');
-                        var textNode = document.querySelector('#wp-admin-bar-redis-cache > .ab-item:first-child');
+                        var textNode = node.querySelector('.ab-item:first-child');
 
                         node.classList.remove('hover');
-                        textNode.innerText = 'Flushing cache...';
+                        textNode.innerText = '{$message}';
 
                         try {
-                            var response = await fetch(qm_l10n.ajaxurl, {
+                            var data = new FormData();
+                            data.append('action', 'flush_cache');
+                            data.append('nonce', '{$nonce}');
+                            var response = await fetch('{$ajaxurl}', {
                                 method: 'POST',
-                                body: 'action=flush_cache&nonce=...'
+                                body: data
                             });
 
-                            var responseText = await response.text();
-                            textNode.innerText = responseText;
+                            textNode.innerText = await response.text();
 
                             setTimeout(function () {
                                 textNode.innerText = 'Object Cache';
                             }, 3000);
                         } catch (error) {
-                            textNode.innerText = responseText;
+                            textNode.innerText = 'Object Cache';
                             alert('Object cache could not be flushed: ' + error);
                         }
                     });
@@ -951,7 +957,13 @@ HTML;
      * @return void
      */
     public function flush_cache() {
-        wp_die( __( wp_cache_flush() ? 'Object cache flushed.' : 'Object cache could not be flushed.' , 'redis-cache' ) );
+        $nonce = sanitize_key($_POST['nonce']);
+        if (wp_verify_nonce($nonce) && wp_cache_flush()) {
+            $message = 'Object cache flushed.';
+        } else {
+            $message = 'Object cache could not be flushed.';
+        }
+        wp_die( __( $message , 'redis-cache' ) );
     }
 
     /**
