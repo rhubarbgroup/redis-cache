@@ -665,10 +665,12 @@ class Plugin {
         if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
+        
+        $nodeTitle = __( 'Object Cache', 'redis-cache' );
+        $flushMessage = __( 'Flushing cache...', 'redis-cache' );
 
+        $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
         $nonce = wp_create_nonce();
-        $message = __( 'Flushshing cache...', 'redis-cache' );
-        $ajaxurl = esc_url(admin_url('admin-ajax.php'));
 
         $html = <<<HTML
             <style>
@@ -684,24 +686,20 @@ class Plugin {
                         var textNode = node.querySelector('.ab-item:first-child');
 
                         node.classList.remove('hover');
-                        textNode.innerText = '{$message}';
+                        textNode.innerText = '{$flushMessage}';
 
                         try {
                             var data = new FormData();
                             data.append('action', 'flush_cache');
                             data.append('nonce', '{$nonce}');
-                            var response = await fetch('{$ajaxurl}', {
-                                method: 'POST',
-                                body: data
-                            });
+
+                            var response = await fetch('{$ajaxurl}', { method: 'POST', body: data });
 
                             textNode.innerText = await response.text();
 
-                            setTimeout(function () {
-                                textNode.innerText = 'Object Cache';
-                            }, 3000);
+                            setTimeout(function () { textNode.innerText = '{$nodeTitle}'; }, 3000);
                         } catch (error) {
-                            textNode.innerText = 'Object Cache';
+                            textNode.innerText = '{$nodeTitle}';
                             alert('Object cache could not be flushed: ' + error);
                         }
                     });
@@ -712,7 +710,7 @@ HTML;
 
         $wp_admin_bar->add_node([
             'id' => 'redis-cache',
-            'title' => __( 'Object Cache', 'redis-cache' ),
+            'title' => $nodeTitle,
             'meta' => [
                 'html' => preg_replace( '/\s+/', ' ', $html ),
                 'class' => $redis_status === false ? 'redis-cache-error' : '',
