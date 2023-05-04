@@ -1,5 +1,5 @@
 === Redis Object Cache ===
-Contributors: tillkruess
+Contributors: tillkruess, a5hleyrich
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, object cache, cache, object caching, caching performance, relay, predis, phpredis
 Requires at least: 3.3
