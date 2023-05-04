@@ -61,6 +61,10 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 == Changelog ==
 
+= 2.4.1 =
+
+- Fix PHP `<=7.2` syntax error
+
 = 2.4.0 =
 
 - Flush cache when toggling the object cache
