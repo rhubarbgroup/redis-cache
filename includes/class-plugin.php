@@ -8,6 +8,7 @@
 namespace Rhubarb\RedisCache;
 
 use WP_Error;
+use Exception;
 
 defined( '\\ABSPATH' ) || exit;
 
@@ -533,7 +534,11 @@ class Plugin {
         }
 
         if ( ! $this->object_cache_dropin_exists() ) {
-            return __( 'Drop-in not installed', 'redis-cache' );
+            return __( 'Not enabled', 'redis-cache' );
+        }
+
+        if ( $this->object_cache_dropin_outdated() ) {
+            return __( 'Drop-in is outdated', 'redis-cache' );
         }
 
         if ( ! $this->validate_object_cache_dropin() ) {
@@ -561,6 +566,10 @@ class Plugin {
             return null;
         }
 
+        if ( $this->object_cache_dropin_outdated() ) {
+            return null;
+        }
+
         if ( ! $this->validate_object_cache_dropin() ) {
             return null;
         }
@@ -570,6 +579,22 @@ class Plugin {
         }
 
         return $wp_object_cache->redis_status();
+    }
+
+    /**
+     * Check whether we can connect to Redis via Predis.
+     *
+     * @return bool|string
+     */
+    public function check_redis_connection() {
+        try {
+            $predis = new Predis();
+            $predis->connect();
+        } catch ( Exception $error ) {
+            return $error->getMessage();
+        }
+
+        return true;
     }
 
     /**
@@ -872,6 +897,16 @@ HTML;
                             FS_CHMOD_FILE
                         );
 
+                        if ( $result ) {
+                            try {
+                                $predis = new Predis();
+                                $predis->flush();
+                            } catch ( Exception $exception ) {
+                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                                error_log( $exception );
+                            }
+                        }
+
                         /**
                          * Fires on cache enable event
                          *
@@ -897,6 +932,16 @@ HTML;
 
                     if ( $action === 'disable-cache' ) {
                         $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
+
+                        if ( $result ) {
+                            try {
+                                $predis = new Predis();
+                                $predis->flush();
+                            } catch ( Exception $exception ) {
+                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                                error_log( $exception );
+                            }
+                        }
 
                         /**
                          * Fires on cache enable event

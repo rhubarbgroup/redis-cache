@@ -2,12 +2,15 @@
 
 ## Unreleased
 
+- Flush cache when toggling the object cache
+- Show a custom error message when Redis is unreachable
+- Don't allow object cache to be enabled when Redis is unreachable
 - Deprecated risky `WP_REDIS_SERIALIZER` configuration constant, use `WP_REDIS_IGBINARY` instead
 - Support `WP_REDIS_USERNAME` when using Predis
 - Show cache hit ratio decimal points in Admin Bar node
 - Obscure secrets when displaying `WP_REDIS_SERVERS`
 - Improved CloudLinux's Accelerate WP compatibility
-- Admin bar cache flush now uses AJAX 
+- Admin bar cache flush now uses AJAX
 
 ## 2.3.0
 

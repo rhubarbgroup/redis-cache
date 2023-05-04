@@ -9,8 +9,10 @@ namespace Rhubarb\RedisCache\CLI;
 
 use WP_CLI;
 use WP_CLI_Command;
+use Exception;
 
 use Rhubarb\RedisCache\Plugin;
+use Rhubarb\RedisCache\Predis;
 
 defined( '\\ABSPATH' ) || exit;
 
@@ -58,6 +60,11 @@ class Commands extends WP_CLI_Command {
                 WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
             }
         } else {
+            $flush_redis = $this->flush_redis();
+
+            if ( is_string( $flush_redis ) ) {
+                WP_CLI::error( __( 'Object cache could not be enabled as Redis is unreachable:', 'redis-cache' ) . ' ' . $flush_redis );
+            }
 
             WP_Filesystem();
 
@@ -104,6 +111,7 @@ class Commands extends WP_CLI_Command {
                 WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
 
             } else {
+                $this->flush_redis();
 
                 WP_Filesystem();
 
@@ -147,6 +155,29 @@ class Commands extends WP_CLI_Command {
             WP_CLI::error( __( 'Object cache drop-in could not be updated.', 'redis-cache' ) );
         }
 
+    }
+
+    /**
+     * Flush the Redis cache via Predis.
+     *
+     * @return bool|string
+     */
+    protected function flush_redis() {
+        try {
+            $predis = new Predis();
+            $predis->connect();
+        } catch ( Exception $exception ) {
+            return $exception->getMessage();
+        }
+
+        try {
+            $predis->flush();
+        } catch ( Exception $exception ) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( $exception );
+        }
+
+        return true;
     }
 
 }
