@@ -1,12 +1,12 @@
 # Redis Object Cache for WordPress
 
-A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](http://wp-cli.org/).
+A persistent object cache backend powered by Redis®¹. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](http://wp-cli.org/).
 
 [![Redis Object Cache screenshots](/.wordpress-org/collage-sm.jpg?raw=true)](/.wordpress-org/collage.png?raw=true)
 
 ## Object Cache Pro
 
-A **business class** Redis object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.
+A **business class** Redis®¹ object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.
 
 * Rewritten for raw performance
 * 100% WordPress API compliant
@@ -220,3 +220,7 @@ Redis Object Cache has various hooks and the commonly used ones are listed below
 | `redis_cache_expiration`                | Filters the cache expiration for individual keys  |
 | `redis_cache_validate_dropin`           | Filters whether the drop-in is valid              |
 | `redis_cache_add_non_persistent_groups` | Filters the groups to be marked as non persistent |
+
+## Footnotes
+
+¹ Redis is a registered trademark of Redis Ltd. Any rights therein are reserved to Redis Ltd. Any use by Redis Object Cache is for referential purposes only and does not indicate any sponsorship, endorsement or affiliation between Redis and Redis Object Cache.
