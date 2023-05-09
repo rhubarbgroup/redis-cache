@@ -1,8 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Fixed ACL username support when using Predis and array syntax
+
 ## 2.4.1
 
-- Fix PHP `<=7.2` syntax error
+- Fixed PHP `<=7.2` syntax error
 
 ## 2.4.0
 
