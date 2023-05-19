@@ -164,10 +164,10 @@ class Factory implements FactoryInterface
     {
         $parameters = $connection->getParameters();
 
-        if (isset($parameters->password) && strlen($parameters->password)) {
+        if (isset($parameters->password[0]) && strlen($parameters->password[0])) {
             $cmdAuthArgs = isset($parameters->username) && strlen($parameters->username)
-                ? [$parameters->username, $parameters->password]
-                : [$parameters->password];
+                ? [$parameters->username, $parameters->password[0]]
+                : [$parameters->password[0]];
 
             $connection->addConnectCommand(
                 new RawCommand('AUTH', $cmdAuthArgs)
