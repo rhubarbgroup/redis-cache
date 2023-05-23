@@ -301,7 +301,9 @@ class Plugin {
 
         if (
             ( defined( 'WP_ROCKET_WEB_MAIN' ) && strpos( (string) WP_ROCKET_WEB_MAIN, 'cloudlinux.com' ) ) ||
-            ( defined( 'WP_ROCKET_UPDATE_PATH' ) && strpos( (string) WP_ROCKET_UPDATE_PATH, 'cloudlinux' ) )
+            ( defined( 'WP_ROCKET_UPDATE_PATH' ) && strpos( (string) WP_ROCKET_UPDATE_PATH, 'cloudlinux' ) ) ||
+            ( defined( 'CL_SMART_ADVICE_VERSION' ) && ! empty( CL_SMART_ADVICE_VERSION ) ) ||
+            is_readable( '/opt/alt/php-xray/' )
         ) {
             $ref = 'oss-cl';
         }
