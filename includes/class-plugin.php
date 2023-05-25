@@ -279,6 +279,10 @@ class Plugin {
             return $plugin_meta;
         }
 
+        if ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS ) {
+            return $plugin_meta;
+        }
+
         $plugin_meta[] = sprintf(
             '<a href="%1$s"><span class="dashicons dashicons-star-filled" aria-hidden="true" style="font-size: 14px; line-height: 1.3"></span>%2$s</a>',
             $this->link_to_ocp('meta-row'),
@@ -300,10 +304,8 @@ class Plugin {
         $ref = 'oss';
 
         if (
-            ( defined( 'WP_ROCKET_WEB_MAIN' ) && strpos( (string) WP_ROCKET_WEB_MAIN, 'cloudlinux.com' ) ) ||
-            ( defined( 'WP_ROCKET_UPDATE_PATH' ) && strpos( (string) WP_ROCKET_UPDATE_PATH, 'cloudlinux' ) ) ||
-            ( defined( 'CL_SMART_ADVICE_VERSION' ) && ! empty( CL_SMART_ADVICE_VERSION ) ) ||
-            is_readable( '/opt/alt/php-xray/' )
+            ( defined( 'WP_REDIS_SCHEME' ) && 'unix' === WP_REDIS_SCHEME ) &&
+            ( defined( 'WP_REDIS_PATH' ) && false !== strpos( (string) WP_REDIS_PATH, '.clwpos/redis.sock' ) )
         ) {
             $ref = 'oss-cl';
         }
