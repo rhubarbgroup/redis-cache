@@ -5,7 +5,7 @@ Tags: redis, object cache, cache, object caching, caching performance, relay, pr
 Requires at least: 3.3
 Tested up to: 6.2
 Requires PHP: 7.2
-Stable tag: 2.4.1
+Stable tag: 2.4.2-dev
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
