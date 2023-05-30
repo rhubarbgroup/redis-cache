@@ -303,10 +303,7 @@ class Plugin {
     {
         $ref = 'oss';
 
-        if (
-            ( defined( 'WP_REDIS_SCHEME' ) && 'unix' === WP_REDIS_SCHEME ) &&
-            ( defined( 'WP_REDIS_PATH' ) && false !== strpos( (string) WP_REDIS_PATH, '.clwpos/redis.sock' ) )
-        ) {
+        if ( defined( 'WP_REDIS_PATH' ) && strpos( (string) WP_REDIS_PATH, '.clwpos/redis.sock' ) !== false ) {
             $ref = 'oss-cl';
         }
 
