@@ -302,7 +302,7 @@ class Plugin {
     public function link_to_ocp($medium, $as_html = true)
     {
         $ref = 'oss';
-        
+
         $scheme = defined( 'WP_REDIS_SCHEME' ) ? WP_REDIS_SCHEME : null;
         $path = defined( 'WP_REDIS_PATH' ) ? WP_REDIS_PATH : null;
 
