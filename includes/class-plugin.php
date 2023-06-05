@@ -744,36 +744,41 @@ class Plugin {
                 #wpadminbar ul li.redis-cache-error { background: #c00; }
                 #wpadminbar:not(.mobile) .ab-top-menu > li.redis-cache-error:hover > .ab-item { background: #b30000; color: #fff; }
             </style>
-            <script>
-                document.querySelector('#wp-admin-bar-redis-cache-flush > a')
-                    .addEventListener('click', async function (event) {
-                        event.preventDefault();
-
-                        var node = document.querySelector('#wp-admin-bar-redis-cache');
-                        var textNode = node.querySelector('.ab-item:first-child');
-
-                        node.classList.remove('hover');
-                        textNode.innerText = '{$flushMessage}';
-
-                        try {
-                            var data = new FormData();
-                            data.append('action', 'roc_flush_cache');
-                            data.append('nonce', '{$nonce}');
-
-                            var response = await fetch('{$ajaxurl}', { method: 'POST', body: data });
-
-                            textNode.innerText = await response.text();
-
-                            setTimeout(function () { textNode.innerText = '{$nodeTitle}'; }, 3000);
-                        } catch (error) {
-                            textNode.innerText = '{$nodeTitle}';
-                            alert('Object cache could not be flushed: ' + error);
-                        }
-                    });
-            </script>
 HTML;
-
+        
         $redis_status = $this->get_redis_status();
+
+        if ( $redis_status ) {
+            $html .= <<<HTML
+                <script>
+                    document.querySelector('#wp-admin-bar-redis-cache-flush > a')
+                        .addEventListener('click', async function (event) {
+                            event.preventDefault();
+
+                            var node = document.querySelector('#wp-admin-bar-redis-cache');
+                            var textNode = node.querySelector('.ab-item:first-child');
+
+                            node.classList.remove('hover');
+                            textNode.innerText = '{$flushMessage}';
+
+                            try {
+                                var data = new FormData();
+                                data.append('action', 'roc_flush_cache');
+                                data.append('nonce', '{$nonce}');
+
+                                var response = await fetch('{$ajaxurl}', { method: 'POST', body: data });
+
+                                textNode.innerText = await response.text();
+
+                                setTimeout(function () { textNode.innerText = '{$nodeTitle}'; }, 3000);
+                            } catch (error) {
+                                textNode.innerText = '{$nodeTitle}';
+                                alert('Object cache could not be flushed: ' + error);
+                            }
+                        });
+                </script>
+HTML;
+        }
 
         $wp_admin_bar->add_node([
             'id' => 'redis-cache',
