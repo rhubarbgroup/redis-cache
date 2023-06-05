@@ -745,7 +745,7 @@ class Plugin {
                 #wpadminbar:not(.mobile) .ab-top-menu > li.redis-cache-error:hover > .ab-item { background: #b30000; color: #fff; }
             </style>
 HTML;
-        
+
         $redis_status = $this->get_redis_status();
 
         if ( $redis_status ) {
