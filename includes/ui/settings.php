@@ -74,10 +74,12 @@ defined( '\\ABSPATH' ) || exit;
 
                 <div class="card">
                     <h2 class="title" style="line-height: 1.4">
-                        <?php esc_html_e( 'Need more performance and reliability?', 'redis-cache' ); ?><br>
                         <?php
-                        // translators: %s = Object Cache Pro.
-                        printf( esc_html__( 'Check out %s', 'redis-cache' ), '<span style="color: #dc2626;">' . esc_html__( 'Object Cache Pro', 'redis-cache' ) . '</span>' );
+                            esc_html_e( 'Need more performance and reliability?', 'redis-cache' );
+                        ?><br>
+                        <?php
+                            // translators: %s = Object Cache Pro.
+                            printf( esc_html__( 'Check out %s', 'redis-cache' ), '<span style="color: #dc2626;">Object Cache Pro</span>' );
                         ?>
                     </h2>
                     <p>
