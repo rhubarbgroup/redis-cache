@@ -302,8 +302,11 @@ class Plugin {
     public function link_to_ocp($medium, $as_html = true)
     {
         $ref = 'oss';
+        
+        $scheme = defined( 'WP_REDIS_SCHEME' ) ? WP_REDIS_SCHEME : null;
+        $path = defined( 'WP_REDIS_PATH' ) ? WP_REDIS_PATH : null;
 
-        if ( defined( 'WP_REDIS_PATH' ) && strpos( (string) WP_REDIS_PATH, '.clwpos/redis.sock' ) !== false ) {
+        if ( $scheme === 'unix' && strpos( (string) $path, '.clwpos/redis.sock' ) !== false ) {
             $ref = 'oss-cl';
         }
 
