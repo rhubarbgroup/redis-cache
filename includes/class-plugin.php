@@ -734,44 +734,10 @@ class Plugin {
         }
 
         $nodeTitle = __( 'Object Cache', 'redis-cache' );
-        $flushMessage = __( 'Flushing cache...', 'redis-cache' );
 
-        $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
-        $nonce = wp_create_nonce();
-
-        $html = <<<HTML
-            <style>
-                #wpadminbar ul li.redis-cache-error { background: #c00; }
-                #wpadminbar:not(.mobile) .ab-top-menu > li.redis-cache-error:hover > .ab-item { background: #b30000; color: #fff; }
-            </style>
-            <script>
-                document.querySelector('#wp-admin-bar-redis-cache-flush > a')
-                    .addEventListener('click', async function (event) {
-                        event.preventDefault();
-
-                        var node = document.querySelector('#wp-admin-bar-redis-cache');
-                        var textNode = node.querySelector('.ab-item:first-child');
-
-                        node.classList.remove('hover');
-                        textNode.innerText = '{$flushMessage}';
-
-                        try {
-                            var data = new FormData();
-                            data.append('action', 'roc_flush_cache');
-                            data.append('nonce', '{$nonce}');
-
-                            var response = await fetch('{$ajaxurl}', { method: 'POST', body: data });
-
-                            textNode.innerText = await response.text();
-
-                            setTimeout(function () { textNode.innerText = '{$nodeTitle}'; }, 3000);
-                        } catch (error) {
-                            textNode.innerText = '{$nodeTitle}';
-                            alert('Object cache could not be flushed: ' + error);
-                        }
-                    });
-            </script>
-HTML;
+        $style = preg_replace( '/\s+/', ' ', $this->admin_bar_style() );
+        $script = preg_replace( '/\s+/', ' ', $this->admin_bar_script() );
+        $html = "\n{$style}\n{$script}\n";
 
         $redis_status = $this->get_redis_status();
 
@@ -779,7 +745,7 @@ HTML;
             'id' => 'redis-cache',
             'title' => $nodeTitle,
             'meta' => [
-                'html' => preg_replace( '/\s+/', ' ', $html ),
+                'html' => $html,
                 'class' => $redis_status === false ? 'redis-cache-error' : '',
             ],
         ]);
@@ -849,6 +815,85 @@ HTML;
                 'title' => $title,
             ],
         ]);
+    }
+
+    /**
+     * Returns the admin-bar <style> tag.
+     *
+     * @return string
+     */
+    protected function admin_bar_style()
+    {
+        return <<<HTML
+            <style>
+                #wpadminbar ul li.redis-cache-error {
+                    background: #b30000;
+                }
+
+                #wpadminbar:not(.mobile) .ab-top-menu > li.redis-cache-error:hover > .ab-item {
+                    background: #b30000;
+                    color: #fff;
+                }
+            </style>
+HTML;
+    }
+
+    /**
+     * Returns the admin-bar <script> tag.
+     *
+     * @return string
+     */
+    protected function admin_bar_script()
+    {
+        $nonce = wp_create_nonce();
+        $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
+        $flushMessage = __( 'Flushing cache...', 'redis-cache' );
+
+        return <<<HTML
+            <script>
+                (function (element) {
+                    if (! element) {
+                        return;
+                    }
+
+                    element.addEventListener('click', async function (event) {
+                        event.preventDefault();
+
+                        var node = document.querySelector('#wp-admin-bar-redis-cache');
+                        var textNode = node.querySelector('.ab-item:first-child');
+
+                        if (! textNode.dataset.text) {
+                            textNode.dataset.text = textNode.innerText;
+                        }
+
+                        node.classList.remove('hover');
+                        textNode.innerText = '{$flushMessage}';
+
+                        try {
+                            var data = new FormData();
+                            data.append('action', 'roc_flush_cache');
+                            data.append('nonce', '{$nonce}');
+
+                            var response = await fetch('{$ajaxurl}', {
+                                method: 'POST',
+                                body: data,
+                            });
+
+                            textNode.innerText = await response.text();
+
+                            setTimeout(function () {
+                                textNode.innerText = textNode.dataset.text;
+                            }, 3000);
+                        } catch (error) {
+                            textNode.innerText = textNode.dataset.text;
+                            alert('Object cache could not be flushed: ' + error);
+                        }
+                    });
+                })(
+                    document.querySelector('#wp-admin-bar-redis-cache-flush > a')
+                );
+            </script>
+HTML;
     }
 
     /**

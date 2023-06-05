@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed ACL username support when using Predis and array syntax
+- Made admin-bar script more robust
 
 ## 2.4.1
 
