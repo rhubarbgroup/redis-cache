@@ -65,7 +65,6 @@ defined( '\\ABSPATH' ) || exit;
         </div>
 
         <div class="sidebar-column">
-            <?php if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS ): ?>
             <h6>
                 <?php esc_html_e( 'Resources', 'redis-cache' ); ?>
             </h6>
@@ -155,7 +154,6 @@ defined( '\\ABSPATH' ) || exit;
                 <?php endif; ?>
 
             </div>
-            <?php endif; ?>
         </div>
 
     </div>
