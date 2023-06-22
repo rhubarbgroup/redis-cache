@@ -2904,29 +2904,32 @@ LUA;
             || defined( 'WP_ADMIN' )
             || ( defined( 'WP_DEBUG' ) && WP_DEBUG );
 
-        $message = '<h1>' . __( 'Error establishing a Redis connection' ) . "</h1>\n";
+        $message = '<h1>' . __( 'Error establishing a Redis connection', 'redis-cache' ) . "</h1>\n";
 
         if ( $verbose ) {
             $message .= "<p><code>" . $exception->getMessage() . "</code></p>\n";
 
             $message .= '<p>' . sprintf(
-                __( 'WordPress is unable to establish a connection to Redis. This means that the connection information in your %1$s file are incorrect, or that the Redis server is not reachable.' ),
+                // translators: %s = Formatted wp-config.php file name.
+                __( 'WordPress is unable to establish a connection to Redis. This means that the connection information in your %s file are incorrect, or that the Redis server is not reachable.', 'redis-cache' ),
                 '<code>wp-config.php</code>'
             ) . "</p>\n";
 
             $message .= "<ul>\n";
-            $message .= '<li>' . __( 'Is the correct Redis host and port set?' ) . "</li>\n";
-            $message .= '<li>' . __( 'Is the Redis server running?' ) . "</li>\n";
+            $message .= '<li>' . __( 'Is the correct Redis host and port set?', 'redis-cache' ) . "</li>\n";
+            $message .= '<li>' . __( 'Is the Redis server running?', 'redis-cache' ) . "</li>\n";
             $message .= "</ul>\n";
 
             $message .= '<p>' . sprintf(
-                __( 'If you need help, please read the <a href="%1$s">installation instructions</a>.' ),
-                __( 'https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md' )
+                // translators: %s = Link to installation instructions.
+                __( 'If you need help, please read the <a href="%s">installation instructions</a>.', 'redis-cache' ),
+                'https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md'
             ) . "</p>\n";
         }
 
         $message .= '<p>' . sprintf(
-            __( 'To disable Redis, delete the %1$s file in the %2$s directory.' ),
+            // translators: %1$s = Formatted object-cache.php file name, %2$s = Formatted wp-content directory name.
+            __( 'To disable Redis, delete the %1$s file in the %2$s directory.', 'redis-cache' ),
             '<code>object-cache.php</code>',
             '<code>/wp-content/</code>',
         ) . "</p>\n";

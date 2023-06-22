@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-06-22T12:04:48+00:00\n"
+"POT-Creation-Date: 2023-06-22T17:09:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: redis-cache\n"
@@ -292,6 +292,33 @@ msgstr ""
 #. translators: %s = The Redis connection error message.
 #: includes/cli/class-commands.php:159
 msgid "Object cache drop-in could not be updated. Redis server is unreachable: %s"
+msgstr ""
+
+#: includes/object-cache.php:2907
+msgid "Error establishing a Redis connection"
+msgstr ""
+
+#. translators: %s = Formatted wp-config.php file name.
+#: includes/object-cache.php:2914
+msgid "WordPress is unable to establish a connection to Redis. This means that the connection information in your %s file are incorrect, or that the Redis server is not reachable."
+msgstr ""
+
+#: includes/object-cache.php:2919
+msgid "Is the correct Redis host and port set?"
+msgstr ""
+
+#: includes/object-cache.php:2920
+msgid "Is the Redis server running?"
+msgstr ""
+
+#. translators: %s = Link to installation instructions.
+#: includes/object-cache.php:2925
+msgid "If you need help, please read the <a href=\"%s\">installation instructions</a>."
+msgstr ""
+
+#. translators: %1$s = Formatted object-cache.php file name, %2$s = Formatted wp-content directory name.
+#: includes/object-cache.php:2932
+msgid "To disable Redis, delete the %1$s file in the %2$s directory."
 msgstr ""
 
 #. translators: %s = Tab label.
