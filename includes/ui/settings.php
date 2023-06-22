@@ -7,8 +7,8 @@
 
 namespace Rhubarb\RedisCache\UI;
 
-use Rhubarb\RedisCache\Plugin;
 use Rhubarb\RedisCache\UI;
+use Rhubarb\RedisCache\Plugin;
 
 defined( '\\ABSPATH' ) || exit;
 
@@ -66,7 +66,7 @@ defined( '\\ABSPATH' ) || exit;
         </div>
 
         <div class="sidebar-column">
-            <?php if ( ! defined( 'WP_REDIS_DISABLE_BANNERS' ) || ! WP_REDIS_DISABLE_BANNERS || ! Plugin::is_acceleratewp_install() ): ?>
+            <?php if ( ! Plugin::acceleratewp_install() ) : ?>
                 <h6>
                     <?php esc_html_e( 'Resources', 'redis-cache' ); ?>
                 </h6>

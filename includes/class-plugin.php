@@ -284,7 +284,7 @@ class Plugin {
             return $plugin_meta;
         }
 
-        if ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS && Plugin::is_acceleratewp_install() ) {
+        if ( Plugin::acceleratewp_install() ) {
             return $plugin_meta;
         }
 
@@ -307,7 +307,8 @@ class Plugin {
     public function link_to_ocp($medium, $as_html = true)
     {
         $ref = 'oss';
-        if ( self::is_acceleratewp_install() ) {
+
+        if ( self::acceleratewp_install() ) {
             $ref = 'oss-cl';
         }
 
@@ -381,8 +382,9 @@ class Plugin {
             'rediscache',
             [
                 'jQuery' => 'jQuery',
-                'disable_pro' => $screen->id !== $this->screen,
-                'disable_banners' => defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS,
+                'disable_pro' => $screen->id !== $this->screen
+                    || ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS )
+                    || $this->acceleratewp_install(),
                 'l10n' => [
                     'time' => __( 'Time', 'redis-cache' ),
                     'bytes' => __( 'Bytes', 'redis-cache' ),
@@ -1566,23 +1568,18 @@ HTML;
     }
 
     /**
-     * Checks if the plugin was installed by AccelerateWP from CloudLinux.
+     * Returns `true` if the plugin was installed by AccelerateWP from CloudLinux.
      *
-     * @since 2.4.2
-     *
-     * @return bool True if the plugin was installed by AccelerateWP from CloudLinux, false otherwise.
+     * @return bool
      */
-    public static function is_acceleratewp_install() {
-        $scheme = defined( 'WP_REDIS_SCHEME' ) ? WP_REDIS_SCHEME : null;
-        if ( 'unix' !== $scheme ) {
-            return false;
-        }
-
+    public static function acceleratewp_install() {
         $path = defined( 'WP_REDIS_PATH' ) ? WP_REDIS_PATH : null;
-        if ( false === strpos( (string) $path, '.clwpos/redis.sock' ) ) {
-            return false;
+        $scheme = defined( 'WP_REDIS_SCHEME' ) ? WP_REDIS_SCHEME : null;
+
+        if ( $scheme === 'unix' && strpos( (string) $path, '.clwpos/redis.sock' ) !== false ) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 }
