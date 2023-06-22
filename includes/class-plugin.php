@@ -284,9 +284,13 @@ class Plugin {
             return $plugin_meta;
         }
 
+        if ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS && Plugin::is_acceleratewp_install() ) {
+            return $plugin_meta;
+        }
+
         $plugin_meta[] = sprintf(
             '<a href="%1$s"><span class="dashicons dashicons-star-filled" aria-hidden="true" style="font-size: 14px; line-height: 1.3"></span>%2$s</a>',
-            $this->link_to_ocp('meta-row'),
+            $this->link_to_ocp( 'meta-row' ),
             esc_html_x( 'Upgrade to Pro', 'verb', 'redis-cache' )
         );
 
@@ -303,11 +307,7 @@ class Plugin {
     public function link_to_ocp($medium, $as_html = true)
     {
         $ref = 'oss';
-
-        $scheme = defined( 'WP_REDIS_SCHEME' ) ? WP_REDIS_SCHEME : null;
-        $path = defined( 'WP_REDIS_PATH' ) ? WP_REDIS_PATH : null;
-
-        if ( $scheme === 'unix' && strpos( (string) $path, '.clwpos/redis.sock' ) !== false ) {
+        if ( self::is_acceleratewp_install() ) {
             $ref = 'oss-cl';
         }
 
@@ -1563,5 +1563,26 @@ HTML;
      */
     public function current_user_can_manage_redis() {
         return current_user_can( $this->manage_redis_capability() );
+    }
+
+    /**
+     * Checks if the plugin was installed by AccelerateWP from CloudLinux.
+     *
+     * @since 2.4.2
+     *
+     * @return bool True if the plugin was installed by AccelerateWP from CloudLinux, false otherwise.
+     */
+    public static function is_acceleratewp_install() {
+        $scheme = defined( 'WP_REDIS_SCHEME' ) ? WP_REDIS_SCHEME : null;
+        if ( 'unix' !== $scheme ) {
+            return false;
+        }
+
+        $path = defined( 'WP_REDIS_PATH' ) ? WP_REDIS_PATH : null;
+        if ( false === strpos( (string) $path, '.clwpos/redis.sock' ) ) {
+            return false;
+        }
+
+        return true;
     }
 }
