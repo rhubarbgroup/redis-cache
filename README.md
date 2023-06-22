@@ -70,7 +70,7 @@ Options that exist, but **should not**, **may break without notice** in future r
 
 | Configuration constant        | Default     | Description                                                         |
 | ----------------------------- | ----------- | ------------------------------------------------------------------- |
-| `WP_REDIS_GRACEFUL`           | `false`     | Prevents exceptions from being thrown, but can cause data coruption |
+| `WP_REDIS_GRACEFUL`           | `false`     | Prevents exceptions from being thrown, but will cause data corruption |
 | `WP_REDIS_SELECTIVE_FLUSH`    | `false`     | Uses terribly slow Lua script for flushing                          |
 | `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | Uses terribly slow Lua script to prevent groups from being flushed  |
 
