@@ -4,6 +4,7 @@
 
 - Fixed ACL username support when using Predis and array syntax
 - Made admin-bar script more robust
+- Improved recovery instructions on `redis-error.php`
 - Improved CloudLinux detection
 - Prevent LiteSpeed Cache from overwriting drop-in
 
