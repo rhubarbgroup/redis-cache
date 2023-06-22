@@ -123,6 +123,11 @@ class Plugin {
         add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
 
         add_filter( 'perflab_disable_object_cache_dropin', '__return_true' );
+
+        // prevent LiteSpeed Cache from overwriting the `object-cache.php` drop-in
+        if ( isset( $_POST['LSCWP_CTRL'], $_POST['LSCWP_NONCE'], $_POST['object'] ) ) {
+            $_POST['object'] = '0';
+        }
     }
 
     /**
