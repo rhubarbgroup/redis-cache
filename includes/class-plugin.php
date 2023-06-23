@@ -284,7 +284,7 @@ class Plugin {
             return $plugin_meta;
         }
 
-        if ( Plugin::acceleratewp_install() ) {
+        if ( self::acceleratewp_install() ) {
             return $plugin_meta;
         }
 
@@ -384,7 +384,7 @@ class Plugin {
                 'jQuery' => 'jQuery',
                 'disable_pro' => $screen->id !== $this->screen
                     || ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS )
-                    || $this->acceleratewp_install(),
+                    || self::acceleratewp_install(),
                 'l10n' => [
                     'time' => __( 'Time', 'redis-cache' ),
                     'bytes' => __( 'Bytes', 'redis-cache' ),
@@ -1570,8 +1570,7 @@ HTML;
     /**
      * Returns `true` if the plugin was installed by AccelerateWP from CloudLinux.
      *
-     * @param $ignore_banner_constant bool
-     *
+     * @param bool $ignore_banner_constant
      * @return bool
      */
     public static function acceleratewp_install( $ignore_banner_constant = false ) {
