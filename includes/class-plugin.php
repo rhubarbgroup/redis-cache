@@ -123,11 +123,8 @@ class Plugin {
         add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
 
         add_filter( 'perflab_disable_object_cache_dropin', '__return_true' );
-
-        // prevent LiteSpeed Cache from overwriting the `object-cache.php` drop-in
-        if ( isset( $_POST['LSCWP_CTRL'], $_POST['LSCWP_NONCE'], $_POST['object'] ) ) {
-            $_POST['object'] = '0';
-        }
+        add_filter( 'w3tc_config_item_objectcache.enabled', '__return_false' );
+        add_action( 'litespeed_init', [ $this, 'litespeed_disable_objectcache' ] );
     }
 
     /**
@@ -1565,6 +1562,18 @@ HTML;
      */
     public function current_user_can_manage_redis() {
         return current_user_can( $this->manage_redis_capability() );
+    }
+
+    /**
+     * Prevent LiteSpeed Cache from overwriting the `object-cache.php` drop-in.
+     *
+     * @return void
+     */
+    public function litespeed_disable_objectcache()
+    {
+        if ( isset( $_POST['LSCWP_CTRL'], $_POST['LSCWP_NONCE'], $_POST['object'] ) ) {
+            $_POST['object'] = '0';
+        }
     }
 
     /**
