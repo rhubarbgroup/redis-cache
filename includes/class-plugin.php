@@ -308,7 +308,7 @@ class Plugin {
     {
         $ref = 'oss';
 
-        if ( self::acceleratewp_install() ) {
+        if ( self::acceleratewp_install( true ) ) {
             $ref = 'oss-cl';
         }
 
@@ -1570,14 +1570,20 @@ HTML;
     /**
      * Returns `true` if the plugin was installed by AccelerateWP from CloudLinux.
      *
+     * @param $ignore_banner_constant bool
+     *
      * @return bool
      */
-    public static function acceleratewp_install() {
+    public static function acceleratewp_install( $ignore_banner_constant = false ) {
         $path = defined( 'WP_REDIS_PATH' ) ? WP_REDIS_PATH : null;
         $scheme = defined( 'WP_REDIS_SCHEME' ) ? WP_REDIS_SCHEME : null;
 
         if ( $scheme === 'unix' && strpos( (string) $path, '.clwpos/redis.sock' ) !== false ) {
-            return true;
+            if ( $ignore_banner_constant ) {
+                return true;
+            } else {
+                return defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS;
+            }
         }
 
         return false;
