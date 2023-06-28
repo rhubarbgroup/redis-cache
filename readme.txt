@@ -5,7 +5,7 @@ Tags: redis, object cache, cache, object caching, caching performance, relay, pr
 Requires at least: 3.3
 Tested up to: 6.2
 Requires PHP: 7.2
-Stable tag: 2.4.2-dev
+Stable tag: 2.4.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -61,6 +61,15 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 
 == Changelog ==
+
+= 2.4.2 =
+
+- Made admin-bar script more robust
+- Improved recovery instructions on `redis-error.php`
+- Improved CloudLinux detection
+- Localization improvements
+- Prevent W3 Total Cache and LiteSpeed Cache from overwriting drop-in
+- Fixed ACL username support when using Predis and array syntax
 
 = 2.4.1 =
 
