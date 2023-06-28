@@ -1,8 +1,17 @@
 # Changelog
 
+## 2.4.2
+
+- Made admin-bar script more robust
+- Improved recovery instructions on `redis-error.php`
+- Improved CloudLinux detection
+- Localization improvements
+- Prevent W3 Total Cache and LiteSpeed Cache from overwriting drop-in
+- Fixed ACL username support when using Predis and array syntax
+
 ## 2.4.1
 
-- Fix PHP `<=7.2` syntax error
+- Fixed PHP `<=7.2` syntax error
 
 ## 2.4.0
 

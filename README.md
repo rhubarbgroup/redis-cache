@@ -1,12 +1,12 @@
 # Redis Object Cache for WordPress
 
-A persistent object cache backend powered by Redis. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](http://wp-cli.org/).
+A persistent object cache backend powered by Redis®¹. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](http://wp-cli.org/).
 
 [![Redis Object Cache screenshots](/.wordpress-org/collage-sm.jpg?raw=true)](/.wordpress-org/collage.png?raw=true)
 
 ## Object Cache Pro
 
-A **business class** Redis object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.
+A **business class** Redis®¹ object cache backend. Truly reliable, highly optimized, fully customizable and with a dedicated engineer when you most need it.
 
 * Rewritten for raw performance
 * 100% WordPress API compliant
@@ -37,7 +37,7 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_SCHEME`                    | `tcp`       | The scheme used to connect: `tcp` or `unix` |
 | `WP_REDIS_DATABASE`                  | `0`         | The database used by the cache: `0-15` |
 | `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions, replaces `WP_CACHE_KEY_SALT`. Should be human readable, not a "salt". |
-| `WP_REDIS_PASSWORD`                  |             | The password of the Redis server, supports ACLs array: `['username', 'password']` |
+| `WP_REDIS_PASSWORD`                  |             | The password of the Redis server. Supports Redis ACLs arrays: `['user', 'password']` |
 | `WP_REDIS_MAXTTL`                    | `0`         | The maximum time-to-live of cache keys |
 | `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis: `predis`, `phpredis` or `relay` |
 | `WP_REDIS_TIMEOUT`                   | `1`         | The connection timeout in seconds |
@@ -70,7 +70,7 @@ Options that exist, but **should not**, **may break without notice** in future r
 
 | Configuration constant        | Default     | Description                                                         |
 | ----------------------------- | ----------- | ------------------------------------------------------------------- |
-| `WP_REDIS_GRACEFUL`           | `false`     | Prevents exceptions from being thrown, but can cause data coruption |
+| `WP_REDIS_GRACEFUL`           | `false`     | Prevents exceptions from being thrown, but will cause data corruption |
 | `WP_REDIS_SELECTIVE_FLUSH`    | `false`     | Uses terribly slow Lua script for flushing                          |
 | `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | Uses terribly slow Lua script to prevent groups from being flushed  |
 
@@ -101,8 +101,8 @@ Additional TLS/SSL stream connection options for connections can be defined usin
 
 ```php
 define( 'WP_REDIS_SSL_CONTEXT', [
-    'verify_host' => false,
-    'verify_host_name' => false,
+    'verify_peer' => false,
+    'verify_peer_name' => false,
 ]);
 ```
 
@@ -220,3 +220,7 @@ Redis Object Cache has various hooks and the commonly used ones are listed below
 | `redis_cache_expiration`                | Filters the cache expiration for individual keys  |
 | `redis_cache_validate_dropin`           | Filters whether the drop-in is valid              |
 | `redis_cache_add_non_persistent_groups` | Filters the groups to be marked as non persistent |
+
+## Footnotes
+
+¹ Redis is a registered trademark of Redis Ltd. Any rights therein are reserved to Redis Ltd. Any use by Redis Object Cache is for referential purposes only and does not indicate any sponsorship, endorsement or affiliation between Redis and Redis Object Cache.

@@ -8,6 +8,7 @@
 namespace Rhubarb\RedisCache\UI;
 
 use Rhubarb\RedisCache\UI;
+use Rhubarb\RedisCache\Plugin;
 
 defined( '\\ABSPATH' ) || exit;
 
@@ -65,92 +66,97 @@ defined( '\\ABSPATH' ) || exit;
         </div>
 
         <div class="sidebar-column">
+            <?php if ( ! Plugin::acceleratewp_install() ) : ?>
+                <h6>
+                    <?php esc_html_e( 'Resources', 'redis-cache' ); ?>
+                </h6>
 
-            <h6>
-                <?php esc_html_e( 'Resources', 'redis-cache' ); ?>
-            </h6>
+                <div class="section-pro">
 
-            <div class="section-pro">
+                    <div class="card">
+                        <h2 class="title" style="line-height: 1.4">
+                            <?php
+                                esc_html_e( 'Need more performance and reliability?', 'redis-cache' );
+                            ?><br>
+                            <?php
+                                // translators: %s = Object Cache Pro.
+                                printf( esc_html__( 'Check out %s', 'redis-cache' ), '<span style="color: #dc2626;">Object Cache Pro</span>' );
+                            ?>
+                        </h2>
+                        <p>
+                            <?php wp_kses_post( __( '<strong>A business class object cache backend.</strong> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.', 'redis-cache' ) ); ?>
+                        </p>
+                        <ul>
+                            <li><?php esc_html_e( 'Rewritten for raw performance', 'redis-cache' ); ?></li>
+                            <li><?php esc_html_e( '100% WordPress API compliant', 'redis-cache' ); ?></li>
+                            <li><?php esc_html_e( 'Faster serialization and compression', 'redis-cache' ); ?></li>
+                            <li><?php esc_html_e( 'Easy debugging & logging', 'redis-cache' ); ?></li>
+                            <li><?php esc_html_e( 'Cache prefetching and analytics', 'redis-cache' ); ?></li>
+                            <li><?php esc_html_e( 'Fully unit tested (100% code coverage)', 'redis-cache' ); ?></li>
+                            <li><?php esc_html_e( 'Secure connections with TLS', 'redis-cache' ); ?></li>
+                            <li><?php esc_html_e( 'Health checks via WordPress & WP CLI', 'redis-cache' ); ?></li>
+                            <li><?php esc_html_e( 'Optimized for WooCommerce, Jetpack & Yoast SEO', 'redis-cache' ); ?></li>
+                        </ul>
+                        <p>
+                            <a class="button button-primary" target="_blank" rel="noopener" href="<?php echo $this->link_to_ocp('settings'); ?>">
+                                <?php esc_html_e( 'Learn more', 'redis-cache' ); ?>
+                            </a>
+                        </p>
+                    </div>
 
-                <div class="card">
-                    <h2 class="title" style="line-height: 1.4">
-                        Need more performance and reliability?<br>
-                        Check out <span style="color: #dc2626;">Object Cache Pro</span>!
-                    </h2>
-                    <p>
-                        <?php wp_kses_post( __( '<strong>A business class object cache backend.</strong> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.', 'redis-cache' ) ); ?>
-                    </p>
-                    <ul>
-                        <li><?php esc_html_e( 'Rewritten for raw performance', 'redis-cache' ); ?></li>
-                        <li><?php esc_html_e( '100% WordPress API compliant', 'redis-cache' ); ?></li>
-                        <li><?php esc_html_e( 'Faster serialization and compression', 'redis-cache' ); ?></li>
-                        <li><?php esc_html_e( 'Easy debugging & logging', 'redis-cache' ); ?></li>
-                        <li><?php esc_html_e( 'Cache prefetching and analytics', 'redis-cache' ); ?></li>
-                        <li><?php esc_html_e( 'Fully unit tested (100% code coverage)', 'redis-cache' ); ?></li>
-                        <li><?php esc_html_e( 'Secure connections with TLS', 'redis-cache' ); ?></li>
-                        <li><?php esc_html_e( 'Health checks via WordPress & WP CLI', 'redis-cache' ); ?></li>
-                        <li><?php esc_html_e( 'Optimized for WooCommerce, Jetpack & Yoast SEO', 'redis-cache' ); ?></li>
-                    </ul>
-                    <p>
-                        <a class="button button-primary" target="_blank" rel="noopener" href="<?php echo $this->link_to_ocp('settings'); ?>">
-                            <?php esc_html_e( 'Learn more', 'redis-cache' ); ?>
-                        </a>
-                    </p>
+                    <?php $is_php7 = version_compare( phpversion(), '7.2', '>=' ); ?>
+                    <?php $is_phpredis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
+                    <?php $phpredis_installed = (bool) phpversion( 'redis' ); ?>
+                    <?php $relay_installed = (bool) phpversion( 'relay' ); ?>
+
+                    <?php if ( $is_php7 && ( $is_phpredis311 || $relay_installed ) ) : ?>
+
+                        <p class="compatibility">
+                            <span class="dashicons dashicons-yes"></span>
+                            <span><?php esc_html_e( 'Your site meets the system requirements for the Pro version.', 'redis-cache' ); ?></span>
+                        </p>
+
+                    <?php else : ?>
+
+                        <p class="compatibility">
+                            <span class="dashicons dashicons-no"></span>
+                            <span><?php echo wp_kses_post( __( 'Your site <i>does not</i> meet the requirements for the Pro version:', 'redis-cache' ) ); ?></span>
+                        </p>
+
+                        <ul>
+                            <?php if ( ! $is_php7 ) : ?>
+                                <li>
+                                    <?php
+                                        printf(
+                                            // translators: %s = PHP Version.
+                                            esc_html__( 'The current version of PHP (%s) is too old. PHP 7.2 or newer is required.', 'redis-cache' ),
+                                            esc_html( phpversion() )
+                                        );
+                                    ?>
+                                </li>
+                            <?php endif; ?>
+
+                            <?php if ( ! $phpredis_installed ) : ?>
+                                <li>
+                                    <?php esc_html_e( 'The PhpRedis extension is not installed.', 'redis-cache' ); ?>
+                                </li>
+                            <?php elseif ( ! $is_phpredis311 ) : ?>
+                                <li>
+                                    <?php
+                                        printf(
+                                            // translators: %s = Version of the PhpRedis extension.
+                                            esc_html__( 'The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required.', 'redis-cache' ),
+                                            esc_html( phpversion( 'redis' ) )
+                                        );
+                                    ?>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+
+                    <?php endif; ?>
+
                 </div>
-
-                <?php $is_php7 = version_compare( phpversion(), '7.2', '>=' ); ?>
-                <?php $is_phpredis311 = version_compare( phpversion( 'redis' ), '3.1.1', '>=' ); ?>
-                <?php $phpredis_installed = (bool) phpversion( 'redis' ); ?>
-                <?php $relay_installed = (bool) phpversion( 'relay' ); ?>
-
-                <?php if ( $is_php7 && ( $is_phpredis311 || $relay_installed ) ) : ?>
-
-                    <p class="compatibility">
-                        <span class="dashicons dashicons-yes"></span>
-                        <span><?php esc_html_e( 'Your site meets the system requirements for the Pro version.', 'redis-cache' ); ?></span>
-                    </p>
-
-                <?php else : ?>
-
-                    <p class="compatibility">
-                        <span class="dashicons dashicons-no"></span>
-                        <span><?php echo wp_kses_post( __( 'Your site <i>does not</i> meet the requirements for the Pro version:', 'redis-cache' ) ); ?></span>
-                    </p>
-
-                    <ul>
-                        <?php if ( ! $is_php7 ) : ?>
-                            <li>
-                                <?php
-                                    printf(
-                                        // translators: %s = PHP Version.
-                                        esc_html__( 'The current version of PHP (%s) is too old. PHP 7.2 or newer is required.', 'redis-cache' ),
-                                        esc_html( phpversion() )
-                                    );
-                                ?>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php if ( ! $phpredis_installed ) : ?>
-                            <li>
-                                <?php esc_html_e( 'The PhpRedis extension is not installed.', 'redis-cache' ); ?>
-                            </li>
-                        <?php elseif ( ! $is_phpredis311 ) : ?>
-                            <li>
-                                <?php
-                                    printf(
-                                        // translators: %s = Version of the PhpRedis extension.
-                                        esc_html__( 'The current version of the PhpRedis extension (%s) is too old. PhpRedis 3.1.1 or newer is required.', 'redis-cache' ),
-                                        esc_html( phpversion( 'redis' ) )
-                                    );
-                                ?>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-
-                <?php endif; ?>
-
-            </div>
-
+            <?php endif; ?>
         </div>
 
     </div>

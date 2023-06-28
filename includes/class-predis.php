@@ -108,8 +108,15 @@ class Predis {
             }
         }
 
-        if ( isset( $parameters['password'] ) && defined( 'WP_REDIS_USERNAME' ) ) {
-            $parameters['username'] = WP_REDIS_USERNAME;
+        if ( isset( $parameters['password'] ) ) {
+            if ( is_array( $parameters['password'] ) ) {
+                $parameters['username'] = array_shift( $parameters['password'] );
+                $parameters['password'] = implode( '', $parameters['password'] );
+            }
+
+            if ( defined( 'WP_REDIS_USERNAME' ) ) {
+                $parameters['username'] = WP_REDIS_USERNAME;
+            }
         }
 
         if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {

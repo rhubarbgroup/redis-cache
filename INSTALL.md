@@ -44,7 +44,7 @@ For more connection examples see [Connections](https://github.com/rhubarbgroup/r
 
 ## Composer instructions
 
-If you manage plugins using Composer follow these s
+If you manage plugins using Composer follow these steps:
 
 ```bash
 # Install the plugin:
@@ -62,6 +62,6 @@ wp config set WP_REDIS_PORT "6379"
 wp config set WP_REDIS_DATABASE "15"
 ```
 
-- [Configuration options](https://github.com/rhubarbgroup/redis-cache/#configuration).
+- [Configuration options](https://github.com/rhubarbgroup/redis-cache/#configuration)
 - [Connection examples](https://github.com/rhubarbgroup/redis-cache/#connections)
 - [Scaling and replication](https://github.com/rhubarbgroup/redis-cache/#scaling)

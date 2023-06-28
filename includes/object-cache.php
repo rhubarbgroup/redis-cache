@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.4.1
+ * Version: 2.4.2
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -909,8 +909,15 @@ class WP_Object_Cache {
             }
         }
 
-        if ( isset( $parameters['password'] ) && defined( 'WP_REDIS_USERNAME' ) ) {
-            $parameters['username'] = WP_REDIS_USERNAME;
+        if ( isset( $parameters['password'] ) ) {
+            if ( is_array( $parameters['password'] ) ) {
+                $parameters['username'] = array_shift( $parameters['password'] );
+                $parameters['password'] = implode( '', $parameters['password'] );
+            }
+
+            if ( defined( 'WP_REDIS_USERNAME' ) ) {
+                $parameters['username'] = WP_REDIS_USERNAME;
+            }
         }
 
         if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
@@ -2893,26 +2900,39 @@ LUA;
             die();
         }
 
-        $message = '<h1>' . __( 'Error establishing a Redis connection' ) . "</h1>\n";
+        $verbose = wp_installing()
+            || defined( 'WP_ADMIN' )
+            || ( defined( 'WP_DEBUG' ) && WP_DEBUG );
 
-        if ( wp_installing() || defined( 'WP_ADMIN' ) || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+        $message = '<h1>' . __( 'Error establishing a Redis connection', 'redis-cache' ) . "</h1>\n";
+
+        if ( $verbose ) {
             $message .= "<p><code>" . $exception->getMessage() . "</code></p>\n";
 
             $message .= '<p>' . sprintf(
-                __( 'This means that the connection information in your %1$s file are incorrect or that the Redis server is unreachable.' ),
+                // translators: %s = Formatted wp-config.php file name.
+                __( 'WordPress is unable to establish a connection to Redis. This means that the connection information in your %s file are incorrect, or that the Redis server is not reachable.', 'redis-cache' ),
                 '<code>wp-config.php</code>'
             ) . "</p>\n";
 
             $message .= "<ul>\n";
-            $message .= '<li>' . __( 'Are you sure you have the correct Redis host and port?' ) . "</li>\n";
-            $message .= '<li>' . __( 'Are you sure Redis server is running?' ) . "</li>\n";
+            $message .= '<li>' . __( 'Is the correct Redis host and port set?', 'redis-cache' ) . "</li>\n";
+            $message .= '<li>' . __( 'Is the Redis server running?', 'redis-cache' ) . "</li>\n";
             $message .= "</ul>\n";
 
             $message .= '<p>' . sprintf(
-                __( 'If you need help, please read the <a href="%s">installation instructions</a>.' ),
-                __( 'https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md' )
+                // translators: %s = Link to installation instructions.
+                __( 'If you need help, please read the <a href="%s">installation instructions</a>.', 'redis-cache' ),
+                'https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md'
             ) . "</p>\n";
         }
+
+        $message .= '<p>' . sprintf(
+            // translators: %1$s = Formatted object-cache.php file name, %2$s = Formatted wp-content directory name.
+            __( 'To disable Redis, delete the %1$s file in the %2$s directory.', 'redis-cache' ),
+            '<code>object-cache.php</code>',
+            '<code>/wp-content/</code>',
+        ) . "</p>\n";
 
         wp_die( $message );
     }

@@ -341,7 +341,7 @@
             }];
         }
 
-        if ( ! rediscache.disable_pro || ! rediscache.disable_banners ) {
+        if ( ! rediscache.disable_pro ) {
             var pro_charts = {
                 time: function ( entry ) {
                     return [ entry[0], entry[1] * 0.5 ]

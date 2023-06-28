@@ -123,6 +123,8 @@ class Plugin {
         add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
 
         add_filter( 'perflab_disable_object_cache_dropin', '__return_true' );
+        add_filter( 'w3tc_config_item_objectcache.enabled', '__return_false' );
+        add_action( 'litespeed_init', [ $this, 'litespeed_disable_objectcache' ] );
     }
 
     /**
@@ -279,9 +281,13 @@ class Plugin {
             return $plugin_meta;
         }
 
+        if ( self::acceleratewp_install() ) {
+            return $plugin_meta;
+        }
+
         $plugin_meta[] = sprintf(
             '<a href="%1$s"><span class="dashicons dashicons-star-filled" aria-hidden="true" style="font-size: 14px; line-height: 1.3"></span>%2$s</a>',
-            $this->link_to_ocp('meta-row'),
+            $this->link_to_ocp( 'meta-row' ),
             esc_html_x( 'Upgrade to Pro', 'verb', 'redis-cache' )
         );
 
@@ -299,10 +305,7 @@ class Plugin {
     {
         $ref = 'oss';
 
-        if (
-            ( defined( 'WP_ROCKET_WEB_MAIN' ) && strpos( (string) WP_ROCKET_WEB_MAIN, 'cloudlinux.com' ) ) ||
-            ( defined( 'WP_ROCKET_UPDATE_PATH' ) && strpos( (string) WP_ROCKET_UPDATE_PATH, 'cloudlinux' ) )
-        ) {
+        if ( self::acceleratewp_install( true ) ) {
             $ref = 'oss-cl';
         }
 
@@ -376,8 +379,9 @@ class Plugin {
             'rediscache',
             [
                 'jQuery' => 'jQuery',
-                'disable_pro' => $screen->id !== $this->screen,
-                'disable_banners' => defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS,
+                'disable_pro' => $screen->id !== $this->screen
+                    || ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS )
+                    || self::acceleratewp_install(),
                 'l10n' => [
                     'time' => __( 'Time', 'redis-cache' ),
                     'bytes' => __( 'Bytes', 'redis-cache' ),
@@ -732,44 +736,10 @@ class Plugin {
         }
 
         $nodeTitle = __( 'Object Cache', 'redis-cache' );
-        $flushMessage = __( 'Flushing cache...', 'redis-cache' );
 
-        $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
-        $nonce = wp_create_nonce();
-
-        $html = <<<HTML
-            <style>
-                #wpadminbar ul li.redis-cache-error { background: #c00; }
-                #wpadminbar:not(.mobile) .ab-top-menu > li.redis-cache-error:hover > .ab-item { background: #b30000; color: #fff; }
-            </style>
-            <script>
-                document.querySelector('#wp-admin-bar-redis-cache-flush > a')
-                    .addEventListener('click', async function (event) {
-                        event.preventDefault();
-
-                        var node = document.querySelector('#wp-admin-bar-redis-cache');
-                        var textNode = node.querySelector('.ab-item:first-child');
-
-                        node.classList.remove('hover');
-                        textNode.innerText = '{$flushMessage}';
-
-                        try {
-                            var data = new FormData();
-                            data.append('action', 'roc_flush_cache');
-                            data.append('nonce', '{$nonce}');
-
-                            var response = await fetch('{$ajaxurl}', { method: 'POST', body: data });
-
-                            textNode.innerText = await response.text();
-
-                            setTimeout(function () { textNode.innerText = '{$nodeTitle}'; }, 3000);
-                        } catch (error) {
-                            textNode.innerText = '{$nodeTitle}';
-                            alert('Object cache could not be flushed: ' + error);
-                        }
-                    });
-            </script>
-HTML;
+        $style = preg_replace( '/\s+/', ' ', $this->admin_bar_style() );
+        $script = preg_replace( '/\s+/', ' ', $this->admin_bar_script() );
+        $html = "\n{$style}\n{$script}\n";
 
         $redis_status = $this->get_redis_status();
 
@@ -777,7 +747,7 @@ HTML;
             'id' => 'redis-cache',
             'title' => $nodeTitle,
             'meta' => [
-                'html' => preg_replace( '/\s+/', ' ', $html ),
+                'html' => $html,
                 'class' => $redis_status === false ? 'redis-cache-error' : '',
             ],
         ]);
@@ -847,6 +817,85 @@ HTML;
                 'title' => $title,
             ],
         ]);
+    }
+
+    /**
+     * Returns the admin-bar <style> tag.
+     *
+     * @return string
+     */
+    protected function admin_bar_style()
+    {
+        return <<<HTML
+            <style>
+                #wpadminbar ul li.redis-cache-error {
+                    background: #b30000;
+                }
+
+                #wpadminbar:not(.mobile) .ab-top-menu > li.redis-cache-error:hover > .ab-item {
+                    background: #b30000;
+                    color: #fff;
+                }
+            </style>
+HTML;
+    }
+
+    /**
+     * Returns the admin-bar <script> tag.
+     *
+     * @return string
+     */
+    protected function admin_bar_script()
+    {
+        $nonce = wp_create_nonce();
+        $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
+        $flushMessage = __( 'Flushing cache...', 'redis-cache' );
+
+        return <<<HTML
+            <script>
+                (function (element) {
+                    if (! element) {
+                        return;
+                    }
+
+                    element.addEventListener('click', async function (event) {
+                        event.preventDefault();
+
+                        var node = document.querySelector('#wp-admin-bar-redis-cache');
+                        var textNode = node.querySelector('.ab-item:first-child');
+
+                        if (! textNode.dataset.text) {
+                            textNode.dataset.text = textNode.innerText;
+                        }
+
+                        node.classList.remove('hover');
+                        textNode.innerText = '{$flushMessage}';
+
+                        try {
+                            var data = new FormData();
+                            data.append('action', 'roc_flush_cache');
+                            data.append('nonce', '{$nonce}');
+
+                            var response = await fetch('{$ajaxurl}', {
+                                method: 'POST',
+                                body: data,
+                            });
+
+                            textNode.innerText = await response.text();
+
+                            setTimeout(function () {
+                                textNode.innerText = textNode.dataset.text;
+                            }, 3000);
+                        } catch (error) {
+                            textNode.innerText = textNode.dataset.text;
+                            alert('Object cache could not be flushed: ' + error);
+                        }
+                    });
+                })(
+                    document.querySelector('#wp-admin-bar-redis-cache-flush > a')
+                );
+            </script>
+HTML;
     }
 
     /**
@@ -1513,5 +1562,38 @@ HTML;
      */
     public function current_user_can_manage_redis() {
         return current_user_can( $this->manage_redis_capability() );
+    }
+
+    /**
+     * Prevent LiteSpeed Cache from overwriting the `object-cache.php` drop-in.
+     *
+     * @return void
+     */
+    public function litespeed_disable_objectcache()
+    {
+        if ( isset( $_POST['LSCWP_CTRL'], $_POST['LSCWP_NONCE'], $_POST['object'] ) ) {
+            $_POST['object'] = '0';
+        }
+    }
+
+    /**
+     * Returns `true` if the plugin was installed by AccelerateWP from CloudLinux.
+     *
+     * @param bool $ignore_banner_constant
+     * @return bool
+     */
+    public static function acceleratewp_install( $ignore_banner_constant = false ) {
+        $path = defined( 'WP_REDIS_PATH' ) ? WP_REDIS_PATH : null;
+        $scheme = defined( 'WP_REDIS_SCHEME' ) ? WP_REDIS_SCHEME : null;
+
+        if ( $scheme === 'unix' && strpos( (string) $path, '.clwpos/redis.sock' ) !== false ) {
+            if ( $ignore_banner_constant ) {
+                return true;
+            } else {
+                return defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS;
+            }
+        }
+
+        return false;
     }
 }
