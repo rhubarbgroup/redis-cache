@@ -2894,6 +2894,10 @@ LUA;
     protected function show_error_and_die( Exception $exception ) {
         wp_load_translations_early();
 
+        add_filter( 'pre_determine_locale', function () {
+            return defined( 'WPLANG' ) ? WPLANG : 'en_US';
+        } );
+
         // Load custom DB error template, if present.
         if ( file_exists( WP_CONTENT_DIR . '/redis-error.php' ) ) {
             require_once WP_CONTENT_DIR . '/redis-error.php';
