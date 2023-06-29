@@ -2935,7 +2935,7 @@ LUA;
             // translators: %1$s = Formatted object-cache.php file name, %2$s = Formatted wp-content directory name.
             __( 'To disable Redis, delete the %1$s file in the %2$s directory.', 'redis-cache' ),
             '<code>object-cache.php</code>',
-            '<code>/wp-content/</code>',
+            '<code>/wp-content/</code>'
         ) . "</p>\n";
 
         wp_die( $message );
