@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.3
+
+- Fixed PHP `<=7.2` syntax error
+- Fixed loading error-page translations
+
 ## 2.4.2
 
 - Made admin-bar script more robust
