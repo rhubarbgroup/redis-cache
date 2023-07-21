@@ -1300,7 +1300,7 @@ class WP_Object_Cache {
 
             if ( count( $results ) !== count( $keys ) ) {
                 $tx->discard();
-                return [];
+                return array_fill_keys( $keys, false );
             }
 
             $results = array_combine( $keys, $results );
@@ -1550,7 +1550,7 @@ class WP_Object_Cache {
 
             if ( count( $results ) !== count( $keys ) ) {
                 $tx->discard();
-                return [];
+                return array_fill_keys( $keys, false );
             }
 
             $execute_time = microtime( true ) - $start_time;
@@ -2273,7 +2273,7 @@ LUA;
 
             if ( count( $results ) !== count( $keys ) ) {
                 $tx->discard();
-                return [];
+                return array_fill_keys( $keys, false );
             }
 
             $results = array_combine( $keys, $results );
