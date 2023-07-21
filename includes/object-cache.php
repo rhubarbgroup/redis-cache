@@ -1299,7 +1299,8 @@ class WP_Object_Cache {
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                throw new Exception( 'Redis pipeline returned unexpected result' );
+                $tx->discard();
+                return array_fill_keys( $keys, false );
             }
 
             $results = array_combine( $keys, $results );
@@ -1548,7 +1549,8 @@ class WP_Object_Cache {
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                throw new Exception( 'Redis pipeline returned unexpected result' );
+                $tx->discard();
+                return array_fill_keys( $keys, false );
             }
 
             $execute_time = microtime( true ) - $start_time;
@@ -2270,7 +2272,8 @@ LUA;
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                throw new Exception( 'Redis pipeline returned unexpected result' );
+                $tx->discard();
+                return array_fill_keys( $keys, false );
             }
 
             $results = array_combine( $keys, $results );
