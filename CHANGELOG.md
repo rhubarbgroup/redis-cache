@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.4
+
+- Improved handling of unexpected transaction results
+
 ## 2.4.3
 
 - Fixed PHP `<=7.2` syntax error
