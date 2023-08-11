@@ -30,15 +30,18 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: msgpack, igbinary, mbstring, redis, relay
           coverage: none
+          tools: parallel-lint
 
       - name: Install PHP Dependencies
         uses: ramsey/composer-install@v2
+
+      - name: Check source code for syntax errors
+        run: composer exec --no-interaction -- parallel-lint *.php dependencies/ includes/ tests/
 
       - name: Run PHPStan
         run: composer run phpstan
 
   editorconfig:
-
     name: EditorConfig
     runs-on: ubuntu-latest
     timeout-minutes: 5

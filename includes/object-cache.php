@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.4.3
+ * Version: 2.4.4
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -1299,7 +1299,9 @@ class WP_Object_Cache {
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                throw new Exception( 'Redis pipeline returned unexpected result' );
+                $tx->discard();
+
+                return array_fill_keys( $keys, false );
             }
 
             $results = array_combine( $keys, $results );
@@ -1548,7 +1550,9 @@ class WP_Object_Cache {
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                throw new Exception( 'Redis pipeline returned unexpected result' );
+                $tx->discard();
+
+                return array_fill_keys( $keys, false );
             }
 
             $execute_time = microtime( true ) - $start_time;
@@ -2270,7 +2274,9 @@ LUA;
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                throw new Exception( 'Redis pipeline returned unexpected result' );
+                $tx->discard();
+
+                return array_fill_keys( $keys, false );
             }
 
             $results = array_combine( $keys, $results );
