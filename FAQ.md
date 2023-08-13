@@ -5,7 +5,7 @@ When in doubt try flushing the cache, you'd be surprised how often this resolves
 <details>
 <summary>HELP! My site is down!1!!11!!11</summary>
 
-The easist way to to disable Redis on your site is deleting the `wp-content/object-cache.php` drop-in file. Alternatively, you can set the `WP_REDIS_DISABLED` constant to `true` to bypass loading it.
+The easiest way to to disable Redis on your site is deleting the `wp-content/object-cache.php` drop-in file. Alternatively, you can set the `WP_REDIS_DISABLED` constant to `true` to bypass loading it.
 </details>
 
 <details>
