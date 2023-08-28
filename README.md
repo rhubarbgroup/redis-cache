@@ -143,7 +143,7 @@ define( 'WP_REDIS_IGBINARY', true );
 define( 'WP_REDIS_CLIENT', 'predis' );
 
 define( 'WP_REDIS_SERVERS', [
-    'tcp://127.0.0.1:6379?database=5&alias=master',
+    'tcp://127.0.0.1:6379?database=5&role=master',
     'tcp://127.0.0.2:6379?database=5&alias=replica-01',
 ] );
 ```
