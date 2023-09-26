@@ -14,7 +14,7 @@ Next, install the `Redis Object Cache` plugin via the WordPress Dashboard, or us
 
 After installing and activating the plugin, go to `WordPress -> Settings -> Redis` or `Network Admin -> Settings -> Redis` on Multisite networks. There, enable the cache and check if the plugin can connect automatically.
 
-By default the object cache will connect to Redis Server over TCP at `127.0.0.1:6379` and use database `0`,
+If not, you must edit the `wp-config.php` file in your `/wp-content` directory. By default the object cache will connect to Redis Server over TCP at `127.0.0.1:6379` and use database `0`,
 if you see `Status: Not connected` either ask your hosting provider for assistance, or [configure the connection yourself](https://github.com/rhubarbgroup/redis-cache/#configuration).
 
 A good starting configuration is:
@@ -33,7 +33,7 @@ define( 'WP_REDIS_TIMEOUT', 1 );
 define( 'WP_REDIS_READ_TIMEOUT', 1 );
 ```
 
-When editing your `wp-config.php` file, it is important that `WP_REDIS_*` constants are defined high up in the file, above these lines:
+When editing the `wp-config.php` file, it is important that `WP_REDIS_*` constants are defined high up in the file, above these lines:
 
 ```php
 /* That's all, stop editing! Happy publishing. */
