@@ -39,7 +39,7 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions, replaces `WP_CACHE_KEY_SALT`. Should be human readable, not a "salt". |
 | `WP_REDIS_PASSWORD`                  |             | The password of the Redis server. Supports Redis ACLs arrays: `['user', 'password']` |
 | `WP_REDIS_MAXTTL`                    | `0`         | The maximum time-to-live of cache keys |
-| `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis: `predis`, `phpredis` or `relay` |
+| `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis. Defaults to `phpredis` when installed, otherwise `predis`. Supports `phpredis`, `predis`, `relay` |
 | `WP_REDIS_TIMEOUT`                   | `1`         | The connection timeout in seconds |
 | `WP_REDIS_READ_TIMEOUT`              | `1`         | The timeout in seconds when reading/writing  |
 | `WP_REDIS_IGNORED_GROUPS`            | `[]`        | Groups that should not be cached between requests in Redis |
