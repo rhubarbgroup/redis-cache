@@ -191,6 +191,8 @@ define( 'WP_REDIS_SERVERS', [
 <https://redis.io/docs/management/scaling/>
 
 ```php
+define( 'WP_REDIS_CLIENT', 'phpredis' );
+
 define( 'WP_REDIS_CLUSTER', [
     'tcp://127.0.0.1:6379?alias=node-01',
     'tcp://127.0.0.2:6379?alias=node-02',
