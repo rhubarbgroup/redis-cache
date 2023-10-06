@@ -2875,21 +2875,22 @@ LUA;
 
         error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
+        if ( function_exists( 'do_action' ) ) {
+            /**
+             * Fires when an object cache related error occurs.
+             *
+             * @since 1.5.0
+             * @param \Exception $exception The exception.
+             * @param string     $message   The exception message.
+             */
+            do_action( 'redis_object_cache_error', $exception, $exception->getMessage() );
+        }
+
         if ( ! $this->fail_gracefully ) {
             $this->show_error_and_die( $exception );
         }
 
         $this->errors[] = $exception->getMessage();
-
-        if ( function_exists( 'do_action' ) ) {
-            /**
-             * Fires on every cache error
-             *
-             * @since 1.5.0
-             * @param \Exception $exception The exception triggered.
-             */
-            do_action( 'redis_object_cache_error', $exception );
-        }
     }
 
     /**

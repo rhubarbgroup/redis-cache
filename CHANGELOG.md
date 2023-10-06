@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Call `redis_object_cache_error` action before `wp_die()`
+
 ## 2.4.4
 
 - Improved handling of unexpected transaction results
