@@ -2,7 +2,7 @@
 Contributors: tillkruess, a5hleyrich
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, object cache, cache, object caching, caching performance, relay, predis, phpredis
-Requires at least: 3.3
+Requires at least: 4.6
 Tested up to: 6.3
 Requires PHP: 7.2
 Stable tag: 2.4.4

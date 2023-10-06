@@ -133,8 +133,6 @@ class Plugin {
      * @return void
      */
     public function init() {
-        load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
-
         if ( is_admin() && ! wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
             wp_schedule_event( time(), 'hourly', 'rediscache_discard_metrics' );
         }
