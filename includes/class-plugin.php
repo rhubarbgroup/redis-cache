@@ -921,19 +921,16 @@ HTML;
                 $url = $this->action_link( $action );
 
                 if ( $action === 'flush-cache' ) {
-                    wp_cache_flush()
-                        ? add_settings_error(
-                            'redis-cache',
-                            'flush',
-                            __( 'Object cache flushed.', 'redis-cache' ),
-                            'updated'
-                        )
-                        : add_settings_error(
-                            'redis-cache',
-                            'flush',
-                            __( 'Object cache could not be flushed.', 'redis-cache' ),
-                            'error'
-                        );
+
+                    add_action( 'shutdown', [ $this, 'shutdown_flush_cache' ] );
+
+                    add_settings_error(
+                        'redis-cache',
+                        'flush',
+                        __( 'Redis cache flush in progress ... check logs for errors.', 'redis-cache' ),
+                        'updated'
+                    );
+
                 }
 
                 // do we have filesystem credentials?
@@ -984,17 +981,13 @@ HTML;
                         $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
 
                         if ( $result ) {
-                            try {
-                                $predis = new Predis();
-                                $predis->flush();
-                            } catch ( Exception $exception ) {
-                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                                error_log( $exception );
-                            }
+
+                            add_action( 'shutdown', [ $this, 'shutdown_disable_redis_flush_cache' ] );
+
                         }
 
                         /**
-                         * Fires on cache enable event
+                         * Fires on cache disable event
                          *
                          * @since 1.3.5
                          * @param bool $result Whether the filesystem event (deletion of the `object-cache.php` file) was successful.
@@ -1025,7 +1018,7 @@ HTML;
                         );
 
                         /**
-                         * Fires on cache enable event
+                         * Fires on cache update event
                          *
                          * @since 1.3.5
                          * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.
@@ -1046,6 +1039,15 @@ HTML;
                                 'error'
                             );
                     }
+                } else {
+
+                    add_settings_error(
+                        'redis-cache',
+                        'dropin',
+                        __( 'No filesystem credentials.', 'redis-cache' ),
+                        'error'
+                    );
+
                 }
 
                 $messages = get_settings_errors( 'redis-cache' );
@@ -1060,6 +1062,39 @@ HTML;
                 }
             }
         }
+    }
+
+    /**
+     * Flushes the cache
+     *
+     * @return void
+     */
+    public function shutdown_flush_cache() {
+
+        if ( !wp_cache_flush() ) {
+
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log(__( 'Object cache could not be flushed.' ));
+
+        }
+
+    }
+
+    /**
+     * Flushes the cache when Redis is disabled
+     *
+     * @return void
+     */
+    public function shutdown_disable_redis_flush_cache() {
+
+        try {
+            $predis = new Predis();
+            $predis->flush();
+        } catch ( Exception $exception ) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( $exception );
+        }
+
     }
 
     /**
