@@ -1,5 +1,8 @@
 # Redis Object Cache for WordPress
 
+Update Banner: Fast load times; Less Database load; screenshots
+Add: SpinupWP, BlueHost, LiquidWeb and other platforms that use it to the banner maybe also to the readme
+
 A persistent object cache backend powered by Redis®¹. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](http://wp-cli.org/).
 
 [![Redis Object Cache screenshots](/.wordpress-org/collage-sm.jpg?raw=true)](/.wordpress-org/collage.png?raw=true)
@@ -41,7 +44,8 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_MAXTTL`                    | `0`         | The maximum time-to-live of cache keys |
 | `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis. Defaults to `phpredis` when installed, otherwise `predis`. Supports `phpredis`, `predis`, `relay` |
 | `WP_REDIS_TIMEOUT`                   | `1`         | The connection timeout in seconds |
-| `WP_REDIS_READ_TIMEOUT`              | `1`         | The timeout in seconds when reading/writing  |
+| `WP_REDIS_READ_TIMEOUT`              | `1`         | The timeout in seconds when reading/writing |
+| `WP_REDIS_FLUSH_TIMEOUT`             | `5`         | The timeout in seconds when flushing |
 | `WP_REDIS_IGNORED_GROUPS`            | `[]`        | Groups that should not be cached between requests in Redis |
 
 <details>

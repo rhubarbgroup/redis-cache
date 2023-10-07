@@ -24,7 +24,7 @@ class Predis {
      *
      * @return void
      */
-    public function connect() {
+    public function connect( $read_timeout = null ) {
         // Load bundled Predis library.
         if ( ! class_exists( '\Predis\Client' ) ) {
             require_once WP_REDIS_PLUGIN_PATH . '/dependencies/predis/predis/autoload.php';
@@ -39,7 +39,7 @@ class Predis {
             'port' => 6379,
             'database' => 0,
             'timeout' => 1,
-            'read_timeout' => 1,
+            'read_timeout' => $read_timeout ?? 1,
         ];
 
         $settings = [
@@ -128,13 +128,26 @@ class Predis {
     }
 
     /**
-     * Invalidate all items in the cache.
+     * Flushes the entire Redis database using the `WP_REDIS_FLUSH_TIMEOUT`.
      *
-     * @return bool True on success, false on failure.
+     * @param  bool $throw_exception Whether to throw exception on error.
+     * @return bool
      */
-    public function flush() {
+    public function flush( $throw_exception = false ) {
+        $flush_timeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' )
+            ? intval(WP_REDIS_FLUSH_TIMEOUT)
+            : 5;
+
         if ( is_null( $this->redis ) ) {
-            $this->connect();
+            try {
+                $this->connect( $flush_timeout );
+            } catch ( Exception $exception ) {
+                if ( $throw_exception ) {
+                    throw $exception;
+                }
+
+                return false;
+            }
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
@@ -143,23 +156,46 @@ class Predis {
                     $this->redis->flushdb( $master );
                 }
             } catch ( Exception $exception ) {
+                if ( $throw_exception ) {
+                    throw $exception;
+                }
+
                 return false;
             }
-        } else {
-            try {
-                $this->redis->flushdb();
-            } catch ( Exception $exception ) {
-                return false;
-            }
+
+            return true;
         }
 
-        return true;
+        try {
+            // TODO: test Predis return value...
+
+            var_dump($this->redis->flushdb());
+            exit;
+
+            return $this->redis->flushdb();
+        } catch ( Exception $exception ) {
+            if ( $throw_exception ) {
+                throw $exception;
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * Flushes the entire Redis database using the `WP_REDIS_FLUSH_TIMEOUT`
+     * and will throw an exception if anything goes wrong.
+     *
+     * @return bool
+     */
+    public function flushOrFail() {
+        return $this->flush( true );
     }
 
     /**
      * Builds a clean connection array out of redis clusters array.
      *
-     * @return  array
+     * @return array
      */
     protected function build_cluster_connection_array() {
         $cluster = array_values( WP_REDIS_CLUSTER );
