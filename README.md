@@ -108,6 +108,15 @@ define( 'WP_REDIS_SSL_CONTEXT', [
 
 </details>
 
+<details>
+<summary>Connecting using ACL authentication</summary>
+
+```php
+define( 'WP_REDIS_PASSWORD', [ 'username', 'password' ] );
+```
+
+</details>
+
 ## Scaling
 
 Redis Object Cache offers various replication, sharding, cluster and sentinel setups to users with advanced technical knowledge of Redis and PHP, that have consulted the [Predis](https://github.com/predis/predis), [PhpRedis](https://github.com/phpredis/phpredis) or [Relay](https://relay.so/docs) documentation.
