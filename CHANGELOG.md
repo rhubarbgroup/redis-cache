@@ -5,7 +5,7 @@
 - Require WordPress 4.6 or newer
 - Load text-domain on-demand
 - Call `redis_object_cache_error` action before `wp_die()`
-- Fixed `WP_REDIS_PLUGIN_PATH` already defined warning
+- Don't try to define `WP_REDIS_PLUGIN_PATH` twice
 
 ## 2.4.4
 
