@@ -22,6 +22,7 @@ defined( 'ABSPATH' ) || exit;
 define( 'WP_REDIS_FILE', __FILE__ );
 define( 'WP_REDIS_BASENAME', plugin_basename( WP_REDIS_FILE ) );
 define( 'WP_REDIS_PLUGIN_DIR', plugin_dir_url( WP_REDIS_FILE ) );
+
 if ( ! defined( 'WP_REDIS_PLUGIN_PATH' ) ) {
     define( 'WP_REDIS_PLUGIN_PATH', __DIR__ );
 }
