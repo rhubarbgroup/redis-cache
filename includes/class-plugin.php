@@ -1375,7 +1375,7 @@ HTML;
         }
 
         $cachefile = WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php';
-        $testfile = WP_CONTENT_DIR . '/.redis-write-test.tmp';
+        $testfile = WP_CONTENT_DIR . '/object-cache.tmp';
 
         if ( ! $wp_filesystem->exists( $cachefile ) ) {
             return new WP_Error( 'exists', __( 'Object cache file doesn’t exist.', 'redis-cache' ) );
