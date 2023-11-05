@@ -1,9 +1,9 @@
 === Redis Object Cache ===
-Contributors: tillkruess, a5hleyrich
+Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, object cache, cache, object caching, caching performance, relay, predis, phpredis
 Requires at least: 4.6
-Tested up to: 6.3
+Tested up to: 6.4
 Requires PHP: 7.2
 Stable tag: 2.4.4
 License: GPLv3
