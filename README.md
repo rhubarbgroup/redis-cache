@@ -58,6 +58,7 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_DISABLE_ADMINBAR`          | `false`     | Disables admin bar display |
 | `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
 | `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners |
+| `WP_REDIS_DISABLE_DROPIN_CHECK`      | `false`     | Disables the extended drop-in write test |
 | `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update |
 | `WP_REDIS_SSL_CONTEXT`               | `[]`        | TLS connection options for `tls` or `rediss` scheme |
 

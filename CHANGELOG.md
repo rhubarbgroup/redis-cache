@@ -3,11 +3,12 @@
 ## Unreleased
 
 - Require WordPress 4.6 or newer
-- Load text-domain on-demand
-- Call `redis_object_cache_error` action before `wp_die()`
-- Don't try to define `WP_REDIS_PLUGIN_PATH` twice
+- Load text-domain only when needed
+- Added `WP_REDIS_DISABLE_DROPIN_CHECK` constant
 - Respect `file_mod_allowed` filter and `DISALLOW_FILE_MODS` constant
 - Renamed `.redis-write-test.tmp` test file to `object-cache.tmp`
+- Call `redis_object_cache_error` action before `wp_die()`
+- Allow `WP_REDIS_PLUGIN_PATH` to be defined elsewhere
 
 ## 2.4.4
 

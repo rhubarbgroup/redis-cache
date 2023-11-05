@@ -1391,6 +1391,20 @@ HTML;
             return new WP_Error( 'fs', __( 'Could not initialize filesystem.', 'redis-cache' ) );
         }
 
+        $dropin_check = ! defined( 'WP_REDIS_DISABLE_DROPIN_CHECK' ) || ! WP_REDIS_DISABLE_DROPIN_CHECK;
+
+        if ( ! $dropin_check ) {
+            if ( ! $wp_filesystem->exists( WP_CONTENT_DIR . '/object-cache.php' ) ) {
+                return true;
+            }
+
+            if ( ! $wp_filesystem->is_writable( WP_CONTENT_DIR . '/object-cache.php' ) ) {
+                return new WP_Error( 'writable', __( 'Object cache drop-in is not writable.', 'redis-cache' ) );
+            }
+
+            return true;
+        }
+
         $cachefile = WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php';
         $testfile = WP_CONTENT_DIR . '/object-cache.tmp';
 
@@ -1405,7 +1419,7 @@ HTML;
         }
 
         if ( ! $wp_filesystem->is_writable( WP_CONTENT_DIR ) ) {
-            return new WP_Error( 'copy', __( 'Content directory is not writable.', 'redis-cache' ) );
+            return new WP_Error( 'writable', __( 'Content directory is not writable.', 'redis-cache' ) );
         }
 
         if ( ! $wp_filesystem->copy( $cachefile, $testfile, true, FS_CHMOD_FILE ) ) {
