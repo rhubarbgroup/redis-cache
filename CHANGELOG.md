@@ -6,6 +6,7 @@
 - Load text-domain on-demand
 - Call `redis_object_cache_error` action before `wp_die()`
 - Don't try to define `WP_REDIS_PLUGIN_PATH` twice
+- Respect `file_mod_allowed` filter and `DISALLOW_FILE_MODS` constant
 - Renamed `.redis-write-test.tmp` test file to `object-cache.tmp`
 
 ## 2.4.4

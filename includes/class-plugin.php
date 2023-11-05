@@ -1362,6 +1362,19 @@ HTML;
     }
 
     /**
+     * Determines whether object cache file modifications are allowed.
+     *
+     * @return bool
+     */
+    function is_file_mod_allowed() {
+        return apply_filters(
+            'file_mod_allowed',
+            ! defined( 'DISALLOW_FILE_MODS' ) || ! DISALLOW_FILE_MODS,
+            'object_cache_dropin'
+        );
+    }
+
+    /**
      * Test if we can write in the WP_CONTENT_DIR and modify the `object-cache.php` drop-in
      *
      * @return true|WP_Error
@@ -1369,6 +1382,10 @@ HTML;
     public function test_filesystem_writing() {
         /** @var \WP_Filesystem_Base $wp_filesystem */
         global $wp_filesystem;
+
+        if ( ! $this->is_file_mod_allowed() ) {
+            return new WP_Error( 'disallowed', __( 'File modifications are not allowed.', 'redis-cache' ) );
+        }
 
         if ( ! $this->initialize_filesystem( '', true ) ) {
             return new WP_Error( 'fs', __( 'Could not initialize filesystem.', 'redis-cache' ) );
