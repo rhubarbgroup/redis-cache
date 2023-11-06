@@ -9,6 +9,7 @@
 - Renamed `.redis-write-test.tmp` test file to `object-cache.tmp`
 - Call `redis_object_cache_error` action before `wp_die()`
 - Allow `WP_REDIS_PLUGIN_PATH` to be defined elsewhere
+- Added experimental flush timeout (defaults to `5` seconds)
 
 ## 2.4.4
 

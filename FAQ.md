@@ -139,6 +139,14 @@ Alternatively, you can set the `WP_REDIS_MAXTTL` constant to something relativel
 </details>
 
 <details>
+<summary><code>Flushing the cache causes timeout</code></summary>
+
+This can happen when the dataset in Redis Server is quite large. Consider increasing `WP_REDIS_READ_TIMEOUT` and `WP_REDIS_FLUSH_TIMEOUT` to 5-10 seconds.
+
+Alternatively, starting with Redis 6.2, setting the `lazyfree-lazy-user-flush` in the `redis.conf` configuration directive to `yes` changes the default flush mode to be asynchronous.
+</details>
+
+<details>
 <summary>Unable to flush the cache</summary>
 
 If your site is unreachable, you can flush the cache without access to the WordPress dashboard. 

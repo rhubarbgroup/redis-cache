@@ -946,13 +946,7 @@ HTML;
                         );
 
                         if ( $result ) {
-                            try {
-                                $predis = new Predis();
-                                $predis->flush();
-                            } catch ( Exception $exception ) {
-                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                                error_log( $exception );
-                            }
+                            (new Predis)->flush();
                         }
 
                         /**
@@ -982,13 +976,7 @@ HTML;
                         $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
 
                         if ( $result ) {
-                            try {
-                                $predis = new Predis();
-                                $predis->flush();
-                            } catch ( Exception $exception ) {
-                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                                error_log( $exception );
-                            }
+                            (new Predis)->flush();
                         }
 
                         /**
@@ -1534,7 +1522,7 @@ HTML;
                 wp_unschedule_event( $timestamp, 'rediscache_discard_metrics' );
             }
 
-            wp_cache_flush();
+            (new Predis)->flush();
 
             if ( $this->validate_object_cache_dropin() && $this->initialize_filesystem( '', true ) ) {
                 $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );

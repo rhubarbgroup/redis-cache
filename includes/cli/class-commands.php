@@ -173,20 +173,11 @@ class Commands extends WP_CLI_Command {
      */
     protected function flush_redis() {
         try {
-            $predis = new Predis();
-            $predis->connect();
+            return (new Predis)->flushOrFail();
         } catch ( Exception $exception ) {
+            error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
             return $exception->getMessage();
         }
-
-        try {
-            $predis->flush();
-        } catch ( Exception $exception ) {
-            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-            error_log( $exception );
-        }
-
-        return true;
     }
-
 }
