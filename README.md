@@ -1,8 +1,5 @@
 # Redis Object Cache for WordPress
 
-Update Banner: Fast load times; Less Database load; screenshots
-Add: SpinupWP, BlueHost, LiquidWeb and other platforms that use it to the banner maybe also to the readme
-
 A persistent object cache backend powered by Redis®¹. Supports [Predis](https://github.com/predis/predis/), [PhpRedis (PECL)](https://github.com/phpredis/phpredis), [Relay](https://relaycache.com), replication, sentinels, clustering and [WP-CLI](http://wp-cli.org/).
 
 [![Redis Object Cache screenshots](/.wordpress-org/collage-sm.jpg?raw=true)](/.wordpress-org/collage.png?raw=true)
