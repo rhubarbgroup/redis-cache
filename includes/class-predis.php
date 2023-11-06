@@ -22,6 +22,7 @@ class Predis {
     /**
      * Connect to Redis.
      *
+     * @param int|null $read_timeout The read timeout in seconds.
      * @return void
      */
     public function connect( $read_timeout = null ) {
@@ -130,7 +131,7 @@ class Predis {
     /**
      * Flushes the entire Redis database using the `WP_REDIS_FLUSH_TIMEOUT`.
      *
-     * @param  bool $throw_exception Whether to throw exception on error.
+     * @param bool $throw_exception Whether to throw exception on error.
      * @return bool
      */
     public function flush( $throw_exception = false ) {
@@ -167,12 +168,7 @@ class Predis {
         }
 
         try {
-            // TODO: test Predis return value...
-
-            var_dump($this->redis->flushdb());
-            exit;
-
-            return $this->redis->flushdb();
+            $this->redis->flushdb();
         } catch ( Exception $exception ) {
             if ( $throw_exception ) {
                 throw $exception;
@@ -180,6 +176,8 @@ class Predis {
 
             return false;
         }
+
+        return true;
     }
 
     /**
