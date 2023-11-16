@@ -10,7 +10,7 @@
 - Call `redis_object_cache_error` action before `wp_die()`
 - Allow `WP_REDIS_PLUGIN_PATH` to be defined elsewhere
 - Added experimental flush timeout (defaults to `5` seconds)
-- Swap out ignored `themes` for `theme_json` cache group
+- Dropped unnecessary default ignored groups
 
 ## 2.4.4
 
