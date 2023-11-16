@@ -29,20 +29,20 @@ Answers to common questions and troubleshooting of common errors can be found in
 
 The Redis Object Cache plugin comes with vast set of configuration options. If you're unsure how to use them read the [installation instructions](INSTALL.md).
 
-| Configuration constant               | Default     | Description                                   |
-| ------------------------------------ | ----------- | --------------------------------------------- |
-| `WP_REDIS_HOST`                      | `127.0.0.1` | The hostname of the Redis server |
-| `WP_REDIS_PORT`                      | `6379`      | The port of the Redis server |
-| `WP_REDIS_PATH`                      |             | The path to the unix socket of the Redis server |
-| `WP_REDIS_SCHEME`                    | `tcp`       | The scheme used to connect: `tcp` or `unix` |
-| `WP_REDIS_DATABASE`                  | `0`         | The database used by the cache: `0-15` |
-| `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions (replaces `WP_CACHE_KEY_SALT`), should be human readable and not a "salt" |
-| `WP_REDIS_PASSWORD`                  |             | The password of the Redis server, supports Redis ACLs arrays: `['user', 'password']` |
-| `WP_REDIS_MAXTTL`                    | `0`         | The maximum time-to-live of cache keys |
-| `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis (defaults to `phpredis` when installed, otherwise `predis`), supports `phpredis`, `predis`, `relay` |
-| `WP_REDIS_TIMEOUT`                   | `1`         | The connection timeout in seconds |
-| `WP_REDIS_READ_TIMEOUT`              | `1`         | The timeout in seconds when reading/writing |
-| `WP_REDIS_IGNORED_GROUPS`            | `[]`        | Groups that should not be cached between requests in Redis |
+| Configuration constant               | Default                               | Description                                   |
+| ------------------------------------ | ------------------------------------- | --------------------------------------------- |
+| `WP_REDIS_HOST`                      | `127.0.0.1`                           | The hostname of the Redis server |
+| `WP_REDIS_PORT`                      | `6379`                                | The port of the Redis server |
+| `WP_REDIS_PATH`                      |                                       | The path to the unix socket of the Redis server |
+| `WP_REDIS_SCHEME`                    | `tcp`                                 | The scheme used to connect: `tcp` or `unix` |
+| `WP_REDIS_DATABASE`                  | `0`                                   | The database used by the cache: `0-15` |
+| `WP_REDIS_PREFIX`                    |                                       | The prefix used for all cache keys to avoid data collisions (replaces `WP_CACHE_KEY_SALT`), should be human readable and not a "salt" |
+| `WP_REDIS_PASSWORD`                  |                                       | The password of the Redis server, supports Redis ACLs arrays: `['user', 'password']` |
+| `WP_REDIS_MAXTTL`                    | `0`                                   | The maximum time-to-live of cache keys |
+| `WP_REDIS_CLIENT`                    |                                       | The client used to communicate with Redis (defaults to `phpredis` when installed, otherwise `predis`), supports `phpredis`, `predis`, `relay` |
+| `WP_REDIS_TIMEOUT`                   | `1`                                   | The connection timeout in seconds |
+| `WP_REDIS_READ_TIMEOUT`              | `1`                                   | The timeout in seconds when reading/writing |
+| `WP_REDIS_IGNORED_GROUPS`            | `['counts', 'plugins', 'theme_json']` | Groups that should not be cached between requests in Redis |
 
 <details>
 <summary>Advanced configuration options</summary>

@@ -444,7 +444,7 @@ class WP_Object_Cache {
     public $ignored_groups = [
         'counts',
         'plugins',
-        'themes',
+        'theme_json',
     ];
 
     /**
