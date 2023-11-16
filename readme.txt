@@ -5,7 +5,7 @@ Tags: redis, object cache, cache, object caching, caching performance, relay, pr
 Requires at least: 4.6
 Tested up to: 6.4
 Requires PHP: 7.2
-Stable tag: 2.4.4
+Stable tag: 2.5.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -61,6 +61,18 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 
 == Changelog ==
+
+= 2.5.0 =
+
+- Require WordPress 4.6 or newer
+- Load text-domain only when needed
+- Added `WP_REDIS_DISABLE_DROPIN_CHECK` constant
+- Respect `file_mod_allowed` filter and `DISALLOW_FILE_MODS` constant
+- Renamed `.redis-write-test.tmp` test file to `object-cache.tmp`
+- Call `redis_object_cache_error` action before `wp_die()`
+- Allow `WP_REDIS_PLUGIN_PATH` to be defined elsewhere
+- Added experimental flush timeout (defaults to `5` seconds)
+- Swap out ignored `themes` for `theme_json` cache group
 
 = 2.4.4 =
 

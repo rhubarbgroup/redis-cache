@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.5.0
 
 - Require WordPress 4.6 or newer
 - Load text-domain only when needed
