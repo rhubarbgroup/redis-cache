@@ -1611,6 +1611,10 @@ HTML;
             }
         }
 
-        return false;
+        if ( $ignore_banner_constant ) {
+            return false;
+        }
+
+        return defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS;
     }
 }
