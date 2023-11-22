@@ -26,6 +26,10 @@ class Predis {
      * @return void
      */
     public function connect( $read_timeout = null ) {
+        if ( ! function_exists( 'stream_socket_client' ) ) {
+            return;
+        }
+
         // Load bundled Predis library.
         if ( ! class_exists( '\Predis\Client' ) ) {
             require_once WP_REDIS_PLUGIN_PATH . '/dependencies/predis/predis/autoload.php';
@@ -149,6 +153,10 @@ class Predis {
 
                 return false;
             }
+        }
+
+        if ( is_null( $this->redis ) ) {
+            return false;
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {

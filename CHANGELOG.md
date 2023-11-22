@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Support rare PHP installations without `sockets` extension
+
 ## 2.5.0
 
 - Require WordPress 4.6 or newer
