@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Support rare PHP installations without `sockets` extension
+- Fixed deprecation notice warning in `sanitize_key_part()`
 
 ## 2.5.0
 

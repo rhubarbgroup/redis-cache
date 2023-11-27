@@ -2531,11 +2531,11 @@ LUA;
     /**
      * Replaces the set group separator by another one
      *
-     * @param   string $part  The string to sanitize.
-     * @return  string        Sanitized string.
+     * @param string $part   The string to sanitize.
+     * @return string        Sanitized string.
      */
     protected function sanitize_key_part( $part ) {
-        return str_replace( ':', '-', $part );
+        return str_replace( ':', '-', is_scalar( $part ) ? (string) $part : '' );
     }
 
     /**
