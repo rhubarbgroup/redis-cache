@@ -2901,7 +2901,7 @@ LUA;
             return defined( 'WPLANG' ) ? WPLANG : 'en_US';
         } );
 
-        // Load custom DB error template, if present.
+        // Load custom Redis error template, if present.
         if ( file_exists( WP_CONTENT_DIR . '/redis-error.php' ) ) {
             require_once WP_CONTENT_DIR . '/redis-error.php';
             die();
