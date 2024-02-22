@@ -2895,6 +2895,10 @@ LUA;
      * @return void
      */
     protected function show_error_and_die( Exception $exception ) {
+        if ( ! function_exists( 'get_template_directory' ) ) {
+            require_once ABSPATH . WPINC . '/theme.php';
+        }
+
         wp_load_translations_early();
 
         add_filter( 'pre_determine_locale', function () {
