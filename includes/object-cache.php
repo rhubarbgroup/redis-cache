@@ -993,7 +993,7 @@ class WP_Object_Cache {
         if ( defined( 'WP_REDIS_SENTINEL' ) ) {
             if ( is_array( WP_REDIS_SERVERS ) && count( WP_REDIS_SERVERS ) > 1 ) {
                 throw new Exception(
-                    'Multipe sentinel servers are not supported by the bundled Credis library. Please review your Redis Cache configuration.'
+                    'Multiple sentinel servers are not supported by the bundled Credis library. Please review your Redis Cache configuration.'
                 );
             }
 
