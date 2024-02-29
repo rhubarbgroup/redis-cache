@@ -1,5 +1,3 @@
-# Running PHPStan needs ext-relay.
-
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
 
