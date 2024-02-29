@@ -653,6 +653,10 @@ class WP_Object_Cache {
             unset( $parameters[ 'password' ] );
         }
 
+        $this->diagnostics[ 'timeout' ] = $parameters[ 'timeout' ];
+        $this->diagnostics[ 'read_timeout' ] = $parameters[ 'read_timeout' ];
+        $this->diagnostics[ 'retry_interval' ] = $parameters[ 'retry_interval' ];
+
         return $parameters;
     }
 

@@ -140,7 +140,7 @@ class Predis {
      */
     public function flush( $throw_exception = false ) {
         $flush_timeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' )
-            ? intval(WP_REDIS_FLUSH_TIMEOUT)
+            ? intval( WP_REDIS_FLUSH_TIMEOUT )
             : 5;
 
         if ( is_null( $this->redis ) ) {
