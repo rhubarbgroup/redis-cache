@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.5.1
+
+- Added timeouts to diagnostics
+- Support rare PHP installations without `sockets` extension
+- Fixed rare fatal error in `show_error_and_die()`
+- Fixed deprecation notice warning in `sanitize_key_part()`
+
+## 2.5.0
+
+- Require WordPress 4.6 or newer
+- Load text-domain only when needed
+- Added `WP_REDIS_DISABLE_DROPIN_CHECK` constant
+- Respect `file_mod_allowed` filter and `DISALLOW_FILE_MODS` constant
+- Renamed `.redis-write-test.tmp` test file to `object-cache.tmp`
+- Call `redis_object_cache_error` action before `wp_die()`
+- Allow `WP_REDIS_PLUGIN_PATH` to be defined elsewhere
+- Added experimental flush timeout (defaults to `5` seconds)
+- Dropped unnecessary default ignored groups
+
 ## 2.4.4
 
 - Improved handling of unexpected transaction results

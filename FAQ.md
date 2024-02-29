@@ -5,7 +5,7 @@ When in doubt try flushing the cache, you'd be surprised how often this resolves
 <details>
 <summary>HELP! My site is down!1!!11!!11</summary>
 
-The easist way to to disable Redis on your site is deleting the `wp-content/object-cache.php` drop-in file. Alternatively, you can set the `WP_REDIS_DISABLED` constant to `true` to bypass loading it.
+The easiest way to to disable Redis on your site is deleting the `wp-content/object-cache.php` drop-in file. Alternatively, you can set the `WP_REDIS_DISABLED` constant to `true` to bypass loading it.
 </details>
 
 <details>
@@ -139,6 +139,14 @@ Alternatively, you can set the `WP_REDIS_MAXTTL` constant to something relativel
 </details>
 
 <details>
+<summary><code>Flushing the cache causes timeout</code></summary>
+
+This can happen when the dataset in Redis Server is quite large. Consider increasing `WP_REDIS_READ_TIMEOUT` and `WP_REDIS_FLUSH_TIMEOUT` to 5-10 seconds.
+
+Alternatively, starting with Redis 6.2, setting the `lazyfree-lazy-user-flush` in the `redis.conf` configuration directive to `yes` changes the default flush mode to be asynchronous.
+</details>
+
+<details>
 <summary>Unable to flush the cache</summary>
 
 If your site is unreachable, you can flush the cache without access to the WordPress dashboard. 
@@ -158,16 +166,13 @@ Alternatively, you can use a desktop client like [Medis](https://getmedis.com) o
 If you don't see metrics building up, or your site is not getting faster, you might have an active plugin that flushes the object cache frequently. To diagnose this issue you can use the following snippet to find the source of the cache flush:
 
 ```php
-add_action(
-    'redis_object_cache_flush',
-    function( $results, $delay, $selective, $salt, $execute_time ) {
-        ob_start();
-        echo date( 'c' ) . PHP_EOL;
-        debug_print_backtrace();
-        var_dump( func_get_args() );
-        error_log( ABSPATH . '/redis-cache-flush.log', 3, ob_get_clean() );
-    }, 10, 5
-);
+add_action( 'redis_object_cache_flush', function( $results ) {
+    ob_start();
+    echo date( 'c' ) . PHP_EOL;
+    var_dump( $results );
+    debug_print_backtrace();
+    error_log( ob_get_clean(), 3, ABSPATH . '/redis-cache-flush.log' );
+}, 10, 5 );
 ```
 
 Once you found the plugin responsible by checking `redis-cache-flush.log`, you can contact the plugin author(s) and reporting the issue.

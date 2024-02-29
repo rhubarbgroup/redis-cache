@@ -133,8 +133,6 @@ class Plugin {
      * @return void
      */
     public function init() {
-        load_plugin_textdomain( 'redis-cache', false, 'redis-cache/languages' );
-
         if ( is_admin() && ! wp_next_scheduled( 'rediscache_discard_metrics' ) ) {
             wp_schedule_event( time(), 'hourly', 'rediscache_discard_metrics' );
         }
@@ -948,13 +946,7 @@ HTML;
                         );
 
                         if ( $result ) {
-                            try {
-                                $predis = new Predis();
-                                $predis->flush();
-                            } catch ( Exception $exception ) {
-                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                                error_log( $exception );
-                            }
+                            (new Predis)->flush();
                         }
 
                         /**
@@ -984,13 +976,7 @@ HTML;
                         $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
 
                         if ( $result ) {
-                            try {
-                                $predis = new Predis();
-                                $predis->flush();
-                            } catch ( Exception $exception ) {
-                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                                error_log( $exception );
-                            }
+                            (new Predis)->flush();
                         }
 
                         /**
@@ -1364,6 +1350,19 @@ HTML;
     }
 
     /**
+     * Determines whether object cache file modifications are allowed.
+     *
+     * @return bool
+     */
+    function is_file_mod_allowed() {
+        return apply_filters(
+            'file_mod_allowed',
+            ! defined( 'DISALLOW_FILE_MODS' ) || ! DISALLOW_FILE_MODS,
+            'object_cache_dropin'
+        );
+    }
+
+    /**
      * Test if we can write in the WP_CONTENT_DIR and modify the `object-cache.php` drop-in
      *
      * @return true|WP_Error
@@ -1372,12 +1371,30 @@ HTML;
         /** @var \WP_Filesystem_Base $wp_filesystem */
         global $wp_filesystem;
 
+        if ( ! $this->is_file_mod_allowed() ) {
+            return new WP_Error( 'disallowed', __( 'File modifications are not allowed.', 'redis-cache' ) );
+        }
+
         if ( ! $this->initialize_filesystem( '', true ) ) {
             return new WP_Error( 'fs', __( 'Could not initialize filesystem.', 'redis-cache' ) );
         }
 
+        $dropin_check = ! defined( 'WP_REDIS_DISABLE_DROPIN_CHECK' ) || ! WP_REDIS_DISABLE_DROPIN_CHECK;
+
+        if ( ! $dropin_check ) {
+            if ( ! $wp_filesystem->exists( WP_CONTENT_DIR . '/object-cache.php' ) ) {
+                return true;
+            }
+
+            if ( ! $wp_filesystem->is_writable( WP_CONTENT_DIR . '/object-cache.php' ) ) {
+                return new WP_Error( 'writable', __( 'Object cache drop-in is not writable.', 'redis-cache' ) );
+            }
+
+            return true;
+        }
+
         $cachefile = WP_REDIS_PLUGIN_PATH . '/includes/object-cache.php';
-        $testfile = WP_CONTENT_DIR . '/.redis-write-test.tmp';
+        $testfile = WP_CONTENT_DIR . '/object-cache.tmp';
 
         if ( ! $wp_filesystem->exists( $cachefile ) ) {
             return new WP_Error( 'exists', __( 'Object cache file doesn’t exist.', 'redis-cache' ) );
@@ -1390,7 +1407,7 @@ HTML;
         }
 
         if ( ! $wp_filesystem->is_writable( WP_CONTENT_DIR ) ) {
-            return new WP_Error( 'copy', __( 'Content directory is not writable.', 'redis-cache' ) );
+            return new WP_Error( 'writable', __( 'Content directory is not writable.', 'redis-cache' ) );
         }
 
         if ( ! $wp_filesystem->copy( $cachefile, $testfile, true, FS_CHMOD_FILE ) ) {
@@ -1505,7 +1522,7 @@ HTML;
                 wp_unschedule_event( $timestamp, 'rediscache_discard_metrics' );
             }
 
-            wp_cache_flush();
+            (new Predis)->flush();
 
             if ( $this->validate_object_cache_dropin() && $this->initialize_filesystem( '', true ) ) {
                 $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );

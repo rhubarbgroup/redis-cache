@@ -36,12 +36,12 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_PATH`                      |             | The path to the unix socket of the Redis server |
 | `WP_REDIS_SCHEME`                    | `tcp`       | The scheme used to connect: `tcp` or `unix` |
 | `WP_REDIS_DATABASE`                  | `0`         | The database used by the cache: `0-15` |
-| `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions, replaces `WP_CACHE_KEY_SALT`. Should be human readable, not a "salt". |
-| `WP_REDIS_PASSWORD`                  |             | The password of the Redis server. Supports Redis ACLs arrays: `['user', 'password']` |
+| `WP_REDIS_PREFIX`                    |             | The prefix used for all cache keys to avoid data collisions (replaces `WP_CACHE_KEY_SALT`), should be human readable and not a "salt" |
+| `WP_REDIS_PASSWORD`                  |             | The password of the Redis server, supports Redis ACLs arrays: `['user', 'password']` |
 | `WP_REDIS_MAXTTL`                    | `0`         | The maximum time-to-live of cache keys |
-| `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis: `predis`, `phpredis` or `relay` |
+| `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis (defaults to `phpredis` when installed, otherwise `predis`), supports `phpredis`, `predis`, `relay` |
 | `WP_REDIS_TIMEOUT`                   | `1`         | The connection timeout in seconds |
-| `WP_REDIS_READ_TIMEOUT`              | `1`         | The timeout in seconds when reading/writing  |
+| `WP_REDIS_READ_TIMEOUT`              | `1`         | The timeout in seconds when reading/writing |
 | `WP_REDIS_IGNORED_GROUPS`            | `[]`        | Groups that should not be cached between requests in Redis |
 
 <details>
@@ -50,7 +50,8 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | Configuration constant               | Default     | Description                                   |
 | ------------------------------------ | ----------- | --------------------------------------------- |
 | `WP_CACHE_KEY_SALT`                  |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
-| `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries |
+| `WP_REDIS_FLUSH_TIMEOUT`             | `5`         | Experimental. The timeout in seconds when flushing |
+| `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries (PhpRedis only) |
 | `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
 | `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored |
 | `WP_REDIS_IGBINARY`                  | `false`     | Whether to use the igbinary PHP extension for serialization |
@@ -58,6 +59,7 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_DISABLE_ADMINBAR`          | `false`     | Disables admin bar display |
 | `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
 | `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners |
+| `WP_REDIS_DISABLE_DROPIN_CHECK`      | `false`     | Disables the extended drop-in write test |
 | `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update |
 | `WP_REDIS_SSL_CONTEXT`               | `[]`        | TLS connection options for `tls` or `rediss` scheme |
 
@@ -68,11 +70,11 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 
 Options that exist, but **should not**, **may break without notice** in future releases and **won't receive any support** whatsoever from our team:
 
-| Configuration constant        | Default     | Description                                                         |
-| ----------------------------- | ----------- | ------------------------------------------------------------------- |
+| Configuration constant        | Default     | Description                                                           |
+| ----------------------------- | ----------- | --------------------------------------------------------------------- |
 | `WP_REDIS_GRACEFUL`           | `false`     | Prevents exceptions from being thrown, but will cause data corruption |
-| `WP_REDIS_SELECTIVE_FLUSH`    | `false`     | Uses terribly slow Lua script for flushing                          |
-| `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | Uses terribly slow Lua script to prevent groups from being flushed  |
+| `WP_REDIS_SELECTIVE_FLUSH`    | `false`     | Uses terribly slow Lua script for flushing                            |
+| `WP_REDIS_UNFLUSHABLE_GROUPS` | `[]`        | Uses terribly slow Lua script to prevent groups from being flushed    |
 
 </details>
 
@@ -104,6 +106,15 @@ define( 'WP_REDIS_SSL_CONTEXT', [
     'verify_peer' => false,
     'verify_peer_name' => false,
 ]);
+```
+
+</details>
+
+<details>
+<summary>Connecting using ACL authentication</summary>
+
+```php
+define( 'WP_REDIS_PASSWORD', [ 'username', 'password' ] );
 ```
 
 </details>
@@ -143,7 +154,7 @@ define( 'WP_REDIS_IGBINARY', true );
 define( 'WP_REDIS_CLIENT', 'predis' );
 
 define( 'WP_REDIS_SERVERS', [
-    'tcp://127.0.0.1:6379?database=5&alias=master',
+    'tcp://127.0.0.1:6379?database=5&role=master',
     'tcp://127.0.0.2:6379?database=5&alias=replica-01',
 ] );
 ```
@@ -191,6 +202,8 @@ define( 'WP_REDIS_SERVERS', [
 <https://redis.io/docs/management/scaling/>
 
 ```php
+define( 'WP_REDIS_CLIENT', 'phpredis' );
+
 define( 'WP_REDIS_CLUSTER', [
     'tcp://127.0.0.1:6379?alias=node-01',
     'tcp://127.0.0.2:6379?alias=node-02',
