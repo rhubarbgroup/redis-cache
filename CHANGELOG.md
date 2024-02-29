@@ -1,11 +1,11 @@
 # Changelog
 
-## Unreleased
+## 2.5.1
 
+- Added timeouts to diagnostics
 - Support rare PHP installations without `sockets` extension
 - Fixed rare fatal error in `show_error_and_die()`
 - Fixed deprecation notice warning in `sanitize_key_part()`
-- Added timeouts to diagnostics
 
 ## 2.5.0
 

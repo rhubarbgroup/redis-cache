@@ -5,7 +5,7 @@ Tags: redis, object cache, cache, object caching, caching performance, relay, pr
 Requires at least: 4.6
 Tested up to: 6.4
 Requires PHP: 7.2
-Stable tag: 2.5.0
+Stable tag: 2.5.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -59,6 +59,14 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 3. Plugin settings, showing diagnostic information.
 4. Dashboard widget, displaying recent response time metrics.
 
+== Changelog ==
+
+= 2.5.1 =
+
+- Added timeouts to diagnostics
+- Support rare PHP installations without `sockets` extension
+- Fixed rare fatal error in `show_error_and_die()`
+- Fixed deprecation notice warning in `sanitize_key_part()`
 
 == Changelog ==
 

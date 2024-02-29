@@ -1,15 +1,15 @@
-# Copyright (C) 2023 Till Krüss
+# Copyright (C) 2024 Till Krüss
 # This file is distributed under the GPLv3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Redis Object Cache 2.5.0\n"
+"Project-Id-Version: Redis Object Cache 2.5.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/redis-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-11-16T20:42:18+00:00\n"
+"POT-Creation-Date: 2024-02-29T18:51:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: redis-cache\n"
@@ -302,30 +302,30 @@ msgstr ""
 msgid "Object cache drop-in could not be updated. Redis server is unreachable: %s"
 msgstr ""
 
-#: includes/object-cache.php:2914
+#: includes/object-cache.php:2922
 msgid "Error establishing a Redis connection"
 msgstr ""
 
 #. translators: %s = Formatted wp-config.php file name.
-#: includes/object-cache.php:2921
+#: includes/object-cache.php:2929
 msgid "WordPress is unable to establish a connection to Redis. This means that the connection information in your %s file are incorrect, or that the Redis server is not reachable."
 msgstr ""
 
-#: includes/object-cache.php:2926
+#: includes/object-cache.php:2934
 msgid "Is the correct Redis host and port set?"
 msgstr ""
 
-#: includes/object-cache.php:2927
+#: includes/object-cache.php:2935
 msgid "Is the Redis server running?"
 msgstr ""
 
 #. translators: %s = Link to installation instructions.
-#: includes/object-cache.php:2932
+#: includes/object-cache.php:2940
 msgid "If you need help, please read the <a href=\"%s\">installation instructions</a>."
 msgstr ""
 
 #. translators: %1$s = Formatted object-cache.php file name, %2$s = Formatted wp-content directory name.
-#: includes/object-cache.php:2939
+#: includes/object-cache.php:2947
 msgid "To disable Redis, delete the %1$s file in the %2$s directory."
 msgstr ""
 
