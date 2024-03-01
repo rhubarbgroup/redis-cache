@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-if (!extension_loaded('relay')) {
+if (! extension_loaded('relay')) {
     error_log('Running PHPStan needs ext-relay.');
     exit(2);
 }
