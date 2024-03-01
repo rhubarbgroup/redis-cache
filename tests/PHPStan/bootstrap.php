@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+if (! extension_loaded('relay')) {
+    error_log('Running PHPStan needs ext-relay.');
+    exit(2);
+}
+
 const HHVM_VERSION = '0.0.0';
 const WPINC = 'wp-includes';
 const WP_CONTENT_DIR = './';
