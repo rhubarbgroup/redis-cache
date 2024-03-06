@@ -1825,9 +1825,32 @@ LUA;
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
 
-            $args = $this->is_predis() ? [ $script, 0 ] : [ $script ];
+            if ( $this->is_predis() ) {
+                $args = [ $script, 0 ];
+                if ( defined('WP_REDIS_FLUSH_TIMEOUT') ) {
+                    $timeout = $this->redis->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
+                    // $timeout = stream_context_get_options($this->redis->getConnection()->getResource())['socket']['timeout'] ?? ini_get( 'default_socket_timeout' );
+                    stream_set_timeout($this->redis->getConnection()->getResource(), WP_REDIS_FLUSH_TIMEOUT);
+                }
+            } else {
+                $args = [ $script ];
+                if ( defined('WP_REDIS_FLUSH_TIMEOUT') ) {
+                    $timeout = $this->redis->getOption(Redis::OPT_READ_TIMEOUT);
+                    $this->redis->setOption(Redis::OPT_READ_TIMEOUT, WP_REDIS_FLUSH_TIMEOUT);
+                }
+            }
 
-            return call_user_func_array( [ $this->redis, 'eval' ], $args );
+            $result = call_user_func_array( [ $this->redis, 'eval' ], $args );
+
+            if ( isset($timeout) ) {
+                if ( $this->is_predis() ) {
+                    stream_set_timeout($this->redis->getConnection()->getResource(), $timeout);
+                } else {
+                    $this->redis->setOption(Redis::OPT_READ_TIMEOUT, $timeout);
+                }
+            }
+
+            return $result;
         };
     }
 
