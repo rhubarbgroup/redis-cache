@@ -1591,6 +1591,61 @@ class WP_Object_Cache {
     }
 
     /**
+     * ...
+     *
+     * @return array|false  Returns array on success, false on failure
+     */
+    protected function execute_lua_script( $script ) {
+        $results = [];
+
+        if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+            $redis = $this->redis;
+            try {
+                foreach ( $this->redis->_masters() as $master ) {
+                    $this->redis = new Redis();
+                    $this->redis->connect( $master[0], $master[1], defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 0 );
+                    $results[] = $this->parse_redis_response( $script() );
+                }
+            } catch ( Exception $exception ) {
+                $this->handle_exception( $exception );
+                $this->redis = $redis;
+
+                return false;
+            }
+            $this->redis = $redis;
+        } else {
+            if ( defined('WP_REDIS_FLUSH_TIMEOUT') ) {
+                if ( $this->is_predis() ) {
+                    $timeout = $this->redis->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
+                    stream_set_timeout($this->redis->getConnection()->getResource(), WP_REDIS_FLUSH_TIMEOUT);
+                } else {
+                    $timeout = $this->redis->getOption(Redis::OPT_READ_TIMEOUT);
+                    $this->redis->setOption(Redis::OPT_READ_TIMEOUT, WP_REDIS_FLUSH_TIMEOUT);
+                }
+            }
+
+            try {
+                $results[] = $this->parse_redis_response( $script() );
+            } catch ( Exception $exception ) {
+                $this->handle_exception( $exception );
+
+                return false;
+            }
+
+            if ( isset($timeout) ) {
+                if ( $this->is_predis() ) {
+                    stream_set_timeout($this->redis->getConnection()->getResource(), $timeout);
+                } else {
+                    $this->redis->setOption(Redis::OPT_READ_TIMEOUT, $timeout);
+                }
+            }
+        }
+
+        return $results;
+    }
+
+
+    /**
      * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
      * only keys prefixed with the `WP_REDIS_PREFIX` are flushed.
      *
@@ -1608,28 +1663,9 @@ class WP_Object_Cache {
 
             if ( $salt && $selective ) {
                 $script = $this->get_flush_closure( $salt );
-
-                if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                    try {
-                        foreach ( $this->redis->_masters() as $master ) {
-                            $redis = new Redis();
-                            $redis->connect( $master[0], $master[1] );
-                            $results[] = $this->parse_redis_response( $script() );
-                            unset( $redis );
-                        }
-                    } catch ( Exception $exception ) {
-                        $this->handle_exception( $exception );
-
-                        return false;
-                    }
-                } else {
-                    try {
-                        $results[] = $this->parse_redis_response( $script() );
-                    } catch ( Exception $exception ) {
-                        $this->handle_exception( $exception );
-
-                        return false;
-                    }
+                $results = $this->execute_lua_script( $script() );
+                if ( empty( $results ) ) {
+                    return false;
                 }
             } else {
                 if ( defined( 'WP_REDIS_CLUSTER' ) ) {
@@ -1713,25 +1749,11 @@ class WP_Object_Cache {
             return false;
         }
 
-        $results = [];
-
         $start_time = microtime( true );
         $script = $this->lua_flush_closure( $salt, false );
+        $results = $this->execute_lua_script( $script() );
 
-        try {
-            if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                foreach ( $this->redis->_masters() as $master ) {
-                    $redis = new Redis;
-                    $redis->connect( $master[0], $master[1] );
-                    $results[] = $this->parse_redis_response( $script() );
-                    unset( $redis );
-                }
-            } else {
-                $results[] = $this->parse_redis_response( $script() );
-            }
-        } catch ( Exception $exception ) {
-            $this->handle_exception( $exception );
-
+        if ( empty( $results ) ) {
             return false;
         }
 
@@ -1825,32 +1847,9 @@ LUA;
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
 
-            if ( $this->is_predis() ) {
-                $args = [ $script, 0 ];
-                if ( defined('WP_REDIS_FLUSH_TIMEOUT') ) {
-                    $timeout = $this->redis->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
-                    // $timeout = stream_context_get_options($this->redis->getConnection()->getResource())['socket']['timeout'] ?? ini_get( 'default_socket_timeout' );
-                    stream_set_timeout($this->redis->getConnection()->getResource(), WP_REDIS_FLUSH_TIMEOUT);
-                }
-            } else {
-                $args = [ $script ];
-                if ( defined('WP_REDIS_FLUSH_TIMEOUT') ) {
-                    $timeout = $this->redis->getOption(Redis::OPT_READ_TIMEOUT);
-                    $this->redis->setOption(Redis::OPT_READ_TIMEOUT, WP_REDIS_FLUSH_TIMEOUT);
-                }
-            }
+            $args = $this->is_predis() ? [ $script, 0 ] : [ $script ];
 
-            $result = call_user_func_array( [ $this->redis, 'eval' ], $args );
-
-            if ( isset($timeout) ) {
-                if ( $this->is_predis() ) {
-                    stream_set_timeout($this->redis->getConnection()->getResource(), $timeout);
-                } else {
-                    $this->redis->setOption(Redis::OPT_READ_TIMEOUT, $timeout);
-                }
-            }
-
-            return $result;
+            return call_user_func_array( [ $this->redis, 'eval' ], $args );
         };
     }
 
