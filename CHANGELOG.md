@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Actually fix rare fatal error in `show_error_and_die()`
+
 ## 2.5.1
 
 - Added timeouts to diagnostics
