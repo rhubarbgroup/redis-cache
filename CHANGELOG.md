@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Reverted behavioral change to `sanitize_key_part()`
 - Actually fix rare fatal error in `show_error_and_die()`
 
 ## 2.5.1

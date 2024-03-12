@@ -2539,7 +2539,7 @@ LUA;
      * @return string        Sanitized string.
      */
     protected function sanitize_key_part( $part ) {
-        return str_replace( ':', '-', is_scalar( $part ) ? (string) $part : '' );
+        return is_string( $part ) ? str_replace( ':', '-', $part ) : $part;
     }
 
     /**
