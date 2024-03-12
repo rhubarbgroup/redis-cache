@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Reverted behavioral change to `sanitize_key_part()`
+
 ## 2.5.1
 
 - Added timeouts to diagnostics
