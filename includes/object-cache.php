@@ -1600,17 +1600,32 @@ class WP_Object_Cache {
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $redis = $this->redis;
-            try {
-                foreach ( $this->redis->_masters() as $master ) {
-                    $this->redis = new Redis();
-                    $this->redis->connect( $master[0], $master[1], defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 0 );
+            if ( $this->is_predis() ) {
+                foreach ( $this->redis->getIterator() as $master ) {
+                    if ( defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ) {
+                        $timeout = $master->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
+                        stream_set_timeout($master->getConnection()->getResource(), WP_REDIS_FLUSH_TIMEOUT);
+                    }
+                    $this->redis = $master;
                     $results[] = $this->parse_redis_response( $script() );
+                    if ( isset($timeout) ) {
+                        stream_set_timeout($master->getConnection()->getResource(), $timeout);
+                        unset($timeout);
+                    }
                 }
-            } catch ( Exception $exception ) {
-                $this->handle_exception( $exception );
-                $this->redis = $redis;
+            } else {
+                try {
+                    foreach ( $this->redis->_masters() as $master ) {
+                        $this->redis = new Redis();
+                        $this->redis->connect( $master[0], $master[1], defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 0 );
+                        $results[] = $this->parse_redis_response( $script() );
+                    }
+                } catch ( Exception $exception ) {
+                    $this->handle_exception( $exception );
+                    $this->redis = $redis;
 
-                return false;
+                    return false;
+                }
             }
             $this->redis = $redis;
         } else {
@@ -1663,15 +1678,21 @@ class WP_Object_Cache {
 
             if ( $salt && $selective ) {
                 $script = $this->get_flush_closure( $salt );
-                $results = $this->execute_lua_script( $script() );
+                $results = $this->execute_lua_script( $script );
                 if ( empty( $results ) ) {
                     return false;
                 }
             } else {
                 if ( defined( 'WP_REDIS_CLUSTER' ) ) {
                     try {
-                        foreach ( $this->redis->_masters() as $master ) {
-                            $results[] = $this->parse_redis_response( $this->redis->flushdb( $master ) );
+                        if ( $this->is_predis() ) {
+                            foreach ( $this->redis->getIterator() as $master ) {
+                                $results[] = $this->parse_redis_response( $master->flushdb() );
+                            }
+                        } else {
+                            foreach ( $this->redis->_masters() as $master ) {
+                                $results[] = $this->parse_redis_response( $this->redis->flushdb( $master ) );
+                            }
                         }
                     } catch ( Exception $exception ) {
                         $this->handle_exception( $exception );
@@ -1751,7 +1772,7 @@ class WP_Object_Cache {
 
         $start_time = microtime( true );
         $script = $this->lua_flush_closure( $salt, false );
-        $results = $this->execute_lua_script( $script() );
+        $results = $this->execute_lua_script( $script );
 
         if ( empty( $results ) ) {
             return false;
