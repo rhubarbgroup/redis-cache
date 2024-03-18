@@ -1599,66 +1599,82 @@ class WP_Object_Cache {
         $results = [];
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            $redis = $this->redis;
+            return $this->execute_lua_script_on_cluster( $script ) 
+        }
+
+        if ( defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ) {
             if ( $this->is_predis() ) {
-                foreach ( $this->redis->getIterator() as $master ) {
-                    if ( defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ) {
-                        $timeout = $master->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
-                        stream_set_timeout($master->getConnection()->getResource(), WP_REDIS_FLUSH_TIMEOUT);
-                    }
-                    $this->redis = $master;
-                    $results[] = $this->parse_redis_response( $script() );
-                    if ( isset($timeout) ) {
-                        stream_set_timeout($master->getConnection()->getResource(), $timeout);
-                        unset($timeout);
-                    }
-                }
+                $timeout = $this->redis->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
+                stream_set_timeout( $this->redis->getConnection()->getResource(), WP_REDIS_FLUSH_TIMEOUT );
             } else {
-                try {
-                    foreach ( $this->redis->_masters() as $master ) {
-                        $this->redis = new Redis();
-                        $this->redis->connect( $master[0], $master[1], defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 0 );
-                        $results[] = $this->parse_redis_response( $script() );
-                    }
-                } catch ( Exception $exception ) {
-                    $this->handle_exception( $exception );
-                    $this->redis = $redis;
-
-                    return false;
-                }
+                $timeout = $this->redis->getOption( Redis::OPT_READ_TIMEOUT );
+                $this->redis->setOption( Redis::OPT_READ_TIMEOUT, WP_REDIS_FLUSH_TIMEOUT );
             }
-            $this->redis = $redis;
-        } else {
-            if ( defined('WP_REDIS_FLUSH_TIMEOUT') ) {
-                if ( $this->is_predis() ) {
-                    $timeout = $this->redis->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
-                    stream_set_timeout($this->redis->getConnection()->getResource(), WP_REDIS_FLUSH_TIMEOUT);
-                } else {
-                    $timeout = $this->redis->getOption(Redis::OPT_READ_TIMEOUT);
-                    $this->redis->setOption(Redis::OPT_READ_TIMEOUT, WP_REDIS_FLUSH_TIMEOUT);
-                }
-            }
+        }
 
-            try {
-                $results[] = $this->parse_redis_response( $script() );
-            } catch ( Exception $exception ) {
-                $this->handle_exception( $exception );
+        try {
+            $results[] = $this->parse_redis_response( $script() );
+        } catch ( Exception $exception ) {
+            $this->handle_exception( $exception );
 
-                return false;
-            }
+            return false;
+        }
 
-            if ( isset($timeout) ) {
-                if ( $this->is_predis() ) {
-                    stream_set_timeout($this->redis->getConnection()->getResource(), $timeout);
-                } else {
-                    $this->redis->setOption(Redis::OPT_READ_TIMEOUT, $timeout);
-                }
+        if ( isset( $timeout ) ) {
+            if ( $this->is_predis() ) {
+                stream_set_timeout( $this->redis->getConnection()->getResource(), $timeout );
+            } else {
+                $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $timeout );
             }
         }
 
         return $results;
     }
 
+    /**
+     * ...
+     *
+     * @return array|false  Returns array on success, false on failure
+     */
+    protected function execute_lua_script_on_cluster( $script ) {
+        $results = [];
+
+        $redis = $this->redis;
+
+        if ( $this->is_predis() ) {
+            foreach ( $this->redis->getIterator() as $master ) {
+                if ( defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ) {
+                    $timeout = $master->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
+                    stream_set_timeout( $master->getConnection()->getResource(), WP_REDIS_FLUSH_TIMEOUT );
+                }
+
+                $this->redis = $master;
+                $results[] = $this->parse_redis_response( $script() );
+
+                if ( isset($timeout) ) {
+                    stream_set_timeout($master->getConnection()->getResource(), $timeout);
+                    unset($timeout);
+                }
+            }
+        } else {
+            try {
+                foreach ( $this->redis->_masters() as $master ) {
+                    $this->redis = new Redis();
+                    $this->redis->connect( $master[0], $master[1], defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 0 );
+                    $results[] = $this->parse_redis_response( $script() );
+                }
+            } catch ( Exception $exception ) {
+                $this->handle_exception( $exception );
+                $this->redis = $redis;
+
+                return false;
+            }
+        }
+
+        $this->redis = $redis;
+
+        return $results;
+    }
 
     /**
      * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
