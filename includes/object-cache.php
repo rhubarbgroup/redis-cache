@@ -1591,7 +1591,7 @@ class WP_Object_Cache {
     }
 
     /**
-     * ...
+     * Executes Lua flush script.
      *
      * @return array|false  Returns array on success, false on failure
      */
@@ -1603,6 +1603,7 @@ class WP_Object_Cache {
         }
 
         $flushTimeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
+
         if ( $this->is_predis() ) {
             $timeout = $this->redis->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
             stream_set_timeout( $this->redis->getConnection()->getResource(), $flushTimeout );
@@ -1628,16 +1629,15 @@ class WP_Object_Cache {
     }
 
     /**
-     * ...
+     * Executes Lua flush script on Redis cluster.
      *
      * @return array|false  Returns array on success, false on failure
      */
     protected function execute_lua_script_on_cluster( $script ) {
         $results = [];
-
         $redis = $this->redis;
-
         $flushTimeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
+
         if ( $this->is_predis() ) {
             foreach ( $this->redis->getIterator() as $master ) {
                 $timeout = $master->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
@@ -1653,6 +1653,7 @@ class WP_Object_Cache {
                 foreach ( $this->redis->_masters() as $master ) {
                     $this->redis = new Redis();
                     $this->redis->connect( $master[0], $master[1], 0, null, 0, $flushTimeout );
+
                     $results[] = $this->parse_redis_response( $script() );
                 }
             } catch ( Exception $exception ) {
@@ -1687,6 +1688,7 @@ class WP_Object_Cache {
             if ( $salt && $selective ) {
                 $script = $this->get_flush_closure( $salt );
                 $results = $this->execute_lua_script( $script );
+
                 if ( empty( $results ) ) {
                     return false;
                 }
