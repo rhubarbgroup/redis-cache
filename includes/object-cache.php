@@ -1591,6 +1591,85 @@ class WP_Object_Cache {
     }
 
     /**
+     * Executes Lua flush script.
+     *
+     * @return array|false  Returns array on success, false on failure
+     */
+    protected function execute_lua_script( $script ) {
+        $results = [];
+
+        if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+            return $this->execute_lua_script_on_cluster( $script );
+        }
+
+        $flushTimeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
+
+        if ( $this->is_predis() ) {
+            $timeout = $this->redis->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
+            stream_set_timeout( $this->redis->getConnection()->getResource(), $flushTimeout );
+        } else {
+            $timeout = $this->redis->getOption( Redis::OPT_READ_TIMEOUT );
+            $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $flushTimeout );
+        }
+
+        try {
+            $results[] = $this->parse_redis_response( $script() );
+        } catch ( Exception $exception ) {
+            $this->handle_exception( $exception );
+            $results = false;
+        }
+
+        if ( $this->is_predis() ) {
+            stream_set_timeout( $this->redis->getConnection()->getResource(), $timeout );
+        } else {
+            $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $timeout );
+        }
+
+        return $results;
+    }
+
+    /**
+     * Executes Lua flush script on Redis cluster.
+     *
+     * @return array|false  Returns array on success, false on failure
+     */
+    protected function execute_lua_script_on_cluster( $script ) {
+        $results = [];
+        $redis = $this->redis;
+        $flushTimeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
+
+        if ( $this->is_predis() ) {
+            foreach ( $this->redis->getIterator() as $master ) {
+                $timeout = $master->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
+                stream_set_timeout( $master->getConnection()->getResource(), $flushTimeout );
+
+                $this->redis = $master;
+                $results[] = $this->parse_redis_response( $script() );
+
+                stream_set_timeout($master->getConnection()->getResource(), $timeout);
+            }
+        } else {
+            try {
+                foreach ( $this->redis->_masters() as $master ) {
+                    $this->redis = new Redis();
+                    $this->redis->connect( $master[0], $master[1], 0, null, 0, $flushTimeout );
+
+                    $results[] = $this->parse_redis_response( $script() );
+                }
+            } catch ( Exception $exception ) {
+                $this->handle_exception( $exception );
+                $this->redis = $redis;
+
+                return false;
+            }
+        }
+
+        $this->redis = $redis;
+
+        return $results;
+    }
+
+    /**
      * Invalidate all items in the cache. If `WP_REDIS_SELECTIVE_FLUSH` is `true`,
      * only keys prefixed with the `WP_REDIS_PREFIX` are flushed.
      *
@@ -1608,34 +1687,22 @@ class WP_Object_Cache {
 
             if ( $salt && $selective ) {
                 $script = $this->get_flush_closure( $salt );
+                $results = $this->execute_lua_script( $script );
 
-                if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                    try {
-                        foreach ( $this->redis->_masters() as $master ) {
-                            $redis = new Redis();
-                            $redis->connect( $master[0], $master[1] );
-                            $results[] = $this->parse_redis_response( $script() );
-                            unset( $redis );
-                        }
-                    } catch ( Exception $exception ) {
-                        $this->handle_exception( $exception );
-
-                        return false;
-                    }
-                } else {
-                    try {
-                        $results[] = $this->parse_redis_response( $script() );
-                    } catch ( Exception $exception ) {
-                        $this->handle_exception( $exception );
-
-                        return false;
-                    }
+                if ( empty( $results ) ) {
+                    return false;
                 }
             } else {
                 if ( defined( 'WP_REDIS_CLUSTER' ) ) {
                     try {
-                        foreach ( $this->redis->_masters() as $master ) {
-                            $results[] = $this->parse_redis_response( $this->redis->flushdb( $master ) );
+                        if ( $this->is_predis() ) {
+                            foreach ( $this->redis->getIterator() as $master ) {
+                                $results[] = $this->parse_redis_response( $master->flushdb() );
+                            }
+                        } else {
+                            foreach ( $this->redis->_masters() as $master ) {
+                                $results[] = $this->parse_redis_response( $this->redis->flushdb( $master ) );
+                            }
                         }
                     } catch ( Exception $exception ) {
                         $this->handle_exception( $exception );
@@ -1713,25 +1780,11 @@ class WP_Object_Cache {
             return false;
         }
 
-        $results = [];
-
         $start_time = microtime( true );
         $script = $this->lua_flush_closure( $salt, false );
+        $results = $this->execute_lua_script( $script );
 
-        try {
-            if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                foreach ( $this->redis->_masters() as $master ) {
-                    $redis = new Redis;
-                    $redis->connect( $master[0], $master[1] );
-                    $results[] = $this->parse_redis_response( $script() );
-                    unset( $redis );
-                }
-            } else {
-                $results[] = $this->parse_redis_response( $script() );
-            }
-        } catch ( Exception $exception ) {
-            $this->handle_exception( $exception );
-
+        if ( empty( $results ) ) {
             return false;
         }
 
