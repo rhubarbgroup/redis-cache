@@ -36,6 +36,10 @@
     color: #d63638;
 }
 
+#rediscache .form-table .disabled {
+    color: #808080;
+}
+
 #rediscache .form-table td ul {
     margin: 0;
 }

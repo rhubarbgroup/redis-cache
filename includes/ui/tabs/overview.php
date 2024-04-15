@@ -51,15 +51,20 @@ $diagnostics = $roc->get_diagnostics();
     <tr>
         <th><?php esc_html_e( 'Filesystem:', 'redis-cache' ); ?></th>
         <td>
-            <?php if ( $filesystem_writable instanceof \WP_Error ) : ?>
-                <span class="error">
-                    <span class="dashicons dashicons-dismiss"></span>
-                    <?php esc_html_e( 'Not writeable', 'redis-cache' ); ?>
-                </span>
-            <?php else : ?>
+            <?php if ( ! $filesystem_writable instanceof \WP_Error ) : ?>
                 <span class="success">
                     <span class="dashicons dashicons-yes-alt"></span>
                     <?php esc_html_e( 'Writeable', 'redis-cache' ); ?>
+                </span>
+            <?php elseif ( $filesystem_writable->get_error_code() === 'disallowed' ) : ?>
+                <span class="disabled">
+                    <span class="dashicons dashicons-warning"></span>
+                    <?php esc_html_e( 'Disabled', 'redis-cache' ); ?>
+                </span>
+            <?php else : ?>
+                <span class="error">
+                    <span class="dashicons dashicons-dismiss"></span>
+                    <?php esc_html_e( 'Not writeable', 'redis-cache' ); ?>
                 </span>
             <?php endif; ?>
         </td>
