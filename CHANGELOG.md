@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Respect `WP_REDIS_FLUSH_TIMEOUT` in Lua flush scripts
+- Improve `DISALLOW_FILE_MODS` support
 - Reverted behavioral change to `sanitize_key_part()`
 - Fixed rare fatal error in `show_error_and_die()` (again)
 
