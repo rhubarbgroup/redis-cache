@@ -2,8 +2,9 @@
 
 ## Unreleased
 
+- Respect `WP_REDIS_FLUSH_TIMEOUT` in Lua flush scripts
 - Reverted behavioral change to `sanitize_key_part()`
-- Actually fix rare fatal error in `show_error_and_die()`
+- Fixed rare fatal error in `show_error_and_die()` (again)
 
 ## 2.5.1
 

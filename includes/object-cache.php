@@ -1243,8 +1243,7 @@ class WP_Object_Cache {
      * @return bool[] Array of return values, grouped by key. Each value is either
      *                true on success, or false if cache key and group already exist.
      */
-    protected function add_multiple_at_once( array $data, $group = 'default', $expire = 0 )
-    {
+    protected function add_multiple_at_once( array $data, $group = 'default', $expire = 0 ) {
         $keys = array_keys( $data );
 
         $san_group = $this->sanitize_key_part( $group );
@@ -1756,8 +1755,7 @@ class WP_Object_Cache {
 	 * @param string $group Name of group to remove from cache.
 	 * @return bool Returns TRUE on success or FALSE on failure.
 	 */
-    public function flush_group( $group )
-    {
+    public function flush_group( $group ) {
         $san_group = $this->sanitize_key_part( $group );
 
         if ( is_multisite() && ! $this->is_global_group( $san_group ) ) {
@@ -2284,8 +2282,7 @@ LUA;
      *                           Default 0 (no expiration).
      * @return bool[] Array of return values, grouped by key. Each value is always true.
      */
-    protected function set_multiple_at_once( array $data, $group = 'default', $expiration = 0 )
-    {
+    protected function set_multiple_at_once( array $data, $group = 'default', $expiration = 0 ) {
         $start_time = microtime( true );
 
         $san_group = $this->sanitize_key_part( $group );
