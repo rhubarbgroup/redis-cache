@@ -56,7 +56,7 @@ $diagnostics = $roc->get_diagnostics();
                 <?php if ( ! $filesystem_allowed ) : ?>
                     <span class="<?php echo $status ? '' : 'error' ?>">
                         <span class="dashicons dashicons-dismiss"></span>
-                        <?php esc_html_e( 'Not allowed', 'redis-cache' ); ?>
+                        <?php esc_html_e( 'Disabled', 'redis-cache' ); ?>
                     </span>
                 <?php else : ?>
                     <span class="error">
