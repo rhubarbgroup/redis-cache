@@ -14,6 +14,7 @@ $redis_prefix = $roc->get_redis_prefix();
 $redis_maxttl = $roc->get_redis_maxttl();
 $redis_version = $roc->get_redis_version();
 $redis_connection = $roc->check_redis_connection();
+$filesystem_allowed = $roc->is_file_mod_allowed();
 $filesystem_writable = $roc->test_filesystem_writing();
 
 $diagnostics = $roc->get_diagnostics();
@@ -52,10 +53,17 @@ $diagnostics = $roc->get_diagnostics();
         <th><?php esc_html_e( 'Filesystem:', 'redis-cache' ); ?></th>
         <td>
             <?php if ( $filesystem_writable instanceof \WP_Error ) : ?>
-                <span class="error">
-                    <span class="dashicons dashicons-dismiss"></span>
-                    <?php esc_html_e( 'Not writeable', 'redis-cache' ); ?>
-                </span>
+                <?php if ( ! $filesystem_allowed ) : ?>
+                    <span class="<?php echo $status ? '' : 'error' ?>">
+                        <span class="dashicons dashicons-dismiss"></span>
+                        <?php esc_html_e( 'Disabled', 'redis-cache' ); ?>
+                    </span>
+                <?php else : ?>
+                    <span class="error">
+                        <span class="dashicons dashicons-dismiss"></span>
+                        <?php esc_html_e( 'Not writeable', 'redis-cache' ); ?>
+                    </span>
+                <?php endif; ?>
             <?php else : ?>
                 <span class="success">
                     <span class="dashicons dashicons-yes-alt"></span>
@@ -272,9 +280,11 @@ $diagnostics = $roc->get_diagnostics();
     <?php endif; ?>
 
     <?php if ( $roc->validate_object_cache_dropin() ) : ?>
-        <a href="<?php echo esc_attr( $roc->action_link( 'disable-cache' ) ); ?>" class="button button-secondary button-large">
-            <?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?>
-        </a>
+        <?php if ( $filesystem_allowed ) : ?>
+            <a href="<?php echo esc_attr( $roc->action_link( 'disable-cache' ) ); ?>" class="button button-secondary button-large">
+                <?php esc_html_e( 'Disable Object Cache', 'redis-cache' ); ?>
+            </a>
+        <?php endif; ?>
     <?php else : ?>
         <?php if ( ! $filesystem_writable instanceof \WP_Error && $redis_connection === true ) : ?>
             <a href="<?php echo esc_attr( $roc->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">

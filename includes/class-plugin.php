@@ -299,8 +299,7 @@ class Plugin {
      * @param bool $as_html
      * @return string
      */
-    public function link_to_ocp($medium, $as_html = true)
-    {
+    public function link_to_ocp($medium, $as_html = true){
         $ref = 'oss';
 
         if ( self::acceleratewp_install( true ) ) {
@@ -822,8 +821,7 @@ class Plugin {
      *
      * @return string
      */
-    protected function admin_bar_style()
-    {
+    protected function admin_bar_style() {
         return <<<HTML
             <style>
                 #wpadminbar ul li.redis-cache-error {
@@ -843,8 +841,7 @@ HTML;
      *
      * @return string
      */
-    protected function admin_bar_script()
-    {
+    protected function admin_bar_script() {
         $nonce = wp_create_nonce();
         $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
         $flushMessage = __( 'Flushing cache...', 'redis-cache' );
@@ -1274,8 +1271,7 @@ HTML;
      *
      * @return bool
      */
-    protected function incompatible_content_type()
-    {
+    protected function incompatible_content_type() {
         $jsonContentType = static function ($headers) {
             foreach ($headers as $header => $value) {
                 if (stripos((string) $header, 'content-type') === false) {
@@ -1586,8 +1582,7 @@ HTML;
      *
      * @return void
      */
-    public function litespeed_disable_objectcache()
-    {
+    public function litespeed_disable_objectcache() {
         if ( isset( $_POST['LSCWP_CTRL'], $_POST['LSCWP_NONCE'], $_POST['object'] ) ) {
             $_POST['object'] = '0';
         }

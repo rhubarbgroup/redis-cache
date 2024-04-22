@@ -1,5 +1,3 @@
-# Running PHPStan needs ext-relay.
-
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
 
@@ -24,6 +22,7 @@ parameters:
         - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
 
     paths:
+        - redis-cache.php
         - includes/
         - tests/PHPStan/object-cache.php
 
