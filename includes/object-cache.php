@@ -684,10 +684,16 @@ class WP_Object_Cache {
                     'timeout' => $parameters['timeout'],
                     'read_timeout' => $parameters['read_timeout'],
                     'persistent' => $parameters['persistent'],
+                    'password' => null,
+                    'ssl' => null,
                 ];
 
                 if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
                     $args['password'] = $parameters['password'];
+                }
+                
+                if ( version_compare( $version, '5.3.0', '>=' ) && defined('WP_REDIS_SSL_CONTEXT') && is_array(WP_REDIS_SSL_CONTEXT)) {
+                    $args['ssl'] = WP_REDIS_SSL_CONTEXT;
                 }
 
                 $this->redis = new RedisCluster( null, ...array_values( $args ) );
