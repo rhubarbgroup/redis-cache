@@ -1604,8 +1604,12 @@ class WP_Object_Cache {
         $flushTimeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
 
         if ( $this->is_predis() ) {
-            $timeout = $this->redis->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
-            stream_set_timeout( $this->redis->getConnection()->getResource(), $flushTimeout );
+            $connection = $this->redis->getConnection();
+            if ($connection instanceof Predis\Connection\Replication\ReplicationInterface) {
+                $connection = $connection->getMaster();
+            }
+            $timeout = $connection->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
+            stream_set_timeout( $connection->getResource(), $flushTimeout );
         } else {
             $timeout = $this->redis->getOption( Redis::OPT_READ_TIMEOUT );
             $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $flushTimeout );
@@ -1619,7 +1623,7 @@ class WP_Object_Cache {
         }
 
         if ( $this->is_predis() ) {
-            stream_set_timeout( $this->redis->getConnection()->getResource(), $timeout );
+            stream_set_timeout( $connection->getResource(), $timeout );
         } else {
             $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $timeout );
         }
