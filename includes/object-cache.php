@@ -683,9 +683,7 @@ class WP_Object_Cache {
                     'cluster' => $this->build_cluster_connection_array(),
                     'timeout' => $parameters['timeout'],
                     'read_timeout' => $parameters['read_timeout'],
-                    'persistent' => $parameters['persistent'],
-                    'password' => null,
-                    'ssl' => null,
+                    'persistent' => $parameters['persistent']
                 ];
 
                 if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
@@ -693,6 +691,7 @@ class WP_Object_Cache {
                 }
                 
                 if ( version_compare( $version, '5.3.0', '>=' ) && defined('WP_REDIS_SSL_CONTEXT') && is_array(WP_REDIS_SSL_CONTEXT)) {
+                    isset($args['password']) or $args['password'] = null;
                     $args['ssl'] = WP_REDIS_SSL_CONTEXT;
                 }
 
