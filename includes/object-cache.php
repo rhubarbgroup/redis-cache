@@ -690,6 +690,14 @@ class WP_Object_Cache {
                     $args['password'] = $parameters['password'];
                 }
 
+                if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
+                    if ( ! array_key_exists( 'password', $args ) ) {
+                        $args['password'] = null;
+                    }
+
+                    $args['ssl'] = WP_REDIS_SSL_CONTEXT;
+                }
+
                 $this->redis = new RedisCluster( null, ...array_values( $args ) );
                 $this->diagnostics += $args;
             }
