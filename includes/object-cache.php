@@ -691,7 +691,7 @@ class WP_Object_Cache {
                 }
 
                 if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
-                    if ( array_key_exists( 'password', $args ) ) {
+                    if ( ! array_key_exists( 'password', $args ) ) {
                         $args['password'] = null;
                     }
 
