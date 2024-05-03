@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed `wp_cache_flush_group` issue with Predis and replication connection
+
 ## 2.5.2
 
 - Respect `WP_REDIS_FLUSH_TIMEOUT` in Lua flush scripts
