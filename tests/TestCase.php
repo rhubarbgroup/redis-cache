@@ -11,6 +11,7 @@ namespace Tests;
 class TestCase extends \Yoast\WPTestUtils\WPIntegration\TestCase
 {
     protected $redis_cache;
+    protected $cache;
 
     public function set_up()
     {

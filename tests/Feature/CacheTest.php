@@ -362,8 +362,8 @@ class CacheTest extends TestCase
         $val = 1;
         $group = __FUNCTION__.'test_group';
 
-        $this->assertTrue($this->cache->add($key, $val,$group));
-        $this->assertSame($val,$this->cache->get($key));
+        $this->assertTrue($this->cache->add($key, $val, $group));
+        $this->assertSame($val, $this->cache->get($key));
         $this->assertTrue($this->cache->flush_group($group));
         $this->assertSame(false, $this->cache->get($key));
     }
