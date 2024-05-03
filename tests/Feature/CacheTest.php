@@ -362,7 +362,6 @@ class CacheTest extends TestCase
         $val = 'bar';
         $group = 'test_group';
 
-        
         $this->assertTrue(wp_cache_set($key, $val, $group));
         $this->assertSame($val, wp_cache_get($key, $group));
         $this->assertTrue(wp_cache_flush_group($group));
