@@ -359,7 +359,7 @@ class CacheTest extends TestCase
     public function testAddFlushGroup(): void
     {
         $key = __FUNCTION__;
-        $val = 1;
+        $val = 'val_group';
         $group = __FUNCTION__.'test_group';
 
         $this->assertTrue($this->cache->set($key, $val, $group));
