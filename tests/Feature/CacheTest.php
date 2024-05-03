@@ -358,10 +358,10 @@ class CacheTest extends TestCase
 
     public function testAddFlushGroup(): void
     {
-        $key = __FUNCTION__;
-        $val = 'val_group';
-        $group = __FUNCTION__.'test_group';
-        
+        $key = 'foo';
+        $val = 'bar';
+        $group = 'test_group';
+
         wp_cache_set($key, $val, $group);
 
         $this->assertSame($val, wp_cache_get($key));
