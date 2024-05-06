@@ -1139,24 +1139,18 @@ class WP_Object_Cache {
      * @return void
      */
     public function fetch_info() {
-        $options = method_exists( $this->redis, 'getOptions' )
-            ? $this->redis->getOptions()
-            : new stdClass();
-
-        if ( isset( $options->replication ) && $options->replication ) {
-            return;
-        }
-
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $connectionId = is_string( WP_REDIS_CLUSTER )
                 ? 'SERVER'
                 : current( $this->build_cluster_connection_array() );
 
-            $info = $this->determine_client() === 'predis'
+            $info = $this->is_predis()
                 ? $this->redis->getClientBy( 'id', $connectionId )->info()
                 : $this->redis->info( $connectionId );
         } else {
-            $info = $this->redis->info();
+            $info = $this->is_predis() && $this->redis->getConnection() instanceof Predis\Connection\Replication\MasterSlaveReplication
+                ? $this->redis->getClientBy( 'role' , 'master' )->info()
+                : $this->redis->info();
         }
 
         if ( isset( $info['redis_version'] ) ) {
