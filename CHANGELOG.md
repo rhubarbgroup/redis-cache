@@ -4,6 +4,8 @@
 
 - Fixed `wp_cache_flush_group` issue with Predis and replication connection
 - Fixed rare fatal error in `show_error_and_die()` (one more time)
+- Add `roc_manage_redis_capability` filter to allow customizing who can flush cache
+- Add `WP_REDIS_MANAGER_CAPABILITY` constant 
 
 ## 2.5.2
 
