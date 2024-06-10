@@ -1147,10 +1147,10 @@ class WP_Object_Cache {
             $info = $this->is_predis()
                 ? $this->redis->getClientBy( 'id', $connectionId )->info()
                 : $this->redis->info( $connectionId );
+        } else if ($this->is_predis() && $this->redis->getConnection() instanceof Predis\Connection\Replication\MasterSlaveReplication) {
+            $info = $this->redis->getClientBy( 'role' , 'master' )->info();
         } else {
-            $info = $this->is_predis() && $this->redis->getConnection() instanceof Predis\Connection\Replication\MasterSlaveReplication
-                ? $this->redis->getClientBy( 'role' , 'master' )->info()
-                : $this->redis->info();
+            $info = $this->redis->info();
         }
 
         if ( isset( $info['redis_version'] ) ) {
