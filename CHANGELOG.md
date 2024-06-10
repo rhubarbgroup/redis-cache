@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed `wp_cache_flush_group` issue with Predis and replication connection
+- Fixed issues with Predis and replication connections
 - Fixed rare fatal error in `show_error_and_die()` (one more time)
 
 ## 2.5.2
