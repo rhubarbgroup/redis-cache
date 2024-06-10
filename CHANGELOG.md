@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed issues with Predis and replication connections
+- Fixed several issues with Predis and cluster/replicated connection
 - Fixed rare fatal error in `show_error_and_die()` (one more time)
 
 ## 2.5.2
