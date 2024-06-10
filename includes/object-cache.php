@@ -1768,6 +1768,10 @@ class WP_Object_Cache {
 	 * @return bool Returns TRUE on success or FALSE on failure.
 	 */
     public function flush_group( $group ) {
+        if ( defined( 'WP_REDIS_DISABLE_GROUP_FLUSH' ) && WP_REDIS_DISABLE_GROUP_FLUSH ) {
+            return $this->flush();
+        }
+
         $san_group = $this->sanitize_key_part( $group );
 
         if ( is_multisite() && ! $this->is_global_group( $san_group ) ) {
