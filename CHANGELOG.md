@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed `wp_cache_flush_group` issue with Predis and replication connection
+- Fixed Redis version detection issue with Predis and replication connection
 
 ## 2.5.2
 
