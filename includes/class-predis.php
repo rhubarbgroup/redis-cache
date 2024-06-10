@@ -139,11 +139,10 @@ class Predis {
      * @return bool
      */
     public function flush( $throw_exception = false ) {
-        $flush_timeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' )
-            ? intval( WP_REDIS_FLUSH_TIMEOUT )
-            : 5;
-
         if ( is_null( $this->redis ) ) {
+            $flush_timeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' )
+                ? intval( WP_REDIS_FLUSH_TIMEOUT )
+                : 5;
             try {
                 $this->connect( $flush_timeout );
             } catch ( Exception $exception ) {
@@ -153,16 +152,16 @@ class Predis {
 
                 return false;
             }
-        }
 
-        if ( is_null( $this->redis ) ) {
-            return false;
+            if ( is_null( $this->redis ) ) {
+                return false;
+            }
         }
 
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             try {
-                foreach ( $this->redis->_masters() as $master ) {
-                    $this->redis->flushdb( $master );
+                foreach ( $this->redis->getIterator() as $master ) {
+                    $master->flushdb();
                 }
             } catch ( Exception $exception ) {
                 if ( $throw_exception ) {
