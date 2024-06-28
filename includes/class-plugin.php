@@ -1565,7 +1565,7 @@ HTML;
      * @return string
      */
     public function manage_redis_capability() {
-        if ( defined( 'WP_REDIS_MANAGER_CAPABILITY' ) && WP_REDIS_MANAGER_CAPABILITY ) {
+        if ( defined( 'WP_REDIS_MANAGER_CAPABILITY' ) && is_string( WP_REDIS_MANAGER_CAPABILITY ) ) {
             return WP_REDIS_MANAGER_CAPABILITY;
         }
         
