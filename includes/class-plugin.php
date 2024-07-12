@@ -1568,7 +1568,7 @@ HTML;
         if ( defined( 'WP_REDIS_MANAGER_CAPABILITY' ) && WP_REDIS_MANAGER_CAPABILITY ) {
             return WP_REDIS_MANAGER_CAPABILITY;
         }
-        
+
         $capability = is_multisite() ? 'manage_network_options' : 'manage_options';
 
         /**
