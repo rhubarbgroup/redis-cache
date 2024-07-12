@@ -4,6 +4,8 @@
 
 - Fixed several issues with Predis and cluster/replicated connection
 - Fixed rare fatal error in `show_error_and_die()` (one more time)
+- Add `redis_cache_manager_capability` filter
+- Add `WP_REDIS_MANAGER_CAPABILITY` constant
 
 ## 2.5.2
 
