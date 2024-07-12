@@ -4,8 +4,8 @@
 
 - Fixed several issues with Predis and cluster/replicated connection
 - Fixed rare fatal error in `show_error_and_die()` (one more time)
-- Add `redis_cache_manager_capability` filter to allow customizing who can manage the plugin
-- Add `WP_REDIS_MANAGER_CAPABILITY` constant to allow for short circuiting logic to determine which capability to check for users who can manage the plugin
+- Add `redis_cache_manager_capability` filter
+- Add `WP_REDIS_MANAGER_CAPABILITY` constant
 
 ## 2.5.2
 
