@@ -1,11 +1,12 @@
 # Changelog
 
-## Unreleased
+## 2.5.3
 
+- Added `WP_REDIS_DISABLE_GROUP_FLUSH` constant
+- Added `redis_cache_manager_capability` filter and `WP_REDIS_MANAGER_CAPABILITY` constant
+- Added `WP_REDIS_SSL_CONTEXT` support for PhpRedis cluster connections 
 - Fixed several issues with Predis and cluster/replicated connection
-- Fixed rare fatal error in `show_error_and_die()` (one more time)
-- Add `redis_cache_manager_capability` filter
-- Add `WP_REDIS_MANAGER_CAPABILITY` constant
+- Fixed another rare fatal error in `show_error_and_die()`
 
 ## 2.5.2
 
