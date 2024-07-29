@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed issue with Predis and `SentinelReplication` connection
+
 ## 2.5.3
 
 - Added `WP_REDIS_DISABLE_GROUP_FLUSH` constant
