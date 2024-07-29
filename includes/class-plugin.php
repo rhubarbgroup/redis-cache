@@ -333,7 +333,12 @@ class Plugin {
             return;
         }
 
-        wp_enqueue_style( 'redis-cache', WP_REDIS_PLUGIN_DIR . '/assets/css/admin.css', [], WP_REDIS_VERSION );
+        wp_enqueue_style(
+            'redis-cache',
+            trailingslashit( WP_REDIS_PLUGIN_DIR ) . 'assets/css/admin.css',
+            [],
+            WP_REDIS_VERSION
+        );
     }
 
     /**
