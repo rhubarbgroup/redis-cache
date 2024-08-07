@@ -1148,7 +1148,7 @@ class WP_Object_Cache {
                 ? $this->redis->getClientBy( 'id', $connectionId )->info()
                 : $this->redis->info( $connectionId );
         } else if ($this->is_predis() && $this->redis->getConnection() instanceof Predis\Connection\Replication\ReplicationInterface) {
-            $info = $this->redis->getClientBy( 'role' , 'master' )->info();
+            $info = $this->redis->getMaster()->info();
         } else {
             $info = $this->redis->info();
         }
