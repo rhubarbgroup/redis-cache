@@ -86,6 +86,11 @@ class Predis {
             $servers = $this->build_cluster_connection_array();
             $parameters['cluster'] = $servers;
             $options['cluster'] = 'redis';
+            if ( defined('WP_REDIS_SCHEME') ) {
+                $options['parameters'] = [
+                    'scheme' => WP_REDIS_SCHEME,
+                ];
+            }
         }
 
         if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
