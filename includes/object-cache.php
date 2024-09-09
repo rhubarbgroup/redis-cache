@@ -16,7 +16,7 @@
 defined( '\\ABSPATH' ) || exit;
 
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact, Generic.WhiteSpace.ScopeIndent.Incorrect
-if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
+if ( ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) && !getenv( 'WP_REDIS_DISABLED' ) ) :
 
 /**
  * Determines whether the object cache implementation supports a particular feature.
