@@ -86,11 +86,6 @@ class Predis {
             $servers = $this->build_cluster_connection_array();
             $parameters['cluster'] = $servers;
             $options['cluster'] = 'redis';
-            if ( defined('WP_REDIS_SCHEME') ) {
-                $options['parameters'] = [
-                    'scheme' => WP_REDIS_SCHEME,
-                ];
-            }
         }
 
         if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
@@ -211,13 +206,30 @@ class Predis {
         $cluster = array_values( WP_REDIS_CLUSTER );
 
         foreach ( $cluster as $key => $server ) {
-            $connection_string = parse_url( $server );
+            $components = parse_url( $server );
 
-            $cluster[ $key ] = sprintf(
-                "%s:%s",
-                $connection_string['host'],
-                $connection_string['port']
-            );
+            if ( ! empty( $components['scheme'] ) ) {
+                $scheme = $components['scheme'];
+            } elseif ( defined( 'WP_REDIS_SCHEME' ) ) {
+                $scheme = WP_REDIS_SCHEME;
+            } else {
+                $scheme = null;
+            }
+
+            if ( isset( $scheme ) ) {
+                $cluster[ $key ] = sprintf(
+                    '%s://%s:%d',
+                    $scheme,
+                    $components['host'],
+                    $components['port']
+                );
+            } else {
+                $cluster[ $key ] = sprintf(
+                    '%s:%d',
+                    $components['host'],
+                    $components['port']
+                );
+            }
         }
 
         return $cluster;
