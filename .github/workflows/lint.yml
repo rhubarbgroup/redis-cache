@@ -55,3 +55,16 @@ jobs:
         with:
           eclint_args: |
             -exclude=dependencies/**/*
+
+  plugincheck:
+    name: PluginCheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run plugin check
+        uses: wordpress/plugin-check-action@v1
+        with:
+          exclude-directories: 'dependencies'
