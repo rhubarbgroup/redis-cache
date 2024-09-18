@@ -65,7 +65,7 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 - Added `WP_REDIS_DISABLE_GROUP_FLUSH` constant
 - Added `redis_cache_manager_capability` filter and `WP_REDIS_MANAGER_CAPABILITY` constant
-- Added `WP_REDIS_SSL_CONTEXT` support for PhpRedis cluster connections 
+- Added `WP_REDIS_SSL_CONTEXT` support for PhpRedis cluster connections
 - Fixed several issues with Predis and cluster/replicated connection
 - Fixed another rare fatal error in `show_error_and_die()`
 
