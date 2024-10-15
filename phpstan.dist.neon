@@ -30,11 +30,6 @@ parameters:
         - includes/object-cache.php
 
     ignoreErrors:
-        # https://github.com/phpredis/phpredis/blob/b193a6d051969a4d5bec33c958e9033f0d983110/redis_cluster.stub.php#L50
-        -
-            message: "#^Class RedisCluster constructor invoked with 1 parameter, 2\\-6 required\\.$#"
-            count: 1
-            path: tests/PHPStan/object-cache.php
 
         # Redis Cache implementation differs from core
         -

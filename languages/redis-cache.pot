@@ -2,16 +2,16 @@
 # This file is distributed under the GPLv3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Redis Object Cache 2.5.2\n"
+"Project-Id-Version: Redis Object Cache 2.5.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/redis-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-04-22T18:55:04+00:00\n"
+"POT-Creation-Date: 2024-10-15T17:40:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.10.0\n"
+"X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: redis-cache\n"
 
 #. Plugin Name of the plugin
@@ -59,7 +59,7 @@ msgid "Diagnostics"
 msgstr ""
 
 #: includes/class-plugin.php:249
-#: includes/class-plugin.php:764
+#: includes/class-plugin.php:769
 #: includes/ui/widget.php:38
 msgid "Settings"
 msgstr ""
@@ -69,207 +69,207 @@ msgctxt "verb"
 msgid "Upgrade to Pro"
 msgstr ""
 
-#: includes/class-plugin.php:383
+#: includes/class-plugin.php:388
 #: includes/ui/tabs/metrics.php:17
 #: includes/ui/widget.php:18
 msgid "Time"
 msgstr ""
 
-#: includes/class-plugin.php:384
+#: includes/class-plugin.php:389
 #: includes/ui/tabs/metrics.php:22
 #: includes/ui/widget.php:23
 msgid "Bytes"
 msgstr ""
 
-#: includes/class-plugin.php:385
+#: includes/class-plugin.php:390
 #: includes/ui/tabs/metrics.php:27
 #: includes/ui/widget.php:28
 msgid "Ratio"
 msgstr ""
 
-#: includes/class-plugin.php:386
+#: includes/class-plugin.php:391
 #: includes/ui/tabs/metrics.php:32
 #: includes/ui/widget.php:33
 msgid "Calls"
 msgstr ""
 
-#: includes/class-plugin.php:387
+#: includes/class-plugin.php:392
 msgid "Not enough data collected, yet."
 msgstr ""
 
-#: includes/class-plugin.php:388
+#: includes/class-plugin.php:393
 msgid "Enable object cache to collect data."
 msgstr ""
 
-#: includes/class-plugin.php:534
+#: includes/class-plugin.php:539
 #: includes/class-qm-collector.php:77
 #: includes/ui/tabs/overview.php:59
 msgid "Disabled"
 msgstr ""
 
-#: includes/class-plugin.php:538
+#: includes/class-plugin.php:543
 msgid "Not enabled"
 msgstr ""
 
-#: includes/class-plugin.php:542
+#: includes/class-plugin.php:547
 msgid "Drop-in is outdated"
 msgstr ""
 
-#: includes/class-plugin.php:546
+#: includes/class-plugin.php:551
 msgid "Drop-in is invalid"
 msgstr ""
 
-#: includes/class-plugin.php:551
+#: includes/class-plugin.php:556
 msgid "Connected"
 msgstr ""
 
-#: includes/class-plugin.php:552
+#: includes/class-plugin.php:557
 msgid "Not connected"
 msgstr ""
 
-#: includes/class-plugin.php:555
+#: includes/class-plugin.php:560
 #: includes/ui/tabs/overview.php:266
 msgid "Unknown"
 msgstr ""
 
 #. translators: %s = Action link to update the drop-in.
-#: includes/class-plugin.php:701
+#: includes/class-plugin.php:706
 msgid "The Redis object cache drop-in is outdated. Please <a href=\"%s\">update the drop-in</a>."
 msgstr ""
 
 #. translators: %s = Link to settings page.
-#: includes/class-plugin.php:708
+#: includes/class-plugin.php:713
 msgid "A foreign object cache drop-in was found. To use Redis for object caching, please <a href=\"%s\">enable the drop-in</a>."
 msgstr ""
 
-#: includes/class-plugin.php:735
+#: includes/class-plugin.php:740
 #: includes/class-qm-collector.php:34
 #: includes/class-qm-output.php:37
 msgid "Object Cache"
 msgstr ""
 
-#: includes/class-plugin.php:756
+#: includes/class-plugin.php:761
 #: includes/ui/tabs/overview.php:278
 msgid "Flush Cache"
 msgstr ""
 
 #. translators: %s = The status of the Redis connection.
-#: includes/class-plugin.php:780
+#: includes/class-plugin.php:785
 msgid "Status: %s"
 msgstr ""
 
 #. translators: 1: Hit ratio, 2: Hits, 3: Misses. 4: Human-readable size of cache.
-#: includes/class-plugin.php:800
+#: includes/class-plugin.php:805
 msgid "(Current page) Hit Ratio: %1$s%%, Hits %2$s, Misses: %3$s, Size: %4$s"
 msgstr ""
 
-#: includes/class-plugin.php:847
+#: includes/class-plugin.php:852
 msgid "Flushing cache..."
 msgstr ""
 
-#: includes/class-plugin.php:923
+#: includes/class-plugin.php:928
 msgid "Object cache flushed."
 msgstr ""
 
-#: includes/class-plugin.php:929
+#: includes/class-plugin.php:934
 msgid "Object cache could not be flushed."
 msgstr ""
 
-#: includes/class-plugin.php:961
+#: includes/class-plugin.php:966
 #: includes/cli/class-commands.php:80
 msgid "Object cache enabled."
 msgstr ""
 
-#: includes/class-plugin.php:967
+#: includes/class-plugin.php:972
 #: includes/cli/class-commands.php:82
 msgid "Object cache could not be enabled."
 msgstr ""
 
-#: includes/class-plugin.php:991
+#: includes/class-plugin.php:996
 #: includes/cli/class-commands.php:121
 msgid "Object cache disabled."
 msgstr ""
 
-#: includes/class-plugin.php:997
+#: includes/class-plugin.php:1002
 #: includes/cli/class-commands.php:123
 msgid "Object cache could not be disabled."
 msgstr ""
 
-#: includes/class-plugin.php:1022
+#: includes/class-plugin.php:1027
 #: includes/cli/class-commands.php:162
 msgid "Updated object cache drop-in and enabled Redis object cache."
 msgstr ""
 
-#: includes/class-plugin.php:1028
+#: includes/class-plugin.php:1033
 #: includes/cli/class-commands.php:164
 msgid "Object cache drop-in could not be updated."
 msgstr ""
 
 #. translators: %s = Action link to update the drop-in.
-#: includes/class-plugin.php:1103
+#: includes/class-plugin.php:1108
 msgid "The Object Cache Pro plugin appears to be installed and should be used. You can safely <a href=\"%s\">uninstall Redis Object Cache</a>."
 msgstr ""
 
-#: includes/class-plugin.php:1135
+#: includes/class-plugin.php:1140
 msgid "Object Cache Pro!"
 msgstr ""
 
 #. translators: %s = Link to the plugin setting screen.
-#: includes/class-plugin.php:1138
+#: includes/class-plugin.php:1143
 msgid "A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href=\"%s\">Learn more »</a>"
 msgstr ""
 
-#: includes/class-plugin.php:1183
+#: includes/class-plugin.php:1188
 msgid "Object Cache Pro + WooCommerce = ❤️"
 msgstr ""
 
 #. translators: %s = Link to the plugin's settings screen.
-#: includes/class-plugin.php:1186
+#: includes/class-plugin.php:1191
 msgid "Object Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style=\"color: #bb77ae;\" href=\"%s\">Learn more »</a>"
 msgstr ""
 
 #. translators: %1$d = number of objects. %2$s = human-readable size of cache. %3$s = name of the used client.
-#: includes/class-plugin.php:1256
+#: includes/class-plugin.php:1261
 msgid "Retrieved %1$d objects (%2$s) from Redis using %3$s."
 msgstr ""
 
-#: includes/class-plugin.php:1371
+#: includes/class-plugin.php:1376
 msgid "File modifications are not allowed."
 msgstr ""
 
-#: includes/class-plugin.php:1375
+#: includes/class-plugin.php:1380
 msgid "Could not initialize filesystem."
 msgstr ""
 
-#: includes/class-plugin.php:1386
+#: includes/class-plugin.php:1391
 msgid "Object cache drop-in is not writable."
 msgstr ""
 
-#: includes/class-plugin.php:1396
+#: includes/class-plugin.php:1401
 msgid "Object cache file doesn’t exist."
 msgstr ""
 
-#: includes/class-plugin.php:1401
+#: includes/class-plugin.php:1406
 msgid "Test file exists, but couldn’t be deleted."
 msgstr ""
 
-#: includes/class-plugin.php:1406
+#: includes/class-plugin.php:1411
 msgid "Content directory is not writable."
 msgstr ""
 
-#: includes/class-plugin.php:1410
+#: includes/class-plugin.php:1415
 msgid "Failed to copy test file."
 msgstr ""
 
-#: includes/class-plugin.php:1414
+#: includes/class-plugin.php:1419
 msgid "Copied test file doesn’t exist."
 msgstr ""
 
-#: includes/class-plugin.php:1420
+#: includes/class-plugin.php:1425
 msgid "Couldn’t verify test file contents."
 msgstr ""
 
-#: includes/class-plugin.php:1424
+#: includes/class-plugin.php:1429
 msgid "Copied test file couldn’t be deleted."
 msgstr ""
 
@@ -308,30 +308,30 @@ msgstr ""
 msgid "Object cache drop-in could not be updated. Redis server is unreachable: %s"
 msgstr ""
 
-#: includes/object-cache.php:2974
+#: includes/object-cache.php:2993
 msgid "Error establishing a Redis connection"
 msgstr ""
 
 #. translators: %s = Formatted wp-config.php file name.
-#: includes/object-cache.php:2981
+#: includes/object-cache.php:3000
 msgid "WordPress is unable to establish a connection to Redis. This means that the connection information in your %s file are incorrect, or that the Redis server is not reachable."
 msgstr ""
 
-#: includes/object-cache.php:2986
+#: includes/object-cache.php:3005
 msgid "Is the correct Redis host and port set?"
 msgstr ""
 
-#: includes/object-cache.php:2987
+#: includes/object-cache.php:3006
 msgid "Is the Redis server running?"
 msgstr ""
 
 #. translators: %s = Link to installation instructions.
-#: includes/object-cache.php:2992
+#: includes/object-cache.php:3011
 msgid "If you need help, please read the <a href=\"%s\">installation instructions</a>."
 msgstr ""
 
 #. translators: %1$s = Formatted object-cache.php file name, %2$s = Formatted wp-content directory name.
-#: includes/object-cache.php:2999
+#: includes/object-cache.php:3018
 msgid "To disable Redis, delete the %1$s file in the %2$s directory."
 msgstr ""
 

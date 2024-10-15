@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.2', '7.4', '8.2']
-        relay: ['0.5.1']
+        php: ['7.4', '8.2']
+        relay: ['0.7.0']
 
     steps:
       - name: Checkout

@@ -333,7 +333,12 @@ class Plugin {
             return;
         }
 
-        wp_enqueue_style( 'redis-cache', WP_REDIS_PLUGIN_DIR . '/assets/css/admin.css', [], WP_REDIS_VERSION );
+        wp_enqueue_style(
+            'redis-cache',
+            trailingslashit( WP_REDIS_PLUGIN_DIR ) . 'assets/css/admin.css',
+            [],
+            WP_REDIS_VERSION
+        );
     }
 
     /**
@@ -1565,7 +1570,19 @@ HTML;
      * @return string
      */
     public function manage_redis_capability() {
-        return is_multisite() ? 'manage_network_options' : 'manage_options';
+        if ( defined( 'WP_REDIS_MANAGER_CAPABILITY' ) && WP_REDIS_MANAGER_CAPABILITY ) {
+            return WP_REDIS_MANAGER_CAPABILITY;
+        }
+
+        $capability = is_multisite() ? 'manage_network_options' : 'manage_options';
+
+        /**
+         * Filters the capability used to determine if a user can manage Redis.
+         *
+         * @since 2.6.0
+         * @param string   $capability The default capability to determine if the user can manage cache.
+         */
+        return apply_filters( 'redis_cache_manager_capability', $capability );
     }
 
     /**

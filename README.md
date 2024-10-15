@@ -58,10 +58,13 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_DISABLED`                  | `false`     | Emergency switch to bypass the object cache without deleting the drop-in |
 | `WP_REDIS_DISABLE_ADMINBAR`          | `false`     | Disables admin bar display |
 | `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
-| `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners |
 | `WP_REDIS_DISABLE_DROPIN_CHECK`      | `false`     | Disables the extended drop-in write test |
 | `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update |
+| `WP_REDIS_DISABLE_GROUP_FLUSH`       | `false`     | Disables group flushing with Lua script and uses `flushdb` call instead |
+| `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners and notices |
+| `WP_REDIS_DISABLE_COMMENT`           | `false`     | Disables HTML source comment |
 | `WP_REDIS_SSL_CONTEXT`               | `[]`        | TLS connection options for `tls` or `rediss` scheme |
+| `WP_REDIS_MANAGER_CAPABILITY`        |             | The capability a user must have to manage the plugin |
 
 </details>
 
@@ -228,11 +231,12 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 Redis Object Cache has various hooks and the commonly used ones are listed below.
 
-| Filter / Action                         | Description                                       |
-| --------------------------------------- | ------------------------------------------------- |
-| `redis_cache_expiration`                | Filters the cache expiration for individual keys  |
-| `redis_cache_validate_dropin`           | Filters whether the drop-in is valid              |
+| Filter / Action                         | Description |
+| --------------------------------------- | ----------- |
+| `redis_cache_expiration`                | Filters the cache expiration for individual keys |
+| `redis_cache_validate_dropin`           | Filters whether the drop-in is valid |
 | `redis_cache_add_non_persistent_groups` | Filters the groups to be marked as non persistent |
+| `redis_cache_manager_capability`        | Filters the capability a user needs to manage the plugin |
 
 ## Footnotes
 
