@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.5.3
+ * Version: 2.5.4
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -1150,6 +1150,13 @@ class WP_Object_Cache {
         } else if ($this->is_predis() && $this->redis->getConnection() instanceof Predis\Connection\Replication\MasterSlaveReplication) {
             $info = $this->redis->getClientBy( 'role' , 'master' )->info();
         } else {
+            if ( $this->is_predis() ) {
+                $connection = $this->redis->getConnection();
+                if ( $connection instanceof Predis\Connection\Replication\ReplicationInterface ) {
+                    $connection->switchToMaster();
+                }
+            }
+
             $info = $this->redis->info();
         }
 
@@ -3027,13 +3034,30 @@ LUA;
         $cluster = array_values( WP_REDIS_CLUSTER );
 
         foreach ( $cluster as $key => $server ) {
-            $connection_string = parse_url( $server );
+            $components = parse_url( $server );
 
-            $cluster[ $key ] = sprintf(
-                "%s:%s",
-                $connection_string['host'],
-                $connection_string['port']
-            );
+            if ( ! empty( $components['scheme'] ) ) {
+                $scheme = $components['scheme'];
+            } elseif ( defined( 'WP_REDIS_SCHEME' ) ) {
+                $scheme = WP_REDIS_SCHEME;
+            } else {
+                $scheme = null;
+            }
+
+            if ( isset( $scheme ) ) {
+                $cluster[ $key ] = sprintf(
+                    '%s://%s:%d',
+                    $scheme,
+                    $components['host'],
+                    $components['port']
+                );
+            } else {
+                $cluster[ $key ] = sprintf(
+                    '%s:%d',
+                    $components['host'],
+                    $components['port']
+                );
+            }
         }
 
         return $cluster;

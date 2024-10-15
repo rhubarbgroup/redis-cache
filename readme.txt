@@ -5,7 +5,7 @@ Tags: redis, object cache, caching, performance, relay
 Requires at least: 4.6
 Tested up to: 6.6
 Requires PHP: 7.2
-Stable tag: 2.5.3
+Stable tag: 2.5.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -61,11 +61,17 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 == Changelog ==
 
+= 2.5.4 =
+
+- Respect `WP_REDIS_SCHEME` for Cluster connections
+- Fixed issue with Predis and `SentinelReplication` connection
+- Fixed double-slash in `admin.css` URL
+
 = 2.5.3 =
 
 - Added `WP_REDIS_DISABLE_GROUP_FLUSH` constant
 - Added `redis_cache_manager_capability` filter and `WP_REDIS_MANAGER_CAPABILITY` constant
-- Added `WP_REDIS_SSL_CONTEXT` support for PhpRedis cluster connections 
+- Added `WP_REDIS_SSL_CONTEXT` support for PhpRedis cluster connections
 - Fixed several issues with Predis and cluster/replicated connection
 - Fixed another rare fatal error in `show_error_and_die()`
 
