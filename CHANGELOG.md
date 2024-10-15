@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## 2.5.4
 
+- Respect `WP_REDIS_SCHEME` for Cluster connections
 - Fixed issue with Predis and `SentinelReplication` connection
+- Fixed double-slash in `admin.css` URL
 
 ## 2.5.3
 
