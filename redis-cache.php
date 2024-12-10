@@ -11,6 +11,7 @@
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * GitHub Plugin URI: https://github.com/rhubarbgroup/redis-cache
+ * Primary Branch: main
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  *
