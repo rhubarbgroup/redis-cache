@@ -249,6 +249,14 @@ function wp_cache_init() {
         define( 'WP_REDIS_PREFIX', getenv( 'HTTP_X_APP_USER' ) );
     }
 
+    // If `WP_REDIS_PREFIX` is not set, relate to the DB connection
+    if ( ! defined( 'WP_REDIS_PREFIX' ) )  {
+        if ( defined( 'DB_NAME' ) && defined( 'DB_USER' ) && defined( 'DB_PASSWORD' ) && defined( 'DB_HOST' ) ) {
+            global $blog_id, $table_prefix;
+            define( 'WP_REDIS_PREFIX', md5( DB_NAME . ":" . DB_USER . ":" . DB_PASSWORD . ":" . DB_HOST . ":" . $table_prefix . ":" . $blog_id ) );
+        }
+    }
+
     if ( ! ( $wp_object_cache instanceof WP_Object_Cache ) ) {
         $fail_gracefully = defined( 'WP_REDIS_GRACEFUL' ) && WP_REDIS_GRACEFUL;
 
