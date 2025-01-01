@@ -30,42 +30,12 @@ use Predis\Response\ServerException;
  * @author Daniele Alessandri <suppakilla@gmail.com>
  * @author Ville Mattila <ville@eventio.fi>
  */
-class SentinelReplication implements ReplicationInterface
+class SentinelReplication extends AbstractReplication
 {
-    /**
-     * @var NodeConnectionInterface
-     */
-    protected $master;
-
-    /**
-     * @var NodeConnectionInterface[]
-     */
-    protected $slaves = [];
-
-    /**
-     * @var NodeConnectionInterface[]
-     */
-    protected $pool = [];
-
-    /**
-     * @var NodeConnectionInterface
-     */
-    protected $current;
-
     /**
      * @var string
      */
     protected $service;
-
-    /**
-     * @var ConnectionFactoryInterface
-     */
-    protected $connectionFactory;
-
-    /**
-     * @var ReplicationStrategy
-     */
-    protected $strategy;
 
     /**
      * @var NodeConnectionInterface[]
@@ -177,14 +147,6 @@ class SentinelReplication implements ReplicationInterface
     public function setUpdateSentinels($update)
     {
         $this->updateSentinels = (bool) $update;
-    }
-
-    /**
-     * Resets the current connection.
-     */
-    protected function reset()
-    {
-        $this->current = null;
     }
 
     /**
@@ -438,14 +400,6 @@ class SentinelReplication implements ReplicationInterface
     /**
      * {@inheritdoc}
      */
-    public function getCurrent()
-    {
-        return $this->current;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getMaster()
     {
         if ($this->master) {
@@ -590,14 +544,6 @@ class SentinelReplication implements ReplicationInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getConnectionById($id)
-    {
-        return $this->pool[$id] ?? null;
-    }
-
-    /**
      * Returns a connection by its role.
      *
      * @param string $role Connection role (`master`, `slave` or `sentinel`)
@@ -665,14 +611,6 @@ class SentinelReplication implements ReplicationInterface
     /**
      * {@inheritdoc}
      */
-    public function isConnected()
-    {
-        return $this->current ? $this->current->isConnected() : false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function connect()
     {
         if (!$this->current) {
@@ -682,16 +620,6 @@ class SentinelReplication implements ReplicationInterface
         }
 
         $this->current->connect();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function disconnect()
-    {
-        foreach ($this->pool as $connection) {
-            $connection->disconnect();
-        }
     }
 
     /**
@@ -726,40 +654,6 @@ class SentinelReplication implements ReplicationInterface
         }
 
         return $response;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function writeRequest(CommandInterface $command)
-    {
-        $this->retryCommandOnFailure($command, __FUNCTION__);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function readResponse(CommandInterface $command)
-    {
-        return $this->retryCommandOnFailure($command, __FUNCTION__);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function executeCommand(CommandInterface $command)
-    {
-        return $this->retryCommandOnFailure($command, __FUNCTION__);
-    }
-
-    /**
-     * Returns the underlying replication strategy.
-     *
-     * @return ReplicationStrategy
-     */
-    public function getReplicationStrategy()
-    {
-        return $this->strategy;
     }
 
     /**

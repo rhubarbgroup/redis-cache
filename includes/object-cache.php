@@ -1156,6 +1156,10 @@ class WP_Object_Cache {
             }
 
             $info = $this->redis->info();
+
+            if ( isset($connection) ) {
+                $connection->reset();
+            }
         }
 
         if ( isset( $info['redis_version'] ) ) {

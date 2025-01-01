@@ -27,47 +27,17 @@ use Predis\Response\ErrorInterface as ResponseErrorInterface;
  * Aggregate connection handling replication of Redis nodes configured in a
  * single master / multiple slaves setup.
  */
-class MasterSlaveReplication implements ReplicationInterface
+class MasterSlaveReplication extends AbstractReplication
 {
-    /**
-     * @var ReplicationStrategy
-     */
-    protected $strategy;
-
-    /**
-     * @var NodeConnectionInterface
-     */
-    protected $master;
-
-    /**
-     * @var NodeConnectionInterface[]
-     */
-    protected $slaves = [];
-
-    /**
-     * @var NodeConnectionInterface[]
-     */
-    protected $pool = [];
-
     /**
      * @var NodeConnectionInterface[]
      */
     protected $aliases = [];
 
     /**
-     * @var NodeConnectionInterface
-     */
-    protected $current;
-
-    /**
      * @var bool
      */
     protected $autoDiscovery = false;
-
-    /**
-     * @var FactoryInterface
-     */
-    protected $connectionFactory;
 
     /**
      * {@inheritdoc}
@@ -100,14 +70,6 @@ class MasterSlaveReplication implements ReplicationInterface
     public function setConnectionFactory(FactoryInterface $connectionFactory)
     {
         $this->connectionFactory = $connectionFactory;
-    }
-
-    /**
-     * Resets the connection state.
-     */
-    protected function reset()
-    {
-        $this->current = null;
     }
 
     /**
@@ -181,14 +143,6 @@ class MasterSlaveReplication implements ReplicationInterface
         }
 
         return $this->current;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConnectionById($id)
-    {
-        return $this->pool[$id] ?? null;
     }
 
     /**
@@ -266,14 +220,6 @@ class MasterSlaveReplication implements ReplicationInterface
     /**
      * {@inheritdoc}
      */
-    public function getCurrent()
-    {
-        return $this->current;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getMaster()
     {
         return $this->master;
@@ -302,16 +248,6 @@ class MasterSlaveReplication implements ReplicationInterface
     }
 
     /**
-     * Returns the underlying replication strategy.
-     *
-     * @return ReplicationStrategy
-     */
-    public function getReplicationStrategy()
-    {
-        return $this->strategy;
-    }
-
-    /**
      * Returns a random slave.
      *
      * @return NodeConnectionInterface|null
@@ -328,14 +264,6 @@ class MasterSlaveReplication implements ReplicationInterface
     /**
      * {@inheritdoc}
      */
-    public function isConnected()
-    {
-        return $this->current ? $this->current->isConnected() : false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function connect()
     {
         if (!$this->current) {
@@ -347,16 +275,6 @@ class MasterSlaveReplication implements ReplicationInterface
         }
 
         $this->current->connect();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function disconnect()
-    {
-        foreach ($this->pool as $connection) {
-            $connection->disconnect();
-        }
     }
 
     /**
@@ -517,30 +435,6 @@ class MasterSlaveReplication implements ReplicationInterface
         }
 
         return $response;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function writeRequest(CommandInterface $command)
-    {
-        $this->retryCommandOnFailure($command, __FUNCTION__);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function readResponse(CommandInterface $command)
-    {
-        return $this->retryCommandOnFailure($command, __FUNCTION__);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function executeCommand(CommandInterface $command)
-    {
-        return $this->retryCommandOnFailure($command, __FUNCTION__);
     }
 
     /**
