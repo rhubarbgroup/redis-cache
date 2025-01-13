@@ -1151,11 +1151,16 @@ class WP_Object_Cache {
             if ( $this->is_predis() ) {
                 $connection = $this->redis->getConnection();
                 if ( $connection instanceof Predis\Connection\Replication\ReplicationInterface ) {
+                    $node = $connection->getCurrent();
                     $connection->switchToMaster();
                 }
             }
 
             $info = $this->redis->info();
+
+            if ( isset( $node ) ) {
+                $connection->switchTo($node);
+            }
         }
 
         if ( isset( $info['redis_version'] ) ) {
