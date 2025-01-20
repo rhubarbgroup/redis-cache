@@ -1158,7 +1158,7 @@ class WP_Object_Cache {
 
             $info = $this->redis->info();
 
-            if ( isset( $connection ) && isset( $node ) ) {
+            if ( isset( $connection, $node ) ) {
                 $connection->switchTo($node);
             }
         }
