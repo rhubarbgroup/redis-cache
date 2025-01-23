@@ -1076,15 +1076,13 @@ HTML;
      * @return void
      */
     public function ajax_flush_cache() {
-        if ( ! wp_verify_nonce( $_POST['nonce'] ) ) {
-            $message = 'Invalid Nonce.';
+        if ( ! wp_verify_nonce( $_POST['nonce'] ?? '' ) ) {
+            wp_die( esc_html__( 'Invalid Nonce.', 'redis-cache' ) );
         } else if ( wp_cache_flush() ) {
-            $message = 'Object cache flushed.';
+            wp_die( esc_html__( 'Object cache flushed.', 'redis-cache' ) );
         } else {
-            $message = 'Object cache could not be flushed.';
+            wp_die( esc_html__( 'Object cache could not be flushed.', 'redis-cache' ) );
         }
-
-        wp_die( esc_html__( $message , 'redis-cache' ) );
     }
 
     /**
