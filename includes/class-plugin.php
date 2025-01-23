@@ -1084,7 +1084,7 @@ HTML;
             $message = 'Object cache could not be flushed.';
         }
 
-        wp_die( __( $message , 'redis-cache' ) );
+        wp_die( esc_html__( $message , 'redis-cache' ) );
     }
 
     /**
