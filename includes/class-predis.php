@@ -206,6 +206,7 @@ class Predis {
         $cluster = array_values( WP_REDIS_CLUSTER );
 
         foreach ( $cluster as $key => $server ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
             $components = parse_url( $server );
 
             if ( ! empty( $components['scheme'] ) ) {

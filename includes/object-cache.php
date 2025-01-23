@@ -2501,30 +2501,29 @@ LUA;
      * Used by the Debug bar plugin
      *
      * @return void
-     * 
-     * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
      */
     public function stats() {
-        ?>
-    <p>
-        <strong>Redis Status:</strong>
-        <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?>
-        <br />
-        <strong>Redis Client:</strong>
-        <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
-        <br />
-        <strong>Cache Hits:</strong>
-        <?php echo (int) $this->cache_hits; ?>
-        <br />
-        <strong>Cache Misses:</strong>
-        <?php echo (int) $this->cache_misses; ?>
-        <br />
-        <strong>Cache Size:</strong>
-        <?php echo number_format_i18n( strlen( serialize( $this->cache ) ) / 1024, 2 ); ?> KB
-    </p>
-        <?php
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+    ?>
+        <p>
+            <strong>Redis Status:</strong>
+            <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?>
+            <br />
+            <strong>Redis Client:</strong>
+            <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
+            <br />
+            <strong>Cache Hits:</strong>
+            <?php echo (int) $this->cache_hits; ?>
+            <br />
+            <strong>Cache Misses:</strong>
+            <?php echo (int) $this->cache_misses; ?>
+            <br />
+            <strong>Cache Size:</strong>
+            <?php echo number_format_i18n( strlen( serialize( $this->cache ) ) / 1024, 2 ); ?> KB
+        </p>
+    <?php
+        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
     }
-    // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
     /**
      * Returns various information about the object cache.
@@ -3035,6 +3034,7 @@ LUA;
         $cluster = array_values( WP_REDIS_CLUSTER );
 
         foreach ( $cluster as $key => $server ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
             $components = parse_url( $server );
 
             if ( ! empty( $components['scheme'] ) ) {
