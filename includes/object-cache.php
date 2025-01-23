@@ -3027,8 +3027,7 @@ LUA;
             '<code>/wp-content/</code>'
         ) . "</p>\n";
 
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        wp_die( $message );
+        wp_die( $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 
     /**
