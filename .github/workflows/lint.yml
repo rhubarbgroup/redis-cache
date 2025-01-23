@@ -57,7 +57,7 @@ jobs:
             -exclude=dependencies/**/*
 
   plugincheck:
-    name: PluginCheck
+    name: Plugin Check
     runs-on: ubuntu-latest
 
     steps:

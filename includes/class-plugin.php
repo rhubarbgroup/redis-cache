@@ -1598,6 +1598,7 @@ HTML;
      * @return void
      */
     public function litespeed_disable_objectcache() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing
         if ( isset( $_POST['LSCWP_CTRL'], $_POST['LSCWP_NONCE'], $_POST['object'] ) ) {
             $_POST['object'] = '0';
         }
