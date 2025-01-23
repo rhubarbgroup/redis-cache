@@ -1076,7 +1076,7 @@ HTML;
      * @return void
      */
     public function ajax_flush_cache() {
-        if ( ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ?? '' ) ) ) {
+        if ( ! wp_verify_nonce( $_POST['nonce'] ?? '' ) ) {
             wp_die( esc_html__( 'Invalid Nonce.', 'redis-cache' ) );
         } else if ( wp_cache_flush() ) {
             wp_die( esc_html__( 'Object cache flushed.', 'redis-cache' ) );

@@ -2501,6 +2501,8 @@ LUA;
      * Used by the Debug bar plugin
      *
      * @return void
+     * 
+     * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
      */
     public function stats() {
         ?>
@@ -2522,6 +2524,7 @@ LUA;
     </p>
         <?php
     }
+    // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
     /**
      * Returns various information about the object cache.
