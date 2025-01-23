@@ -16,8 +16,8 @@ defined( '\\ABSPATH' ) || exit;
 <p id="redis-cache-copy-button">
     <span class="copy-button-wrapper">
         <button type="button" class="button copy-button" data-clipboard-target="#redis-cache-diagnostics">
-            <?php _e( 'Copy diagnostics to clipboard', 'redis-cache' ); ?>
+            <?php esc_html_e( 'Copy diagnostics to clipboard', 'redis-cache' ); ?>
         </button>
-        <span class="success hidden" aria-hidden="true"><?php _e( 'Copied!' ); ?></span>
+        <span class="success hidden" aria-hidden="true"><?php esc_html_e( 'Copied!', 'redis-cache' ); ?></span>
     </span>
 </p>

@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Added `Primary Branch` header
+- Adhere to Plugin Check (PCP)
 - Fixed rare replication mode issue
 
 ## 2.5.4

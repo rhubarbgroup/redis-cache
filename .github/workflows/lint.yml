@@ -69,4 +69,4 @@ jobs:
         with:
           exclude-directories: '.github,dependencies,tests'
           exclude-files: '.editorconfig,.gitattributes,.gitignore,phpunit.xml.dist'
-          exclude-checks: 'Squiz.PHP.Heredoc.NotAllowed'
+          # exclude-checks: ''
