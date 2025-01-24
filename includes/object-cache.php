@@ -1877,6 +1877,7 @@ class WP_Object_Cache {
         $salt = $escape ? $this->glob_quote( $salt ) : $salt;
 
         return function () use ( $salt ) {
+            // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
             $script = <<<LUA
                 local cur = 0
                 local i = 0
@@ -1892,7 +1893,7 @@ class WP_Object_Cache {
                     end
                 until 0 == cur
                 return i
-LUA;
+LUA; // phpcs:enable
 
             if ( isset($this->redis_version) && version_compare( $this->redis_version, '5', '<' ) && version_compare( $this->redis_version, '3.2', '>=' ) ) {
                 $script = 'redis.replicate_commands()' . "\n" . $script;
@@ -1923,6 +1924,7 @@ LUA;
                 $this->unflushable_groups
             );
 
+            // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
             $script = <<<LUA
                 local cur = 0
                 local i = 0
@@ -1945,7 +1947,7 @@ LUA;
                     end
                 until 0 == cur
                 return i
-LUA;
+LUA; // phpcs:enable
             if ( isset($this->redis_version) && version_compare( $this->redis_version, '5', '<' ) && version_compare( $this->redis_version, '3.2', '>=' ) ) {
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
@@ -2508,24 +2510,26 @@ LUA;
      * @return void
      */
     public function stats() {
-        ?>
-    <p>
-        <strong>Redis Status:</strong>
-        <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?>
-        <br />
-        <strong>Redis Client:</strong>
-        <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
-        <br />
-        <strong>Cache Hits:</strong>
-        <?php echo (int) $this->cache_hits; ?>
-        <br />
-        <strong>Cache Misses:</strong>
-        <?php echo (int) $this->cache_misses; ?>
-        <br />
-        <strong>Cache Size:</strong>
-        <?php echo number_format_i18n( strlen( serialize( $this->cache ) ) / 1024, 2 ); ?> KB
-    </p>
-        <?php
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+    ?>
+        <p>
+            <strong>Redis Status:</strong>
+            <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?>
+            <br />
+            <strong>Redis Client:</strong>
+            <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
+            <br />
+            <strong>Cache Hits:</strong>
+            <?php echo (int) $this->cache_hits; ?>
+            <br />
+            <strong>Cache Misses:</strong>
+            <?php echo (int) $this->cache_misses; ?>
+            <br />
+            <strong>Cache Size:</strong>
+            <?php echo number_format_i18n( strlen( serialize( $this->cache ) ) / 1024, 2 ); ?> KB
+        </p>
+    <?php
+        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 
     /**
@@ -3025,7 +3029,7 @@ LUA;
             '<code>/wp-content/</code>'
         ) . "</p>\n";
 
-        wp_die( $message );
+        wp_die( $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 
     /**
@@ -3037,6 +3041,7 @@ LUA;
         $cluster = array_values( WP_REDIS_CLUSTER );
 
         foreach ( $cluster as $key => $server ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
             $components = parse_url( $server );
 
             if ( ! empty( $components['scheme'] ) ) {

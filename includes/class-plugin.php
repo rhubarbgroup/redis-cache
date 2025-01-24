@@ -827,6 +827,7 @@ class Plugin {
      * @return string
      */
     protected function admin_bar_style() {
+        // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
         return <<<HTML
             <style>
                 #wpadminbar ul li.redis-cache-error {
@@ -838,7 +839,7 @@ class Plugin {
                     color: #fff;
                 }
             </style>
-HTML;
+HTML; // phpcs:enable
     }
 
     /**
@@ -851,6 +852,7 @@ HTML;
         $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
         $flushMessage = __( 'Flushing cache...', 'redis-cache' );
 
+        // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
         return <<<HTML
             <script>
                 (function (element) {
@@ -895,7 +897,7 @@ HTML;
                     document.querySelector('#wp-admin-bar-redis-cache-flush > a')
                 );
             </script>
-HTML;
+HTML; // phpcs:enable
     }
 
     /**
@@ -1076,15 +1078,13 @@ HTML;
      * @return void
      */
     public function ajax_flush_cache() {
-        if ( ! wp_verify_nonce( $_POST['nonce'] ) ) {
-            $message = 'Invalid Nonce.';
+        if ( ! wp_verify_nonce( $_POST['nonce'] ?? '' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+            wp_die( esc_html__( 'Invalid Nonce.', 'redis-cache' ) );
         } else if ( wp_cache_flush() ) {
-            $message = 'Object cache flushed.';
+            wp_die( esc_html__( 'Object cache flushed.', 'redis-cache' ) );
         } else {
-            $message = 'Object cache could not be flushed.';
+            wp_die( esc_html__( 'Object cache could not be flushed.', 'redis-cache' ) );
         }
-
-        wp_die( __( $message , 'redis-cache' ) );
     }
 
     /**
@@ -1600,6 +1600,7 @@ HTML;
      * @return void
      */
     public function litespeed_disable_objectcache() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing
         if ( isset( $_POST['LSCWP_CTRL'], $_POST['LSCWP_NONCE'], $_POST['object'] ) ) {
             $_POST['object'] = '0';
         }

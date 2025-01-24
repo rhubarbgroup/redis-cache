@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+- Added `Primary Branch` header
+- Adhere to Plugin Check (PCP)
+- Fixed rare replication mode issue
+
 ## 2.5.4
 
 - Respect `WP_REDIS_SCHEME` for Cluster connections
