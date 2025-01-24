@@ -827,6 +827,7 @@ class Plugin {
      * @return string
      */
     protected function admin_bar_style() {
+        // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
         return <<<HTML
             <style>
                 #wpadminbar ul li.redis-cache-error {
@@ -838,7 +839,7 @@ class Plugin {
                     color: #fff;
                 }
             </style>
-HTML;
+HTML; // phpcs:enable
     }
 
     /**
@@ -851,6 +852,7 @@ HTML;
         $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
         $flushMessage = __( 'Flushing cache...', 'redis-cache' );
 
+        // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
         return <<<HTML
             <script>
                 (function (element) {
@@ -895,7 +897,7 @@ HTML;
                     document.querySelector('#wp-admin-bar-redis-cache-flush > a')
                 );
             </script>
-HTML;
+HTML; // phpcs:enable
     }
 
     /**
