@@ -17,7 +17,8 @@ use Rhubarb\RedisCache\Predis;
 defined( '\\ABSPATH' ) || exit;
 
 /**
- * Enables, disabled, flushes, and checks the status of the object cache.
+ * Enables, disabled and checks the status of the object cache.
+ * To flush call `wp cache flush`.
  *
  * @package wp-cli
  */
