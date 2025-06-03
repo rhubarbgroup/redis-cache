@@ -435,12 +435,12 @@ class Client implements ClientInterface, IteratorAggregate
     /**
      * Actual pipeline context initializer method.
      *
-     * @param array $options  Options for the context.
+     * @param array|null $options  Options for the context.
      * @param mixed $callable Optional callable used to execute the context.
      *
      * @return Pipeline|array
      */
-    protected function createPipeline(array $options = null, $callable = null)
+    protected function createPipeline(?array $options = null, $callable = null)
     {
         if (isset($options['atomic']) && $options['atomic']) {
             $class = 'Predis\Pipeline\Atomic';
@@ -478,12 +478,12 @@ class Client implements ClientInterface, IteratorAggregate
     /**
      * Actual transaction context initializer method.
      *
-     * @param array $options  Options for the context.
+     * @param array|null $options  Options for the context.
      * @param mixed $callable Optional callable used to execute the context.
      *
      * @return MultiExecTransaction|array
      */
-    protected function createTransaction(array $options = null, $callable = null)
+    protected function createTransaction(?array $options = null, $callable = null)
     {
         $transaction = new MultiExecTransaction($this, $options);
 
@@ -510,12 +510,12 @@ class Client implements ClientInterface, IteratorAggregate
     /**
      * Actual publish/subscribe context initializer method.
      *
-     * @param array $options  Options for the context.
+     * @param array|null $options  Options for the context.
      * @param mixed $callable Optional callable used to execute the context.
      *
      * @return PubSubConsumer|null
      */
-    protected function createPubSub(array $options = null, $callable = null)
+    protected function createPubSub(?array $options = null, $callable = null)
     {
         $pubsub = new PubSubConsumer($this, $options);
 

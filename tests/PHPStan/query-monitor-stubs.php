@@ -118,7 +118,7 @@ class QM_Backtrace
     protected $filtered_trace = \null;
     protected $calling_line = 0;
     protected $calling_file = '';
-    public function __construct(array $args = array(), array $trace = \null)
+    public function __construct(array $args = array(), ?array $trace = \null)
     {
     }
     public function get_stack()
@@ -215,13 +215,13 @@ class QM_Timer
     protected $end = \null;
     protected $trace = \null;
     protected $laps = array();
-    public function start(array $data = \null)
+    public function start(?array $data = \null)
     {
     }
-    public function stop(array $data = \null)
+    public function stop(?array $data = \null)
     {
     }
-    public function lap(array $data = \null, $name = \null)
+    public function lap(?array $data = \null, $name = \null)
     {
     }
     public function get_laps()
@@ -248,7 +248,7 @@ class QM_Timer
     public function get_trace()
     {
     }
-    public function end(array $data = \null)
+    public function end(?array $data = \null)
     {
     }
 }

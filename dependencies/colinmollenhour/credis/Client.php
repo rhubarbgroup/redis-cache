@@ -350,7 +350,7 @@ class Credis_Client {
      * @param string|null $username The authentication username of the Redis server
      * @param array|null $tlsOptions The TLS/SSL context options. See https://www.php.net/manual/en/context.ssl.php for details
      */
-    public function __construct($host = '127.0.0.1', $port = 6379, $timeout = null, $persistent = '', $db = 0, $password = null, $username = null, array $tlsOptions = null)
+    public function __construct($host = '127.0.0.1', $port = 6379, $timeout = null, $persistent = '', $db = 0, $password = null, $username = null, ?array $tlsOptions = null)
     {
         $this->host = (string) $host;
         if ($port !== null) {
