@@ -47,7 +47,7 @@ class Credis_Module
      */
     public function setModule($moduleName)
     {
-        $this->moduleName = (string) $moduleName;
+        $this->moduleName = (string)$moduleName;
 
         return $this;
     }

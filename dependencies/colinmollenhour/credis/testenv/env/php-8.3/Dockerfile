@@ -1,5 +1,5 @@
-FROM php:7.4
-ENV phpunit_version 7.5
+FROM php:8.3
+ENV phpunit_version 9.6
 ENV redis_version 6.0.8
 
 RUN apt-get update && \
