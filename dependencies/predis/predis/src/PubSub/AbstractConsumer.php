@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2023 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -32,8 +32,8 @@ abstract class AbstractConsumer implements Iterator
     public const STATUS_SUBSCRIBED = 2;  // 0b0010
     public const STATUS_PSUBSCRIBED = 4; // 0b0100
 
-    private $position = null;
-    private $statusFlags = self::STATUS_VALID;
+    protected $position;
+    protected $statusFlags = self::STATUS_VALID;
 
     /**
      * Automatically stops the consumer when the garbage collector kicks in.
@@ -151,7 +151,7 @@ abstract class AbstractConsumer implements Iterator
     abstract protected function writeRequest($method, $arguments);
 
     /**
-     * {@inheritdoc}
+     * @return void
      */
     #[ReturnTypeWillChange]
     public function rewind()
@@ -172,7 +172,7 @@ abstract class AbstractConsumer implements Iterator
     }
 
     /**
-     * {@inheritdoc}
+     * @return int|null
      */
     #[ReturnTypeWillChange]
     public function key()
@@ -181,7 +181,7 @@ abstract class AbstractConsumer implements Iterator
     }
 
     /**
-     * {@inheritdoc}
+     * @return int|null
      */
     #[ReturnTypeWillChange]
     public function next()

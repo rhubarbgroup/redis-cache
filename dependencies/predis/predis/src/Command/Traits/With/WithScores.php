@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2023 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -53,7 +53,9 @@ trait WithScores
             $result = [];
 
             for ($i = 0, $iMax = count($data); $i < $iMax; ++$i) {
-                if ($data[$i + 1] ?? false) {
+                if (is_array($data[$i])) {
+                    $result[$data[$i][0]] = $data[$i][1]; // Relay
+                } elseif (array_key_exists($i + 1, $data)) {
                     $result[$data[$i]] = $data[++$i];
                 }
             }

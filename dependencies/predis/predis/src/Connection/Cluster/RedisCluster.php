@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2023 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,6 +31,7 @@ use Predis\Response\ErrorInterface as ErrorResponseInterface;
 use Predis\Response\ServerException;
 use ReturnTypeWillChange;
 use Throwable;
+use Traversable;
 
 /**
  * Abstraction for a Redis-backed cluster of nodes (Redis >= 3.0.0).
@@ -64,12 +65,12 @@ class RedisCluster implements ClusterInterface, IteratorAggregate, Countable
     private $retryInterval = 10;
 
     /**
-     * @param FactoryInterface  $connections Optional connection factory.
-     * @param StrategyInterface $strategy    Optional cluster strategy.
+     * @param FactoryInterface       $connections Optional connection factory.
+     * @param StrategyInterface|null $strategy    Optional cluster strategy.
      */
     public function __construct(
         FactoryInterface $connections,
-        StrategyInterface $strategy = null
+        ?StrategyInterface $strategy = null
     ) {
         $this->connections = $connections;
         $this->strategy = $strategy ?: new RedisClusterStrategy();
@@ -253,11 +254,11 @@ class RedisCluster implements ClusterInterface, IteratorAggregate, Countable
                 }
 
                 if (!$connection = $this->getRandomConnection()) {
-                    throw new ClientException('No connections left in the pool for `CLUSTER SLOTS`');
+                    throw new ClientException('No connections left in the pool for `CLUSTER SLOTS` (' . $exception->getMessage() . ')');
                 }
 
                 usleep($retryAfter * 1000);
-                $retryAfter = $retryAfter * 2;
+                $retryAfter *= 2;
                 ++$retries;
             }
         }
@@ -270,9 +271,9 @@ class RedisCluster implements ClusterInterface, IteratorAggregate, Countable
      * the CLUSTER SLOTS command against the specified node or a random one from
      * the pool.
      *
-     * @param NodeConnectionInterface $connection Optional connection instance.
+     * @param NodeConnectionInterface|null $connection Optional connection instance.
      */
-    public function askSlotMap(NodeConnectionInterface $connection = null)
+    public function askSlotMap(?NodeConnectionInterface $connection = null)
     {
         if (!$connection && !$connection = $this->getRandomConnection()) {
             return;
@@ -336,10 +337,19 @@ class RedisCluster implements ClusterInterface, IteratorAggregate, Countable
     {
         $separator = strrpos($connectionID, ':');
 
-        return $this->connections->create([
+        $parameters = [
             'host' => substr($connectionID, 0, $separator),
             'port' => substr($connectionID, $separator + 1),
-        ]);
+        ];
+
+        $existConnection = current($this->pool);
+        if ($existConnection instanceof NodeConnectionInterface) {
+            $existParameters = $existConnection->getParameters()->toArray();
+            unset($existParameters['alias'], $existParameters['slots']);
+            $parameters = array_merge($existParameters, $parameters);
+        }
+
+        return $this->connections->create($parameters);
     }
 
     /**
@@ -463,6 +473,14 @@ class RedisCluster implements ClusterInterface, IteratorAggregate, Countable
     {
         [$slot, $connectionID] = explode(' ', $details, 2);
 
+        // Handle connection ID in the form of "IP:port (details about exception)"
+        // by trimming everything after first space (including the space)
+        $startPositionOfExtraDetails = strpos($connectionID, ' ');
+
+        if ($startPositionOfExtraDetails !== false) {
+            $connectionID = substr($connectionID, 0, $startPositionOfExtraDetails);
+        }
+
         if (!$connection = $this->getConnectionById($connectionID)) {
             $connection = $this->createConnection($connectionID);
         }
@@ -532,7 +550,7 @@ class RedisCluster implements ClusterInterface, IteratorAggregate, Countable
                 break;
             } catch (Throwable $exception) {
                 usleep($retryAfter * 1000);
-                $retryAfter = $retryAfter * 2;
+                $retryAfter *= 2;
 
                 if ($exception instanceof ConnectionException) {
                     $connection = $exception->getConnection();
@@ -589,7 +607,7 @@ class RedisCluster implements ClusterInterface, IteratorAggregate, Countable
     }
 
     /**
-     * {@inheritdoc}
+     * @return int
      */
     #[ReturnTypeWillChange]
     public function count()
@@ -598,7 +616,7 @@ class RedisCluster implements ClusterInterface, IteratorAggregate, Countable
     }
 
     /**
-     * {@inheritdoc}
+     * @return Traversable<string, NodeConnectionInterface>
      */
     #[ReturnTypeWillChange]
     public function getIterator()

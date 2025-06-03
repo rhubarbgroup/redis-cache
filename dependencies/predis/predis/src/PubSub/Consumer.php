@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2023 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,18 +19,18 @@ use Predis\Connection\Cluster\ClusterInterface;
 use Predis\NotSupportedException;
 
 /**
- * PUB/SUB consumer abstraction.
+ * PUB/SUB consumer.
  */
 class Consumer extends AbstractConsumer
 {
-    private $client;
-    private $options;
+    protected $client;
+    protected $options;
 
     /**
      * @param ClientInterface $client  Client instance used by the consumer.
-     * @param array           $options Options for the consumer initialization.
+     * @param array|null      $options Options for the consumer initialization.
      */
-    public function __construct(ClientInterface $client, array $options = null)
+    public function __construct(ClientInterface $client, ?array $options = null)
     {
         $this->checkCapabilities($client);
 
@@ -59,7 +59,7 @@ class Consumer extends AbstractConsumer
      *
      * @throws NotSupportedException
      */
-    private function checkCapabilities(ClientInterface $client)
+    protected function checkCapabilities(ClientInterface $client)
     {
         if ($client->getConnection() instanceof ClusterInterface) {
             throw new NotSupportedException(
@@ -81,7 +81,7 @@ class Consumer extends AbstractConsumer
      *
      * @param string $subscribeAction Type of subscription.
      */
-    private function genericSubscribeInit($subscribeAction)
+    protected function genericSubscribeInit($subscribeAction)
     {
         if (isset($this->options[$subscribeAction])) {
             $this->$subscribeAction($this->options[$subscribeAction]);
