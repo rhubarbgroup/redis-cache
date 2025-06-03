@@ -4,6 +4,7 @@
 - Added `Primary Branch` header
 - Upgraded Predis to v2.4.0
 - Upgraded Credis to v1.17.0
+- Mark as tested up to 6.8
 - Adhere to Plugin Check (PCP)
 - Fixed rare replication mode issue
 
