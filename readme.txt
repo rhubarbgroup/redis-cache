@@ -61,6 +61,18 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 == Changelog ==
 
+= 2.6.0 =
+
+- Added `Primary Branch` header
+- Added `id` to script/style tags
+- Upgraded Predis to v2.4.0
+- Upgraded Credis to v1.17.0
+- Mark as tested up to 6.8
+- Adhere to Plugin Check (PCP)
+- Fixed (in|de)crement not working with serializer
+- Fixed rare replication mode issue
+- Fixed rare fatal error in diganostics
+
 = 2.5.4 =
 
 - Respect `WP_REDIS_SCHEME` for Cluster connections
@@ -88,8 +100,6 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 - Support rare PHP installations without `sockets` extension
 - Fixed rare fatal error in `show_error_and_die()`
 - Fixed deprecation notice warning in `sanitize_key_part()`
-
-== Changelog ==
 
 = 2.5.0 =
 
