@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.6.1
 
 - Fixed PHP 7.2 heredoc parsing error
 - Fixed call to undefined function `wp_rand()`

@@ -61,6 +61,11 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 == Changelog ==
 
+= 2.6.1 =
+
+- Fixed PHP 7.2 heredoc parsing error
+- Fixed call to undefined function `wp_rand()`
+
 = 2.6.0 =
 
 - Added `Primary Branch` header
