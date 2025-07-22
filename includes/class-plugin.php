@@ -829,7 +829,7 @@ class Plugin {
     protected function admin_bar_style() {
         // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
         return <<<HTML
-            <style>
+            <style id="redis-cache-admin-bar-style">
                 #wpadminbar ul li.redis-cache-error {
                     background: #b30000;
                 }
@@ -854,7 +854,7 @@ HTML; // phpcs:enable
 
         // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
         return <<<HTML
-            <script>
+            <script id="redis-cache-admin-bar">
                 (function (element) {
                     if (! element) {
                         return;
