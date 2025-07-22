@@ -1,12 +1,16 @@
 # Changelog
 
-## Unreleased
+## 2.6.0
+
 - Added `Primary Branch` header
+- Added `id` to script/style tags
 - Upgraded Predis to v2.4.0
 - Upgraded Credis to v1.17.0
 - Mark as tested up to 6.8
 - Adhere to Plugin Check (PCP)
+- Fixed (in|de)crement not working with serializer
 - Fixed rare replication mode issue
+- Fixed rare fatal error in diganostics
 
 ## 2.5.4
 
