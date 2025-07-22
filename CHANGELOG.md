@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed PHP 7.2 parsing error
+
 ## 2.6.0
 
 - Added `Primary Branch` header

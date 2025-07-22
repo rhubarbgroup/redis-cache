@@ -66,3 +66,15 @@ parameters:
             message: "#^Access to undefined constant Credis_Client::VERSION#"
             count: 1
             path: tests/PHPStan/object-cache.php
+
+        # whatever
+        -
+            message: "#^Call to an undefined method Credis_Sentinel::getCluster#"
+            count: 1
+            path: tests/PHPStan/object-cache.php
+
+        # whatever
+        -
+            message: "#clusterName of class Credis_Cluster constructor expects#"
+            count: 1
+            path: tests/PHPStan/object-cache.php
