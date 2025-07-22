@@ -821,15 +821,16 @@ class Plugin {
         ]);
     }
 
+    // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
+
     /**
      * Returns the admin-bar <style> tag.
      *
      * @return string
      */
     protected function admin_bar_style() {
-        // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
         return <<<HTML
-            <style>
+            <style id="redis-cache-admin-bar-style">
                 #wpadminbar ul li.redis-cache-error {
                     background: #b30000;
                 }
@@ -839,7 +840,7 @@ class Plugin {
                     color: #fff;
                 }
             </style>
-HTML; // phpcs:enable
+HTML;
     }
 
     /**
@@ -852,9 +853,8 @@ HTML; // phpcs:enable
         $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
         $flushMessage = __( 'Flushing cache...', 'redis-cache' );
 
-        // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
         return <<<HTML
-            <script>
+            <script id="redis-cache-admin-bar">
                 (function (element) {
                     if (! element) {
                         return;
@@ -897,8 +897,9 @@ HTML; // phpcs:enable
                     document.querySelector('#wp-admin-bar-redis-cache-flush > a')
                 );
             </script>
-HTML; // phpcs:enable
+HTML;
     }
+    // phpcs:enable Squiz.PHP.Heredoc.NotAllowed
 
     /**
      * Executes admin actions
