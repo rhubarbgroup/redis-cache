@@ -72,7 +72,7 @@ jobs:
           composer require --dev yoast/phpunit-polyfills
 
       - name: Run test suite
-        run: tail -n +911 includes/class-plugin.php | head && ./vendor/bin/phpunit
+        run: ./vendor/bin/phpunit
 
   cluster:
     name: Testing (PHP ${{ matrix.php }}; Cluster ${{ matrix.redis }})
