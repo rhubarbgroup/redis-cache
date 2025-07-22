@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Fixed PHP 7.2 parsing error
+- Fixed PHP 7.2 heredoc parsing error
+- Fixed call to undefined function `wp_rand()`
 
 ## 2.6.0
 

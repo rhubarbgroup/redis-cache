@@ -146,7 +146,7 @@ class Metrics {
 
         $info = $wp_object_cache->info();
 
-        $this->id = substr( md5( uniqid( strval( wp_rand() ), true ) ), 12 );
+        $this->id = substr( md5( uniqid( strval( mt_rand() ), true ) ), 12 );
         $this->hits = $info->hits;
         $this->misses = $info->misses;
         $this->ratio = $info->ratio;
