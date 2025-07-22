@@ -1,15 +1,15 @@
-# Copyright (C) 2024 Till Krüss
+# Copyright (C) 2025 Till Krüss
 # This file is distributed under the GPLv3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Redis Object Cache 2.5.4\n"
+"Project-Id-Version: Redis Object Cache 2.6.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/redis-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-10-15T17:40:24+00:00\n"
+"POT-Creation-Date: 2025-07-22T15:52:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: redis-cache\n"
@@ -163,46 +163,52 @@ msgstr ""
 msgid "(Current page) Hit Ratio: %1$s%%, Hits %2$s, Misses: %3$s, Size: %4$s"
 msgstr ""
 
-#: includes/class-plugin.php:852
+#: includes/class-plugin.php:853
 msgid "Flushing cache..."
 msgstr ""
 
-#: includes/class-plugin.php:928
+#: includes/class-plugin.php:930
+#: includes/class-plugin.php:1084
 msgid "Object cache flushed."
 msgstr ""
 
-#: includes/class-plugin.php:934
+#: includes/class-plugin.php:936
+#: includes/class-plugin.php:1086
 msgid "Object cache could not be flushed."
 msgstr ""
 
-#: includes/class-plugin.php:966
-#: includes/cli/class-commands.php:80
+#: includes/class-plugin.php:968
+#: includes/cli/class-commands.php:81
 msgid "Object cache enabled."
 msgstr ""
 
-#: includes/class-plugin.php:972
-#: includes/cli/class-commands.php:82
+#: includes/class-plugin.php:974
+#: includes/cli/class-commands.php:83
 msgid "Object cache could not be enabled."
 msgstr ""
 
-#: includes/class-plugin.php:996
-#: includes/cli/class-commands.php:121
+#: includes/class-plugin.php:998
+#: includes/cli/class-commands.php:122
 msgid "Object cache disabled."
 msgstr ""
 
-#: includes/class-plugin.php:1002
-#: includes/cli/class-commands.php:123
+#: includes/class-plugin.php:1004
+#: includes/cli/class-commands.php:124
 msgid "Object cache could not be disabled."
 msgstr ""
 
-#: includes/class-plugin.php:1027
-#: includes/cli/class-commands.php:162
+#: includes/class-plugin.php:1029
+#: includes/cli/class-commands.php:163
 msgid "Updated object cache drop-in and enabled Redis object cache."
 msgstr ""
 
-#: includes/class-plugin.php:1033
-#: includes/cli/class-commands.php:164
+#: includes/class-plugin.php:1035
+#: includes/cli/class-commands.php:165
 msgid "Object cache drop-in could not be updated."
+msgstr ""
+
+#: includes/class-plugin.php:1082
+msgid "Invalid Nonce."
 msgstr ""
 
 #. translators: %s = Action link to update the drop-in.
@@ -285,53 +291,53 @@ msgstr ""
 msgid "WordPress is using a foreign object cache drop-in and Redis Object Cache is not being used. Use WP CLI or go to \"Settings -> Redis\" to enable drop-in."
 msgstr ""
 
-#: includes/cli/class-commands.php:58
+#: includes/cli/class-commands.php:59
 msgid "Redis object cache already enabled."
 msgstr ""
 
-#: includes/cli/class-commands.php:60
-#: includes/cli/class-commands.php:112
+#: includes/cli/class-commands.php:61
+#: includes/cli/class-commands.php:113
 msgid "A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`."
 msgstr ""
 
 #. translators: %s = The Redis connection error message.
-#: includes/cli/class-commands.php:67
+#: includes/cli/class-commands.php:68
 msgid "Object cache could not be enabled. Redis server is unreachable: %s"
 msgstr ""
 
-#: includes/cli/class-commands.php:106
+#: includes/cli/class-commands.php:107
 msgid "No object cache drop-in found."
 msgstr ""
 
 #. translators: %s = The Redis connection error message.
-#: includes/cli/class-commands.php:159
+#: includes/cli/class-commands.php:160
 msgid "Object cache drop-in could not be updated. Redis server is unreachable: %s"
 msgstr ""
 
-#: includes/object-cache.php:2993
+#: includes/object-cache.php:3010
 msgid "Error establishing a Redis connection"
 msgstr ""
 
 #. translators: %s = Formatted wp-config.php file name.
-#: includes/object-cache.php:3000
+#: includes/object-cache.php:3017
 msgid "WordPress is unable to establish a connection to Redis. This means that the connection information in your %s file are incorrect, or that the Redis server is not reachable."
 msgstr ""
 
-#: includes/object-cache.php:3005
+#: includes/object-cache.php:3022
 msgid "Is the correct Redis host and port set?"
 msgstr ""
 
-#: includes/object-cache.php:3006
+#: includes/object-cache.php:3023
 msgid "Is the Redis server running?"
 msgstr ""
 
 #. translators: %s = Link to installation instructions.
-#: includes/object-cache.php:3011
+#: includes/object-cache.php:3028
 msgid "If you need help, please read the <a href=\"%s\">installation instructions</a>."
 msgstr ""
 
 #. translators: %1$s = Formatted object-cache.php file name, %2$s = Formatted wp-content directory name.
-#: includes/object-cache.php:3018
+#: includes/object-cache.php:3035
 msgid "To disable Redis, delete the %1$s file in the %2$s directory."
 msgstr ""
 
@@ -461,6 +467,10 @@ msgstr ""
 
 #: includes/ui/tabs/diagnostics.php:19
 msgid "Copy diagnostics to clipboard"
+msgstr ""
+
+#: includes/ui/tabs/diagnostics.php:21
+msgid "Copied!"
 msgstr ""
 
 #: includes/ui/tabs/metrics.php:16
