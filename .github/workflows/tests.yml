@@ -56,7 +56,9 @@ jobs:
           extensions: msgpack, igbinary, redis-5.3.7
 
       - name: Install SVN
-        run: sudo apt-get update && sudo apt-get install -y subversion
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y subversion
 
       - name: Set up WordPress and WordPress Test Library
         uses: sjinks/setup-wordpress-test-library@master
@@ -68,8 +70,7 @@ jobs:
         uses: ramsey/composer-install@v2
 
       - name: Install missing library
-        run: |
-          composer require --dev yoast/phpunit-polyfills
+        run: composer require --dev yoast/phpunit-polyfills
 
       - name: Run test suite
         run: ./vendor/bin/phpunit
@@ -129,7 +130,9 @@ jobs:
           extensions: msgpack, igbinary, redis-5.3.7
 
       - name: Install SVN
-        run: sudo apt-get update && sudo apt-get install -y subversion
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y subversion
 
       - name: Set up WordPress and WordPress Test Library
         uses: sjinks/setup-wordpress-test-library@master
@@ -141,8 +144,7 @@ jobs:
         uses: ramsey/composer-install@v2
 
       - name: Install missing library
-        run: |
-          composer require --dev yoast/phpunit-polyfills
+        run: composer require --dev yoast/phpunit-polyfills
 
       - name: Run test suite
         run: ./vendor/bin/phpunit
