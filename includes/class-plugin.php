@@ -821,8 +821,6 @@ class Plugin {
         ]);
     }
 
-    // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
-
     /**
      * Returns the admin-bar <style> tag.
      *
@@ -899,7 +897,6 @@ HTML;
             </script>
 HTML;
     }
-    // phpcs:enable Squiz.PHP.Heredoc.NotAllowed
 
     /**
      * Executes admin actions

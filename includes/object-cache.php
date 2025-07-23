@@ -1877,7 +1877,6 @@ class WP_Object_Cache {
         $salt = $escape ? $this->glob_quote( $salt ) : $salt;
 
         return function () use ( $salt ) {
-            // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
             $script = <<<LUA
                 local cur = 0
                 local i = 0
@@ -1893,7 +1892,7 @@ class WP_Object_Cache {
                     end
                 until 0 == cur
                 return i
-LUA; // phpcs:enable
+LUA;
 
             if ( isset($this->redis_version) && version_compare( $this->redis_version, '5', '<' ) && version_compare( $this->redis_version, '3.2', '>=' ) ) {
                 $script = 'redis.replicate_commands()' . "\n" . $script;
@@ -1924,7 +1923,6 @@ LUA; // phpcs:enable
                 $this->unflushable_groups
             );
 
-            // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
             $script = <<<LUA
                 local cur = 0
                 local i = 0
@@ -1947,7 +1945,7 @@ LUA; // phpcs:enable
                     end
                 until 0 == cur
                 return i
-LUA; // phpcs:enable
+LUA;
             if ( isset($this->redis_version) && version_compare( $this->redis_version, '5', '<' ) && version_compare( $this->redis_version, '3.2', '>=' ) ) {
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
