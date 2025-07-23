@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.6.2
 
 - Fixed more PHP 7.2 heredoc parsing errors
 
