@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.6.2
+
+- Fixed more PHP 7.2 heredoc parsing errors
+
+## 2.6.1
+
+- Fixed PHP 7.2 heredoc parsing error
+- Fixed call to undefined function `wp_rand()`
+
+## 2.6.0
+
+- Added `Primary Branch` header
+- Added `id` to script/style tags
+- Upgraded Predis to v2.4.0
+- Upgraded Credis to v1.17.0
+- Mark as tested up to 6.8
+- Adhere to Plugin Check (PCP)
+- Fixed (in|de)crement not working with serializer
+- Fixed rare replication mode issue
+- Fixed rare fatal error in diganostics
+
 ## 2.5.4
 
 - Respect `WP_REDIS_SCHEME` for Cluster connections

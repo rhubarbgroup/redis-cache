@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2023 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,6 +19,7 @@ use Predis\Connection\Factory;
 use Predis\Connection\FactoryInterface;
 use Predis\Connection\PhpiredisSocketConnection;
 use Predis\Connection\PhpiredisStreamConnection;
+use Predis\Connection\RelayConnection;
 
 /**
  * Configures a new connection factory instance.
@@ -57,7 +58,7 @@ class Connections implements OptionInterface
      * The factory instance is configured according to the supplied named array
      * mapping URI schemes (passed as keys) to the FCQN of classes implementing
      * Predis\Connection\NodeConnectionInterface, or callable objects acting as
-     * lazy initalizers and returning new instances of classes implementing
+     * lazy initializers and returning new instances of classes implementing
      * Predis\Connection\NodeConnectionInterface.
      *
      * @param OptionsInterface $options Client options
@@ -89,6 +90,7 @@ class Connections implements OptionInterface
      * - "phpiredis-stream" maps tcp, redis, unix to PhpiredisStreamConnection
      * - "phpiredis-socket" maps tcp, redis, unix to PhpiredisSocketConnection
      * - "phpiredis" is an alias of "phpiredis-stream"
+     * - "relay" maps tcp, redis, unix, tls, rediss to RelayConnection
      *
      * @param OptionsInterface $options Client options
      * @param string           $value   Descriptive string identifying the desired configuration
@@ -114,6 +116,12 @@ class Connections implements OptionInterface
                 $factory->define('tcp', PhpiredisSocketConnection::class);
                 $factory->define('redis', PhpiredisSocketConnection::class);
                 $factory->define('unix', PhpiredisSocketConnection::class);
+                break;
+
+            case 'relay':
+                $factory->define('tcp', RelayConnection::class);
+                $factory->define('redis', RelayConnection::class);
+                $factory->define('unix', RelayConnection::class);
                 break;
 
             case 'default':

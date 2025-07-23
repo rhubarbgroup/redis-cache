@@ -98,7 +98,7 @@ defined( '\\ABSPATH' ) || exit;
                             <li><?php esc_html_e( 'Optimized for WooCommerce, Jetpack & Yoast SEO', 'redis-cache' ); ?></li>
                         </ul>
                         <p>
-                            <a class="button button-primary" target="_blank" rel="noopener" href="<?php echo $this->link_to_ocp('settings'); ?>">
+                            <a class="button button-primary" target="_blank" rel="noopener" href="<?php echo esc_url( $this->link_to_ocp( 'settings' ) ); ?>">
                                 <?php esc_html_e( 'Learn more', 'redis-cache' ); ?>
                             </a>
                         </p>

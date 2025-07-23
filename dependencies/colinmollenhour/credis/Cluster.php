@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Credis, a Redis interface for the modest
  *
@@ -9,335 +10,241 @@
  */
 
 /**
- * A generalized Credis_Client interface for a cluster of Redis servers
+ * Credis_Cluster, subclass to Credis_Client that uses RedisCluster (in phpredis extension)
  *
- * @deprecated
+ * Note: RedisCluster currently has limitations like not supporting pipeline or multi.
+ * Note: Many methods require an additional parameter to specify which node to run on, and only run on that node,
+ *       such as saveForNode(), flushDBForNode(), and pingForNode().
+ * Note: Redis clusters do not support select(), as they only have a single database.
+ * Note: RedisCluster currently has buggy/broken behaviour for pSubscribe and script.
  */
-class Credis_Cluster
+class Credis_Cluster extends Credis_Client
 {
-  /**
-   * Collection of Credis_Client objects attached to Redis servers
-   * @var Credis_Client[]
-   */
-  protected $clients;
-  /**
-   * If a server is set as master, all write commands go to that one
-   * @var Credis_Client
-   */
-  protected $masterClient;
-  /**
-   * Aliases of Credis_Client objects attached to Redis servers, used to route commands to specific servers
-   * @see Credis_Cluster::to
-   * @var array
-   */
-  protected $aliases;
+    /**
+     * Name of the cluster as configured in redis.ini
+     * @var string|null
+     */
+    protected $clusterName;
 
-  /**
-   * Hash ring of Redis server nodes
-   * @var array
-   */
-  protected $ring;
+    /**
+     * Hosts & ports of the cluster
+     * Eg: ['redis-node-1:6379', 'redis-node-2:6379', 'redis-node-3:6379', 'redis-node-4:6379']
+     * @var array|null
+     */
+    protected $clusterSeeds;
 
-  /**
-   * Individual nodes of pointers to Redis servers on the hash ring
-   * @var array
-   */
-  protected $nodes;
+    /**
+     * Enable persistent connections
+     * @var bool
+     */
+    protected $persistentBool;
 
-  /**
-   * The commands that are not subject to hashing
-   * @var array
-   * @access protected
-   */
-  protected $dont_hash;
-
-  /**
-   * Currently working cluster-wide database number.
-   * @var int
-   */
-  protected $selectedDb = 0;
-
-  /**
-   * Creates an interface to a cluster of Redis servers
-   * Each server should be in the format:
-   *  array(
-   *   'host' => hostname,
-   *   'port' => port,
-   *   'db' => db,
-   *   'password' => password,
-   *   'timeout' => timeout,
-   *   'alias' => alias,
-   *   'persistent' => persistence_identifier,
-   *   'master' => master
-   *   'write_only'=> true/false
-   * )
-   *
-   * @param array $servers The Redis servers in the cluster.
-   * @param int $replicas
-   * @param bool $standAlone
-   * @throws CredisException
-   */
-  public function __construct($servers, $replicas = 128, $standAlone = false)
-  {
-    $this->clients = array();
-    $this->masterClient = null;
-    $this->aliases = array();
-    $this->ring = array();
-    $this->replicas = (int)$replicas;
-    $client = null;
-    foreach ($servers as $server)
+    /**
+     * Creates a connection to the Redis Cluster on cluser named {@link $clusterName} or seeds {@link $clusterSeeds}.
+     *
+     * @param string|null $clusterName Name of the cluster as configured in redis.ini
+     * @param array|null $clusterSeeds Hosts & ports of the cluster; eg: ['redis-node-1:6379', 'redis-node-2:6379']
+     * @param float|null $timeout Timeout period in seconds
+     * @param float|null $readTimeout Timeout period in seconds
+     * @param bool $persistentBool Flag to establish persistent connection
+     * @param string|null $password The authentication password of the Redis server
+     * @param string|null $username The authentication username of the Redis server
+     * @param array|null $tlsOptions If array, then uses TLS for non-seed connections; if null, no TLS for non-seed
+     * @throws CredisException
+     */
+    public function __construct($clusterName = null, array $clusterSeeds = [], $timeout = null, $readTimeout = null, $persistentBool = false, $password = null, $username = null, $tlsOptions = null)
     {
-      if(is_array($server)){
-          $client = new Credis_Client(
-            $server['host'],
-            $server['port'],
-            isset($server['timeout']) ? $server['timeout'] : 2.5,
-            isset($server['persistent']) ? $server['persistent'] : '',
-            isset($server['db']) ? $server['db'] : 0,
-            isset($server['password']) ? $server['password'] : null
-          );
-          if (isset($server['alias'])) {
-            $this->aliases[$server['alias']] = $client;
-          }
-          if(isset($server['master']) && $server['master'] === true){
-            $this->masterClient = $client;
-            if(isset($server['write_only']) && $server['write_only'] === true){
-                continue;
+        if (!class_exists(\RedisCluster::class)) {
+            throw new \Exception("Credis_Cluster depends on RedisCluster class from phpredis extension. "
+                . " Please verify that phpredis extension is installed and enabled");
+        }
+        $this->clusterName = $clusterName;
+        $this->clusterSeeds = $clusterSeeds;
+        $this->scheme = null;
+        $this->timeout = $timeout;
+        $this->readTimeout = $readTimeout;
+        $this->persistentBool = $persistentBool;
+        $this->standalone = false;
+        $this->authPassword = $password;
+        $this->authUsername = $username;
+        $this->selectedDb = 0; // Note: Clusters don't have db, but it's in superclass
+        $this->tlsOptions = $tlsOptions;
+        // PHP Redis extension support TLS/ACL AUTH since 5.3.0 // Note: Do we need this in Credis_ClusterClient?
+        $this->oldPhpRedis = (bool)version_compare(phpversion('redis'), '5.3.0', '<');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function connect()
+    {
+        if ($this->connected) {
+            return $this;
+        }
+        $this->close(true);
+        if (!$this->redis) {
+            $this->redis = new RedisCluster(
+                $this->clusterName,
+                $this->clusterSeeds,
+                isset($this->timeout) ? $this->timeout : 0,
+                isset($this->readTimeout) ? $this->readTimeout : 0,
+                $this->persistentBool, // Note:  This can't be $this->persistent, because it is string
+                ['user' => $this->authUsername, 'pass' => $this->authPassword],
+                // Note: RedisCluster won't use TLS for non-seed connections if this is null
+                $this->tlsOptions
+            );
+            $this->connectFailures = 0;
+            $this->connected = true;
+            return $this;
+        }
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getClusterName()
+    {
+        return $this->clusterName;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getClusterSeeds()
+    {
+        return $this->clusterSeeds;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getPersistenceBool()
+    {
+        return $this->persistentBool;
+    }
+
+    /*
+     * Gets list of masters from RedisCluster
+     */
+    public function getClusterMasters(): array
+    {
+        $this->connect();
+        return $this->redis->_masters();
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * Runs PING on all the "master" nodes.
+     */
+    public function ping($message = null)
+    {
+        $this->connect();
+        foreach ($this->getClusterMasters() as $master) {
+            $response = $this->redis->ping($master, $message);
+            if (($response !== true) && (!is_string($response)) && ($response !== $this->redis)) {
+                return $output;
             }
-          }
-      } elseif($server instanceof Credis_Client){
-        $client = $server;
-      } else {
-          throw new CredisException('Server should either be an array or an instance of Credis_Client');
-      }
-      if($standAlone) {
-          $client->forceStandalone();
-      }
-      $this->clients[] = $client;
-      for ($replica = 0; $replica <= $this->replicas; $replica++) {
-          $md5num = hexdec(substr(md5($client->getHost().':'.$client->getPort().'-'.$replica),0,7));
-          $this->ring[$md5num] = count($this->clients)-1;
-      }
-    }
-    ksort($this->ring, SORT_NUMERIC);
-    $this->nodes = array_keys($this->ring);
-    $this->dont_hash = array_flip(array(
-      'RANDOMKEY', 'DBSIZE', 'PIPELINE', 'EXEC',
-      'SELECT',    'MOVE',    'FLUSHDB',  'FLUSHALL',
-      'SAVE',      'BGSAVE',  'LASTSAVE', 'SHUTDOWN',
-      'INFO',      'MONITOR', 'SLAVEOF'
-    ));
-    if($this->masterClient !== null && count($this->clients()) == 0){
-        $this->clients[] = $this->masterClient;
-        for ($replica = 0; $replica <= $this->replicas; $replica++) {
-            $md5num = hexdec(substr(md5($this->masterClient->getHost().':'.$this->masterClient->getHost().'-'.$replica),0,7));
-            $this->ring[$md5num] = count($this->clients)-1;
         }
-        $this->nodes = array_keys($this->ring);
-    }
-  }
-
-  /**
-   * @param Credis_Client $masterClient
-   * @param bool $writeOnly
-   * @return Credis_Cluster
-   */
-  public function setMasterClient(Credis_Client $masterClient, $writeOnly=false)
-  {
-    if(!$masterClient instanceof Credis_Client){
-        throw new CredisException('Master client should be an instance of Credis_Client');
-    }
-    $this->masterClient = $masterClient;
-    if (!isset($this->aliases['master'])) {
-        $this->aliases['master'] = $masterClient;
-    }
-    if(!$writeOnly){
-        $this->clients[] = $this->masterClient;
-        for ($replica = 0; $replica <= $this->replicas; $replica++) {
-            $md5num = hexdec(substr(md5($this->masterClient->getHost().':'.$this->masterClient->getHost().'-'.$replica),0,7));
-            $this->ring[$md5num] = count($this->clients)-1;
+        if ($response === $this->redis) {
+            return $this;
         }
-        $this->nodes = array_keys($this->ring);
+        if ($response) {
+            if ($response === true) {
+                $response = isset($message) ? $message : "PONG";
+            } elseif ($response[0] === '+') {
+                $response = substr($response, 1);
+            }
+        }
+        return $response;
     }
-    return $this;
-  }
-  /**
-   * Get a client by index or alias.
-   *
-   * @param string|int $alias
-   * @throws CredisException
-   * @return Credis_Client
-   */
-  public function client($alias)
-  {
-    if (is_int($alias) && isset($this->clients[$alias])) {
-      return $this->clients[$alias];
-    }
-    else if (isset($this->aliases[$alias])) {
-      return $this->aliases[$alias];
-    }
-    throw new CredisException("Client $alias does not exist.");
-  }
 
-  /**
-   * Get an array of all clients
-   *
-   * @return array|Credis_Client[]
-   */
-  public function clients()
-  {
-    return $this->clients;
-  }
-
-  /**
-   * Execute a command on all clients
-   *
-   * @return array
-   */
-  public function all()
-  {
-    $args = func_get_args();
-    $name = array_shift($args);
-    $results = array();
-    foreach($this->clients as $client) {
-      $results[] = call_user_func_array([$client, $name], $args);
+    /**
+     * @inheritDoc
+     *
+     * Runs FLUSHDB on all the "master" nodes.
+     */
+    public function flushDb(...$args)
+    {
+        $this->connect();
+        foreach ($this->getClusterMasters() as $master) {
+            $output = $this->redis->flushDb($master, ...$args);
+        }
+        return $output;
     }
-    return $results;
-  }
 
-  /**
-   * Get the client that the key would hash to.
-   *
-   * @param string $key
-   * @return \Credis_Client
-   */
-  public function byHash($key)
-  {
-    return $this->clients[$this->hash($key)];
-  }
 
-  /**
-   * @param int $index
-   * @return void
-   */
-  public function select($index)
-  {
-      $this->selectedDb = (int) $index;
-  }
-
-  /**
-   * Execute a Redis command on the cluster with automatic consistent hashing and read/write splitting
-   *
-   * @param string $name
-   * @param array $args
-   * @return mixed
-   */
-  public function __call($name, $args)
-  {
-    if($this->masterClient !== null && !$this->isReadOnlyCommand($name)){
-        $client = $this->masterClient;
-    }elseif (count($this->clients()) == 1 || isset($this->dont_hash[strtoupper($name)]) || !isset($args[0])) {
-      $client = $this->clients[0];
+    /**
+     * @inheritDoc
+     *
+     * Runs FLUSHALL on all the "master" nodes.
+     */
+    public function flushAll(...$args)
+    {
+        $this->connect();
+        foreach ($this->getClusterMasters() as $master) {
+            $output = $this->redis->flushAll($master, ...$args);
+        }
+        return $output;
     }
-    else {
-      $hashKey = $args[0];
-      if (is_array($hashKey)) {
-        $hashKey = join('|', $hashKey);
-      }
-      $client = $this->byHash($hashKey);
-    }
-    // Ensure that current client is working on the same database as expected.
-    if ($client->getSelectedDb() != $this->selectedDb) {
-      $client->select($this->selectedDb);
-    }
-    return call_user_func_array([$client, $name], $args);
-  }
 
-  /**
-   * Get client index for a key by searching ring with binary search
-   *
-   * @param string $key The key to hash
-   * @return int The index of the client object associated with the hash of the key
-   */
-  public function hash($key)
-  {
-    $needle = hexdec(substr(md5($key),0,7));
-    $server = $min = 0;
-    $max = count($this->nodes) - 1;
-    while ($max >= $min) {
-      $position = (int) (($min + $max) / 2);
-      $server = $this->nodes[$position];
-      if ($needle < $server) {
-        $max = $position - 1;
-      }
-      else if ($needle > $server) {
-        $min = $position + 1;
-      }
-      else {
-        break;
-      }
+    /**
+     * To specify the node, the first argument will either be a key which maps to a slot which maps to a node; or it
+     * can be an array of ['host': port] for a node.
+     *
+     * @see flushAll
+     */
+    public function flushAllForNode($node, ...$args)
+    {
+        $this->connect();
+        return $this->redis->flushAll($node, ...$args);
     }
-    return $this->ring[$server];
-  }
 
-  public function isReadOnlyCommand($command)
-  {
-      static $readOnlyCommands = array(
-          'DBSIZE' => true,
-          'INFO' => true,
-          'MONITOR' => true,
-          'EXISTS' => true,
-          'TYPE' => true,
-          'KEYS' => true,
-          'SCAN' => true,
-          'RANDOMKEY' => true,
-          'TTL' => true,
-          'GET' => true,
-          'MGET' => true,
-          'SUBSTR' => true,
-          'STRLEN' => true,
-          'GETRANGE' => true,
-          'GETBIT' => true,
-          'LLEN' => true,
-          'LRANGE' => true,
-          'LINDEX' => true,
-          'SCARD' => true,
-          'SISMEMBER' => true,
-          'SINTER' => true,
-          'SUNION' => true,
-          'SDIFF' => true,
-          'SMEMBERS' => true,
-          'SSCAN' => true,
-          'SRANDMEMBER' => true,
-          'ZRANGE' => true,
-          'ZREVRANGE' => true,
-          'ZRANGEBYSCORE' => true,
-          'ZREVRANGEBYSCORE' => true,
-          'ZCARD' => true,
-          'ZSCORE' => true,
-          'ZCOUNT' => true,
-          'ZRANK' => true,
-          'ZREVRANK' => true,
-          'ZSCAN' => true,
-          'HGET' => true,
-          'HMGET' => true,
-          'HEXISTS' => true,
-          'HLEN' => true,
-          'HKEYS' => true,
-          'HVALS' => true,
-          'HGETALL' => true,
-          'HSCAN' => true,
-          'PING' => true,
-          'AUTH' => true,
-          'SELECT' => true,
-          'ECHO' => true,
-          'QUIT' => true,
-          'OBJECT' => true,
-          'BITCOUNT' => true,
-          'TIME' => true,
-          'SORT' => true,
-      );
-      return array_key_exists(strtoupper($command), $readOnlyCommands);
-  }
+    /**
+     * To specify the node, the first argument will either be a key which maps to a slot which maps to a node; or it
+     * can be an array of ['host': port] for a node.
+     *
+     * @see flushDb
+     */
+    public function flushDbForNode($node, ...$args)
+    {
+        $this->connect();
+        return $this->redis->flushDb($node, ...$args);
+    }
+
+    /**
+     * To specify the node, the first argument will either be a key which maps to a slot which maps to a node; or it
+     * can be an array of ['host': port] for a node.
+     *
+     * @see ping
+     */
+    public function pingForNode($node, ...$args)
+    {
+        $this->connect();
+        $response = $this->redis->ping($node, ...$args);
+        if ($response === $this->redis) {
+            return $this;
+        }
+        if ($response) {
+            if ($response === true) {
+                $response = isset($message) ? $message : "PONG";
+            } elseif ($response[0] === '+') {
+                $response = substr($response, 1);
+            }
+        }
+        return $response;
+    }
+
+    /**
+     * To specify the node, the first argument will either be a key which maps to a slot which maps to a node; or it
+     * can be an array of ['host': port] for a node.
+     *
+     * @see save
+     */
+    public function saveForNode($node, ...$args)
+    {
+        $this->connect();
+        return $this->redis->save($node, ...$args);
+    }
 }
-

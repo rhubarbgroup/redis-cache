@@ -146,6 +146,7 @@ class Metrics {
 
         $info = $wp_object_cache->info();
 
+        // phpcs:disable WordPress.WP.AlternativeFunctions.rand_mt_rand
         $this->id = substr( md5( uniqid( strval( mt_rand() ), true ) ), 12 );
         $this->hits = $info->hits;
         $this->misses = $info->misses;

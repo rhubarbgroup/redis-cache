@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.5.4
+ * Version: 2.6.2
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -1153,11 +1153,16 @@ class WP_Object_Cache {
             if ( $this->is_predis() ) {
                 $connection = $this->redis->getConnection();
                 if ( $connection instanceof Predis\Connection\Replication\ReplicationInterface ) {
+                    $node = $connection->getCurrent();
                     $connection->switchToMaster();
                 }
             }
 
             $info = $this->redis->info();
+
+            if ( isset( $connection, $node ) ) {
+                $connection->switchTo($node);
+            }
         }
 
         if ( isset( $info['redis_version'] ) ) {
@@ -1874,6 +1879,7 @@ class WP_Object_Cache {
         $salt = $escape ? $this->glob_quote( $salt ) : $salt;
 
         return function () use ( $salt ) {
+            // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
             $script = <<<LUA
                 local cur = 0
                 local i = 0
@@ -2411,9 +2417,13 @@ LUA;
         }
 
         try {
-            $result = $this->parse_redis_response( $this->redis->incrBy( $derived_key, $offset ) );
+            $value = (int) $this->parse_redis_response( $this->redis->get( $derived_key ) );
+            $value += $offset;
+            $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
 
-            $this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
+            if ( $result ) {
+                $this->add_to_internal_cache( $derived_key, $value );
+            }
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
@@ -2468,9 +2478,13 @@ LUA;
         }
 
         try {
-            $result = $this->parse_redis_response( $this->redis->decrBy( $derived_key, $offset ) );
+            $value = (int) $this->parse_redis_response( $this->redis->get( $derived_key ) );
+            $value -= $offset;
+            $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
 
-            $this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
+            if ( $result ) {
+                $this->add_to_internal_cache( $derived_key, $value );
+            }
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
@@ -2505,24 +2519,26 @@ LUA;
      * @return void
      */
     public function stats() {
-        ?>
-    <p>
-        <strong>Redis Status:</strong>
-        <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?>
-        <br />
-        <strong>Redis Client:</strong>
-        <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
-        <br />
-        <strong>Cache Hits:</strong>
-        <?php echo (int) $this->cache_hits; ?>
-        <br />
-        <strong>Cache Misses:</strong>
-        <?php echo (int) $this->cache_misses; ?>
-        <br />
-        <strong>Cache Size:</strong>
-        <?php echo number_format_i18n( strlen( serialize( $this->cache ) ) / 1024, 2 ); ?> KB
-    </p>
-        <?php
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+    ?>
+        <p>
+            <strong>Redis Status:</strong>
+            <?php echo $this->redis_status() ? 'Connected' : 'Not connected'; ?>
+            <br />
+            <strong>Redis Client:</strong>
+            <?php echo $this->diagnostics['client'] ?: 'Unknown'; ?>
+            <br />
+            <strong>Cache Hits:</strong>
+            <?php echo (int) $this->cache_hits; ?>
+            <br />
+            <strong>Cache Misses:</strong>
+            <?php echo (int) $this->cache_misses; ?>
+            <br />
+            <strong>Cache Size:</strong>
+            <?php echo number_format_i18n( strlen( serialize( $this->cache ) ) / 1024, 2 ); ?> KB
+        </p>
+    <?php
+        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 
     /**
@@ -3022,7 +3038,9 @@ LUA;
             '<code>/wp-content/</code>'
         ) . "</p>\n";
 
+        // phpcs:disable WordPress.Security.EscapeOutput
         wp_die( $message );
+        // phpcs:enable
     }
 
     /**
@@ -3034,6 +3052,7 @@ LUA;
         $cluster = array_values( WP_REDIS_CLUSTER );
 
         foreach ( $cluster as $key => $server ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
             $components = parse_url( $server );
 
             if ( ! empty( $components['scheme'] ) ) {

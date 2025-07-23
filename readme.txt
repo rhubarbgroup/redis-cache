@@ -3,9 +3,9 @@ Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, object cache, caching, performance, relay
 Requires at least: 4.6
-Tested up to: 6.6
+Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 2.5.4
+Stable tag: 2.6.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -61,6 +61,27 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 
 == Changelog ==
 
+= 2.6.2 =
+
+- Fixed more PHP 7.2 heredoc parsing errors
+
+= 2.6.1 =
+
+- Fixed PHP 7.2 heredoc parsing error
+- Fixed call to undefined function `wp_rand()`
+
+= 2.6.0 =
+
+- Added `Primary Branch` header
+- Added `id` to script/style tags
+- Upgraded Predis to v2.4.0
+- Upgraded Credis to v1.17.0
+- Mark as tested up to 6.8
+- Adhere to Plugin Check (PCP)
+- Fixed (in|de)crement not working with serializer
+- Fixed rare replication mode issue
+- Fixed rare fatal error in diganostics
+
 = 2.5.4 =
 
 - Respect `WP_REDIS_SCHEME` for Cluster connections
@@ -88,8 +109,6 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 - Support rare PHP installations without `sockets` extension
 - Fixed rare fatal error in `show_error_and_die()`
 - Fixed deprecation notice warning in `sanitize_key_part()`
-
-== Changelog ==
 
 = 2.5.0 =
 

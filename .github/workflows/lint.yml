@@ -1,8 +1,6 @@
 name: Code style
 
-on:
-  pull_request: null
-  push: null
+on: push
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -55,3 +53,18 @@ jobs:
         with:
           eclint_args: |
             -exclude=dependencies/**/*
+
+  plugincheck:
+    name: Plugin Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run plugin check
+        uses: wordpress/plugin-check-action@v1
+        with:
+          exclude-directories: '.github,dependencies,tests'
+          exclude-files: '.editorconfig,.gitattributes,.gitignore,phpunit.xml.dist'
+          # exclude-checks: ''

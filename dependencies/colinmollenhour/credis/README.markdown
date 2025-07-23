@@ -26,6 +26,15 @@ Credis_Client also supports transparent command renaming. Write code using the o
 client will send the aliased commands to the server transparently. Specify the renamed commands using a prefix
 for md5, a callable function, individual aliases, or an array map of aliases. See "Redis Security":http://redis.io/topics/security for more info.
 
+## Contributing
+
+Please be sure to add tests to cover and new or changed functionality and run the PHP-CS-Fixer to format the code.
+
+```shell
+composer require "friendsofphp/php-cs-fixer:^3.13" --dev --no-update -n
+composer format
+```
+
 ## Supported connection string formats
 
 ```php
@@ -69,9 +78,8 @@ $particles = $redis->lrange('particles', 0, -1);
 
 ## Clustering your servers
 
-Credis also includes a way for developers to fully utilize the scalability of Redis with multiple servers and [consistent hashing](http://en.wikipedia.org/wiki/Consistent_hashing).
-Using the [Credis_Cluster](Cluster.php) class, you can use Credis the same way, except that keys will be hashed across multiple servers.
-Here is how to set up a cluster:
+Credis also includes a way for developers to fully utilize the [scalability of Redis cluster](https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/) by using Credis_Cluster which is an adapter for the RedisCluster class from [the Redis extension for PHP](https://github.com/phpredis/phpredis). This also works on [AWS ElastiCatch clusters](https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/Clusters.html).
+This feature requires the PHP extension for its functionality. Here is an example how to set up a cluster:
 
 ### Basic clustering example
 ```php
@@ -79,136 +87,31 @@ Here is how to set up a cluster:
 require 'Credis/Client.php';
 require 'Credis/Cluster.php';
 
-$cluster = new Credis_Cluster(array(
-    array('host' => '127.0.0.1', 'port' => 6379, 'alias'=>'alpha'),
-    array('host' => '127.0.0.1', 'port' => 6380, 'alias'=>'beta')
-));
-$cluster->set('key','value');
-echo "Alpha: ".$cluster->client('alpha')->get('key').PHP_EOL;
-echo "Beta: ".$cluster->client('beta')->get('key').PHP_EOL;
-```
-
-### Explicit definition of replicas
-
-The consistent hashing strategy stores keys on a so called "ring". The position of each key is relative to the position of its target node. The target node that has the closest position will be the selected node for that specific key.
-
-To avoid an uneven distribution of keys (especially on small clusters), it is common to duplicate target nodes. Based on the number of replicas, each target node will exist *n times* on the "ring".
-
-The following example explicitly sets the number of replicas to 5. Both Redis instances will have 5 copies. The default value is 128.
-
-```php
-<?php
-require 'Credis/Client.php';
-require 'Credis/Cluster.php';
-
 $cluster = new Credis_Cluster(
-    array(
-        array('host' => '127.0.0.1', 'port' => 6379, 'alias'=>'alpha'),
-        array('host' => '127.0.0.1', 'port' => 6380, 'alias'=>'beta')
-    ), 5
+    null, // $clusterName // Optional. Name from redis.ini. See https://github.com/phpredis/phpredis/blob/develop/cluster.md 
+    ['redis-node-1:6379', 'redis-node-2:6379', 'redis-node-3:6379'], // $clusterSeeds // don't need all nodes, as it pulls that info from one randomly
+    null, // $timeout
+    null, // $readTimeout
+    false, //$persistentBool
+    'TopSecretPassword', // $password
+    null, //$username
+    null //$tlsOptions
 );
 $cluster->set('key','value');
-echo "Alpha: ".$cluster->client('alpha')->get('key').PHP_EOL;
-echo "Beta: ".$cluster->client('beta')->get('key').PHP_EOL;
+echo "Get: ".$cluster->get('key').PHP_EOL;
 ```
+The Credis_Cluster constructor can either take a cluster name (from redis.ini) or a seed of cluster nodes (An array of strings which can be hostnames or IP address, followed by ports). RedisCluster gets cluster information from one of the seeds at random, so we don't need to pass it all the nodes, and don't need to worry if new nodes are added to cluster. 
+Many methods of Credis_Cluster are compatible with Credis_Client, but there are some differences.
 
-## Master/slave replication
+### Differences between the Credis_Client and Credis_Cluster classes
 
-The [Credis_Cluster](Cluster.php) class can also be used for [master/slave replication](http://redis.io/topics/replication).
-Credis_Cluster will automatically perform *read/write splitting* and send the write requests exclusively to the master server.
-Read requests will be handled by all servers unless you set the *write_only* flag to true in the connection string of the master server.
+* RedisCluster currently has limitations like not supporting pipeline or multi. This may be added in the future. See [here](https://github.com/phpredis/phpredis/blob/develop/cluster.md) for details.
+* Many methods require an additional parameter to specify which node to run on, and only run on that node, such as saveForNode(), flushDbForNode(), and pingForNode().  To specify the node, the first argument will either be a key which maps to a slot which maps to a node; or it can be an array of ['host': port] for a node.
+* Redis clusters do not support select(), as they only have a single database.
+* RedisCluster currently has buggy/broken behaviour for pSubscribe and script. This appears to be a bug and hopefully will be fixed in the future.
 
-### Redis server settings for master/slave replication
-
-Setting  up master/slave replication is simple and only requires adding the following line to the config of the slave server:
-
-```
-slaveof 127.0.0.1 6379
-```
-
-### Basic master/slave example
-```php
-<?php
-require 'Credis/Client.php';
-require 'Credis/Cluster.php';
-
-$cluster = new Credis_Cluster(array(
-    array('host' => '127.0.0.1', 'port' => 6379, 'alias'=>'master', 'master'=>true),
-    array('host' => '127.0.0.1', 'port' => 6380, 'alias'=>'slave')
-));
-$cluster->set('key','value');
-echo $cluster->get('key').PHP_EOL;
-echo $cluster->client('slave')->get('key').PHP_EOL;
-
-$cluster->client('master')->set('key2','value');
-echo $cluster->client('slave')->get('key2').PHP_EOL;
-```
-
-### No read on master
-
-The following example illustrates how to disable reading on the master server. This will cause the master server only to be used for writing.
-This should only happen when you have enough write calls to create a certain load on the master server. Otherwise this is an inefficient usage of server resources.
-
-```php
-<?php
-require 'Credis/Client.php';
-require 'Credis/Cluster.php';
-
-$cluster = new Credis_Cluster(array(
-    array('host' => '127.0.0.1', 'port' => 6379, 'alias'=>'master', 'master'=>true, 'write_only'=>true),
-    array('host' => '127.0.0.1', 'port' => 6380, 'alias'=>'slave')
-));
-$cluster->set('key','value');
-echo $cluster->get('key').PHP_EOL;
-```
-## Automatic failover with Sentinel
-
-[Redis Sentinel](http://redis.io/topics/sentinel) is a system that can monitor Redis instances. You register master servers and Sentinel automatically detects its slaves.
-
-When a master server dies, Sentinel will make sure one of the slaves is promoted to be the new master. This autofailover mechanism will also demote failed masters to avoid data inconsistency.
-
-The [Credis_Sentinel](Sentinel.php) class interacts with the *Redis Sentinel* instance(s) and acts as a proxy. Sentinel will automatically create [Credis_Cluster](Cluster.php) objects and will set the master and slaves accordingly.
-
-Sentinel uses the same protocol as Redis. In the example below we register the Sentinel server running on port *26379* and assign it to the [Credis_Sentinel](Sentinel.php) object.
-We then ask Sentinel the hostname and port for the master server known as *mymaster*. By calling the *getCluster* method we immediately get a [Credis_Cluster](Cluster.php) object that allows us to perform basic Redis calls.
-
-```php
-<?php
-require 'Credis/Client.php';
-require 'Credis/Cluster.php';
-require 'Credis/Sentinel.php';
-
-$sentinel = new Credis_Sentinel(new Credis_Client('127.0.0.1',26379));
-$masterAddress = $sentinel->getMasterAddressByName('mymaster');
-$cluster = $sentinel->getCluster('mymaster');
-
-echo 'Writing to master: '.$masterAddress[0].' on port '.$masterAddress[1].PHP_EOL;
-$cluster->set('key','value');
-echo $cluster->get('key').PHP_EOL;
-```
-### Additional parameters
-
-Because [Credis_Sentinel](Sentinel.php) will create [Credis_Cluster](Cluster.php) objects using the *"getCluster"* or *"createCluster"* methods, additional parameters can be passed.
-
-First of all there's the *"write_only"* flag. You can also define the selected database and the number of replicas. And finally there's a *"selectRandomSlave"* option.
-
-The *"selectRandomSlave"* flag is used in setups for masters that have multiple slaves. The Credis_Sentinel will either select one random slave to be used when creating the Credis_Cluster object or to pass them all and use the built-in hashing.
-
-The example below shows how to use these 3 options. It selects database 2, sets the number of replicas to 10, it doesn't select a random slave and doesn't allow reading on the master server.
-
-```php
-<?php
-require 'Credis/Client.php';
-require 'Credis/Cluster.php';
-require 'Credis/Sentinel.php';
-
-$sentinel = new Credis_Sentinel(new Credis_Client('127.0.0.1',26379));
-$cluster = $sentinel->getCluster('mymaster',2,10,false,true);
-$cluster->set('key','value');
-echo $cluster->get('key').PHP_EOL;
-```
-
-## About
+### Note about tlsOptions for Credis_Cluster
+Because of weirdness in the behaviour of the $tlsOptions parameter of Credis_Cluster, when a seed is defined with a URL that starts with tls:// or ssl://, if $tlsOptions is null, then it will still try to connect without TLS, and it will fail.  This odd behaviour is because the connections to the nodes are gotten from the CLUSTER SLOTS command and those hostnames or IP address do not get prefixed with tls:// or ssl://, and it uses the existance of $tlsOptions array for determining which type of connection to make.  If you need TLS connection, the $tlsOptions value MUST be either an empty array, or an array with values.  If you want the connections to be made without TLS, then the $tlsOptions array MUST be null.
 
 &copy; 2011 [Colin Mollenhour](http://colin.mollenhour.com)
 &copy; 2009 [Justin Poliey](http://justinpoliey.com)

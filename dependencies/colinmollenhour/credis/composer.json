@@ -10,8 +10,11 @@
 			"email": "colin@mollenhour.com"
 		}
 	],
+	"scripts": {
+		"format": "./vendor/bin/php-cs-fixer fix"
+	},
 	"require": {
-		"php": ">=5.6.0"
+		"php": ">=7.4.0"
 	},
 	"suggest": {
 		"ext-redis": "Improved performance for communicating with redis"

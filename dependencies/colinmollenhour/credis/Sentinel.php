@@ -1,13 +1,10 @@
 <?php
+
 /**
  * Credis_Sentinel
  *
  * Implements the Sentinel API as mentioned on http://redis.io/topics/sentinel.
  * Sentinel is aware of master and slave nodes in a cluster and returns instances of Credis_Client accordingly.
- *
- * The complexity of read/write splitting can also be abstract by calling the createCluster() method which returns a
- * Credis_Cluster object that contains both the master server and a random slave. Credis_Cluster takes care of the
- * read/write splitting
  *
  * @author Thijs Feryn <thijs@feryn.eu>
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -24,6 +21,7 @@ class Credis_Sentinel
 
     /**
      * Contains an active instance of Credis_Cluster per master pool
+     * @deprecated no longer used
      * @var array
      */
     protected $_cluster = array();
@@ -78,22 +76,22 @@ class Credis_Sentinel
      */
     protected $_redisVersion = null;
 
-  /**
+    /**
      * Connect with a Sentinel node. Sentinel will do the master and slave discovery
      *
      * @param Credis_Client $client
      * @param string $password (deprecated - use setClientPassword)
      * @throws CredisException
      */
-    public function __construct(Credis_Client $client, $password = NULL, $username = NULL)
+    public function __construct(Credis_Client $client, $password = null, $username = null)
     {
         $client->forceStandalone(); // SENTINEL command not currently supported by phpredis
-        $this->_client     = $client;
-        $this->_password   = $password;
-        $this->_username   = $username;
-        $this->_timeout    = NULL;
+        $this->_client = $client;
+        $this->_password = $password;
+        $this->_username = $username;
+        $this->_timeout = null;
         $this->_persistent = '';
-        $this->_db         = 0;
+        $this->_db = 0;
     }
 
     /**
@@ -150,8 +148,8 @@ class Credis_Sentinel
      */
     public function setClientUsername($username)
     {
-      $this->_username = $username;
-      return $this;
+        $this->_username = $username;
+        return $this;
     }
 
     /**
@@ -160,19 +158,19 @@ class Credis_Sentinel
      */
     public function setReplicaCommand($replicaCmd)
     {
-      $this->_replicaCmd = $replicaCmd;
-      return $this;
+        $this->_replicaCmd = $replicaCmd;
+        return $this;
     }
 
     public function detectRedisVersion()
     {
-      if ($this->_redisVersion !== null && $this->_replicaCmd !== null) {
-        return;
-      }
-      $serverInfo = $this->info('server');
-      $this->_redisVersion =  $serverInfo['redis_version'];
-      // Redis v7+ renames the replica command to 'replicas' instead of 'slaves'
-      $this->_replicaCmd = version_compare($this->_redisVersion, '7.0.0', '>=') ? 'replicas' : 'slaves';
+        if ($this->_redisVersion !== null && $this->_replicaCmd !== null) {
+            return;
+        }
+        $serverInfo = $this->info('server');
+        $this->_redisVersion = $serverInfo['redis_version'];
+        // Redis v7+ renames the replica command to 'replicas' instead of 'slaves'
+        $this->_replicaCmd = version_compare($this->_redisVersion, '7.0.0', '>=') ? 'replicas' : 'slaves';
     }
 
     /**
@@ -195,7 +193,7 @@ class Credis_Sentinel
     public function createMasterClient($name)
     {
         $master = $this->getMasterAddressByName($name);
-        if(!isset($master[0]) || !isset($master[1])){
+        if (!isset($master[0]) || !isset($master[1])) {
             throw new CredisException('Master not found');
         }
         return new Credis_Client($master[0], $master[1], $this->_timeout, $this->_persistent, $this->_db, $this->_password, $this->_username);
@@ -208,7 +206,7 @@ class Credis_Sentinel
      */
     public function getMasterClient($name)
     {
-        if(!isset($this->_master[$name])){
+        if (!isset($this->_master[$name])) {
             $this->_master[$name] = $this->createMasterClient($name);
         }
         return $this->_master[$name];
@@ -225,11 +223,11 @@ class Credis_Sentinel
     {
         $slaves = $this->slaves($name);
         $workingSlaves = array();
-        foreach($slaves as $slave) {
-            if(!isset($slave[9])){
+        foreach ($slaves as $slave) {
+            if (!isset($slave[9])) {
                 throw new CredisException('Can\' retrieve slave status');
             }
-            if(!strstr($slave[9],'s_down') && !strstr($slave[9],'disconnected')) {
+            if (!strstr($slave[9], 's_down') && !strstr($slave[9], 'disconnected')) {
                 $workingSlaves[] = new Credis_Client($slave[3], $slave[5], $this->_timeout, $this->_persistent, $this->_db, $this->_password, $this->_username);
             }
         }
@@ -243,78 +241,10 @@ class Credis_Sentinel
      */
     public function getSlaveClients($name)
     {
-        if(!isset($this->_slaves[$name])){
+        if (!isset($this->_slaves[$name])) {
             $this->_slaves[$name] = $this->createSlaveClients($name);
         }
         return $this->_slaves[$name];
-    }
-
-    /**
-     * Returns a Redis cluster object containing a random slave and the master
-     * When $selectRandomSlave is true, only one random slave is passed.
-     * When $selectRandomSlave is false, all clients are passed and hashing is applied in Credis_Cluster
-     * When $writeOnly is false, the master server will also be used for read commands.
-     * When $masterOnly is true, only the master server will also be used for both read and write commands. $writeOnly will be ignored and forced to set to false.
-     * @param string $name
-     * @param int $db
-     * @param int $replicas
-     * @param bool $selectRandomSlave
-     * @param bool $writeOnly
-     * @param bool $masterOnly
-     * @return Credis_Cluster
-     * @throws CredisException
-     * @deprecated
-     */
-    public function createCluster($name, $db=0, $replicas=128, $selectRandomSlave=true, $writeOnly=false, $masterOnly=false)
-    {
-        $clients = array();
-        $workingClients = array();
-        $master = $this->master($name);
-        if(strstr($master[9],'s_down') || strstr($master[9],'disconnected')) {
-            throw new CredisException('The master is down');
-        }
-        if (!$masterOnly) {
-            $slaves = $this->slaves($name);
-            foreach($slaves as $slave){
-                if(!strstr($slave[9],'s_down') && !strstr($slave[9],'disconnected')) {
-                    $workingClients[] =  array('host'=>$slave[3],'port'=>$slave[5],'master'=>false,'db'=>$db,'password'=>$this->_password);
-                }
-            }
-            if(count($workingClients)>0){
-                if($selectRandomSlave){
-                    if(!$writeOnly){
-                        $workingClients[] = array('host'=>$master[3],'port'=>$master[5],'master'=>false,'db'=>$db,'password'=>$this->_password);
-                    }
-                    $clients[] = $workingClients[rand(0,count($workingClients)-1)];
-                } else {
-                    $clients = $workingClients;
-                }
-            }
-        } else {
-            $writeOnly = false;
-        }
-        $clients[] = array('host'=>$master[3],'port'=>$master[5], 'db'=>$db ,'master'=>true,'write_only'=>$writeOnly,'password'=>$this->_password);
-        return new Credis_Cluster($clients,$replicas,$this->_standAlone);
-    }
-
-    /**
-     * If a Credis_Cluster object exists, return it. Otherwise create one and return it.
-     * @param string $name
-     * @param int $db
-     * @param int $replicas
-     * @param bool $selectRandomSlave
-     * @param bool $writeOnly
-     * @param bool $masterOnly
-     * @return Credis_Cluster
-     * @throws CredisException
-     * @deprecated
-     */
-    public function getCluster($name, $db=0, $replicas=128, $selectRandomSlave=true, $writeOnly=false, $masterOnly=false)
-    {
-        if(!isset($this->_cluster[$name])){
-            $this->_cluster[$name] = $this->createCluster($name, $db, $replicas, $selectRandomSlave, $writeOnly, $masterOnly);
-        }
-        return $this->_cluster[$name];
     }
 
     /**
@@ -325,8 +255,8 @@ class Credis_Sentinel
      */
     public function __call($name, $args)
     {
-        array_unshift($args,$name);
-        return call_user_func(array($this->_client,'sentinel'),$args);
+        array_unshift($args, $name);
+        return call_user_func(array($this->_client, 'sentinel'), $args);
     }
 
     /**
@@ -338,8 +268,7 @@ class Credis_Sentinel
      */
     public function info($section = null)
     {
-        if ($section)
-        {
+        if ($section) {
             return $this->_client->info($section);
         }
         return $this->_client->info();
@@ -362,9 +291,9 @@ class Credis_Sentinel
     public function slaves($name)
     {
         if ($this->_replicaCmd === null) {
-          $this->detectRedisVersion();
+            $this->detectRedisVersion();
         }
-        return $this->_client->sentinel($this->_replicaCmd,$name);
+        return $this->_client->sentinel($this->_replicaCmd, $name);
     }
 
     /**
@@ -374,7 +303,7 @@ class Credis_Sentinel
      */
     public function master($name)
     {
-        return $this->_client->sentinel('master',$name);
+        return $this->_client->sentinel('master', $name);
     }
 
     /**
@@ -384,7 +313,7 @@ class Credis_Sentinel
      */
     public function getMasterAddressByName($name)
     {
-        return $this->_client->sentinel('get-master-addr-by-name',$name);
+        return $this->_client->sentinel('get-master-addr-by-name', $name);
     }
 
     /**
@@ -403,7 +332,7 @@ class Credis_Sentinel
      */
     public function failover($name)
     {
-        return $this->_client->sentinel('failover',$name);
+        return $this->_client->sentinel('failover', $name);
     }
 
     /**

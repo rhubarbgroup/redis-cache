@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2023 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -97,6 +97,10 @@ class INFO extends RedisCommand
      */
     protected function parseRow($row)
     {
+        if (preg_match('/^module:name/', $row)) {
+            return $this->parseModuleRow($row);
+        }
+
         [$k, $v] = explode(':', $row, 2);
 
         if (preg_match('/^db\d+$/', $k)) {
@@ -123,5 +127,31 @@ class INFO extends RedisCommand
         }
 
         return $db;
+    }
+
+    /**
+     * Parsing module rows because of different format.
+     *
+     * @param  string $row
+     * @return array
+     */
+    protected function parseModuleRow(string $row): array
+    {
+        [$moduleKeyword, $moduleData] = explode(':', $row);
+        $explodedData = explode(',', $moduleData);
+        $parsedData = [];
+
+        foreach ($explodedData as $moduleDataRow) {
+            [$k, $v] = explode('=', $moduleDataRow);
+
+            if ($k === 'name') {
+                $parsedData[0] = $v;
+                continue;
+            }
+
+            $parsedData[1][$k] = $v;
+        }
+
+        return $parsedData;
     }
 }
