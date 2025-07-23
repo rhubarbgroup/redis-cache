@@ -821,14 +821,13 @@ class Plugin {
         ]);
     }
 
-    // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
-
     /**
      * Returns the admin-bar <style> tag.
      *
      * @return string
      */
     protected function admin_bar_style() {
+        // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
         return <<<HTML
             <style id="redis-cache-admin-bar-style">
                 #wpadminbar ul li.redis-cache-error {
@@ -899,7 +898,6 @@ HTML;
             </script>
 HTML;
     }
-    // phpcs:enable Squiz.PHP.Heredoc.NotAllowed
 
     /**
      * Executes admin actions

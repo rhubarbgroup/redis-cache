@@ -1,8 +1,6 @@
 name: Code style
 
-on:
-  pull_request: null
-  push: null
+on: push
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
