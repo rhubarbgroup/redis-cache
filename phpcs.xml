@@ -48,4 +48,8 @@
     </rule>
 
     <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
+
+    <rule ref="Squiz.PHP.Heredoc.NotAllowed">
+        <exclude-pattern>*.php</exclude-pattern>
+    </rule>
 </ruleset>
