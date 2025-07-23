@@ -827,6 +827,7 @@ class Plugin {
      * @return string
      */
     protected function admin_bar_style() {
+        // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
         return <<<HTML
             <style id="redis-cache-admin-bar-style">
                 #wpadminbar ul li.redis-cache-error {

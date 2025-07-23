@@ -1877,6 +1877,7 @@ class WP_Object_Cache {
         $salt = $escape ? $this->glob_quote( $salt ) : $salt;
 
         return function () use ( $salt ) {
+            // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
             $script = <<<LUA
                 local cur = 0
                 local i = 0
