@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Use `E_USER_DEPRECATED` instead of `_doing_it_wrong()` in drop-in
+- Switch to `E_USER_DEPRECATED` instead of `_doing_it_wrong()` in drop-in
+- Fixed `undefined constant` error when using Credis
 
 ## 2.6.2
 
