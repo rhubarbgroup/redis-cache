@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.3
+
+- Switch to `E_USER_DEPRECATED` instead of `_doing_it_wrong()` in drop-in
+- Fixed `undefined constant` error when using Credis (deprecated) as client
+
 ## 2.6.2
 
 - Fixed more PHP 7.2 heredoc parsing errors
