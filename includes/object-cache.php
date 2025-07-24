@@ -518,10 +518,8 @@ class WP_Object_Cache {
 
         $this->cache_group_types();
 
-        if ( function_exists( '_doing_it_wrong' ) ) {
-            if ( defined( 'WP_REDIS_TRACE' ) && WP_REDIS_TRACE ) {
-                _doing_it_wrong( __FUNCTION__ , 'Tracing feature was removed.' , '2.1.2' );
-            }
+        if ( defined( 'WP_REDIS_TRACE' ) && WP_REDIS_TRACE ) {
+            trigger_error('Tracing feature was removed', E_USER_DEPRECATED);
         }
 
         $client = $this->determine_client();
@@ -758,9 +756,7 @@ class WP_Object_Cache {
         if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
             $this->redis->setOption( Redis::OPT_SERIALIZER, WP_REDIS_SERIALIZER );
 
-            if ( function_exists( '_doing_it_wrong' ) ) {
-                _doing_it_wrong( __FUNCTION__ , 'The `WP_REDIS_SERIALIZER` configuration constant has been deprecated, use `WP_REDIS_IGBINARY` instead.', '2.3.1' );
-            }
+            trigger_error('The `WP_REDIS_SERIALIZER` configuration constant has been deprecated in favor of `WP_REDIS_IGBINARY`', E_USER_DEPRECATED);
         }
     }
 
@@ -834,9 +830,7 @@ class WP_Object_Cache {
         if ( defined( 'WP_REDIS_SERIALIZER' ) && ! empty( WP_REDIS_SERIALIZER ) ) {
             $this->redis->setOption( Relay\Relay::OPT_SERIALIZER, WP_REDIS_SERIALIZER );
 
-            if ( function_exists( '_doing_it_wrong' ) ) {
-                _doing_it_wrong( __FUNCTION__ , 'The `WP_REDIS_SERIALIZER` configuration constant has been deprecated, use `WP_REDIS_IGBINARY` instead.', '2.3.1' );
-            }
+            trigger_error('The `WP_REDIS_SERIALIZER` configuration constant has been deprecated in favor of `WP_REDIS_IGBINARY`', E_USER_DEPRECATED);
         }
     }
 
@@ -948,11 +942,11 @@ class WP_Object_Cache {
      * @param  array $parameters Connection parameters built by the `build_parameters` method.
      * @throws \Exception If the Credis library was not found or is unreadable.
      * @throws \Exception If redis sharding should be configured as Credis does not support sharding.
-     * @throws \Exception If more than one seninel is configured as Credis does not support multiple sentinel servers.
+     * @throws \Exception If more than one sentinel is configured as Credis does not support multiple sentinel servers.
      * @return void
      */
     protected function connect_using_credis( $parameters ) {
-        _doing_it_wrong( __FUNCTION__ , 'Credis support will be removed in future versions.' , '2.0.26' );
+        trigger_error( 'Credis support is deprecated and will be removed in the future', E_USER_DEPRECATED );
 
         $client = 'Credis';
 
@@ -1091,7 +1085,7 @@ class WP_Object_Cache {
      * @return void
      */
     protected function connect_using_hhvm( $parameters ) {
-        _doing_it_wrong( __FUNCTION__ , 'HHVM support will be removed in future versions.' , '2.0.26' );
+        trigger_error('HHVM support is deprecated and will be removed in the future', E_USER_DEPRECATED);
 
         $this->redis = new Redis();
 
