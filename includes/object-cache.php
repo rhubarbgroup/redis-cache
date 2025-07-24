@@ -1073,7 +1073,7 @@ class WP_Object_Cache {
         }
 
         $this->diagnostics = array_merge(
-            [ 'client' => sprintf( '%s (v%s)', $client, Credis_Client::VERSION ) ],
+            [ 'client' => sprintf( '%s (%s)', $client, 'bundled' ) ],
             $args
         );
     }
