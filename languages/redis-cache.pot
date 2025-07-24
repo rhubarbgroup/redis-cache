@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Redis Object Cache 2.6.0\n"
+"Project-Id-Version: Redis Object Cache 2.6.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/redis-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-22T15:52:01+00:00\n"
+"POT-Creation-Date: 2025-07-24T21:29:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: redis-cache\n"
@@ -167,115 +167,115 @@ msgstr ""
 msgid "Flushing cache..."
 msgstr ""
 
-#: includes/class-plugin.php:930
-#: includes/class-plugin.php:1084
+#: includes/class-plugin.php:929
+#: includes/class-plugin.php:1083
 msgid "Object cache flushed."
 msgstr ""
 
-#: includes/class-plugin.php:936
-#: includes/class-plugin.php:1086
+#: includes/class-plugin.php:935
+#: includes/class-plugin.php:1085
 msgid "Object cache could not be flushed."
 msgstr ""
 
-#: includes/class-plugin.php:968
+#: includes/class-plugin.php:967
 #: includes/cli/class-commands.php:81
 msgid "Object cache enabled."
 msgstr ""
 
-#: includes/class-plugin.php:974
+#: includes/class-plugin.php:973
 #: includes/cli/class-commands.php:83
 msgid "Object cache could not be enabled."
 msgstr ""
 
-#: includes/class-plugin.php:998
+#: includes/class-plugin.php:997
 #: includes/cli/class-commands.php:122
 msgid "Object cache disabled."
 msgstr ""
 
-#: includes/class-plugin.php:1004
+#: includes/class-plugin.php:1003
 #: includes/cli/class-commands.php:124
 msgid "Object cache could not be disabled."
 msgstr ""
 
-#: includes/class-plugin.php:1029
+#: includes/class-plugin.php:1028
 #: includes/cli/class-commands.php:163
 msgid "Updated object cache drop-in and enabled Redis object cache."
 msgstr ""
 
-#: includes/class-plugin.php:1035
+#: includes/class-plugin.php:1034
 #: includes/cli/class-commands.php:165
 msgid "Object cache drop-in could not be updated."
 msgstr ""
 
-#: includes/class-plugin.php:1082
+#: includes/class-plugin.php:1081
 msgid "Invalid Nonce."
 msgstr ""
 
 #. translators: %s = Action link to update the drop-in.
-#: includes/class-plugin.php:1108
+#: includes/class-plugin.php:1107
 msgid "The Object Cache Pro plugin appears to be installed and should be used. You can safely <a href=\"%s\">uninstall Redis Object Cache</a>."
 msgstr ""
 
-#: includes/class-plugin.php:1140
+#: includes/class-plugin.php:1139
 msgid "Object Cache Pro!"
 msgstr ""
 
 #. translators: %s = Link to the plugin setting screen.
-#: includes/class-plugin.php:1143
+#: includes/class-plugin.php:1142
 msgid "A <u>business class</u> object cache backend. Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it. <a href=\"%s\">Learn more »</a>"
 msgstr ""
 
-#: includes/class-plugin.php:1188
+#: includes/class-plugin.php:1187
 msgid "Object Cache Pro + WooCommerce = ❤️"
 msgstr ""
 
 #. translators: %s = Link to the plugin's settings screen.
-#: includes/class-plugin.php:1191
+#: includes/class-plugin.php:1190
 msgid "Object Cache Pro is a <u>business class</u> object cache that’s highly-optimized for WooCommerce to provide true reliability, peace of mind and faster load times for your store. <a style=\"color: #bb77ae;\" href=\"%s\">Learn more »</a>"
 msgstr ""
 
 #. translators: %1$d = number of objects. %2$s = human-readable size of cache. %3$s = name of the used client.
-#: includes/class-plugin.php:1261
+#: includes/class-plugin.php:1260
 msgid "Retrieved %1$d objects (%2$s) from Redis using %3$s."
 msgstr ""
 
-#: includes/class-plugin.php:1376
+#: includes/class-plugin.php:1375
 msgid "File modifications are not allowed."
 msgstr ""
 
-#: includes/class-plugin.php:1380
+#: includes/class-plugin.php:1379
 msgid "Could not initialize filesystem."
 msgstr ""
 
-#: includes/class-plugin.php:1391
+#: includes/class-plugin.php:1390
 msgid "Object cache drop-in is not writable."
 msgstr ""
 
-#: includes/class-plugin.php:1401
+#: includes/class-plugin.php:1400
 msgid "Object cache file doesn’t exist."
 msgstr ""
 
-#: includes/class-plugin.php:1406
+#: includes/class-plugin.php:1405
 msgid "Test file exists, but couldn’t be deleted."
 msgstr ""
 
-#: includes/class-plugin.php:1411
+#: includes/class-plugin.php:1410
 msgid "Content directory is not writable."
 msgstr ""
 
-#: includes/class-plugin.php:1415
+#: includes/class-plugin.php:1414
 msgid "Failed to copy test file."
 msgstr ""
 
-#: includes/class-plugin.php:1419
+#: includes/class-plugin.php:1418
 msgid "Copied test file doesn’t exist."
 msgstr ""
 
-#: includes/class-plugin.php:1425
+#: includes/class-plugin.php:1424
 msgid "Couldn’t verify test file contents."
 msgstr ""
 
-#: includes/class-plugin.php:1429
+#: includes/class-plugin.php:1428
 msgid "Copied test file couldn’t be deleted."
 msgstr ""
 
@@ -314,30 +314,30 @@ msgstr ""
 msgid "Object cache drop-in could not be updated. Redis server is unreachable: %s"
 msgstr ""
 
-#: includes/object-cache.php:3010
+#: includes/object-cache.php:3005
 msgid "Error establishing a Redis connection"
 msgstr ""
 
 #. translators: %s = Formatted wp-config.php file name.
-#: includes/object-cache.php:3017
+#: includes/object-cache.php:3012
 msgid "WordPress is unable to establish a connection to Redis. This means that the connection information in your %s file are incorrect, or that the Redis server is not reachable."
 msgstr ""
 
-#: includes/object-cache.php:3022
+#: includes/object-cache.php:3017
 msgid "Is the correct Redis host and port set?"
 msgstr ""
 
-#: includes/object-cache.php:3023
+#: includes/object-cache.php:3018
 msgid "Is the Redis server running?"
 msgstr ""
 
 #. translators: %s = Link to installation instructions.
-#: includes/object-cache.php:3028
+#: includes/object-cache.php:3023
 msgid "If you need help, please read the <a href=\"%s\">installation instructions</a>."
 msgstr ""
 
 #. translators: %1$s = Formatted object-cache.php file name, %2$s = Formatted wp-content directory name.
-#: includes/object-cache.php:3035
+#: includes/object-cache.php:3030
 msgid "To disable Redis, delete the %1$s file in the %2$s directory."
 msgstr ""
 
