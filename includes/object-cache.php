@@ -2574,7 +2574,6 @@ LUA;
      *
      * @param   string $key        The key under which to store the value, pre-sanitized.
      * @param   string $group      The group value appended to the $key, pre-sanitized.
-     *
      * @return  string
      */
     public function build_key( $key, $group = 'default' ) {
@@ -2593,7 +2592,6 @@ LUA;
      *
      * @param   string $key        The key under which to store the value, pre-sanitized.
      * @param   string $group      The group value appended to the $key, pre-sanitized.
-     *
      * @return  string
      */
     public function fast_build_key( $key, $group = 'default' ) {
@@ -2604,7 +2602,7 @@ LUA;
         $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : '';
 
         $prefix = $this->is_global_group( $group ) ? $this->global_prefix : $this->blog_prefix;
-        $prefix = trim( $prefix, '_-:$' );
+        $prefix = trim( (string) $prefix, '_-:$' );
 
         return "{$salt}{$prefix}:{$group}:{$key}";
     }
@@ -2612,7 +2610,7 @@ LUA;
     /**
      * Replaces the set group separator by another one
      *
-     * @param string $part   The string to sanitize.
+     * @param  string $part  The string to sanitize.
      * @return string        Sanitized string.
      */
     protected function sanitize_key_part( $part ) {
