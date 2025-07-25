@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Prevent rare deprecation warning when setting up new site
+
 ## 2.6.3
 
 - Switch to `E_USER_DEPRECATED` instead of `_doing_it_wrong()` in drop-in
