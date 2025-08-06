@@ -4,6 +4,7 @@
 
 - Prevent rare deprecation warning when setting up new site
 - Prevent PHP 8.2 deprecation in `wp-activate.php`
+- Fixed (in|de)crement not working with igbinary
 
 ## 2.6.3
 
