@@ -2416,6 +2416,7 @@ LUA;
 
             if ( $result ) {
                 $this->add_to_internal_cache( $derived_key, $value );
+                $result = $value;
             }
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
@@ -2477,6 +2478,7 @@ LUA;
 
             if ( $result ) {
                 $this->add_to_internal_cache( $derived_key, $value );
+                $result = $value;
             }
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
