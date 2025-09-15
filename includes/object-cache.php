@@ -50,17 +50,17 @@ function wp_cache_supports( $feature ) {
  * If the specified key already exists, the value is not stored and the function
  * returns false.
  *
- * @param string $key        The key under which to store the value.
- * @param mixed  $value      The value to store.
- * @param string $group      The group value appended to the $key.
- * @param int    $expiration The expiration time, defaults to 0.
+ * @param string $key    The key under which to store the value.
+ * @param mixed  $data   The value to store.
+ * @param string $group  The group value appended to the $key.
+ * @param int    $expire The expiration time, defaults to 0.
  *
- * @return bool              Returns TRUE on success or FALSE on failure.
+ * @return bool          Returns TRUE on success or FALSE on failure.
  */
-function wp_cache_add( $key, $value, $group = '', $expiration = 0 ) {
+function wp_cache_add( $key, $data, $group = '', $expire = 0 ) {
     global $wp_object_cache;
 
-    return $wp_object_cache->add( $key, $value, $group, $expiration );
+    return $wp_object_cache->add( $key, $data, $group, $expire );
 }
 
 /**
@@ -263,17 +263,17 @@ function wp_cache_init() {
  * This method is similar to "add"; however, is does not successfully set a value if
  * the object's key is not already set in cache.
  *
- * @param string $key        The key under which to store the value.
- * @param mixed  $value      The value to store.
- * @param string $group      The group value appended to the $key.
- * @param int    $expiration The expiration time, defaults to 0.
+ * @param string $key    The key under which to store the value.
+ * @param mixed  $data   The value to store.
+ * @param string $group  The group value appended to the $key.
+ * @param int    $expire The expiration time, defaults to 0.
  *
- * @return bool              Returns TRUE on success or FALSE on failure.
+ * @return bool          Returns TRUE on success or FALSE on failure.
  */
-function wp_cache_replace( $key, $value, $group = '', $expiration = 0 ) {
+function wp_cache_replace( $key, $data, $group = '', $expire = 0 ) {
     global $wp_object_cache;
 
-    return $wp_object_cache->replace( $key, $value, $group, $expiration );
+    return $wp_object_cache->replace( $key, $data, $group, $expire );
 }
 
 /**
@@ -281,17 +281,17 @@ function wp_cache_replace( $key, $value, $group = '', $expiration = 0 ) {
  *
  * The value is set whether or not this key already exists in Redis.
  *
- * @param string $key        The key under which to store the value.
- * @param mixed  $value      The value to store.
- * @param string $group      The group value appended to the $key.
- * @param int    $expiration The expiration time, defaults to 0.
+ * @param string $key    The key under which to store the value.
+ * @param mixed  $data   The value to store.
+ * @param string $group  The group value appended to the $key.
+ * @param int    $expire The expiration time, defaults to 0.
  *
- * @return bool              Returns TRUE on success or FALSE on failure.
+ * @return bool          Returns TRUE on success or FALSE on failure.
  */
-function wp_cache_set( $key, $value, $group = '', $expiration = 0 ) {
+function wp_cache_set( $key, $data, $group = '', $expire = 0 ) {
     global $wp_object_cache;
 
-    return $wp_object_cache->set( $key, $value, $group, $expiration );
+    return $wp_object_cache->set( $key, $data, $group, $expire );
 }
 
 /**
@@ -315,14 +315,14 @@ function wp_cache_set_multiple( array $data, $group = '', $expire = 0 ) {
  *
  * This changes the blog id used to create keys in blog specific groups.
  *
- * @param  int $_blog_id The blog ID.
+ * @param  int $blog_id The blog ID.
  *
  * @return bool
  */
-function wp_cache_switch_to_blog( $_blog_id ) {
+function wp_cache_switch_to_blog( $blog_id ) {
     global $wp_object_cache;
 
-    return $wp_object_cache->switch_to_blog( $_blog_id );
+    return $wp_object_cache->switch_to_blog( $blog_id );
 }
 
 /**
