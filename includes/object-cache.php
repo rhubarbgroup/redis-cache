@@ -385,6 +385,13 @@ class WP_Object_Cache {
     private $fail_gracefully = true;
 
     /**
+     * Whether to use igbinary serialization.
+     *
+     * @var bool
+     */
+    private $use_igbinary = false;
+
+    /**
      * Holds the non-Redis objects.
      *
      * @var array
@@ -518,6 +525,8 @@ class WP_Object_Cache {
         }
 
         $this->cache_group_types();
+
+        $this->use_igbinary = defined( 'WP_REDIS_IGBINARY' ) && WP_REDIS_IGBINARY && extension_loaded( 'igbinary' );
 
         $client = $this->determine_client();
         $parameters = $this->build_parameters();
@@ -2343,7 +2352,6 @@ LUA;
 
         try {
             $result = $this->parse_redis_response( $this->redis->incrBy( $derived_key, $offset ) );
-
             $this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
@@ -2728,7 +2736,7 @@ LUA;
      * @return mixed            Unserialized data can be any type.
      */
     protected function maybe_unserialize( $original ) {
-        if ( defined( 'WP_REDIS_IGBINARY' ) && WP_REDIS_IGBINARY && function_exists( 'igbinary_unserialize' ) ) {
+        if ( $this->use_igbinary ) {
             return igbinary_unserialize( $original );
         }
 
@@ -2754,7 +2762,7 @@ LUA;
             $data = clone $data;
         }
 
-        if ( defined( 'WP_REDIS_IGBINARY' ) && WP_REDIS_IGBINARY && function_exists( 'igbinary_serialize' ) ) {
+        if ( $this->use_igbinary ) {
             return igbinary_serialize( $data );
         }
 
