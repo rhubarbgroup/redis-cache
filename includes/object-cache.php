@@ -2351,8 +2351,19 @@ LUA;
         }
 
         try {
-            $result = $this->parse_redis_response( $this->redis->incrBy( $derived_key, $offset ) );
-            $this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
+            if ( $this->use_igbinary ) {
+                $value = (int) $this->parse_redis_response( $this->maybe_unserialize( $this->redis->get( $derived_key ) ) );
+                $value += $offset;
+                $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
+
+                if ( $result ) {
+                    $this->add_to_internal_cache( $derived_key, $value );
+                    $result = $value;
+                }
+            } else {
+                $result = $this->parse_redis_response( $this->redis->incrBy( $derived_key, $offset ) );
+                $this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
+            }
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
@@ -2407,9 +2418,19 @@ LUA;
         }
 
         try {
-            $result = $this->parse_redis_response( $this->redis->decrBy( $derived_key, $offset ) );
+            if ( $this->use_igbinary ) {
+                $value = (int) $this->parse_redis_response( $this->maybe_unserialize( $this->redis->get( $derived_key ) ) );
+                $value -= $offset;
+                $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
 
-            $this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
+                if ( $result ) {
+                    $this->add_to_internal_cache( $derived_key, $value );
+                    $result = $value;
+                }
+            } else {
+                $result = $this->parse_redis_response( $this->redis->decrBy( $derived_key, $offset ) );
+                $this->add_to_internal_cache( $derived_key, (int) $this->redis->get( $derived_key ) );
+            }
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
 
