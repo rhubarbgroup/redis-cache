@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Changed `wp_cache_*()` function signatures to match core
+- Revert (in|de)crement changes from v2.6.0
 
 ## 2.6.5
 
