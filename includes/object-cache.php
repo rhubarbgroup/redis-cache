@@ -519,18 +519,11 @@ class WP_Object_Cache {
 
         $this->cache_group_types();
 
-        if ( defined( 'WP_REDIS_TRACE' ) && WP_REDIS_TRACE ) {
-            trigger_error('Tracing feature was removed', E_USER_DEPRECATED);
-        }
-
         $client = $this->determine_client();
         $parameters = $this->build_parameters();
 
         try {
             switch ( $client ) {
-                case 'hhvm':
-                    $this->connect_using_hhvm( $parameters );
-                    break;
                 case 'phpredis':
                     $this->connect_using_phpredis( $parameters );
                     break;
@@ -600,7 +593,7 @@ class WP_Object_Cache {
         $client = 'predis';
 
         if ( class_exists( 'Redis' ) ) {
-            $client = defined( 'HHVM_VERSION' ) ? 'hhvm' : 'phpredis';
+            $client = 'phpredis';
         }
 
         if ( defined( 'WP_REDIS_CLIENT' ) ) {
@@ -1064,55 +1057,6 @@ class WP_Object_Cache {
         $this->diagnostics = array_merge(
             [ 'client' => sprintf( '%s (%s)', $client, 'bundled' ) ],
             $args
-        );
-    }
-
-    /**
-     * Connect to Redis using HHVM's Redis extension.
-     *
-     * @param  array $parameters Connection parameters built by the `build_parameters` method.
-     * @return void
-     */
-    protected function connect_using_hhvm( $parameters ) {
-        trigger_error('HHVM support is deprecated and will be removed in the future', E_USER_DEPRECATED);
-
-        $this->redis = new Redis();
-
-        // Adjust host and port if the scheme is `unix`.
-        if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
-            $parameters['host'] = 'unix://' . $parameters['path'];
-            $parameters['port'] = 0;
-        }
-
-        $this->redis->connect(
-            $parameters['host'],
-            $parameters['port'],
-            $parameters['timeout'],
-            null,
-            $parameters['retry_interval']
-        );
-
-        if ( $parameters['read_timeout'] ) {
-            $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $parameters['read_timeout'] );
-        }
-
-        if ( isset( $parameters['password'] ) ) {
-            $this->redis->auth( $parameters['password'] );
-        }
-
-        if ( isset( $parameters['database'] ) ) {
-            if ( ctype_digit( (string) $parameters['database'] ) ) {
-                $parameters['database'] = (int) $parameters['database'];
-            }
-
-            if ( $parameters['database'] ) {
-                $this->redis->select( $parameters['database'] );
-            }
-        }
-
-        $this->diagnostics = array_merge(
-            [ 'client' => sprintf( 'HHVM Extension (v%s)', HHVM_VERSION ) ],
-            $parameters
         );
     }
 

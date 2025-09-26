@@ -7,7 +7,6 @@ if (! extension_loaded('relay')) {
     exit(2);
 }
 
-const HHVM_VERSION = '0.0.0';
 const WPINC = 'wp-includes';
 const WP_CONTENT_DIR = './';
 const WP_DEBUG_DISPLAY = true;

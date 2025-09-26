@@ -46,10 +46,6 @@ if ( defined( 'PHP_VERSION' ) ) {
     $info['PHP Version'] = PHP_VERSION;
 }
 
-if ( defined( 'HHVM_VERSION' ) ) {
-    $info['HHVM Version'] = HHVM_VERSION;
-}
-
 $info['Plugin Version'] = WP_REDIS_VERSION;
 $info['Redis Version'] = $roc->get_redis_version() ?: 'Unknown';
 
