@@ -2356,7 +2356,7 @@ LUA;
                 $value += $offset;
                 $serialized = $this->maybe_serialize( $value );
 
-                if ( $pttl = $this->redis->pttl( $derived_key ) ) {
+                if ( ($pttl = $this->redis->pttl( $derived_key )) > 0 ) {
                     $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, [ 'px' => $pttl ] ) );
                 } else {
                     $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized ) );
@@ -2429,7 +2429,7 @@ LUA;
                 $value -= $offset;
                 $serialized = $this->maybe_serialize( $value );
 
-                if ( $pttl = $this->redis->pttl( $derived_key ) ) {
+                if ( ($pttl = $this->redis->pttl( $derived_key )) > 0 ) {
                     $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, [ 'px' => $pttl ] ) );
                 } else {
                     $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized ) );
