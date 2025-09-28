@@ -1,8 +1,8 @@
 # Changelog
 
 ## Unreleased
-- Fixed (in|de)crement calls not keeping key TTL
-- Changed `wp_cache_*()` function signatures to match core
+- Fixed (in|de)crement calls removing key TTL
+- Updated `wp_cache_*()` function signatures to match core
 - Removed deprecated HHVM support
 - Removed deprecated `WP_REDIS_SERIALIZER` constant
 
