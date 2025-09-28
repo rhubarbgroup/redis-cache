@@ -2354,7 +2354,13 @@ LUA;
             if ( $this->use_igbinary ) {
                 $value = (int) $this->parse_redis_response( $this->maybe_unserialize( $this->redis->get( $derived_key ) ) );
                 $value += $offset;
-                $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
+                $serialized = $this->maybe_serialize( $value );
+
+                if ( $pttl = $this->redis->pttl( $derived_key ) ) {
+                    $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, [ 'px' => $pttl ] ) );
+                } else {
+                    $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized ) );
+                }
 
                 if ( $result ) {
                     $this->add_to_internal_cache( $derived_key, $value );
@@ -2421,7 +2427,13 @@ LUA;
             if ( $this->use_igbinary ) {
                 $value = (int) $this->parse_redis_response( $this->maybe_unserialize( $this->redis->get( $derived_key ) ) );
                 $value -= $offset;
-                $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
+                $serialized = $this->maybe_serialize( $value );
+
+                if ( $pttl = $this->redis->pttl( $derived_key ) ) {
+                    $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, [ 'px' => $pttl ] ) );
+                } else {
+                    $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized ) );
+                }
 
                 if ( $result ) {
                     $this->add_to_internal_cache( $derived_key, $value );
