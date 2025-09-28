@@ -2357,7 +2357,11 @@ LUA;
                 $serialized = $this->maybe_serialize( $value );
 
                 if ( ($pttl = $this->redis->pttl( $derived_key )) > 0 ) {
-                    $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, [ 'px' => $pttl ] ) );
+                    if ( $this->is_predis() ) {
+                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, 'px', $pttl ) );
+                    } else {
+                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, [ 'px' => $pttl ] ) );
+                    }
                 } else {
                     $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized ) );
                 }
@@ -2430,7 +2434,11 @@ LUA;
                 $serialized = $this->maybe_serialize( $value );
 
                 if ( ($pttl = $this->redis->pttl( $derived_key )) > 0 ) {
-                    $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, [ 'px' => $pttl ] ) );
+                    if ( $this->is_predis() ) {
+                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, 'px', $pttl ) );
+                    } else {
+                        $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, [ 'px' => $pttl ] ) );
+                    }
                 } else {
                     $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized ) );
                 }
