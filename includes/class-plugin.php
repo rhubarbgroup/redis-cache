@@ -1210,10 +1210,10 @@ HTML;
      * Delete all transients if the cache was enabled successfully.
      * Callback for `redis_object_cache_enable` action.
      *
-     * @param bool $result
+     * @param bool $should_delete
      * @return void
      */
-    public function maybe_delete_transients( $result ) {
+    public function maybe_delete_transients( $should_delete ) {
         global $wpdb;
 
         if ( ! $result ) {
