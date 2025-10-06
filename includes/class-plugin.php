@@ -1207,7 +1207,8 @@ HTML;
     }
 
     /**
-     * Registers all hooks associated with the shutdown hook
+     * Delete all transients if the cache was enabled successfully.
+     * Callback for `redis_object_cache_enable` action.
      *
      * @param bool $result
      * @return void
@@ -1215,7 +1216,9 @@ HTML;
     public function maybe_delete_transients( $result ) {
         global $wpdb;
 
-        if ( ! $result ) { return; }
+        if ( ! $result ) {
+            return;
+        }
 
         $wpdb->query( $wpdb->prepare(
             "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
