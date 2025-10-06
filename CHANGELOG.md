@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Delete transients when cache is enabled
+
 ## 2.7.0
 
 - Preserve key TTL when calling (in|de)crement methods

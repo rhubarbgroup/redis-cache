@@ -77,6 +77,14 @@ class Commands extends WP_CLI_Command {
                 FS_CHMOD_FILE
             );
 
+            /**
+             * Fires on cache enable event
+             *
+             * @since 1.3.5
+             * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.
+             */
+            do_action( 'redis_object_cache_enable', $result );
+
             if ( $copy ) {
                 WP_CLI::success( __( 'Object cache enabled.', 'redis-cache' ) );
             } else {

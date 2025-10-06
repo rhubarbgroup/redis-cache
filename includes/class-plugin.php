@@ -119,6 +119,8 @@ class Plugin {
 
         add_action( 'wp_head', [ $this, 'register_shutdown_hooks' ] );
 
+        add_action( 'redis_object_cache_enable', [ $this, 'maybe_delete_transients' ] );
+
         add_filter( 'qm/collectors', [ $this, 'register_qm_collector' ], 25 );
         add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
 
@@ -1201,6 +1203,30 @@ HTML;
     public function register_shutdown_hooks() {
         if ( ! defined( 'WP_REDIS_DISABLE_COMMENT' ) || ! WP_REDIS_DISABLE_COMMENT ) {
             add_action( 'shutdown', [ $this, 'maybe_print_comment' ], 0 );
+        }
+    }
+
+    /**
+     * Registers all hooks associated with the shutdown hook
+     *
+     * @param bool $result
+     * @return void
+     */
+    public function maybe_delete_transients( $result ) {
+        global $wpdb;
+
+        if ( ! $result ) { return; }
+
+        $wpdb->query( $wpdb->prepare(
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+            '_transient_%',
+            '_site_transient_%'
+        ) );
+
+        if ( is_multisite() ) {
+            $wpdb->query( $wpdb->prepare(
+                "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s", '_site_transient_%'
+            ) );
         }
     }
 
