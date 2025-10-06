@@ -83,7 +83,7 @@ class Commands extends WP_CLI_Command {
              * @since 1.3.5
              * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.
              */
-            do_action( 'redis_object_cache_enable', $result );
+            do_action( 'redis_object_cache_enable', $copy );
 
             if ( $copy ) {
                 WP_CLI::success( __( 'Object cache enabled.', 'redis-cache' ) );
