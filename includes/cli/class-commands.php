@@ -14,7 +14,7 @@ use Exception;
 use Rhubarb\RedisCache\Plugin;
 use Rhubarb\RedisCache\Predis;
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Enables, disabled and checks the status of the object cache.

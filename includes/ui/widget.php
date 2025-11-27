@@ -5,7 +5,7 @@
  * @package Rhubarb\RedisCache
  */
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /** @var \Rhubarb\RedisCache\Plugin $this */
 

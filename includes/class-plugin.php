@@ -10,7 +10,7 @@ namespace Rhubarb\RedisCache;
 use WP_Error;
 use Exception;
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Main plugin class definition

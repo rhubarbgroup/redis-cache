@@ -10,7 +10,7 @@ namespace Rhubarb\RedisCache\UI;
 use Rhubarb\RedisCache\UI;
 use Rhubarb\RedisCache\Plugin;
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 ?>
 <div id="rediscache" class="wrap">
