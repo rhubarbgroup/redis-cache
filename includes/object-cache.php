@@ -1215,6 +1215,9 @@ class WP_Object_Cache {
 
             $san_key = $this->sanitize_key_part( $key );
             $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
+            if (defined('WP_REDIS_SERVERLESS_WORKAROUND') && WP_REDIS_SERVERLESS_WORKAROUND ) {
+                $this->redis->sadd(WP_REDIS_SERVERLESS_WORKAROUND, $derived_key);
+            }
 
             $args = [ $derived_key, $this->maybe_serialize( $value ) ];
 
@@ -1313,6 +1316,9 @@ class WP_Object_Cache {
         $san_group = $this->sanitize_key_part( $group );
 
         $derived_key = $this->fast_build_key( $san_key, $san_group );
+        if (defined('WP_REDIS_SERVERLESS_WORKAROUND') && WP_REDIS_SERVERLESS_WORKAROUND ) {
+            $this->redis->sadd(WP_REDIS_SERVERLESS_WORKAROUND, $derived_key);
+        }
 
         // Save if group not excluded and redis is up.
         if ( ! $this->is_ignored_group( $san_group ) && $this->redis_status() ) {
@@ -1404,6 +1410,9 @@ class WP_Object_Cache {
         $san_group = $this->sanitize_key_part( $group );
 
         $derived_key = $this->fast_build_key( $san_key, $san_group );
+        if (defined('WP_REDIS_SERVERLESS_WORKAROUND') && WP_REDIS_SERVERLESS_WORKAROUND ) {
+            $this->redis->srem(WP_REDIS_SERVERLESS_WORKAROUND, $derived_key);
+        }
 
         if ( array_key_exists( $derived_key, $this->cache ) ) {
             unset( $this->cache[ $derived_key ] );
@@ -1639,11 +1648,22 @@ class WP_Object_Cache {
             $start_time = microtime( true );
 
             if ( $salt && $selective ) {
-                $script = $this->get_flush_closure( $salt );
-                $results = $this->execute_lua_script( $script );
-
-                if ( empty( $results ) ) {
+                if (defined('WP_REDIS_SERVERLESS_WORKAROUND') && WP_REDIS_SERVERLESS_WORKAROUND ) {
+                    $results = $this->redis->smembers(WP_REDIS_SERVERLESS_WORKAROUND);
+                    foreach ($results as $key) {
+                    $this->redis->srem(WP_REDIS_SERVERLESS_WORKAROUND, $key);
+                    $this->redis->del($key);
+                    }
+                    if (empty($results)) {
                     return false;
+                    }
+                } else {
+                    $script = $this->get_flush_closure($salt);
+                    $results = $this->execute_lua_script($script);
+
+                    if (empty($results)) {
+                    return false;
+                    }
                 }
             } else {
                 if ( defined( 'WP_REDIS_CLUSTER' ) ) {
@@ -2147,6 +2167,9 @@ LUA;
         $san_group = $this->sanitize_key_part( $group );
 
         $derived_key = $this->fast_build_key( $san_key, $san_group );
+        if (defined('WP_REDIS_SERVERLESS_WORKAROUND') && WP_REDIS_SERVERLESS_WORKAROUND ) {
+            $this->redis->sadd(WP_REDIS_SERVERLESS_WORKAROUND, $derived_key);
+        }
 
         // Save if group not excluded from redis and redis is up.
         if ( ! $this->is_ignored_group( $group ) && $this->redis_status() ) {
@@ -2257,6 +2280,9 @@ LUA;
         foreach ( $data as $key => $value ) {
             $san_key = $this->sanitize_key_part( $key );
             $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
+            if (defined('WP_REDIS_SERVERLESS_WORKAROUND') && WP_REDIS_SERVERLESS_WORKAROUND ) {
+                $this->redis->sadd(WP_REDIS_SERVERLESS_WORKAROUND, $derived_key);
+            }
 
             /**
              * Filters the cache expiration time
@@ -2340,6 +2366,9 @@ LUA;
         $san_group = $this->sanitize_key_part( $group );
 
         $derived_key = $this->fast_build_key( $san_key, $san_group );
+        if (defined('WP_REDIS_SERVERLESS_WORKAROUND') && WP_REDIS_SERVERLESS_WORKAROUND ) {
+            $this->redis->sadd(WP_REDIS_SERVERLESS_WORKAROUND, $derived_key);
+        }
 
         // If group is a non-Redis group, save to internal cache, not Redis.
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
@@ -2417,6 +2446,9 @@ LUA;
         $san_group = $this->sanitize_key_part( $group );
 
         $derived_key = $this->fast_build_key( $san_key, $san_group );
+        if (defined('WP_REDIS_SERVERLESS_WORKAROUND') && WP_REDIS_SERVERLESS_WORKAROUND ) {
+            $this->redis->sadd(WP_REDIS_SERVERLESS_WORKAROUND, $derived_key);
+        }
 
         // If group is a non-Redis group, save to internal cache, not Redis.
         if ( $this->is_ignored_group( $group ) || ! $this->redis_status() ) {
