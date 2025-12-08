@@ -985,7 +985,7 @@ HTML;
                         }
 
                         /**
-                         * Fires on cache enable event
+                         * Fires on cache disable event
                          *
                          * @since 1.3.5
                          * @param bool $result Whether the filesystem event (deletion of the `object-cache.php` file) was successful.
@@ -1016,7 +1016,7 @@ HTML;
                         );
 
                         /**
-                         * Fires on cache enable event
+                         * Fires on cache update-dropin event
                          *
                          * @since 1.3.5
                          * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.
@@ -1542,7 +1542,7 @@ HTML;
             );
 
             /**
-             * Fires on cache enable event
+             * Fires on cache update-dropin event
              *
              * @since 1.3.5
              * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.
