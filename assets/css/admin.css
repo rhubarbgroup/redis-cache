@@ -158,7 +158,8 @@
 }
 
 #redis-stats-chart .apexcharts-tooltip,
-#redis-stats-chart .apexcharts-tooltip-title {
+#redis-stats-chart .apexcharts-tooltip-title,
+#redis-stats-chart .apexcharts-tooltip-marker {
     font-size: 13px;
 }
 
@@ -178,6 +179,15 @@
     padding: 0 15px;
     border-bottom: none;
     background-color: transparent;
+}
+
+#redis-stats-chart .apexcharts-tooltip-marker {
+    width: 12px;
+    height: 12px;
+    font-size: inherit;
+    line-height: inherit;
+    border-radius: 50%;
+    margin-right: 7px;
 }
 
 #redis-stats-chart .apexcharts-tooltip-series-group {
