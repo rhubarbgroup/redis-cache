@@ -18,7 +18,6 @@ $filesystem_allowed = $roc->is_file_mod_allowed();
 $filesystem_writable = $roc->test_filesystem_writing();
 
 $diagnostics = $roc->get_diagnostics();
-
 ?>
 
 <?php if ( is_string( $redis_connection ) ) : ?>
@@ -223,6 +222,13 @@ $diagnostics = $roc->get_diagnostics();
                     ?>
                 </code>
             </td>
+        </tr>
+    <?php endif; ?>
+
+    <?php if ( isset( $diagnostics['persistent'] ) ) : ?>
+        <tr>
+            <th><?php esc_html_e( 'Persistent Connection:', 'redis-cache' ); ?></th>
+            <td><code><?php echo esc_html( $diagnostics['persistent'] ? 'Yes' : 'No' ); ?></code></td>
         </tr>
     <?php endif; ?>
 

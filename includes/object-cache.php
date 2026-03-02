@@ -640,6 +640,7 @@ class WP_Object_Cache {
             'timeout',
             'read_timeout',
             'retry_interval',
+            'persistent',
         ];
 
         foreach ( $settings as $setting ) {
@@ -657,7 +658,7 @@ class WP_Object_Cache {
         $this->diagnostics[ 'timeout' ] = $parameters[ 'timeout' ];
         $this->diagnostics[ 'read_timeout' ] = $parameters[ 'read_timeout' ];
         $this->diagnostics[ 'retry_interval' ] = $parameters[ 'retry_interval' ];
-
+        $this->diagnostics[ 'persistent' ] = $parameters[ 'persistent' ];
         return $parameters;
     }
 
@@ -705,11 +706,23 @@ class WP_Object_Cache {
         } else {
             $this->redis = new Redis();
 
+            if ( $parameters['persistent'] ) {
+                $persistent_id = sprintf(
+                    '%s:%s:%s:%s',
+                    $parameters['host'],
+                    $parameters['port'],
+                    $parameters['database'],
+                    isset( $parameters['password'] ) ? hash( 'sha256', json_encode( $parameters['password'] ) ) : ''
+                );
+            }else{
+                $persistent_id = '';
+            }
+
             $args = [
                 'host' => $parameters['host'],
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
-                '',
+                $persistent_id,
                 'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
@@ -734,7 +747,8 @@ class WP_Object_Cache {
                 $args['port'] = -1;
             }
 
-            call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
+            call_user_func_array( [ $this->redis, $parameters['persistent'] ? 'pconnect' : 'connect' ], array_values( $args ) );
+            $args['persistent'] = $parameters['persistent'];
 
             if ( isset( $parameters['password'] ) ) {
                 $args['password'] = $parameters['password'];
