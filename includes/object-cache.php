@@ -907,23 +907,25 @@ class WP_Object_Cache {
                         if ( str_contains( $server, 'password=' ) ) {
                             continue;
                         }
-                        // convert server string to array of components to add password
-                        $urlParts = parse_url( $server );
-                        if ( !$urlParts ) {
-                            continue; // can't parse this server string, skip it
+
+                        if ( ! $urlParts = parse_url( $server ) ) {
+                            continue;
                         }
+
                         $entry  = [
                             'scheme' => $urlParts['scheme'] ?? 'tcp',
                             'host'   => $urlParts['host'] ?? 'localhost',
                             'port'   => $urlParts['port'] ?? 26379,
                         ];
+
                         if ( is_array( $parameters['password'] ) ) {
                             $entry['username'] = WP_REDIS_PASSWORD[0];
                             $entry['password'] = WP_REDIS_PASSWORD[1];
                         } else {
                             $entry['password'] = WP_REDIS_PASSWORD;
                         }
-                        $servers[$index] = $entry; // replace server string with array of connection parameters
+
+                        $servers[$index] = $entry;
                     }
 
                     if ( ! empty( $parameters['timeout'] ) ) {
