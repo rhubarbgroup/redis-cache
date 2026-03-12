@@ -654,9 +654,6 @@ class WP_Object_Cache {
         if ( isset( $parameters[ 'password' ] ) && $parameters[ 'password' ] === '' ) {
             unset( $parameters[ 'password' ] );
         }
-        if ( isset( $parameters['sentinel_password'] ) && $parameters['sentinel_password'] === '' ) {
-            unset( $parameters['sentinel_password'] );
-        }
 
         $this->diagnostics[ 'timeout' ] = $parameters[ 'timeout' ];
         $this->diagnostics[ 'read_timeout' ] = $parameters[ 'read_timeout' ];
@@ -905,10 +902,10 @@ class WP_Object_Cache {
                 }
 
                 // Add support for password in Sentinel parameters when using Predis
-                if ( $constant == 'WP_REDIS_SERVERS' && defined( 'WP_REDIS_SENTINEL' ) && isset( $parameters['sentinel_password'] ) ) {
+                if ( $constant == 'WP_REDIS_SERVERS' && defined( 'WP_REDIS_SENTINEL' ) && isset( $parameters['password'] ) ) {
                     foreach( $servers as $index => $server ) {
                         // skip any connect string that already has a password, e.g. tcp://1.2.3.4:26379?password=abc123
-                        if ( strpos( $server, 'password=' ) !== false ) {
+                        if ( str_contains( $server, 'password=' ) ) {
                             continue;
                         }
                         // convert server string to array of components to add password
@@ -921,11 +918,11 @@ class WP_Object_Cache {
                             'host'   => $urlParts['host'] ?? 'localhost',
                             'port'   => $urlParts['port'] ?? 26379,
                         ];
-                        if ( is_array( $parameters['sentinel_password'] ) ) {
-                            $entry['username'] = WP_REDIS_SENTINEL_PASSWORD[0];
-                            $entry['password'] = WP_REDIS_SENTINEL_PASSWORD[1];
+                        if ( is_array( $parameters['password'] ) ) {
+                            $entry['username'] = WP_REDIS_PASSWORD[0];
+                            $entry['password'] = WP_REDIS_PASSWORD[1];
                         } else {
-                            $entry['password'] = WP_REDIS_SENTINEL_PASSWORD;
+                            $entry['password'] = WP_REDIS_PASSWORD;
                         }
                         $servers[$index] = $entry; // replace server string with array of connection parameters
                     }
