@@ -4,6 +4,11 @@
 
 - Delete transients when cache is enabled
 
+# 2.7.1
+
+- Support password configuration for Sentinel connections when using Predis (from @bsabalaskey)
+- Configuration uses `WP_REDIS_SENTINEL_PASSWORD` constant
+
 ## 2.7.0
 
 - Preserve key TTL when calling (in|de)crement methods

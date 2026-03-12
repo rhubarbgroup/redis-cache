@@ -47,24 +47,25 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 <details>
 <summary>Advanced configuration options</summary>
 
-| Configuration constant               | Default     | Description                                   |
-| ------------------------------------ | ----------- | --------------------------------------------- |
-| `WP_CACHE_KEY_SALT`                  |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
-| `WP_REDIS_FLUSH_TIMEOUT`             | `5`         | Experimental. The timeout in seconds when flushing |
-| `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries (PhpRedis only) |
-| `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
-| `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored |
-| `WP_REDIS_IGBINARY`                  | `false`     | Whether to use the igbinary PHP extension for serialization |
-| `WP_REDIS_DISABLED`                  | `false`     | Emergency switch to bypass the object cache without deleting the drop-in |
-| `WP_REDIS_DISABLE_ADMINBAR`          | `false`     | Disables admin bar display |
-| `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
-| `WP_REDIS_DISABLE_DROPIN_CHECK`      | `false`     | Disables the extended drop-in write test |
-| `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update |
-| `WP_REDIS_DISABLE_GROUP_FLUSH`       | `false`     | Disables group flushing with Lua script and uses `flushdb` call instead |
-| `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners and notices |
-| `WP_REDIS_DISABLE_COMMENT`           | `false`     | Disables HTML source comment |
-| `WP_REDIS_SSL_CONTEXT`               | `[]`        | TLS connection options for `tls` or `rediss` scheme |
-| `WP_REDIS_MANAGER_CAPABILITY`        |             | The capability a user must have to manage the plugin |
+| Configuration constant               | Default     | Description                                                                             |
+|--------------------------------------| ----------- |-----------------------------------------------------------------------------------------|
+| `WP_CACHE_KEY_SALT`                  |             | Deprecated. Replaced by `WP_REDIS_PREFIX`                                               |
+| `WP_REDIS_FLUSH_TIMEOUT`             | `5`         | Experimental. The timeout in seconds when flushing                                      |
+| `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries (PhpRedis only)                              |
+| `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks                      |
+| `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored                                  |
+| `WP_REDIS_IGBINARY`                  | `false`     | Whether to use the igbinary PHP extension for serialization                             |
+| `WP_REDIS_DISABLED`                  | `false`     | Emergency switch to bypass the object cache without deleting the drop-in                |
+| `WP_REDIS_DISABLE_ADMINBAR`          | `false`     | Disables admin bar display                                                              |
+| `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display                                                 |
+| `WP_REDIS_DISABLE_DROPIN_CHECK`      | `false`     | Disables the extended drop-in write test                                                |
+| `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update                                                        |
+| `WP_REDIS_DISABLE_GROUP_FLUSH`       | `false`     | Disables group flushing with Lua script and uses `flushdb` call instead                 |
+| `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners and notices                                                |
+| `WP_REDIS_DISABLE_COMMENT`           | `false`     | Disables HTML source comment                                                            |
+| `WP_REDIS_SSL_CONTEXT`               | `[]`        | TLS connection options for `tls` or `rediss` scheme                                     |
+| `WP_REDIS_MANAGER_CAPABILITY`        |             | The capability a user must have to manage the plugin                                    |
+| `WP_REDIS_SENTINEL_PASSWORD`         |             | The password of the Sentinel server, supports Redis ACLs arrays: `['user', 'password']` |
 
 </details>
 
@@ -195,6 +196,8 @@ define( 'WP_REDIS_SERVERS', [
     'tcp://127.0.0.2:5381',
     'tcp://127.0.0.3:5382',
 ] );
+
+define( 'WP_REDIS_SENTINEL_PASSWORD', 'my-password' );
 ```
 
 </details>
