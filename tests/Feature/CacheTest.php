@@ -373,25 +373,35 @@ class CacheTest extends TestCase
             $this->assertTrue($value);
         }
 
-        // Test add_global_groups adds groups correctly
-        $cache->add_global_groups(['custom_group']);
-        $this->assertArrayHasKey('custom_group', $cache->global_groups);
-        $this->assertTrue($cache->global_groups['custom_group']);
+        // Test add_global_groups: when Redis is connected the group lands in global_groups;
+        // when unavailable it falls back to ignored_groups.
+        $cache->add_global_groups( array( 'custom_group' ) );
+        if ( $cache->redis_status() ) {
+            $this->assertArrayHasKey( 'custom_group', $cache->global_groups );
+            $this->assertTrue( $cache->global_groups['custom_group'] );
+        } else {
+            $this->assertArrayHasKey( 'custom_group', $cache->ignored_groups );
+            $this->assertTrue( $cache->ignored_groups['custom_group'] );
+        }
 
         // Test add_non_persistent_groups
-        $cache->add_non_persistent_groups(['non_persistent_group']);
-        $this->assertArrayHasKey('non_persistent_group', $cache->ignored_groups);
-        $this->assertTrue($cache->ignored_groups['non_persistent_group']);
+        $cache->add_non_persistent_groups( array( 'non_persistent_group' ) );
+        $this->assertArrayHasKey( 'non_persistent_group', $cache->ignored_groups );
+        $this->assertTrue( $cache->ignored_groups['non_persistent_group'] );
 
         // Test add_unflushable_groups
-        $cache->add_unflushable_groups(['unflushable_group']);
-        $this->assertArrayHasKey('unflushable_group', $cache->unflushable_groups);
-        $this->assertTrue($cache->unflushable_groups['unflushable_group']);
+        $cache->add_unflushable_groups( array( 'unflushable_group' ) );
+        $this->assertArrayHasKey( 'unflushable_group', $cache->unflushable_groups );
+        $this->assertTrue( $cache->unflushable_groups['unflushable_group'] );
 
         // info()->groups should expose previous list format of group names.
         $info = $cache->info();
-        $this->assertContains('custom_group', $info->groups->global);
-        $this->assertContains('non_persistent_group', $info->groups->non_persistent);
-        $this->assertContains('unflushable_group', $info->groups->unflushable);
+        if ( $cache->redis_status() ) {
+            $this->assertContains( 'custom_group', $info->groups->global );
+        } else {
+            $this->assertContains( 'custom_group', $info->groups->non_persistent );
+        }
+        $this->assertContains( 'non_persistent_group', $info->groups->non_persistent );
+        $this->assertContains( 'unflushable_group', $info->groups->unflushable );
     }
 }

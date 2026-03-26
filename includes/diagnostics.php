@@ -121,37 +121,43 @@ if ( isset( $info['WP_REDIS_SERVERS'] ) ) {
 }
 
 if ( $dropin && ! $disabled ) {
+    // Normalize group arrays to a plain list of names regardless of whether stored as
+    // an associative set (group_name => true) or a legacy indexed list.
+    $normalize_group_names = static function ( $groups ) {
+        $groups = (array) $groups;
+        if ( empty( $groups ) ) {
+            return array();
+        }
+        $keys = array_keys( $groups );
+        return ( $keys === range( 0, count( $groups ) - 1 ) ) ? array_values( $groups ) : $keys;
+    };
+
     $info['Global Groups'] = wp_json_encode(
-        array_keys( (array) ( $wp_object_cache->global_groups ?? [] ) ),
+        $normalize_group_names( $wp_object_cache->global_groups ?? [] ),
         JSON_PRETTY_PRINT
     );
 
     $info['Ignored Groups'] = wp_json_encode(
-        array_keys( (array) ( $wp_object_cache->ignored_groups ?? [] ) ),
+        $normalize_group_names( $wp_object_cache->ignored_groups ?? [] ),
         JSON_PRETTY_PRINT
     );
 
     $info['Unflushable Groups'] = wp_json_encode(
-        array_keys( (array) ( $wp_object_cache->unflushable_groups ?? [] ) ),
+        $normalize_group_names( $wp_object_cache->unflushable_groups ?? [] ),
         JSON_PRETTY_PRINT
     );
 
-    // Compute group types on-the-fly from the group arrays
+    // Compute group types on-the-fly using the same precedence as the removed cache_group_types():
+    // later entries overwrite earlier ones, so ignored > unflushable > global.
     $group_types = [];
-    foreach ( (array) $wp_object_cache->global_groups as $group => $_unused ) {
-        if ( ! isset( $group_types[ $group ] ) ) {
-            $group_types[ $group ] = 'global';
-        }
+    foreach ( $normalize_group_names( $wp_object_cache->global_groups ?? [] ) as $group ) {
+        $group_types[ $group ] = 'global';
     }
-    foreach ( (array) $wp_object_cache->ignored_groups as $group => $_unused ) {
-        if ( ! isset( $group_types[ $group ] ) ) {
-            $group_types[ $group ] = 'ignored';
-        }
+    foreach ( $normalize_group_names( $wp_object_cache->unflushable_groups ?? [] ) as $group ) {
+        $group_types[ $group ] = 'unflushable';
     }
-    foreach ( (array) $wp_object_cache->unflushable_groups as $group => $_unused ) {
-        if ( ! isset( $group_types[ $group ] ) ) {
-            $group_types[ $group ] = 'unflushable';
-        }
+    foreach ( $normalize_group_names( $wp_object_cache->ignored_groups ?? [] ) as $group ) {
+        $group_types[ $group ] = 'ignored';
     }
 
     $info['Groups Types'] = wp_json_encode(

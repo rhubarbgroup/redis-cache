@@ -415,21 +415,21 @@ class WP_Object_Cache {
     /**
      * List of global groups.
      *
-     * @var array<string>
+     * @var array<string, bool>
      */
     public $global_groups = [];
 
     /**
      * List of groups that will not be flushed.
      *
-     * @var array
+     * @var array<string, bool>
      */
     public $unflushable_groups = [];
 
     /**
      * List of groups not saved to Redis.
      *
-     * @var array
+     * @var array<string, bool>
      */
     public $ignored_groups = [];
 
@@ -2570,23 +2570,28 @@ LUA;
     }
 
     /**
-     * Checks if the given group is part the global group array
+     * Checks if the given group is part the global group array.
+     * Ignored groups take precedence over global; unflushable also takes precedence over global.
      *
      * @param string $group  Name of the group to check, pre-sanitized.
      * @return bool
      */
     protected function is_global_group( $group ) {
-        return isset( $this->global_groups[ $group ] );
+        return isset( $this->global_groups[ $group ] )
+            && ! isset( $this->ignored_groups[ $group ] )
+            && ! isset( $this->unflushable_groups[ $group ] );
     }
 
     /**
-     * Checks if the given group is part the unflushable group array
+     * Checks if the given group is part the unflushable group array.
+     * Ignored groups take precedence over unflushable.
      *
      * @param string $group  Name of the group to check, pre-sanitized.
      * @return bool
      */
     protected function is_unflushable_group( $group ) {
-        return isset( $this->unflushable_groups[ $group ] );
+        return isset( $this->unflushable_groups[ $group ] )
+            && ! isset( $this->ignored_groups[ $group ] );
     }
 
     /**
