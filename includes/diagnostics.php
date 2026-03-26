@@ -122,22 +122,40 @@ if ( isset( $info['WP_REDIS_SERVERS'] ) ) {
 
 if ( $dropin && ! $disabled ) {
     $info['Global Groups'] = wp_json_encode(
-        array_values( $wp_object_cache->global_groups ?? [] ),
+        array_keys( (array) ( $wp_object_cache->global_groups ?? [] ) ),
         JSON_PRETTY_PRINT
     );
 
     $info['Ignored Groups'] = wp_json_encode(
-        array_values( $wp_object_cache->ignored_groups ?? [] ),
+        array_keys( (array) ( $wp_object_cache->ignored_groups ?? [] ) ),
         JSON_PRETTY_PRINT
     );
 
     $info['Unflushable Groups'] = wp_json_encode(
-        array_values( $wp_object_cache->unflushable_groups ?? [] ),
+        array_keys( (array) ( $wp_object_cache->unflushable_groups ?? [] ) ),
         JSON_PRETTY_PRINT
     );
 
+    // Compute group types on-the-fly from the group arrays
+    $group_types = [];
+    foreach ( (array) $wp_object_cache->global_groups as $group => $_unused ) {
+        if ( ! isset( $group_types[ $group ] ) ) {
+            $group_types[ $group ] = 'global';
+        }
+    }
+    foreach ( (array) $wp_object_cache->ignored_groups as $group => $_unused ) {
+        if ( ! isset( $group_types[ $group ] ) ) {
+            $group_types[ $group ] = 'ignored';
+        }
+    }
+    foreach ( (array) $wp_object_cache->unflushable_groups as $group => $_unused ) {
+        if ( ! isset( $group_types[ $group ] ) ) {
+            $group_types[ $group ] = 'unflushable';
+        }
+    }
+
     $info['Groups Types'] = wp_json_encode(
-        $wp_object_cache->group_type ?? null,
+        $group_types ?: null,
         JSON_PRETTY_PRINT
     );
 }

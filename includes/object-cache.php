@@ -434,13 +434,6 @@ class WP_Object_Cache {
     public $ignored_groups = [];
 
     /**
-     * List of groups and their types.
-     *
-     * @var array
-     */
-    public $group_type = [];
-
-    /**
      * Prefix used for global groups.
      *
      * @var string
@@ -2476,6 +2469,20 @@ LUA;
     public function info() {
         $total = $this->cache_hits + $this->cache_misses;
 
+        $normalize_group_list = function ( $groups ) {
+            if ( ! is_array( $groups ) || empty( $groups ) ) {
+                return [];
+            }
+
+            $keys = array_keys( $groups );
+
+            if ( $keys === range( 0, count( $groups ) - 1 ) ) {
+                return array_values( $groups );
+            }
+
+            return $keys;
+        };
+
         $bytes = array_map(
             function ( $keys ) {
                 // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
@@ -2492,9 +2499,9 @@ LUA;
             'time' => $this->cache_time,
             'calls' => $this->cache_calls,
             'groups' => (object) [
-                'global' => $this->global_groups,
-                'non_persistent' => $this->ignored_groups,
-                'unflushable' => $this->unflushable_groups,
+                'global' => $normalize_group_list( $this->global_groups ),
+                'non_persistent' => $normalize_group_list( $this->ignored_groups ),
+                'unflushable' => $normalize_group_list( $this->unflushable_groups ),
             ],
             'errors' => empty( $this->errors ) ? null : $this->errors,
             'meta' => [
@@ -2659,7 +2666,7 @@ LUA;
      * @param array $groups List of groups that are global.
      */
     public function add_global_groups( $groups ) {
-        $groups = (array) $groups;
+        $groups = array_map( array( $this, 'sanitize_key_part' ), (array) $groups );
 
         if ( $this->redis_status() ) {
             $this->global_groups = array_merge( $this->global_groups, array_fill_keys( $groups, true ) );
@@ -2682,6 +2689,9 @@ LUA;
          */
         $groups = apply_filters( 'redis_cache_add_non_persistent_groups', (array) $groups );
 
+        // Sanitize group names to keep behavior consistent with the rest of the cache key path.
+        $groups = array_map( array( $this, 'sanitize_key_part' ), $groups );
+
         $this->ignored_groups = array_merge( $this->ignored_groups, array_fill_keys( $groups, true ) );
     }
 
@@ -2691,7 +2701,7 @@ LUA;
      * @param array $groups List of groups that are unflushable.
      */
     public function add_unflushable_groups( $groups ) {
-        $groups = (array) $groups;
+        $groups = array_map( array( $this, 'sanitize_key_part' ), (array) $groups );
 
         $this->unflushable_groups = array_merge( $this->unflushable_groups, array_fill_keys( $groups, true ) );
     }
@@ -2857,7 +2867,13 @@ LUA;
         $this->redis_connected = false;
 
         // When Redis is unavailable, fall back to the internal cache by forcing all groups to be "no redis" groups.
-        $this->add_non_persistent_groups( array_keys( $this->global_groups ) );
+        if ( is_array( $this->global_groups ) && $this->global_groups ) {
+            $keys        = array_keys( $this->global_groups );
+            $is_list     = $keys === range( 0, count( $this->global_groups ) - 1 );
+            $group_names = $is_list ? $this->global_groups : $keys;
+
+            $this->add_non_persistent_groups( $group_names );
+        }
 
         error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 

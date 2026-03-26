@@ -355,4 +355,43 @@ class CacheTest extends TestCase
 
         $this->assertSame($expected, $found);
     }
+
+    /**
+     * Test that group arrays maintain their expected shape and types.
+     * Verifies that groups are stored as associative sets (keys are group names, values are true).
+     */
+    public function testGroupArraysShape(): void
+    {
+        // Create a fresh cache instance to capture initial state
+        $cache = new \WP_Object_Cache();
+
+        // Verify that global_groups is an associative array with string keys and true values
+        $this->assertIsArray($cache->global_groups);
+        $this->assertNotEmpty($cache->global_groups);
+        foreach ($cache->global_groups as $group_name => $value) {
+            $this->assertIsString($group_name);
+            $this->assertTrue($value);
+        }
+
+        // Test add_global_groups adds groups correctly
+        $cache->add_global_groups(['custom_group']);
+        $this->assertArrayHasKey('custom_group', $cache->global_groups);
+        $this->assertTrue($cache->global_groups['custom_group']);
+
+        // Test add_non_persistent_groups
+        $cache->add_non_persistent_groups(['non_persistent_group']);
+        $this->assertArrayHasKey('non_persistent_group', $cache->ignored_groups);
+        $this->assertTrue($cache->ignored_groups['non_persistent_group']);
+
+        // Test add_unflushable_groups
+        $cache->add_unflushable_groups(['unflushable_group']);
+        $this->assertArrayHasKey('unflushable_group', $cache->unflushable_groups);
+        $this->assertTrue($cache->unflushable_groups['unflushable_group']);
+
+        // info()->groups should expose previous list format of group names.
+        $info = $cache->info();
+        $this->assertContains('custom_group', $info->groups->global);
+        $this->assertContains('non_persistent_group', $info->groups->non_persistent);
+        $this->assertContains('unflushable_group', $info->groups->unflushable);
+    }
 }
