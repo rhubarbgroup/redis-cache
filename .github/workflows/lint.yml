@@ -62,6 +62,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Remove markdown files
+        run: find . -name '*.md' -not -name 'readme.md' -delete
+
       - name: Run plugin check
         uses: wordpress/plugin-check-action@v1
         with:
