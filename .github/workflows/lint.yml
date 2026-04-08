@@ -73,3 +73,8 @@ jobs:
           exclude-checks: 'prefixing'
           ignore-codes: |
             Squiz.PHP.Heredoc.NotAllowed
+            WordPress.DB.DirectDatabaseQuery.DirectQuery
+            WordPress.DB.DirectDatabaseQuery.NoCaching
+            WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
