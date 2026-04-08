@@ -47,7 +47,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -67,7 +67,7 @@ jobs:
           cache_prefix: redis-cache-${{ github.ref }}
 
       - name: Install PHP Dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v4
 
       - name: Install missing library
         run: composer require --dev yoast/phpunit-polyfills
@@ -121,7 +121,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -141,7 +141,7 @@ jobs:
           cache_prefix: redis-cache-${{ github.ref }}
 
       - name: Install PHP Dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v4
 
       - name: Install missing library
         run: composer require --dev yoast/phpunit-polyfills

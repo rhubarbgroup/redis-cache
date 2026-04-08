@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -31,7 +31,7 @@ jobs:
           tools: parallel-lint
 
       - name: Install PHP Dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v4
 
       - name: Check source code for syntax errors
         run: composer exec --no-interaction -- parallel-lint *.php dependencies/ includes/ tests/
@@ -46,7 +46,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Check EditorConfig
         uses: greut/eclint-action@v0
@@ -60,7 +60,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Run plugin check
         uses: wordpress/plugin-check-action@v1
