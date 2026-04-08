@@ -26,7 +26,7 @@
         "colinmollenhour/credis": "^1.12.1"
     },
     "require-dev": {
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2.0",
         "dms/phpunit-arraysubset-asserts": "^0.4.0",
         "php-stubs/wp-cli-stubs": "^2.7",
         "phpcompatibility/phpcompatibility-wp": "^2.1",
