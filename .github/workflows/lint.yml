@@ -72,7 +72,7 @@ jobs:
           exclude-files: '.editorconfig,.gitattributes,.gitignore,phpunit.xml.dist'
           exclude-checks: 'prefixing'
           ignore-codes: |
-            Squiz.PHP.Heredoc.NotAllowed
+            PluginCheck.CodeAnalysis.Heredoc.NotAllowed
             WordPress.DB.DirectDatabaseQuery.DirectQuery
             WordPress.DB.DirectDatabaseQuery.NoCaching
             WordPress.DB.PreparedSQL.InterpolatedNotPrepared
