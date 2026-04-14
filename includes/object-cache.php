@@ -915,6 +915,9 @@ class WP_Object_Cache {
 
         if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
             $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
+            if ( defined( 'WP_REDIS_CLUSTER' ) ) {
+                $options['parameters']['ssl'] = WP_REDIS_SSL_CONTEXT;
+            }
         }
 
         $this->redis = new Predis\Client( $servers ?: $parameters, $options );
