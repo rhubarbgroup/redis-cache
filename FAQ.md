@@ -30,6 +30,16 @@ Unfortunately many plugin authors don't bother testing their plugins with a pers
 
 This plugin is **not the issue**, it's just providing WordPress with `wp_cache_*()` functions for persistent caching.
 
+## How can I ignore a cache group?
+
+Some plugins don’t play nicely with a persistent object cache in WordPress and either cause stale cache data, or straight up break functionality. In such scenarios you might be able to exclude the faulty plugin's cache groups:
+
+```php
+define( 'WP_REDIS_IGNORED_GROUPS', [
+    'wpseo', // just an example
+] );
+```
+
 ## Status: <code>Not connected</code>
 
 This means that either [Redis Server](https://redis.io) is not installed and running, or the plugin is not configured correctly. 
