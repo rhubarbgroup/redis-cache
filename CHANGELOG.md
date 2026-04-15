@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Delete transients when cache is enabled
+- Respect `WP_REDIS_SSL_CONTEXT` when using Predis and clustered connections
 
 ## 2.7.0
 
