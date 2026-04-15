@@ -4,9 +4,10 @@ When in doubt try flushing the cache, you'd be surprised how often this resolves
 
 - [HELP! My site is down!1!!11!!11](#help-my-site-is-down11111)
 - [Plugin is incompatible with OtherPlugin](#plugin-is-incompatible-with-otherplugin)
+- [How can I ignore a cache group?](#how-can-i-ignore-a-cache-group)
+- [How can I exclude a page from the cache?](#how-can-i-exclude-a-page-from-the-cache)
 - [Status: <code>Not connected</code>](#status-not-connected)
 - [<code>connection timed out</code> and <code>read error on connection</code>](#connection-timed-out-and-read-error-on-connection)
-- [How can I exclude a page from the cache?](#how-can-i-exclude-a-page-from-the-cache)
 - [My site is getting redirected another domain](#my-site-is-getting-redirected-another-domain)
 - [Are transients stored in Redis?](#are-transients-stored-in-redis)
 - [I'm getting <code>404</code> errors](#im-getting-404-errors)
@@ -40,6 +41,12 @@ define( 'WP_REDIS_IGNORED_GROUPS', [
 ] );
 ```
 
+## How can I exclude a page from the cache?
+
+Object caching caches only **objects**, not **pages**. You cannot exclude a page from using the object cache, because object caching is not URL-centric. You also cannot exclude the WordPress admin dashboard from using object caching, because then you risk the cache going stale and even loosing data.
+
+If you’re experiencing a compatibility issue with another plugin in combination with Redis Object Cache, please contact the support team of the plugin regarding the issue and ask them to ensure it's compatible with persistent object cache backends, like Redis.
+
 ## Status: <code>Not connected</code>
 
 This means that either [Redis Server](https://redis.io) is not installed and running, or the plugin is not configured correctly. 
@@ -66,12 +73,6 @@ If you moved all constants above those lines and the plugin still shows `Not Con
 
 ## <code>connection timed out</code> and <code>read error on connection</code>
 If the error occurs rarely, ignore it, Redis Server is having a hiccup. If it persists, read the answer to "Status: <code>Not connected</code>".
-
-## How can I exclude a page from the cache?
-
-Object caching caches only **objects**, not **pages**. You cannot exclude a page from using the object cache, because object caching is not URL-centric. You also cannot exclude the WordPress admin dashboard from using object caching, because then you risk the cache going stale and even loosing data.
-
-If you’re experiencing a compatibility issue with another plugin in combination with Redis Object Cache, please contact the support team of the plugin regarding the issue and ask them to ensure it's compatible with persistent object cache backends, like Redis.
 
 ## My site is getting redirected another domain
 

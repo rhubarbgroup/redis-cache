@@ -42,7 +42,7 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_CLIENT`                    |             | The client used to communicate with Redis (defaults to `phpredis` when installed, otherwise `predis`), supports `phpredis`, `predis`, `relay` |
 | `WP_REDIS_TIMEOUT`                   | `1`         | The connection timeout in seconds |
 | `WP_REDIS_READ_TIMEOUT`              | `1`         | The timeout in seconds when reading/writing |
-| `WP_REDIS_IGNORED_GROUPS`            | `[]`        | Groups that should not be cached between requests in Redis |
+| `WP_REDIS_IGNORED_GROUPS`            | `[]`        | Groups that should not be cached between requests in Redis ([read more](FAQ.md#how-can-i-ignore-a-cache-group)) |
 
 <details>
 <summary>Advanced configuration options</summary>
