@@ -2,6 +2,10 @@
     root.rediscache = root.rediscache || {};
     var rediscache = root.rediscache;
 
+    var theme_color = getComputedStyle( document.body )
+        .getPropertyValue( '--wp-admin-theme-color' )
+        .trim() || ( rediscache.is_wp7 ? '#3858e9' : '#0096dd' );
+
     $.extend( rediscache, {
         metrics: {
             computed: null,
@@ -27,7 +31,7 @@
                 dashArray: [0, 8],
             },
             colors: [
-                rediscache.is_wp7 ? '#3858e9' : '#0096dd',
+                theme_color,
                 '#72777c',
             ],
             annotations: {
