@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Upgrade ApexCharts to v5.10.6
+
 ## 2.8.0
 
 - Delete transients when cache is enabled

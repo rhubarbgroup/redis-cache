@@ -194,3 +194,18 @@
     margin-left: 0;
     font-variant-numeric: tabular-nums;
 }
+
+#redis-stats-chart .apexcharts-tooltip-marker {
+    border-radius: 50%;
+}
+
+#redis-stats-chart .apexcharts-tooltip-marker {
+    width: 13px;
+    height: 13px;
+}
+
+#dashboard_rediscache .apexcharts-tooltip-marker {
+    width: 12px;
+    height: 12px;
+}
+
