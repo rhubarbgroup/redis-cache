@@ -3,9 +3,9 @@ Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, object cache, caching, performance, relay
 Requires at least: 4.6
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 2.7.0
+Stable tag: 2.8.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -60,6 +60,14 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 4. Dashboard widget, displaying recent response time metrics.
 
 == Changelog ==
+
+= 2.8.0 =
+
+- Delete transients when cache is enabled
+- Improved styling for WordPress 7.x
+- Respect `WP_REDIS_SSL_CONTEXT` when using Predis and clustered connections
+- Added missing `redis_object_cache_(disable|update_dropin)` hooks to WP CLI commands
+- Fixed `redis_object_cache_enable` action result parameter
 
 = 2.7.0 =
 

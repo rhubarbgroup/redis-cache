@@ -27,7 +27,7 @@
                 dashArray: [0, 8],
             },
             colors: [
-                '#0096dd',
+                rediscache.is_wp7 ? '#3858e9' : '#0096dd',
                 '#72777c',
             ],
             annotations: {

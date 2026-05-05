@@ -125,7 +125,11 @@ class Predis {
         }
 
         if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
-            $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
+            if ( $servers ) {
+                $options['parameters']['ssl'] = WP_REDIS_SSL_CONTEXT;
+            } else {
+                $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
+            }
         }
 
         $this->redis = new \Predis\Client( $servers ?: $parameters, $options );

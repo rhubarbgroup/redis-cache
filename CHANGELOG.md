@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased
+## 2.8.0
 
 - Delete transients when cache is enabled
+- Improved styling for WordPress 7.x
+- Respect `WP_REDIS_SSL_CONTEXT` when using Predis and clustered connections
+- Added missing `redis_object_cache_(disable|update_dropin)` hooks to WP CLI commands
+- Fixed `redis_object_cache_enable` action result parameter
 
 ## 2.7.0
 

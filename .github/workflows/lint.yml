@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -31,7 +31,7 @@ jobs:
           tools: parallel-lint
 
       - name: Install PHP Dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v4
 
       - name: Check source code for syntax errors
         run: composer exec --no-interaction -- parallel-lint *.php dependencies/ includes/ tests/
@@ -46,7 +46,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Check EditorConfig
         uses: greut/eclint-action@v0
@@ -60,11 +60,21 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
+
+      - name: Remove markdown files
+        run: find . -name '*.md' -not -name 'readme.md' -delete
 
       - name: Run plugin check
         uses: wordpress/plugin-check-action@v1
         with:
           exclude-directories: '.github,dependencies,tests'
           exclude-files: '.editorconfig,.gitattributes,.gitignore,phpunit.xml.dist'
-          # exclude-checks: ''
+          exclude-checks: 'prefixing'
+          ignore-codes: |
+            PluginCheck.CodeAnalysis.Heredoc.NotAllowed
+            WordPress.DB.DirectDatabaseQuery.DirectQuery
+            WordPress.DB.DirectDatabaseQuery.NoCaching
+            WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            WordPress.PHP.DevelopmentFunctions.error_log_trigger_error

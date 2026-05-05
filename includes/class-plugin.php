@@ -383,6 +383,7 @@ class Plugin {
             'rediscache',
             [
                 'jQuery' => 'jQuery',
+                'is_wp7' => version_compare( get_bloginfo( 'version' ), '7.0-dev', '>=' ),
                 'disable_pro' => $screen->id !== $this->screen
                     || ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS )
                     || self::acceleratewp_install(),

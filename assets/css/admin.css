@@ -72,11 +72,11 @@
 #rediscache #diagnostics-pane .card {
     width: 100%;
     max-width: 100%;
-}
-
-#rediscache #diagnostics-pane pre {
-    height: 400px;
-    overflow: scroll;
+    max-height: 500px;
+    white-space: pre;
+    overflow-y: scroll;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 12px;
 }
 
 #rediscache .compatibility {
@@ -145,7 +145,7 @@
 }
 
 #widget-redis-stats ul a:hover {
-    color: #135e96;
+    color: var(--wp-admin-theme-color-darker-10, #135e96);
 }
 
 #widget-redis-stats ul a.active {
