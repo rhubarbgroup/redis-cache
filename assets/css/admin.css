@@ -202,10 +202,10 @@
 #redis-stats-chart .apexcharts-tooltip-marker {
     width: 13px;
     height: 13px;
+    margin-right: 7px;
 }
 
 #dashboard_rediscache .apexcharts-tooltip-marker {
     width: 12px;
     height: 12px;
 }
-
