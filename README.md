@@ -50,9 +50,11 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | Configuration constant               | Default     | Description                                   |
 | ------------------------------------ | ----------- | --------------------------------------------- |
 | `WP_CACHE_KEY_SALT`                  |             | Deprecated. Replaced by `WP_REDIS_PREFIX` |
+| `WP_REDIS_SSL_CONTEXT`               | `[]`        | TLS connection options for `tls` or `rediss` scheme |
 | `WP_REDIS_FLUSH_TIMEOUT`             | `5`         | Experimental. The timeout in seconds when flushing |
 | `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries (PhpRedis only) |
 | `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
+| `WP_REDIS_CHART_COLOR`               |             | Override admin metrics chart color using a hex value (`#RGB` or `#RRGGBB`) |
 | `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored |
 | `WP_REDIS_IGBINARY`                  | `false`     | Whether to use the igbinary PHP extension for serialization |
 | `WP_REDIS_DISABLED`                  | `false`     | Emergency switch to bypass the object cache without deleting the drop-in |
@@ -63,7 +65,6 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_DISABLE_GROUP_FLUSH`       | `false`     | Disables group flushing with Lua script and uses `flushdb` call instead |
 | `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners and notices |
 | `WP_REDIS_DISABLE_COMMENT`           | `false`     | Disables HTML source comment |
-| `WP_REDIS_SSL_CONTEXT`               | `[]`        | TLS connection options for `tls` or `rediss` scheme |
 | `WP_REDIS_MANAGER_CAPABILITY`        |             | The capability a user must have to manage the plugin |
 
 </details>

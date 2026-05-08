@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added `WP_REDIS_CHART_COLOR` constant
 - Upgrade ApexCharts to v5.10.6
 
 ## 2.8.0

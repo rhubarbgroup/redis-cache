@@ -2,9 +2,9 @@
     root.rediscache = root.rediscache || {};
     var rediscache = root.rediscache;
 
-    var theme_color = getComputedStyle( document.body )
-        .getPropertyValue( '--wp-admin-theme-color' )
-        .trim() || ( rediscache.is_wp7 ? '#3858e9' : '#0096dd' );
+    var theme_color = rediscache.chart_color
+        || getComputedStyle( document.body ).getPropertyValue( '--wp-admin-theme-color' ).trim()
+        || ( rediscache.is_wp7 ? '#3858e9' : '#0096dd' );
 
     $.extend( rediscache, {
         metrics: {

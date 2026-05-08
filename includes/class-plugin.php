@@ -384,6 +384,10 @@ class Plugin {
             [
                 'jQuery' => 'jQuery',
                 'is_wp7' => version_compare( get_bloginfo( 'version' ), '7.0-dev', '>=' ),
+                'chart_color' => (
+                    defined( 'WP_REDIS_CHART_COLOR' )
+                    && preg_match( '/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i', (string) WP_REDIS_CHART_COLOR )
+                ) ? WP_REDIS_CHART_COLOR : null,
                 'disable_pro' => $screen->id !== $this->screen
                     || ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS )
                     || self::acceleratewp_install(),
