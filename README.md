@@ -65,7 +65,7 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_DISABLE_GROUP_FLUSH`       | `false`     | Disables group flushing with Lua script and uses `flushdb` call instead |
 | `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners and notices |
 | `WP_REDIS_DISABLE_COMMENT`           | `false`     | Disables HTML source comment |
-| `WP_REDIS_DISABLE_CHARTS`            | `false`     | Disables loading the ApexCharts script |
+| `WP_REDIS_LOAD_APEXCHARTS`           | `true`      | Whether to load the ApexCharts script |
 | `WP_REDIS_MANAGER_CAPABILITY`        |             | The capability a user must have to manage the plugin |
 
 </details>

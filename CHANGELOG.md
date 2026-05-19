@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Added `WP_REDIS_CHART_COLOR` constant
-- Added `WP_REDIS_DISABLE_CHARTS` constant
+- Added `WP_REDIS_LOAD_APEXCHARTS` constant
 - Upgrade ApexCharts to v4.7.0
 
 ## 2.8.0

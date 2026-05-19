@@ -424,7 +424,7 @@ class Plugin {
             return;
         }
 
-        if ( ! defined( 'WP_REDIS_DISABLE_CHARTS' ) || ! WP_REDIS_DISABLE_CHARTS ) {
+        if ( ! defined( 'WP_REDIS_LOAD_APEXCHARTS' ) || WP_REDIS_LOAD_APEXCHARTS ) {
             wp_enqueue_script(
                 'redis-cache-charts',
                 plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
