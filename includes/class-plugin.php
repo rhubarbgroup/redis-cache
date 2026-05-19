@@ -424,17 +424,7 @@ class Plugin {
             return;
         }
 
-        $enqueue_charts = ! ( defined( 'WP_REDIS_DISABLE_CHARTS' ) && WP_REDIS_DISABLE_CHARTS );
-
-        /**
-         * Filters whether the bundled ApexCharts library is enqueued.
-         *
-         * Return `false` to prevent loading the bundled `apexcharts.min.js`
-         * file, for example to register a custom build of ApexCharts instead.
-         *
-         * @param bool $enqueue_charts Whether to enqueue the bundled ApexCharts library.
-         */
-        if ( apply_filters( 'redis_cache_enqueue_charts', $enqueue_charts ) ) {
+        if ( ! defined( 'WP_REDIS_DISABLE_CHARTS' ) || ! WP_REDIS_DISABLE_CHARTS ) {
             wp_enqueue_script(
                 'redis-cache-charts',
                 plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
