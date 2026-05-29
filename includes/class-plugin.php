@@ -545,7 +545,7 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
-            return __( 'Disabled', 'redis-cache' );
+            return __( 'Disabled (via config constant)', 'redis-cache' );
         }
 
         if ( ! $this->object_cache_dropin_exists() ) {

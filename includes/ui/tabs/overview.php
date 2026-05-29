@@ -46,6 +46,18 @@ $diagnostics = $roc->get_diagnostics();
                     <?php echo esc_html( $roc->get_status() ); ?>
                 </span>
             <?php endif; ?>
+
+            <?php if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) : ?>
+                <p class="description">
+                    <?php
+                    printf(
+                        // translators: %s = the WP_REDIS_DISABLED config constant, wrapped in a <code> tag.
+                        esc_html__( 'The object cache is disabled because the %s constant is set. Remove it from your configuration to re-enable the cache.', 'redis-cache' ),
+                        '<code>WP_REDIS_DISABLED</code>'
+                    );
+                    ?>
+                </p>
+            <?php endif; ?>
         </td>
     </tr>
 

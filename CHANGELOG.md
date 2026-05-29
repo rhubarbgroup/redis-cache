@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Indicate when the cache is disabled via the `WP_REDIS_DISABLED` constant
 - Added `WP_REDIS_CHART_COLOR` constant
 - Added `WP_REDIS_LOAD_APEXCHARTS` constant
 - Upgrade ApexCharts to v4.7.0
