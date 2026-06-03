@@ -63,7 +63,7 @@ jobs:
       - name: Set up WordPress and WordPress Test Library
         uses: sjinks/setup-wordpress-test-library@master
         with:
-          version: latest
+          version: ${{ (matrix.php == '7.2' || matrix.php == '7.3') && '6.9' || 'latest' }}
           cache_prefix: redis-cache-${{ github.ref }}
 
       - name: Install PHP Dependencies
@@ -137,7 +137,7 @@ jobs:
       - name: Set up WordPress and WordPress Test Library
         uses: sjinks/setup-wordpress-test-library@master
         with:
-          version: latest
+          version: ${{ (matrix.php == '7.2' || matrix.php == '7.3') && '6.9' || 'latest' }}
           cache_prefix: redis-cache-${{ github.ref }}
 
       - name: Install PHP Dependencies
