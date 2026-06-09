@@ -13,6 +13,7 @@ use Exception;
 
 use Rhubarb\RedisCache\Plugin;
 use Rhubarb\RedisCache\Predis;
+use Rhubarb\RedisCache\Tenants;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,6 +36,94 @@ class Commands extends WP_CLI_Command {
         $roc = Plugin::instance();
 
         require_once __DIR__ . '/../diagnostics.php';
+    }
+
+    /**
+     * Checks whether the Redis database is shared with other installations.
+     *
+     * Reads the tenant registry written by the object cache and samples the
+     * keyspace for key prefixes that don't belong to this site. A shared
+     * database means a non-selective flush wipes every site that shares it.
+     *
+     * ## OPTIONS
+     *
+     * [--format=<format>]
+     * : Render the discovered tenants in a specific format.
+     * ---
+     * default: table
+     * options:
+     *   - table
+     *   - json
+     *   - yaml
+     *   - count
+     * ---
+     *
+     * ## EXAMPLES
+     *
+     *     wp redis is-shared
+     *
+     * @subcommand is-shared
+     *
+     * @param array $args       Positional arguments. Unused.
+     * @param array $assoc_args Associative arguments.
+     */
+    public function is_shared( $args, $assoc_args ) {
+        if ( ! Plugin::instance()->get_redis_status() ) {
+            WP_CLI::error( __( 'The Redis object cache is not connected.', 'redis-cache' ) );
+        }
+
+        $format = $assoc_args['format'] ?? 'table';
+        $report = Tenants::report();
+
+        $rows = [];
+
+        foreach ( $report['tenants'] as $tenant ) {
+            $rows[] = [
+                'url'       => $tenant['url'] ?? '(unknown)',
+                'multisite' => empty( $tenant['multisite'] ) ? 'no' : 'yes',
+                'prefix'    => empty( $tenant['prefix'] ) ? 'empty' : 'set',
+                'version'   => $tenant['version'] ?? '',
+                'last seen' => empty( $tenant['seen'] ) ? '' : sprintf(
+                    /* translators: %s: human readable time difference. */
+                    __( '%s ago', 'redis-cache' ),
+                    human_time_diff( $tenant['seen'] )
+                ),
+            ];
+        }
+
+        \WP_CLI\Utils\format_items( $format, $rows, [ 'url', 'multisite', 'prefix', 'version', 'last seen' ] );
+
+        if ( 'table' !== $format ) {
+            return;
+        }
+
+        if ( ! empty( $report['foreign'] ) ) {
+            $message = sprintf(
+                /* translators: 1: number of prefixes, 2: comma separated list of prefixes. */
+                __( 'Sampled %1$d unrecognized key prefix(es) that do not match this site: %2$s', 'redis-cache' ),
+                count( $report['foreign'] ),
+                implode( ', ', array_slice( $report['foreign'], 0, 10 ) )
+            );
+
+            WP_CLI::log( '' );
+            WP_CLI::warning( $message );
+        }
+
+        WP_CLI::log( '' );
+
+        if ( true === $report['shared'] ) {
+            WP_CLI::warning( __( 'This Redis database is shared with other installations.', 'redis-cache' ) );
+
+            $recommendation = $report['salt_set']
+                ? __( 'Assign a dedicated `WP_REDIS_DATABASE` index per site.', 'redis-cache' )
+                : __( 'Set a unique `WP_REDIS_PREFIX` per site, or assign a dedicated `WP_REDIS_DATABASE` index.', 'redis-cache' );
+
+            WP_CLI::log( $recommendation );
+        } elseif ( false === $report['shared'] ) {
+            WP_CLI::success( __( 'This Redis database does not appear to be shared.', 'redis-cache' ) );
+        } else {
+            WP_CLI::warning( __( 'Unable to determine whether the Redis database is shared. Set a unique `WP_REDIS_PREFIX` to enable detection.', 'redis-cache' ) );
+        }
     }
 
     /**

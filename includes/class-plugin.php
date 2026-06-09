@@ -78,6 +78,7 @@ class Plugin {
         }
 
         Metrics::init();
+        Tenants::init();
 
         $this->add_actions_and_filters();
     }
@@ -127,6 +128,106 @@ class Plugin {
         add_filter( 'perflab_disable_object_cache_dropin', '__return_true' );
         add_filter( 'w3tc_config_item_objectcache.enabled', '__return_false' );
         add_action( 'litespeed_init', [ $this, 'litespeed_disable_objectcache' ] );
+
+        add_filter( 'site_status_tests', [ $this, 'register_site_health_tests' ] );
+    }
+
+    /**
+     * Registers the shared-database Site Health test.
+     *
+     * Only added while Redis is connected, so the check never nags sites that
+     * have the object cache disabled.
+     *
+     * @param array $tests The registered Site Health tests.
+     * @return array
+     */
+    public function register_site_health_tests( $tests ) {
+        if ( $this->get_redis_status() ) {
+            $tests['direct']['redis_shared_database'] = [
+                'label' => __( 'Redis database sharing', 'redis-cache' ),
+                'test'  => [ $this, 'site_health_shared_database' ],
+            ];
+        }
+
+        return $tests;
+    }
+
+    /**
+     * Site Health test that reports whether the Redis database is shared.
+     *
+     * @return array
+     */
+    public function site_health_shared_database() {
+        $result = [
+            'label'       => __( 'The Redis database is not shared', 'redis-cache' ),
+            'status'      => 'good',
+            'badge'       => [
+                'label' => __( 'Redis Cache', 'redis-cache' ),
+                'color' => 'blue',
+            ],
+            'description' => sprintf(
+                '<p>%s</p>',
+                esc_html__( 'No other installations were found using this Redis database, so a cache flush only affects this site.', 'redis-cache' )
+            ),
+            'actions'     => '',
+            'test'        => 'redis_shared_database',
+        ];
+
+        $report = Tenants::report();
+
+        if ( true !== $report['shared'] ) {
+            if ( null === $report['shared'] ) {
+                $result['label'] = __( 'The Redis database could not be checked for sharing', 'redis-cache' );
+                $result['description'] = sprintf(
+                    '<p>%s</p>',
+                    esc_html__( 'Set a unique prefix via the WP_REDIS_PREFIX constant so shared databases can be detected reliably.', 'redis-cache' )
+                );
+            }
+
+            return $result;
+        }
+
+        $others = max( 0, count( $report['tenants'] ) - 1 );
+
+        $result['status'] = 'recommended';
+        $result['label'] = __( 'The Redis database is shared with other installations', 'redis-cache' );
+
+        $description = sprintf(
+            '<p>%s</p>',
+            esc_html__( 'This Redis database is shared with at least one other installation. A non-selective cache flush — the default when no prefix is set — wipes every site that shares the database, and all sites compete for the same memory limit.', 'redis-cache' )
+        );
+
+        $tenant_urls = array_filter( wp_list_pluck( $report['tenants'], 'url' ) );
+
+        if ( $others > 0 && $tenant_urls ) {
+            $description .= sprintf(
+                '<p>%s</p><ul><li>%s</li></ul>',
+                esc_html__( 'Installations registered against this database:', 'redis-cache' ),
+                implode( '</li><li>', array_map( 'esc_html', $tenant_urls ) )
+            );
+        }
+
+        if ( ! empty( $report['foreign'] ) ) {
+            $description .= sprintf(
+                '<p>%s <code>%s</code></p>',
+                esc_html__( 'Unrecognized key prefixes were also sampled from the database:', 'redis-cache' ),
+                implode( '</code>, <code>', array_map( 'esc_html', array_slice( $report['foreign'], 0, 10 ) ) )
+            );
+        }
+
+        $recommendation = $report['salt_set']
+            ? __( 'Assign a dedicated database index per site with the WP_REDIS_DATABASE constant.', 'redis-cache' )
+            : __( 'Set a unique WP_REDIS_PREFIX for each site, or assign a dedicated WP_REDIS_DATABASE index per site.', 'redis-cache' );
+
+        if ( ! $report['selective_flush'] ) {
+            $recommendation .= ' ' . __( 'Enable WP_REDIS_SELECTIVE_FLUSH so flushing this site leaves the others intact.', 'redis-cache' );
+        }
+
+        $description .= sprintf( '<p>%s</p>', esc_html( $recommendation ) );
+
+        $result['description'] = $description;
+
+        return $result;
     }
 
     /**
