@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Upgraded bundled Predis to v2.4.1
+- Allow Predis v3.0 as a Composer dependency
 - Indicate when the cache is disabled via the `WP_REDIS_DISABLED` constant
 - Added `WP_REDIS_CHART_COLOR` constant
 - Added `WP_REDIS_LOAD_APEXCHARTS` constant
