@@ -1250,8 +1250,6 @@ class WP_Object_Cache {
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                $tx->discard();
-
                 return array_fill_keys( $keys, false );
             }
 
@@ -1268,6 +1266,10 @@ class WP_Object_Cache {
             $this->cache_calls++;
             $this->cache_time += $execute_time;
         } catch ( Exception $exception ) {
+            if ( isset( $tx ) ) {
+                $tx->discard();
+            }
+
             $this->handle_exception( $exception );
 
             return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
@@ -1501,13 +1503,15 @@ class WP_Object_Cache {
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                $tx->discard();
-
                 return array_fill_keys( $keys, false );
             }
 
             $execute_time = microtime( true ) - $start_time;
         } catch ( Exception $exception ) {
+            if ( isset( $tx ) ) {
+                $tx->discard();
+            }
+
             $this->handle_exception( $exception );
 
             return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
@@ -2287,8 +2291,6 @@ LUA;
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                $tx->discard();
-
                 return array_fill_keys( $keys, false );
             }
 
@@ -2300,6 +2302,10 @@ LUA;
                 }
             }
         } catch ( Exception $exception ) {
+            if ( isset( $tx ) ) {
+                $tx->discard();
+            }
+
             $this->handle_exception( $exception );
 
             return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
