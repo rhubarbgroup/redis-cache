@@ -1202,6 +1202,10 @@ class WP_Object_Cache {
 
         $tx = $this->redis->pipeline();
 
+        if ( ! $tx ) {
+            return array_fill_keys( $keys, false );
+        }
+
         $orig_exp = $expire;
         $expire = $this->validate_expiration( $expire );
         $derived_keys = [];
@@ -1485,6 +1489,10 @@ class WP_Object_Cache {
 
         try {
             $tx = $this->redis->pipeline();
+
+            if ( ! $tx ) {
+                return array_fill_keys( $keys, false );
+            }
 
             foreach ( $keys as $key ) {
                 $derived_key = $this->build_key( (string) $key, $group );
@@ -2257,6 +2265,10 @@ LUA;
 
         $tx = $this->redis->pipeline();
         $keys = array_keys( $data );
+
+        if ( ! $tx ) {
+            return array_fill_keys( $keys, false );
+        }
 
         foreach ( $data as $key => $value ) {
             $san_key = $this->sanitize_key_part( $key );
