@@ -8,6 +8,7 @@
 - Added `WP_REDIS_CHART_COLOR` constant
 - Added `WP_REDIS_LOAD_APEXCHARTS` constant
 - Upgrade ApexCharts to v4.7.0
+- Fixed bulk cache methods leaving the connection stuck in pipeline mode
 
 ## 2.8.0
 
