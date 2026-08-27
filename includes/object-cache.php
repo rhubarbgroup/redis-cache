@@ -640,6 +640,7 @@ class WP_Object_Cache {
             'timeout',
             'read_timeout',
             'retry_interval',
+            'persistent',
         ];
 
         foreach ( $settings as $setting ) {
@@ -657,8 +658,29 @@ class WP_Object_Cache {
         $this->diagnostics[ 'timeout' ] = $parameters[ 'timeout' ];
         $this->diagnostics[ 'read_timeout' ] = $parameters[ 'read_timeout' ];
         $this->diagnostics[ 'retry_interval' ] = $parameters[ 'retry_interval' ];
+        $this->diagnostics[ 'persistent' ] = $parameters[ 'persistent' ];
 
         return $parameters;
+    }
+
+    /**
+     * Build the identifier persistent connections are pooled by.
+     *
+     * PhpRedis, Relay and Credis keep one persistent connection per host, port and identifier.
+     * Whatever is applied *after* connecting is part of that connection's state and therefore
+     * has to be part of the identifier: `select()` is only called for a non-zero database, so
+     * two sites sharing a pool would otherwise silently inherit whichever database the other
+     * one selected last.
+     *
+     * @param  array $parameters Connection parameters built by the `build_parameters` method.
+     * @return string
+     */
+    protected function build_persistent_id( $parameters ) {
+        if ( defined( 'WP_REDIS_PERSISTENT_ID' ) ) {
+            return (string) WP_REDIS_PERSISTENT_ID;
+        }
+
+        return sprintf( 'wp-db%s', $parameters['database'] );
     }
 
     /**
@@ -709,7 +731,7 @@ class WP_Object_Cache {
                 'host' => $parameters['host'],
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
-                '',
+                'persistent_id' => $parameters['persistent'] ? $this->build_persistent_id( $parameters ) : '',
                 'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
@@ -734,7 +756,10 @@ class WP_Object_Cache {
                 $args['port'] = -1;
             }
 
-            call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
+            call_user_func_array(
+                [ $this->redis, $parameters['persistent'] ? 'pconnect' : 'connect' ],
+                array_values( $args )
+            );
 
             if ( isset( $parameters['password'] ) ) {
                 $args['password'] = $parameters['password'];
@@ -779,7 +804,7 @@ class WP_Object_Cache {
                 'host' => $parameters['host'],
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
-                '',
+                'persistent_id' => $parameters['persistent'] ? $this->build_persistent_id( $parameters ) : '',
                 'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
@@ -802,7 +827,10 @@ class WP_Object_Cache {
                 $args['port'] = -1;
             }
 
-            call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
+            call_user_func_array(
+                [ $this->redis, $parameters['persistent'] ? 'pconnect' : 'connect' ],
+                array_values( $args )
+            );
 
             if ( isset( $parameters['password'] ) ) {
                 $args['password'] = $parameters['password'];
@@ -1049,7 +1077,7 @@ class WP_Object_Cache {
                 'host' => $parameters['scheme'] === 'unix' ? $parameters['path'] : $parameters['host'],
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
-                'persistent' => '',
+                'persistent' => $parameters['persistent'] ? $this->build_persistent_id( $parameters ) : '',
                 'database' => $parameters['database'],
                 'password' => isset( $parameters['password'] ) ? $parameters['password'] : null,
             ];
