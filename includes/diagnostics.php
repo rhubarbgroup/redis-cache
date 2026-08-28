@@ -62,6 +62,7 @@ if ( $dropin && ! $disabled ) {
     $info['Timeout'] = $wp_object_cache->diagnostics['timeout'] ?? false;
     $info['Read Timeout'] = $wp_object_cache->diagnostics['read_timeout'] ?? false;
     $info['Retry Interval'] = $wp_object_cache->diagnostics['retry_interval'] ?? false;
+    $info['Persistent'] = $wp_object_cache->diagnostics['persistent'] ?? false;
 }
 
 $constants = [
