@@ -666,18 +666,22 @@ class WP_Object_Cache {
     /**
      * Build the identifier persistent connections are pooled by.
      *
+     * `WP_REDIS_PERSISTENT` carries both answers: any truthy value turns persistence on, and a
+     * non-empty string additionally names the pool. Anything else falls back to the default.
+     *
      * PhpRedis, Relay and Credis keep one persistent connection per host, port and identifier.
      * Whatever is applied *after* connecting is part of that connection's state and therefore
      * has to be part of the identifier: `select()` is only called for a non-zero database, so
      * two sites sharing a pool would otherwise silently inherit whichever database the other
-     * one selected last.
+     * one selected last. That is why the default carries the database, and why an identifier
+     * given by hand is the caller's to keep distinct.
      *
      * @param  array $parameters Connection parameters built by the `build_parameters` method.
      * @return string
      */
     protected function build_persistent_id( $parameters ) {
-        if ( defined( 'WP_REDIS_PERSISTENT_ID' ) ) {
-            return (string) WP_REDIS_PERSISTENT_ID;
+        if ( is_string( $parameters['persistent'] ) && $parameters['persistent'] !== '' ) {
+            return $parameters['persistent'];
         }
 
         return sprintf( 'wp-db%s', $parameters['database'] );
