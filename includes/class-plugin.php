@@ -102,6 +102,9 @@ class Plugin {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_redis_metrics' ] );
 
+        add_action( 'wp_head', [ $this, 'add_mobile_css' ] );
+        add_action( 'admin_head', [ $this, 'add_mobile_css' ] );
+
         add_action( 'admin_bar_menu', [ $this, 'render_admin_bar' ], 998 );
 
         add_action( 'load-settings_page_redis-cache', [ $this, 'do_admin_actions' ] );
@@ -311,6 +314,32 @@ class Plugin {
         $url = "https://objectcache.pro/?ref={$ref}&utm_source=wp-plugin&utm_medium={$medium}";
 
         return $as_html ? str_replace('&', '&amp;', $url) : $url;
+    }
+
+    /**
+     * Adds mobile CSS for the admin bar.
+     *
+     * @return void
+     */
+    public function add_mobile_css() {
+        ?>
+    	<style>
+        @media screen and (max-width: 782px) {
+    		#wp-toolbar > ul > li#wp-admin-bar-redis-cache {
+	    		display: list-item;
+		    	font: 18px/44px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+			    padding: 0 10px !important;
+			    width: auto !important;
+	    	}
+	    	#wp-toolbar > ul > li#wp-admin-bar-redis-cache:before {
+	    		content: "RC";
+	    	}
+	    	#wp-toolbar > ul > li#wp-admin-bar-redis-cache div.ab-item.ab-empty-item {
+	    		display: none;
+	    	}
+	    }
+	    </style>
+        <?php
     }
 
     /**
