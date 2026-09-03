@@ -53,6 +53,7 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_SSL_CONTEXT`               | `[]`        | TLS connection options for `tls` or `rediss` scheme |
 | `WP_REDIS_FLUSH_TIMEOUT`             | `5`         | Experimental. The timeout in seconds when flushing |
 | `WP_REDIS_RETRY_INTERVAL`            |             | The number of milliseconds between retries (PhpRedis only) |
+| `WP_REDIS_PERSISTENT`                | `false`     | Whether to persistent connections. Optionally, accepts non-empty connection identifier string. |
 | `WP_REDIS_GLOBAL_GROUPS`             | `[]`        | Additional groups that are considered global on multisite networks |
 | `WP_REDIS_CHART_COLOR`               |             | Override admin metrics chart color using a hex value (`#RGB` or `#RRGGBB`) |
 | `WP_REDIS_METRICS_MAX_TIME`          | `3600`      | The maximum number of seconds metrics should be stored |

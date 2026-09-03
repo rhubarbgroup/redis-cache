@@ -62,6 +62,7 @@ if ( $dropin && ! $disabled ) {
     $info['Timeout'] = $wp_object_cache->diagnostics['timeout'] ?? false;
     $info['Read Timeout'] = $wp_object_cache->diagnostics['read_timeout'] ?? false;
     $info['Retry Interval'] = $wp_object_cache->diagnostics['retry_interval'] ?? false;
+    $info['Persistent'] = $wp_object_cache->diagnostics['persistent'] ?? false;
 }
 
 $constants = [
@@ -76,6 +77,7 @@ $constants = [
     'WP_REDIS_TIMEOUT',
     'WP_REDIS_READ_TIMEOUT',
     'WP_REDIS_RETRY_INTERVAL',
+    'WP_REDIS_PERSISTENT',
     'WP_REDIS_SERVERS',
     'WP_REDIS_CLUSTER',
     'WP_REDIS_SHARDS',
