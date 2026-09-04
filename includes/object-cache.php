@@ -415,48 +415,23 @@ class WP_Object_Cache {
     /**
      * List of global groups.
      *
-     * @var array<string>
+     * @var array<string, bool>
      */
-    public $global_groups = [
-        'blog-details',
-        'blog-id-cache',
-        'blog-lookup',
-        'global-posts',
-        'networks',
-        'rss',
-        'sites',
-        'site-details',
-        'site-lookup',
-        'site-options',
-        'site-transient',
-        'users',
-        'useremail',
-        'userlogins',
-        'usermeta',
-        'user_meta',
-        'userslugs',
-    ];
+    public $global_groups = [];
 
     /**
      * List of groups that will not be flushed.
      *
-     * @var array
+     * @var array<string, bool>
      */
     public $unflushable_groups = [];
 
     /**
      * List of groups not saved to Redis.
      *
-     * @var array
+     * @var array<string, bool>
      */
     public $ignored_groups = [];
-
-    /**
-     * List of groups and their types.
-     *
-     * @var array
-     */
-    public $group_type = [];
 
     /**
      * Prefix used for global groups.
@@ -511,20 +486,18 @@ class WP_Object_Cache {
         $this->fail_gracefully = $fail_gracefully;
 
         if ( defined( 'WP_REDIS_GLOBAL_GROUPS' ) && is_array( WP_REDIS_GLOBAL_GROUPS ) ) {
-            $this->global_groups = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_GLOBAL_GROUPS );
+            $this->global_groups = array_fill_keys( array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_GLOBAL_GROUPS ), true );
         }
 
-        $this->global_groups[] = 'redis-cache';
+        $this->global_groups['redis-cache'] = true;
 
         if ( defined( 'WP_REDIS_IGNORED_GROUPS' ) && is_array( WP_REDIS_IGNORED_GROUPS ) ) {
-            $this->ignored_groups = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_IGNORED_GROUPS );
+            $this->ignored_groups = array_fill_keys( array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_IGNORED_GROUPS ), true );
         }
 
         if ( defined( 'WP_REDIS_UNFLUSHABLE_GROUPS' ) && is_array( WP_REDIS_UNFLUSHABLE_GROUPS ) ) {
-            $this->unflushable_groups = array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_UNFLUSHABLE_GROUPS );
+            $this->unflushable_groups = array_fill_keys( array_map( [ $this, 'sanitize_key_part' ], WP_REDIS_UNFLUSHABLE_GROUPS ), true );
         }
-
-        $this->cache_group_types();
 
         $this->use_igbinary = defined( 'WP_REDIS_IGBINARY' ) && WP_REDIS_IGBINARY && extension_loaded( 'igbinary' );
 
@@ -571,25 +544,6 @@ class WP_Object_Cache {
         if ( function_exists( 'is_multisite' ) ) {
             $this->global_prefix = is_multisite() ? '' : $table_prefix;
             $this->blog_prefix = is_multisite() ? $blog_id : $table_prefix;
-        }
-    }
-
-    /**
-     * Set group type array
-     *
-     * @return void
-     */
-    protected function cache_group_types() {
-        foreach ( $this->global_groups as $group ) {
-            $this->group_type[ $group ] = 'global';
-        }
-
-        foreach ( $this->unflushable_groups as $group ) {
-            $this->group_type[ $group ] = 'unflushable';
-        }
-
-        foreach ( $this->ignored_groups as $group ) {
-            $this->group_type[ $group ] = 'ignored';
         }
     }
 
@@ -1768,7 +1722,7 @@ class WP_Object_Cache {
             }
         }
 
-        if ( in_array( $san_group, $this->unflushable_groups ) ) {
+        if ( $this->is_unflushable_group( $san_group ) ) {
             return false;
         }
 
@@ -1897,7 +1851,7 @@ LUA;
                 function ( $group ) {
                     return ":{$group}:";
                 },
-                $this->unflushable_groups
+                array_keys( $this->unflushable_groups )
             );
 
             $script = <<<LUA
@@ -2557,6 +2511,20 @@ LUA;
     public function info() {
         $total = $this->cache_hits + $this->cache_misses;
 
+        $normalize_group_list = function ( $groups ) {
+            if ( ! is_array( $groups ) || empty( $groups ) ) {
+                return [];
+            }
+
+            $keys = array_keys( $groups );
+
+            if ( $keys === range( 0, count( $groups ) - 1 ) ) {
+                return array_values( $groups );
+            }
+
+            return $keys;
+        };
+
         $bytes = array_map(
             function ( $keys ) {
                 // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
@@ -2573,9 +2541,9 @@ LUA;
             'time' => $this->cache_time,
             'calls' => $this->cache_calls,
             'groups' => (object) [
-                'global' => $this->global_groups,
-                'non_persistent' => $this->ignored_groups,
-                'unflushable' => $this->unflushable_groups,
+                'global' => $normalize_group_list( $this->global_groups ),
+                'non_persistent' => $normalize_group_list( $this->ignored_groups ),
+                'unflushable' => $normalize_group_list( $this->unflushable_groups ),
             ],
             'errors' => empty( $this->errors ) ? null : $this->errors,
             'meta' => [
@@ -2640,39 +2608,32 @@ LUA;
      * @return bool
      */
     protected function is_ignored_group( $group ) {
-        return $this->is_group_of_type( $group, 'ignored' );
+        return isset( $this->ignored_groups[ $group ] );
     }
 
     /**
-     * Checks if the given group is part the global group array
+     * Checks if the given group is part the global group array.
+     * Ignored groups take precedence over global; unflushable also takes precedence over global.
      *
      * @param string $group  Name of the group to check, pre-sanitized.
      * @return bool
      */
     protected function is_global_group( $group ) {
-        return $this->is_group_of_type( $group, 'global' );
+        return isset( $this->global_groups[ $group ] )
+            && ! isset( $this->ignored_groups[ $group ] )
+            && ! isset( $this->unflushable_groups[ $group ] );
     }
 
     /**
-     * Checks if the given group is part the unflushable group array
+     * Checks if the given group is part the unflushable group array.
+     * Ignored groups take precedence over unflushable.
      *
      * @param string $group  Name of the group to check, pre-sanitized.
      * @return bool
      */
     protected function is_unflushable_group( $group ) {
-        return $this->is_group_of_type( $group, 'unflushable' );
-    }
-
-    /**
-     * Checks the type of the given group
-     *
-     * @param string $group  Name of the group to check, pre-sanitized.
-     * @param string $type   Type of the group to check.
-     * @return bool
-     */
-    private function is_group_of_type( $group, $type ) {
-        return isset( $this->group_type[ $group ] )
-            && $this->group_type[ $group ] == $type;
+        return isset( $this->unflushable_groups[ $group ] )
+            && ! isset( $this->ignored_groups[ $group ] );
     }
 
     /**
@@ -2752,15 +2713,13 @@ LUA;
      * @param array $groups List of groups that are global.
      */
     public function add_global_groups( $groups ) {
-        $groups = (array) $groups;
+        $groups = array_map( array( $this, 'sanitize_key_part' ), (array) $groups );
 
         if ( $this->redis_status() ) {
-            $this->global_groups = array_unique( array_merge( $this->global_groups, $groups ) );
+            $this->global_groups = array_merge( $this->global_groups, array_fill_keys( $groups, true ) );
         } else {
-            $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
+            $this->ignored_groups = array_merge( $this->ignored_groups, array_fill_keys( $groups, true ) );
         }
-
-        $this->cache_group_types();
     }
 
     /**
@@ -2777,8 +2736,10 @@ LUA;
          */
         $groups = apply_filters( 'redis_cache_add_non_persistent_groups', (array) $groups );
 
-        $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $groups ) );
-        $this->cache_group_types();
+        // Sanitize group names to keep behavior consistent with the rest of the cache key path.
+        $groups = array_map( array( $this, 'sanitize_key_part' ), $groups );
+
+        $this->ignored_groups = array_merge( $this->ignored_groups, array_fill_keys( $groups, true ) );
     }
 
     /**
@@ -2787,10 +2748,9 @@ LUA;
      * @param array $groups List of groups that are unflushable.
      */
     public function add_unflushable_groups( $groups ) {
-        $groups = (array) $groups;
+        $groups = array_map( array( $this, 'sanitize_key_part' ), (array) $groups );
 
-        $this->unflushable_groups = array_unique( array_merge( $this->unflushable_groups, $groups ) );
-        $this->cache_group_types();
+        $this->unflushable_groups = array_merge( $this->unflushable_groups, array_fill_keys( $groups, true ) );
     }
 
     /**
@@ -2954,7 +2914,13 @@ LUA;
         $this->redis_connected = false;
 
         // When Redis is unavailable, fall back to the internal cache by forcing all groups to be "no redis" groups.
-        $this->ignored_groups = array_unique( array_merge( $this->ignored_groups, $this->global_groups ) );
+        if ( is_array( $this->global_groups ) && $this->global_groups ) {
+            $keys        = array_keys( $this->global_groups );
+            $is_list     = $keys === range( 0, count( $this->global_groups ) - 1 );
+            $group_names = $is_list ? $this->global_groups : $keys;
+
+            $this->add_non_persistent_groups( $group_names );
+        }
 
         error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
