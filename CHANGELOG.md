@@ -9,6 +9,9 @@
 - Added `WP_REDIS_CHART_COLOR` constant
 - Added `WP_REDIS_LOAD_APEXCHARTS` constant
 - Fixed bulk cache methods leaving the connection stuck in pipeline mode
+- Fixed `WP_REDIS_USERNAME` being ignored by PhpRedis and Relay connections
+- Fixed empty `WP_REDIS_PASSWORD` values not being treated as "no password"
+- Fixed the password's first character being displayed as the username
 
 ## 2.8.0
 

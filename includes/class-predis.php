@@ -66,8 +66,16 @@ class Predis {
             }
         }
 
-        if ( isset( $parameters['password'] ) && $parameters['password'] === '' ) {
-            unset( $parameters['password'] );
+        if ( array_key_exists( 'password', $parameters ) ) {
+            $password = $parameters['password'];
+
+            $is_empty = is_array( $password )
+                ? $password === []
+                : ! is_scalar( $password ) || (string) $password === '';
+
+            if ( $is_empty ) {
+                unset( $parameters['password'] );
+            }
         }
 
         if ( defined( 'WP_REDIS_SHARDS' ) ) {

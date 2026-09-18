@@ -651,8 +651,16 @@ class WP_Object_Cache {
             }
         }
 
-        if ( isset( $parameters[ 'password' ] ) && $parameters[ 'password' ] === '' ) {
-            unset( $parameters[ 'password' ] );
+        if ( array_key_exists( 'password', $parameters ) ) {
+            $password = $parameters[ 'password' ];
+
+            $is_empty = is_array( $password )
+                ? $password === []
+                : ! is_scalar( $password ) || (string) $password === '';
+
+            if ( $is_empty ) {
+                unset( $parameters[ 'password' ] );
+            }
         }
 
         $this->diagnostics[ 'timeout' ] = $parameters[ 'timeout' ];
@@ -661,6 +669,36 @@ class WP_Object_Cache {
         $this->diagnostics[ 'persistent' ] = $parameters[ 'persistent' ];
 
         return $parameters;
+    }
+
+    /**
+     * Build the `AUTH` credentials from the connection parameters.
+     *
+     * Returns a `[ username, password ]` array when a username was configured,
+     * either using the `WP_REDIS_USERNAME` constant or by passing an array to
+     * `WP_REDIS_PASSWORD`, and the password by itself otherwise.
+     *
+     * @param  array $parameters Connection parameters built by the `build_parameters` method.
+     * @return array|string|null
+     */
+    protected function build_credentials( $parameters ) {
+        if ( ! isset( $parameters['password'] ) ) {
+            return null;
+        }
+
+        $username = null;
+        $password = $parameters['password'];
+
+        if ( is_array( $password ) ) {
+            $username = array_shift( $password );
+            $password = implode( '', $password );
+        }
+
+        if ( defined( 'WP_REDIS_USERNAME' ) ) {
+            $username = WP_REDIS_USERNAME;
+        }
+
+        return (string) $username === '' ? $password : [ $username, $password ];
     }
 
     /**
@@ -698,6 +736,12 @@ class WP_Object_Cache {
 
         $this->diagnostics[ 'client' ] = sprintf( 'PhpRedis (v%s)', $version );
 
+        $credentials = $this->build_credentials( $parameters );
+
+        if ( is_array( $credentials ) && version_compare( $version, '5.3.0', '<' ) ) {
+            throw new Exception( 'PhpRedis v5.3.0 or newer is required to authenticate using a username.' );
+        }
+
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
             $this->redis = new RedisArray( array_values( WP_REDIS_SHARDS ) );
 
@@ -713,8 +757,8 @@ class WP_Object_Cache {
                     'persistent' => $parameters['persistent'],
                 ];
 
-                if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
-                    $args['password'] = $parameters['password'];
+                if ( ! is_null( $credentials ) && version_compare( $version, '4.3.0', '>=' ) ) {
+                    $args['password'] = $credentials;
                 }
 
                 if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
@@ -765,9 +809,14 @@ class WP_Object_Cache {
                 array_values( $args )
             );
 
-            if ( isset( $parameters['password'] ) ) {
-                $args['password'] = $parameters['password'];
-                $this->redis->auth( $parameters['password'] );
+            if ( ! is_null( $credentials ) ) {
+                if ( is_array( $credentials ) ) {
+                    $args['username'] = $credentials[0];
+                }
+
+                $args['password'] = is_array( $credentials ) ? $credentials[1] : $credentials;
+
+                $this->redis->auth( $credentials );
             }
 
             if ( isset( $parameters['database'] ) ) {
@@ -836,9 +885,16 @@ class WP_Object_Cache {
                 array_values( $args )
             );
 
-            if ( isset( $parameters['password'] ) ) {
-                $args['password'] = $parameters['password'];
-                $this->redis->auth( $parameters['password'] );
+            $credentials = $this->build_credentials( $parameters );
+
+            if ( ! is_null( $credentials ) ) {
+                if ( is_array( $credentials ) ) {
+                    $args['username'] = $credentials[0];
+                }
+
+                $args['password'] = is_array( $credentials ) ? $credentials[1] : $credentials;
+
+                $this->redis->auth( $credentials );
             }
 
             if ( isset( $parameters['database'] ) ) {
