@@ -7,7 +7,7 @@
 
 namespace Rhubarb\RedisCache;
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * UI class definition

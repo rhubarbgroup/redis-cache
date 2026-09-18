@@ -10,7 +10,7 @@ namespace Rhubarb\RedisCache;
 use WP_Error;
 use Exception;
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Main plugin class definition
@@ -118,6 +118,8 @@ class Plugin {
         add_filter( sprintf( '%splugin_action_links_%s', is_multisite() ? 'network_admin_' : '', WP_REDIS_BASENAME ), [ $this, 'add_plugin_actions_links' ] );
 
         add_action( 'wp_head', [ $this, 'register_shutdown_hooks' ] );
+
+        add_action( 'redis_object_cache_enable', [ $this, 'maybe_delete_transients' ] );
 
         add_filter( 'qm/collectors', [ $this, 'register_qm_collector' ], 25 );
         add_filter( 'qm/outputter/html', [ $this, 'register_qm_output' ] );
@@ -381,6 +383,11 @@ class Plugin {
             'rediscache',
             [
                 'jQuery' => 'jQuery',
+                'is_wp7' => version_compare( get_bloginfo( 'version' ), '7.0-dev', '>=' ),
+                'chart_color' => (
+                    defined( 'WP_REDIS_CHART_COLOR' )
+                    && preg_match( '/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i', (string) WP_REDIS_CHART_COLOR )
+                ) ? WP_REDIS_CHART_COLOR : null,
                 'disable_pro' => $screen->id !== $this->screen
                     || ( defined( 'WP_REDIS_DISABLE_BANNERS' ) && WP_REDIS_DISABLE_BANNERS )
                     || self::acceleratewp_install(),
@@ -417,13 +424,15 @@ class Plugin {
             return;
         }
 
-        wp_enqueue_script(
-            'redis-cache-charts',
-            plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
-            [],
-            WP_REDIS_VERSION,
-            true
-        );
+        if ( ! defined( 'WP_REDIS_LOAD_APEXCHARTS' ) || WP_REDIS_LOAD_APEXCHARTS ) {
+            wp_enqueue_script(
+                'redis-cache-charts',
+                plugins_url( 'assets/js/apexcharts.min.js', WP_REDIS_FILE ),
+                [],
+                WP_REDIS_VERSION,
+                true
+            );
+        }
 
         if ( ! $this->get_redis_status() ) {
             return;
@@ -536,7 +545,7 @@ class Plugin {
         global $wp_object_cache;
 
         if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) {
-            return __( 'Disabled', 'redis-cache' );
+            return __( 'Disabled (via config constant)', 'redis-cache' );
         }
 
         if ( ! $this->object_cache_dropin_exists() ) {
@@ -983,7 +992,7 @@ HTML;
                         }
 
                         /**
-                         * Fires on cache enable event
+                         * Fires on cache disable event
                          *
                          * @since 1.3.5
                          * @param bool $result Whether the filesystem event (deletion of the `object-cache.php` file) was successful.
@@ -1014,7 +1023,7 @@ HTML;
                         );
 
                         /**
-                         * Fires on cache enable event
+                         * Fires on cache update-dropin event
                          *
                          * @since 1.3.5
                          * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.
@@ -1201,6 +1210,60 @@ HTML;
     public function register_shutdown_hooks() {
         if ( ! defined( 'WP_REDIS_DISABLE_COMMENT' ) || ! WP_REDIS_DISABLE_COMMENT ) {
             add_action( 'shutdown', [ $this, 'maybe_print_comment' ], 0 );
+        }
+    }
+
+    /**
+     * Delete all transients if the cache was enabled successfully.
+     * Callback for `redis_object_cache_enable` action.
+     *
+     * @param bool $should_delete
+     * @return void
+     */
+    public function maybe_delete_transients( $should_delete ) {
+        global $wpdb;
+
+        if ( ! $should_delete ) {
+            return;
+        }
+
+        if ( is_multisite() ) {
+            $this->delete_multisite_transients();
+
+            return;
+        }
+
+        $wpdb->query( $wpdb->prepare(
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+            '_transient_%',
+            '_site_transient_%'
+        ) );
+    }
+
+    /**
+     * Deletes the transients for all blogs on the multisite network.
+     *
+     * @return void
+     */
+    protected function delete_multisite_transients() {
+        global $wpdb;
+
+        $wpdb->query( $wpdb->prepare(
+            "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s", '_site_transient_%'
+        ) );
+
+        $sites = get_sites([ 'fields' => 'ids', 'number' => 0 ]);
+
+        foreach ( $sites as $id ) {
+            try {
+                $prefix = $wpdb->get_blog_prefix( $id );
+
+                $wpdb->query( $wpdb->prepare(
+                    "DELETE FROM {$prefix}options WHERE option_name LIKE %s", '_transient_%'
+                ) );
+            } catch ( Exception $error ) {
+                error_log($error->getMessage());
+            }
         }
     }
 
@@ -1486,7 +1549,7 @@ HTML;
             );
 
             /**
-             * Fires on cache enable event
+             * Fires on cache update-dropin event
              *
              * @since 1.3.5
              * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.

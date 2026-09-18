@@ -1,5 +1,29 @@
 # Changelog
 
+## 3.0.0
+
+- Allow Predis v3.0 as a Composer dependency
+- Upgraded bundled Predis library to v2.4.1
+- Upgraded ApexCharts to v4.7.0
+- Indicate when the cache is disabled via the `WP_REDIS_DISABLED` constant
+- Added `WP_REDIS_CHART_COLOR` constant
+- Added `WP_REDIS_LOAD_APEXCHARTS` constant
+- Fixed `wp_cache_replace()` writing keys that don't exist and misreporting its result
+- Fixed bulk cache methods leaving the connection stuck in pipeline mode
+- Fixed `WP_REDIS_USERNAME` being ignored by PhpRedis/Relay connections
+- Fixed `WP_REDIS_USERNAME` being ignored when no password is configured
+- Fixed handling empty `WP_REDIS_PASSWORD` values
+- Fixed sharded connections erroring when `WP_REDIS_USERNAME` is used with PhpRedis older than v5.3.0
+- Fixed the username missing from the diagnostics of clustered connections
+
+## 2.8.0
+
+- Delete transients when cache is enabled
+- Improved styling for WordPress 7.x
+- Respect `WP_REDIS_SSL_CONTEXT` when using Predis and clustered connections
+- Added missing `redis_object_cache_(disable|update_dropin)` hooks to WP CLI commands
+- Fixed `redis_object_cache_enable` action result parameter
+
 ## 2.7.0
 
 - Preserve key TTL when calling (in|de)crement methods

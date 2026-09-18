@@ -11,7 +11,7 @@ use QM_Data;
 use QM_Data_Cache;
 use QM_Collector as QM_BaseCollector;
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Query Monitor data collector class definition

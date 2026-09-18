@@ -14,7 +14,7 @@ use Exception;
 use Rhubarb\RedisCache\Plugin;
 use Rhubarb\RedisCache\Predis;
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Enables, disabled and checks the status of the object cache.
@@ -77,6 +77,14 @@ class Commands extends WP_CLI_Command {
                 FS_CHMOD_FILE
             );
 
+            /**
+             * Fires on cache enable event
+             *
+             * @since 1.3.5
+             * @param bool $result Whether the filesystem event (copy of the `object-cache.php` file) was successful.
+             */
+            do_action( 'redis_object_cache_enable', $copy );
+
             if ( $copy ) {
                 WP_CLI::success( __( 'Object cache enabled.', 'redis-cache' ) );
             } else {
@@ -116,7 +124,17 @@ class Commands extends WP_CLI_Command {
 
                 WP_Filesystem();
 
-                if ( $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' ) ) {
+                $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
+
+                /**
+                 * Fires on cache disable event
+                 *
+                 * @param bool $result Whether the deletion of the `object-cache.php` drop-in was successful.
+                 * @since 1.3.5
+                 */
+                do_action( 'redis_object_cache_disable', $result );
+
+                if ( $result ) {
                     $this->flush_redis();
 
                     WP_CLI::success( __( 'Object cache disabled.', 'redis-cache' ) );
@@ -151,6 +169,14 @@ class Commands extends WP_CLI_Command {
             true,
             FS_CHMOD_FILE
         );
+
+        /**
+         * Fires on cache update-dropin event
+         *
+         * @param bool $result Whether the `object-cache.php` drop-in was updated successful.
+         * @since 1.3.5
+         */
+        do_action( 'redis_object_cache_update_dropin', $copy );
 
         if ( $copy ) {
             $flush = $this->flush_redis();

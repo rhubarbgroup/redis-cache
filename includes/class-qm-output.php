@@ -9,7 +9,7 @@ namespace Rhubarb\RedisCache;
 
 use QM_Output_Html;
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Query Monitor output logic class definition

@@ -9,7 +9,7 @@ namespace Rhubarb\RedisCache;
 
 use Exception;
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Metrics collection class

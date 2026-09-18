@@ -3,7 +3,7 @@
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
  * Description: A persistent object cache backend powered by Redis. Supports Predis, PhpRedis, Relay, replication, sentinels, clustering and WP-CLI.
- * Version: 2.7.0
+ * Version: 3.0.0
  * Author: Till Krüss
  * Author URI: https://objectcache.pro
  * License: GPLv3
@@ -13,7 +13,7 @@
  * @package Rhubarb\RedisCache
  */
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact, Generic.WhiteSpace.ScopeIndent.Incorrect
 if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
@@ -640,6 +640,7 @@ class WP_Object_Cache {
             'timeout',
             'read_timeout',
             'retry_interval',
+            'persistent',
         ];
 
         foreach ( $settings as $setting ) {
@@ -650,15 +651,79 @@ class WP_Object_Cache {
             }
         }
 
-        if ( isset( $parameters[ 'password' ] ) && $parameters[ 'password' ] === '' ) {
-            unset( $parameters[ 'password' ] );
+        if ( array_key_exists( 'password', $parameters ) ) {
+            $password = $parameters[ 'password' ];
+
+            $is_empty = is_array( $password )
+                ? $password === []
+                : ! is_scalar( $password ) || (string) $password === '';
+
+            if ( $is_empty ) {
+                unset( $parameters[ 'password' ] );
+            }
         }
 
         $this->diagnostics[ 'timeout' ] = $parameters[ 'timeout' ];
         $this->diagnostics[ 'read_timeout' ] = $parameters[ 'read_timeout' ];
         $this->diagnostics[ 'retry_interval' ] = $parameters[ 'retry_interval' ];
+        $this->diagnostics[ 'persistent' ] = $parameters[ 'persistent' ];
 
         return $parameters;
+    }
+
+    /**
+     * Build the `AUTH` credentials from the connection parameters.
+     *
+     * Returns a `[ username, password ]` array when a username was configured,
+     * either using the `WP_REDIS_USERNAME` constant or by passing an array to
+     * `WP_REDIS_PASSWORD`, the password by itself when there's no username,
+     * and `null` when neither was configured.
+     *
+     * @param  array $parameters Connection parameters built by the `build_parameters` method.
+     * @return array|string|null
+     */
+    protected function build_credentials( $parameters ) {
+        $username = null;
+        $password = isset( $parameters['password'] ) ? $parameters['password'] : '';
+
+        if ( is_array( $password ) ) {
+            $username = array_shift( $password );
+            $password = implode( '', $password );
+        }
+
+        if ( defined( 'WP_REDIS_USERNAME' ) ) {
+            $username = WP_REDIS_USERNAME;
+        }
+
+        if ( (string) $username !== '' ) {
+            return [ $username, $password ];
+        }
+
+        return (string) $password === '' ? null : $password;
+    }
+
+    /**
+     * Build the identifier persistent connections are pooled by.
+     *
+     * `WP_REDIS_PERSISTENT` carries both answers: any truthy value turns persistence on, and a
+     * non-empty string additionally names the pool. Anything else falls back to the default.
+     *
+     * PhpRedis, Relay and Credis keep one persistent connection per host, port and identifier.
+     * Whatever is applied *after* connecting is part of that connection's state and therefore
+     * has to be part of the identifier: `select()` is only called for a non-zero database, so
+     * two sites sharing a pool would otherwise silently inherit whichever database the other
+     * one selected last. That is why the default carries the database, and why an identifier
+     * given by hand is the caller's to keep distinct.
+     *
+     * @param  array $parameters Connection parameters built by the `build_parameters` method.
+     * @return string
+     */
+    protected function build_persistent_id( $parameters ) {
+        if ( is_string( $parameters['persistent'] ) && $parameters['persistent'] !== '' ) {
+            return $parameters['persistent'];
+        }
+
+        return sprintf( 'wp-db%s', $parameters['database'] );
     }
 
     /**
@@ -671,6 +736,12 @@ class WP_Object_Cache {
         $version = phpversion( 'redis' );
 
         $this->diagnostics[ 'client' ] = sprintf( 'PhpRedis (v%s)', $version );
+
+        $credentials = $this->build_credentials( $parameters );
+
+        if ( is_array( $credentials ) && ! defined( 'WP_REDIS_SHARDS' ) && version_compare( $version, '5.3.0', '<' ) ) {
+            throw new Exception( 'PhpRedis v5.3.0 or newer is required to authenticate using a username.' );
+        }
 
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
             $this->redis = new RedisArray( array_values( WP_REDIS_SHARDS ) );
@@ -687,8 +758,8 @@ class WP_Object_Cache {
                     'persistent' => $parameters['persistent'],
                 ];
 
-                if ( isset( $parameters['password'] ) && version_compare( $version, '4.3.0', '>=' ) ) {
-                    $args['password'] = $parameters['password'];
+                if ( ! is_null( $credentials ) && version_compare( $version, '4.3.0', '>=' ) ) {
+                    $args['password'] = $credentials;
                 }
 
                 if ( version_compare( $version, '5.3.0', '>=' ) && defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
@@ -700,6 +771,12 @@ class WP_Object_Cache {
                 }
 
                 $this->redis = new RedisCluster( null, ...array_values( $args ) );
+
+                if ( is_array( $credentials ) ) {
+                    $args['username'] = $credentials[0];
+                    $args['password'] = $credentials[1];
+                }
+
                 $this->diagnostics += $args;
             }
         } else {
@@ -709,7 +786,7 @@ class WP_Object_Cache {
                 'host' => $parameters['host'],
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
-                '',
+                'persistent_id' => $parameters['persistent'] ? $this->build_persistent_id( $parameters ) : '',
                 'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
@@ -734,11 +811,19 @@ class WP_Object_Cache {
                 $args['port'] = -1;
             }
 
-            call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
+            call_user_func_array(
+                [ $this->redis, $parameters['persistent'] ? 'pconnect' : 'connect' ],
+                array_values( $args )
+            );
 
-            if ( isset( $parameters['password'] ) ) {
-                $args['password'] = $parameters['password'];
-                $this->redis->auth( $parameters['password'] );
+            if ( ! is_null( $credentials ) ) {
+                if ( is_array( $credentials ) ) {
+                    $args['username'] = $credentials[0];
+                }
+
+                $args['password'] = is_array( $credentials ) ? $credentials[1] : $credentials;
+
+                $this->redis->auth( $credentials );
             }
 
             if ( isset( $parameters['database'] ) ) {
@@ -779,7 +864,7 @@ class WP_Object_Cache {
                 'host' => $parameters['host'],
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
-                '',
+                'persistent_id' => $parameters['persistent'] ? $this->build_persistent_id( $parameters ) : '',
                 'retry_interval' => (int) $parameters['retry_interval'],
             ];
 
@@ -802,11 +887,21 @@ class WP_Object_Cache {
                 $args['port'] = -1;
             }
 
-            call_user_func_array( [ $this->redis, 'connect' ], array_values( $args ) );
+            call_user_func_array(
+                [ $this->redis, $parameters['persistent'] ? 'pconnect' : 'connect' ],
+                array_values( $args )
+            );
 
-            if ( isset( $parameters['password'] ) ) {
-                $args['password'] = $parameters['password'];
-                $this->redis->auth( $parameters['password'] );
+            $credentials = $this->build_credentials( $parameters );
+
+            if ( ! is_null( $credentials ) ) {
+                if ( is_array( $credentials ) ) {
+                    $args['username'] = $credentials[0];
+                }
+
+                $args['password'] = is_array( $credentials ) ? $credentials[1] : $credentials;
+
+                $this->redis->auth( $credentials );
             }
 
             if ( isset( $parameters['database'] ) ) {
@@ -914,7 +1009,11 @@ class WP_Object_Cache {
         }
 
         if ( defined( 'WP_REDIS_SSL_CONTEXT' ) && ! empty( WP_REDIS_SSL_CONTEXT ) ) {
-            $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
+            if ( $servers ) {
+                $options['parameters']['ssl'] = WP_REDIS_SSL_CONTEXT;
+            } else {
+                $parameters['ssl'] = WP_REDIS_SSL_CONTEXT;
+            }
         }
 
         $this->redis = new Predis\Client( $servers ?: $parameters, $options );
@@ -1045,7 +1144,7 @@ class WP_Object_Cache {
                 'host' => $parameters['scheme'] === 'unix' ? $parameters['path'] : $parameters['host'],
                 'port' => $parameters['port'],
                 'timeout' => $parameters['timeout'],
-                'persistent' => '',
+                'persistent' => $parameters['persistent'] ? $this->build_persistent_id( $parameters ) : '',
                 'database' => $parameters['database'],
                 'password' => isset( $parameters['password'] ) ? $parameters['password'] : null,
             ];
@@ -1248,8 +1347,6 @@ class WP_Object_Cache {
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                $tx->discard();
-
                 return array_fill_keys( $keys, false );
             }
 
@@ -1266,6 +1363,10 @@ class WP_Object_Cache {
             $this->cache_calls++;
             $this->cache_time += $execute_time;
         } catch ( Exception $exception ) {
+            if ( isset( $tx ) ) {
+                $tx->discard();
+            }
+
             $this->handle_exception( $exception );
 
             return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
@@ -1309,8 +1410,6 @@ class WP_Object_Cache {
             return false;
         }
 
-        $result = true;
-
         $san_key = $this->sanitize_key_part( $key );
         $san_group = $this->sanitize_key_part( $group );
 
@@ -1334,39 +1433,29 @@ class WP_Object_Cache {
                 $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
                 $start_time = microtime( true );
 
-                if ( $add ) {
-                    $args = [ $derived_key, $this->maybe_serialize( $value ) ];
+                $flag = $add ? 'nx' : 'xx';
 
-                    if ( $this->is_predis() ) {
-                        $args[] = 'nx';
+                $args = [ $derived_key, $this->maybe_serialize( $value ) ];
 
-                        if ( $expiration ) {
-                            $args[] = 'ex';
-                            $args[] = $expiration;
-                        }
-                    } else {
-                        if ( $expiration ) {
-                            $args[] = [
-                                'nx',
-                                'ex' => $expiration,
-                            ];
-                        } else {
-                            $args[] = [ 'nx' ];
-                        }
-                    }
+                if ( $this->is_predis() ) {
+                    $args[] = $flag;
 
-                    $result = $this->parse_redis_response(
-                        $this->redis->set( ...$args )
-                    );
-
-                    if ( ! $result ) {
-                        return false;
+                    if ( $expiration ) {
+                        $args[] = 'ex';
+                        $args[] = $expiration;
                     }
                 } elseif ( $expiration ) {
-                    $result = $this->parse_redis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
+                    $args[] = [
+                        $flag,
+                        'ex' => $expiration,
+                    ];
                 } else {
-                    $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
+                    $args[] = [ $flag ];
                 }
+
+                $result = $this->parse_redis_response(
+                    $this->redis->set( ...$args )
+                );
 
                 $execute_time = microtime( true ) - $start_time;
 
@@ -1377,19 +1466,18 @@ class WP_Object_Cache {
 
                 return false;
             }
+        } else {
+            $exists = array_key_exists( $derived_key, $this->cache );
+            $result = (bool) $add !== $exists;
         }
 
-        $exists = array_key_exists( $derived_key, $this->cache );
-
-        if ( (bool) $add === $exists ) {
+        if ( ! $result ) {
             return false;
         }
 
-        if ( $result ) {
-            $this->add_to_internal_cache( $derived_key, $value );
-        }
+        $this->add_to_internal_cache( $derived_key, $value );
 
-        return $result;
+        return true;
     }
 
     /**
@@ -1499,13 +1587,15 @@ class WP_Object_Cache {
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                $tx->discard();
-
                 return array_fill_keys( $keys, false );
             }
 
             $execute_time = microtime( true ) - $start_time;
         } catch ( Exception $exception ) {
+            if ( isset( $tx ) ) {
+                $tx->discard();
+            }
+
             $this->handle_exception( $exception );
 
             return array_combine( $keys, array_fill( 0, count( $keys ), false ) );
@@ -2285,8 +2375,6 @@ LUA;
             }, $tx->{$method}() ?: [] );
 
             if ( count( $results ) !== count( $keys ) ) {
-                $tx->discard();
-
                 return array_fill_keys( $keys, false );
             }
 
@@ -2298,6 +2386,10 @@ LUA;
                 }
             }
         } catch ( Exception $exception ) {
+            if ( isset( $tx ) ) {
+                $tx->discard();
+            }
+
             $this->handle_exception( $exception );
 
             return array_combine( $keys, array_fill( 0, count( $keys ), false ) );

@@ -5,7 +5,7 @@
  * @package Rhubarb\RedisCache
  */
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 /** @var \Rhubarb\RedisCache\Plugin $roc */
 $status = $roc->get_redis_status();
@@ -45,6 +45,18 @@ $diagnostics = $roc->get_diagnostics();
                     <span class="dashicons dashicons-warning"></span>
                     <?php echo esc_html( $roc->get_status() ); ?>
                 </span>
+            <?php endif; ?>
+
+            <?php if ( defined( 'WP_REDIS_DISABLED' ) && WP_REDIS_DISABLED ) : ?>
+                <p class="description">
+                    <?php
+                    printf(
+                        // translators: %s = the WP_REDIS_DISABLED config constant, wrapped in a <code> tag.
+                        esc_html__( 'The object cache is disabled because the %s constant is set.', 'redis-cache' ),
+                        '<code>WP_REDIS_DISABLED</code>'
+                    );
+                    ?>
+                </p>
             <?php endif; ?>
         </td>
     </tr>
@@ -186,10 +198,18 @@ $diagnostics = $roc->get_diagnostics();
         </tr>
     <?php endif; ?>
 
-    <?php if ( isset( $diagnostics['password'][0] ) ) : ?>
+    <?php
+    $username = isset( $diagnostics['username'] ) ? $diagnostics['username'] : null;
+
+    if ( is_null( $username ) && isset( $diagnostics['password'] ) && is_array( $diagnostics['password'] ) ) {
+        $username = isset( $diagnostics['password'][0] ) ? $diagnostics['password'][0] : null;
+    }
+    ?>
+
+    <?php if ( ! is_null( $username ) && $username !== '' ) : ?>
         <tr>
             <th><?php esc_html_e( 'Username:', 'redis-cache' ); ?></th>
-            <td><code><?php echo esc_html( $diagnostics['password'][0] ); ?></code></td>
+            <td><code><?php echo esc_html( $username ); ?></code></td>
         </tr>
     <?php endif; ?>
 

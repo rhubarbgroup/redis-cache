@@ -5,13 +5,11 @@
  * @package Rhubarb\RedisCache
  */
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 ?>
 
-<div class="card">
-    <pre id="redis-cache-diagnostics"><?php require __DIR__ . '/../../diagnostics.php'; ?></pre>
-</div>
+<div class="card" id="redis-cache-diagnostics"><?php require __DIR__ . '/../../diagnostics.php'; ?></div>
 
 <p id="redis-cache-copy-button">
     <span class="copy-button-wrapper">

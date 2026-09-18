@@ -10,7 +10,7 @@ namespace Rhubarb\RedisCache\UI;
 use Rhubarb\RedisCache\UI;
 use Rhubarb\RedisCache\Plugin;
 
-defined( '\\ABSPATH' ) || exit;
+defined( 'ABSPATH' ) || exit;
 
 ?>
 <div id="rediscache" class="wrap">
@@ -84,7 +84,7 @@ defined( '\\ABSPATH' ) || exit;
                             ?>
                         </h2>
                         <p>
-                            <?php wp_kses_post( __( '<strong>A business class object cache backend.</strong> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.', 'redis-cache' ) ); ?>
+                            <?php echo wp_kses_post( __( '<strong>A business class object cache backend.</strong> Truly reliable, highly-optimized and fully customizable, with a <u>dedicated engineer</u> when you most need it.', 'redis-cache' ) ); ?>
                         </p>
                         <ul>
                             <li><?php esc_html_e( 'Rewritten for raw performance', 'redis-cache' ); ?></li>
