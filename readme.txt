@@ -5,7 +5,7 @@ Tags: redis, object cache, caching, performance, relay
 Requires at least: 4.6
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 2.8.0
+Stable tag: 3.0.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -60,6 +60,22 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 4. Dashboard widget, displaying recent response time metrics.
 
 == Changelog ==
+
+= 3.0.0 =
+
+- Allow Predis v3.0 as a Composer dependency
+- Upgraded bundled Predis library to v2.4.1
+- Upgraded ApexCharts to v4.7.0
+- Indicate when the cache is disabled via the `WP_REDIS_DISABLED` constant
+- Added `WP_REDIS_CHART_COLOR` constant
+- Added `WP_REDIS_LOAD_APEXCHARTS` constant
+- Fixed `wp_cache_replace()` writing keys that don't exist and misreporting its result
+- Fixed bulk cache methods leaving the connection stuck in pipeline mode
+- Fixed `WP_REDIS_USERNAME` being ignored by PhpRedis/Relay connections
+- Fixed `WP_REDIS_USERNAME` being ignored when no password is configured
+- Fixed handling empty `WP_REDIS_PASSWORD` values
+- Fixed sharded connections erroring when `WP_REDIS_USERNAME` is used with PhpRedis older than v5.3.0
+- Fixed the username missing from the diagnostics of clustered connections
 
 = 2.8.0 =
 

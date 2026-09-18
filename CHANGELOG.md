@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.0
 
 - Allow Predis v3.0 as a Composer dependency
 - Upgraded bundled Predis library to v2.4.1
