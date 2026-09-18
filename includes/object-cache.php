@@ -676,18 +676,15 @@ class WP_Object_Cache {
      *
      * Returns a `[ username, password ]` array when a username was configured,
      * either using the `WP_REDIS_USERNAME` constant or by passing an array to
-     * `WP_REDIS_PASSWORD`, and the password by itself otherwise.
+     * `WP_REDIS_PASSWORD`, the password by itself when there's no username,
+     * and `null` when neither was configured.
      *
      * @param  array $parameters Connection parameters built by the `build_parameters` method.
      * @return array|string|null
      */
     protected function build_credentials( $parameters ) {
-        if ( ! isset( $parameters['password'] ) ) {
-            return null;
-        }
-
         $username = null;
-        $password = $parameters['password'];
+        $password = isset( $parameters['password'] ) ? $parameters['password'] : '';
 
         if ( is_array( $password ) ) {
             $username = array_shift( $password );
@@ -698,7 +695,11 @@ class WP_Object_Cache {
             $username = WP_REDIS_USERNAME;
         }
 
-        return (string) $username === '' ? $password : [ $username, $password ];
+        if ( (string) $username !== '' ) {
+            return [ $username, $password ];
+        }
+
+        return (string) $password === '' ? null : $password;
     }
 
     /**
@@ -738,7 +739,7 @@ class WP_Object_Cache {
 
         $credentials = $this->build_credentials( $parameters );
 
-        if ( is_array( $credentials ) && version_compare( $version, '5.3.0', '<' ) ) {
+        if ( is_array( $credentials ) && ! defined( 'WP_REDIS_SHARDS' ) && version_compare( $version, '5.3.0', '<' ) ) {
             throw new Exception( 'PhpRedis v5.3.0 or newer is required to authenticate using a username.' );
         }
 
@@ -770,6 +771,12 @@ class WP_Object_Cache {
                 }
 
                 $this->redis = new RedisCluster( null, ...array_values( $args ) );
+
+                if ( is_array( $credentials ) ) {
+                    $args['username'] = $credentials[0];
+                    $args['password'] = $credentials[1];
+                }
+
                 $this->diagnostics += $args;
             }
         } else {

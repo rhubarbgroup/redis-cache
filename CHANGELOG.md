@@ -8,11 +8,13 @@
 - Indicate when the cache is disabled via the `WP_REDIS_DISABLED` constant
 - Added `WP_REDIS_CHART_COLOR` constant
 - Added `WP_REDIS_LOAD_APEXCHARTS` constant
-- Fixed bulk cache methods leaving the connection stuck in pipeline mode
-- Fixed `WP_REDIS_USERNAME` being ignored by PhpRedis and Relay connections
-- Fixed empty `WP_REDIS_PASSWORD` values not being treated as "no password"
-- Fixed the password's first character being displayed as the username
 - Fixed `wp_cache_replace()` writing keys that don't exist and misreporting its result
+- Fixed bulk cache methods leaving the connection stuck in pipeline mode
+- Fixed `WP_REDIS_USERNAME` being ignored by PhpRedis/Relay connections
+- Fixed `WP_REDIS_USERNAME` being ignored when no password is configured
+- Fixed handling empty `WP_REDIS_PASSWORD` values
+- Fixed sharded connections erroring when `WP_REDIS_USERNAME` is used with PhpRedis older than v5.3.0
+- Fixed the username missing from the diagnostics of clustered connections
 
 ## 2.8.0
 
