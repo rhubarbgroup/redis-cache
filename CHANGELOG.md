@@ -12,6 +12,7 @@
 - Fixed `WP_REDIS_USERNAME` being ignored by PhpRedis and Relay connections
 - Fixed empty `WP_REDIS_PASSWORD` values not being treated as "no password"
 - Fixed the password's first character being displayed as the username
+- Fixed `wp_cache_replace()` writing keys that don't exist and misreporting its result
 
 ## 2.8.0
 

@@ -1401,8 +1401,6 @@ class WP_Object_Cache {
             return false;
         }
 
-        $result = true;
-
         $san_key = $this->sanitize_key_part( $key );
         $san_group = $this->sanitize_key_part( $group );
 
@@ -1426,39 +1424,29 @@ class WP_Object_Cache {
                 $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
                 $start_time = microtime( true );
 
-                if ( $add ) {
-                    $args = [ $derived_key, $this->maybe_serialize( $value ) ];
+                $flag = $add ? 'nx' : 'xx';
 
-                    if ( $this->is_predis() ) {
-                        $args[] = 'nx';
+                $args = [ $derived_key, $this->maybe_serialize( $value ) ];
 
-                        if ( $expiration ) {
-                            $args[] = 'ex';
-                            $args[] = $expiration;
-                        }
-                    } else {
-                        if ( $expiration ) {
-                            $args[] = [
-                                'nx',
-                                'ex' => $expiration,
-                            ];
-                        } else {
-                            $args[] = [ 'nx' ];
-                        }
-                    }
+                if ( $this->is_predis() ) {
+                    $args[] = $flag;
 
-                    $result = $this->parse_redis_response(
-                        $this->redis->set( ...$args )
-                    );
-
-                    if ( ! $result ) {
-                        return false;
+                    if ( $expiration ) {
+                        $args[] = 'ex';
+                        $args[] = $expiration;
                     }
                 } elseif ( $expiration ) {
-                    $result = $this->parse_redis_response( $this->redis->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) ) );
+                    $args[] = [
+                        $flag,
+                        'ex' => $expiration,
+                    ];
                 } else {
-                    $result = $this->parse_redis_response( $this->redis->set( $derived_key, $this->maybe_serialize( $value ) ) );
+                    $args[] = [ $flag ];
                 }
+
+                $result = $this->parse_redis_response(
+                    $this->redis->set( ...$args )
+                );
 
                 $execute_time = microtime( true ) - $start_time;
 
@@ -1469,19 +1457,18 @@ class WP_Object_Cache {
 
                 return false;
             }
+        } else {
+            $exists = array_key_exists( $derived_key, $this->cache );
+            $result = (bool) $add !== $exists;
         }
 
-        $exists = array_key_exists( $derived_key, $this->cache );
-
-        if ( (bool) $add === $exists ) {
+        if ( ! $result ) {
             return false;
         }
 
-        if ( $result ) {
-            $this->add_to_internal_cache( $derived_key, $value );
-        }
+        $this->add_to_internal_cache( $derived_key, $value );
 
-        return $result;
+        return true;
     }
 
     /**
