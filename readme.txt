@@ -3,7 +3,7 @@ Contributors: tillkruess
 Donate link: https://github.com/sponsors/tillkruss
 Tags: redis, object cache, caching, performance, relay
 Requires at least: 4.6
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.2
 Stable tag: 3.0.0
 License: GPLv3
