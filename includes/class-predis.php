@@ -147,6 +147,10 @@ class Predis {
     /**
      * Flushes the entire Redis database using the `WP_REDIS_FLUSH_TIMEOUT`.
      *
+     * When a key prefix is configured and `WP_REDIS_SELECTIVE_FLUSH` is enabled,
+     * only the keys carrying that prefix are deleted, just like
+     * `WP_Object_Cache::flush()` does.
+     *
      * @param bool $throw_exception Whether to throw exception on error.
      * @return bool
      */
@@ -170,10 +174,16 @@ class Predis {
             }
         }
 
+        $prefix = $this->flush_prefix();
+
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             try {
                 foreach ( $this->redis->getIterator() as $master ) {
-                    $master->flushdb();
+                    if ( is_null( $prefix ) ) {
+                        $master->flushdb();
+                    } else {
+                        $this->delete_by_prefix( $master, $prefix );
+                    }
                 }
             } catch ( Exception $exception ) {
                 if ( $throw_exception ) {
@@ -187,7 +197,11 @@ class Predis {
         }
 
         try {
-            $this->redis->flushdb();
+            if ( is_null( $prefix ) ) {
+                $this->redis->flushdb();
+            } else {
+                $this->delete_by_prefix( $this->redis, $prefix );
+            }
         } catch ( Exception $exception ) {
             if ( $throw_exception ) {
                 throw $exception;
@@ -197,6 +211,77 @@ class Predis {
         }
 
         return true;
+    }
+
+    /**
+     * Returns the key prefix to flush selectively, or `null` to flush everything.
+     *
+     * The prefix is resolved the same way `wp_cache_init()` resolves it, because
+     * the drop-in is not necessarily loaded when this class is used.
+     *
+     * @return string|null
+     */
+    protected function flush_prefix() {
+        $selective = defined( 'WP_REDIS_SELECTIVE_FLUSH' )
+            ? WP_REDIS_SELECTIVE_FLUSH
+            : (bool) getenv( 'WP_REDIS_SELECTIVE_FLUSH' );
+
+        if ( ! $selective ) {
+            return null;
+        }
+
+        if ( defined( 'WP_REDIS_PREFIX' ) ) {
+            $prefix = WP_REDIS_PREFIX;
+        } elseif ( getenv( 'WP_REDIS_PREFIX' ) ) {
+            $prefix = getenv( 'WP_REDIS_PREFIX' );
+        } elseif ( defined( 'WP_CACHE_KEY_SALT' ) ) {
+            $prefix = WP_CACHE_KEY_SALT;
+        } elseif ( isset( $_SERVER['cw_allowed_ip'] ) ) {
+            $prefix = getenv( 'HTTP_X_APP_USER' );
+        } else {
+            return null;
+        }
+
+        $prefix = trim( (string) $prefix );
+
+        return $prefix === '' ? null : $prefix;
+    }
+
+    /**
+     * Deletes every key carrying the given prefix, using `SCAN`.
+     *
+     * Unlike `WP_Object_Cache::flush()` this does not use a Lua script: this class
+     * holds no `redis_version` to decide whether the script needs a
+     * `redis.replicate_commands()` call, and `EVAL` is unavailable on some hosts.
+     *
+     * @param mixed  $client The connection to delete the keys on.
+     * @param string $prefix The key prefix to delete.
+     * @return void
+     */
+    protected function delete_by_prefix( $client, $prefix ) {
+        $pattern = $this->escape_pattern( $prefix ) . '*';
+        $cursor = 0;
+
+        do {
+            $response = $client->scan( $cursor, [ 'MATCH' => $pattern, 'COUNT' => 1000 ] );
+
+            $cursor = (int) $response[0];
+            $keys = $response[1];
+
+            if ( ! empty( $keys ) ) {
+                $client->del( $keys );
+            }
+        } while ( $cursor !== 0 );
+    }
+
+    /**
+     * Escapes a string for literal use inside a `SCAN` match pattern.
+     *
+     * @param string $string The string to escape.
+     * @return string
+     */
+    protected function escape_pattern( $string ) {
+        return addcslashes( $string, '\\*?[]' );
     }
 
     /**
