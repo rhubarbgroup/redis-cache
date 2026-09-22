@@ -23,9 +23,9 @@
 
     <rule ref="WordPress">
         <exclude name="Generic.WhiteSpace.DisallowSpaceIndent" />
-        <exclude name="Generic.Arrays.DisallowShortArraySyntax" />
+        <exclude name="Universal.Arrays.DisallowShortArraySyntax" />
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
-        <exclude name="WordPress.PHP.DisallowShortTernary" />
+        <exclude name="Universal.Operators.DisallowShortTernary" />
         <exclude name="WordPress.PHP.YodaConditions.NotYoda" />
         <exclude name="WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys" />
         <exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned" />
@@ -37,13 +37,17 @@
 
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
-            <property name="prefixes" type="array" value="redis_object_cache" />
+            <property name="prefixes" type="array">
+                <element value="redis_object_cache" />
+            </property>
         </properties>
     </rule>
 
     <rule ref="WordPress.WP.I18n">
         <properties>
-            <property name="text_domain" type="array" value="redis-cache" />
+            <property name="text_domain" type="array">
+                <element value="redis-cache" />
+            </property>
         </properties>
     </rule>
 
