@@ -70,16 +70,16 @@ class Autoloader {
      * Loads the class file for a given class name.
      *
      * @since  2.0.0
-     * @param  string $class The fully-qualified class name.
-     * @return string|null   The mapped file name on success, or null on failure.
+     * @param  string $class_name The fully-qualified class name.
+     * @return string|null        The mapped file name on success, or null on failure.
      */
-    public function load_class( $class ) {
-        $prefix = $class;
+    public function load_class( $class_name ) {
+        $prefix = $class_name;
 
         while ( false !== ( $pos = strrpos( $prefix, '\\' ) ) ) { // phpcs:ignore
-            $prefix = substr( $class, 0, $pos + 1 );
+            $prefix = substr( $class_name, 0, $pos + 1 );
 
-            $relative_class = substr( $class, $pos + 1 );
+            $relative_class = substr( $class_name, $pos + 1 );
 
             $mapped_file = $this->load_mapped_file( $prefix, $relative_class );
             if ( $mapped_file ) {

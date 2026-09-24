@@ -11,6 +11,9 @@ use Exception;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Predis connection and cache flushing support.
+ */
 class Predis {
     /**
      * The Redis client.
@@ -152,6 +155,7 @@ class Predis {
      * Flushes the entire Redis database using the `WP_REDIS_FLUSH_TIMEOUT`.
      *
      * @param bool $throw_exception Whether to throw exception on error.
+     * @throws Exception If a Redis operation fails and exception propagation is enabled.
      * @return bool
      */
     public function flush( $throw_exception = false ) {
@@ -209,7 +213,7 @@ class Predis {
      *
      * @return bool
      */
-    public function flushOrFail() {
+    public function flushOrFail() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Preserve the public API method name.
         return $this->flush( true );
     }
 

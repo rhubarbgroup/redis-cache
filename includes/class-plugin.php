@@ -297,8 +297,8 @@ class Plugin {
     /**
      * Returns the link to Object Cache Pro.
      *
-     * @param string $medium
-     * @param bool   $as_html
+     * @param string $medium  Campaign medium identifying the link location.
+     * @param bool   $as_html Whether to encode ampersands for HTML output.
      * @return string
      */
     public function link_to_ocp( $medium, $as_html = true ) {
@@ -698,7 +698,7 @@ class Plugin {
             return;
         }
 
-        // Do not display the dropin message if you want
+        // Do not display the drop-in message when banners are disabled.
         if ( defined( 'WP_REDIS_DISABLE_DROPIN_BANNERS' ) && WP_REDIS_DISABLE_DROPIN_BANNERS ) {
             return;
         }
@@ -733,7 +733,7 @@ class Plugin {
     /**
      * Display the admin bar menu item.
      *
-     * @param \WP_Admin_Bar $wp_admin_bar
+     * @param \WP_Admin_Bar $wp_admin_bar The admin bar instance.
      *
      * @return void
      */
@@ -746,7 +746,7 @@ class Plugin {
             return;
         }
 
-        $nodeTitle = __( 'Object Cache', 'redis-cache' );
+        $node_title = __( 'Object Cache', 'redis-cache' );
 
         $style = preg_replace( '/\s+/', ' ', $this->admin_bar_style() );
         $script = preg_replace( '/\s+/', ' ', $this->admin_bar_script() );
@@ -757,7 +757,7 @@ class Plugin {
         $wp_admin_bar->add_node(
             [
                 'id' => 'redis-cache',
-                'title' => $nodeTitle,
+                'title' => $node_title,
                 'meta' => [
                     'html' => $html,
                     'class' => $redis_status === false ? 'redis-cache-error' : '',
@@ -867,7 +867,7 @@ HTML;
     protected function admin_bar_script() {
         $nonce = wp_create_nonce();
         $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
-        $flushMessage = __( 'Flushing cache...', 'redis-cache' );
+        $flush_message = __( 'Flushing cache...', 'redis-cache' );
 
         return <<<HTML
             <script id="redis-cache-admin-bar">
@@ -887,7 +887,7 @@ HTML;
                         }
 
                         node.classList.remove('hover');
-                        textNode.innerText = '{$flushMessage}';
+                        textNode.innerText = '{$flush_message}';
 
                         try {
                             var data = new FormData();
@@ -1225,7 +1225,7 @@ HTML;
      * Delete all transients if the cache was enabled successfully.
      * Callback for `redis_object_cache_enable` action.
      *
-     * @param bool $should_delete
+     * @param bool $should_delete Whether the cache was enabled successfully.
      * @return void
      */
     public function maybe_delete_transients( $should_delete ) {
@@ -1241,6 +1241,7 @@ HTML;
             return;
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk-delete stored transients when enabling the object cache.
         $wpdb->query(
             $wpdb->prepare(
                 "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
@@ -1258,6 +1259,7 @@ HTML;
     protected function delete_multisite_transients() {
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk-delete network transients from persistent storage.
         $wpdb->query(
             $wpdb->prepare(
                 "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s",
@@ -1276,13 +1278,16 @@ HTML;
             try {
                 $prefix = $wpdb->get_blog_prefix( $id );
 
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk-delete each site's stored transients.
                 $wpdb->query(
                     $wpdb->prepare(
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The table prefix comes from wpdb; identifier placeholders require WordPress 6.2.
                         "DELETE FROM {$prefix}options WHERE option_name LIKE %s",
                         '_transient_%'
                     )
                 );
             } catch ( Exception $error ) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Record failed transient cleanup without interrupting other sites.
                 error_log( $error->getMessage() );
             }
         }
@@ -1294,7 +1299,11 @@ HTML;
      * @return void
      */
     public function maybe_print_comment() {
-        /** @var \WP_Object_Cache $wp_object_cache */
+        /**
+         * Active object cache instance.
+         *
+         * @var \WP_Object_Cache $wp_object_cache
+         */
         global $wp_object_cache;
 
         if (
@@ -1360,7 +1369,7 @@ HTML;
      * @return bool
      */
     protected function incompatible_content_type() {
-        $jsonContentType = static function ( $headers ) {
+        $json_content_type = static function ( $headers ) {
             foreach ( $headers as $header => $value ) {
                 if ( stripos( (string) $header, 'content-type' ) === false ) {
                     continue;
@@ -1384,14 +1393,16 @@ HTML;
                 $headers[ $name ] = $value;
             }
 
-            if ( $jsonContentType( $headers ) ) {
+            if ( $json_content_type( $headers ) ) {
                 return true;
             }
         }
 
         if ( function_exists( 'apache_response_headers' ) ) {
-            if ( $headers = apache_response_headers() ) {
-                return $jsonContentType( $headers );
+            $headers = apache_response_headers();
+
+            if ( $headers ) {
+                return $json_content_type( $headers );
             }
         }
 
@@ -1438,7 +1449,7 @@ HTML;
      *
      * @return bool
      */
-    function is_file_mod_allowed() {
+    public function is_file_mod_allowed() {
         return apply_filters(
             'file_mod_allowed',
             ! defined( 'DISALLOW_FILE_MODS' ) || ! DISALLOW_FILE_MODS,
@@ -1452,7 +1463,11 @@ HTML;
      * @return true|WP_Error
      */
     public function test_filesystem_writing() {
-        /** @var \WP_Filesystem_Base $wp_filesystem */
+        /**
+         * Initialized WordPress filesystem instance.
+         *
+         * @var \WP_Filesystem_Base $wp_filesystem
+         */
         global $wp_filesystem;
 
         if ( ! $this->is_file_mod_allowed() ) {
@@ -1636,7 +1651,7 @@ HTML;
     /**
      * Obscure `password` URL parameter.
      *
-     * @param string $url
+     * @param string $url URL whose password parameter should be redacted.
      * @return string
      */
     public function obscure_url_secrets( $url ) {
@@ -1692,7 +1707,7 @@ HTML;
     /**
      * Returns `true` if the plugin was installed by AccelerateWP from CloudLinux.
      *
-     * @param bool $ignore_banner_constant
+     * @param bool $ignore_banner_constant Whether to detect AccelerateWP regardless of the banner setting.
      * @return bool
      */
     public static function acceleratewp_install( $ignore_banner_constant = false ) {

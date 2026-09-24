@@ -9,7 +9,11 @@ defined( 'ABSPATH' ) || exit;
 
 global $wp_object_cache;
 
-/** @var \Rhubarb\RedisCache\Plugin $roc */
+/**
+ * Plugin instance providing diagnostics.
+ *
+ * @var \Rhubarb\RedisCache\Plugin $roc
+ */
 $info = [];
 $filesystem = $roc->test_filesystem_writing();
 $dropin = $roc->validate_object_cache_dropin();
@@ -33,8 +37,8 @@ if ( $dropin && ! $disabled && class_exists( 'WP_Object_Cache' ) ) {
         $info[ 'Connection Exception' ] = sprintf( '%s (%s)', $exception->getMessage(), get_class( $exception ) );
     }
 
-    $errors = is_array( $wp_object_cache->errors ) ? $wp_object_cache->errors : [];
-    $info[ 'Errors' ] = wp_json_encode( array_values( $errors ), JSON_PRETTY_PRINT );
+    $cache_errors = is_array( $wp_object_cache->errors ) ? $wp_object_cache->errors : [];
+    $info[ 'Errors' ] = wp_json_encode( array_values( $cache_errors ), JSON_PRETTY_PRINT );
 }
 
 $info['PhpRedis'] = class_exists( 'Redis' ) ? phpversion( 'redis' ) : 'Not loaded';
@@ -104,7 +108,11 @@ foreach ( $constants as $constant ) {
 }
 
 if ( defined( 'WP_REDIS_PASSWORD' ) ) {
-    /** @var string|array|null $password */
+    /**
+     * Configured password or ACL credentials, redacted before output.
+     *
+     * @var string|array|null $password
+     */
     $password = WP_REDIS_PASSWORD;
 
     if ( is_array( $password ) ) {

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: Redis Object Cache Drop-In
  * Plugin URI: https://wordpress.org/plugins/redis-cache/
@@ -244,7 +243,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
             define( 'WP_REDIS_PREFIX', WP_CACHE_KEY_SALT );
         }
 
-        // Set unique prefix for sites hosted on Cloudways
+        // Set unique prefix for sites hosted on Cloudways.
         if ( ! defined( 'WP_REDIS_PREFIX' ) && isset( $_SERVER['cw_allowed_ip'] ) ) {
             define( 'WP_REDIS_PREFIX', getenv( 'HTTP_X_APP_USER' ) );
         }
@@ -550,13 +549,13 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
                 }
 
                 if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                    $connectionId = is_string( WP_REDIS_CLUSTER )
+                    $connection_id = is_string( WP_REDIS_CLUSTER )
                         ? WP_REDIS_CLUSTER
                         : current( $this->build_cluster_connection_array() );
 
                     $this->diagnostics['ping'] = $client === 'predis'
-                        ? $this->redis->getClientBy( 'id', $connectionId )->ping()
-                        : $this->redis->ping( $connectionId );
+                        ? $this->redis->getClientBy( 'id', $connection_id )->ping()
+                        : $this->redis->ping( $connection_id );
                 } else {
                     $this->diagnostics['ping'] = $this->redis->ping();
                 }
@@ -729,6 +728,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
          * Connect to Redis using the PhpRedis (PECL) extension.
          *
          * @param  array $parameters Connection parameters built by the `build_parameters` method.
+         * @throws Exception If the PhpRedis version does not support username authentication.
          * @return void
          */
         protected function connect_using_phpredis( $parameters ) {
@@ -845,6 +845,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
          * Connect to Redis using the Relay extension.
          *
          * @param  array $parameters Connection parameters built by the `build_parameters` method.
+         * @throws Exception If sharding or cluster connections are configured.
          * @return void
          */
         protected function connect_using_relay( $parameters ) {
@@ -933,16 +934,16 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
             if ( ! class_exists( 'Predis\Client' ) ) {
                 $predis = '/dependencies/predis/predis/autoload.php';
 
-                $pluginDir = defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR . '/redis-cache' : null;
-                $contentDir = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/plugins/redis-cache' : null;
-                $pluginPath = defined( 'WP_REDIS_PLUGIN_PATH' ) ? WP_REDIS_PLUGIN_PATH : null;
+                $plugin_dir = defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR . '/redis-cache' : null;
+                $content_dir = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/plugins/redis-cache' : null;
+                $plugin_path = defined( 'WP_REDIS_PLUGIN_PATH' ) ? WP_REDIS_PLUGIN_PATH : null;
 
-                if ( $pluginDir && is_readable( $pluginDir . $predis ) ) {
-                    require_once $pluginDir . $predis;
-                } elseif ( $contentDir && is_readable( $contentDir . $predis ) ) {
-                    require_once $contentDir . $predis;
-                } elseif ( $pluginPath && is_readable( $pluginPath . $predis ) ) {
-                    require_once $pluginPath . $predis;
+                if ( $plugin_dir && is_readable( $plugin_dir . $predis ) ) {
+                    require_once $plugin_dir . $predis;
+                } elseif ( $content_dir && is_readable( $content_dir . $predis ) ) {
+                    require_once $content_dir . $predis;
+                } elseif ( $plugin_path && is_readable( $plugin_path . $predis ) ) {
+                    require_once $plugin_path . $predis;
                 } else {
                     throw new Exception(
                         'Predis library not found. Re-install Redis Cache plugin or delete the object-cache.php.'
@@ -1035,6 +1036,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
          * @return void
          */
         protected function connect_using_credis( $parameters ) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error -- Notify callers that this supported client is deprecated.
             trigger_error( 'Credis support is deprecated and will be removed in the future', E_USER_DEPRECATED );
 
             $client = 'Credis';
@@ -1174,13 +1176,13 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
          */
         public function fetch_info() {
             if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                $connectionId = is_string( WP_REDIS_CLUSTER )
+                $connection_id = is_string( WP_REDIS_CLUSTER )
                     ? 'SERVER'
                     : current( $this->build_cluster_connection_array() );
 
                 $info = $this->is_predis()
-                    ? $this->redis->getClientBy( 'id', $connectionId )->info()
-                    : $this->redis->info( $connectionId );
+                    ? $this->redis->getClientBy( 'id', $connection_id )->info()
+                    : $this->redis->info( $connection_id );
             } else {
                 if ( $this->is_predis() ) {
                     $connection = $this->redis->getConnection();
@@ -1320,7 +1322,8 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
                 $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
 
                 $san_key = $this->sanitize_key_part( $key );
-                $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
+                $derived_key = $this->fast_build_key( $san_key, $san_group );
+                $derived_keys[ $key ] = $derived_key;
 
                 $args = [ $derived_key, $this->maybe_serialize( $value ) ];
 
@@ -1494,9 +1497,10 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
          *
          * @param   string $key        The key under which to store the value.
          * @param   string $group      The group value appended to the $key.
+         * @param   bool   $deprecated Unused. Retained for backwards compatibility.
          * @return  bool               Returns TRUE on success or FALSE on failure.
          */
-        public function delete( $key, $group = 'default', $deprecated = false ) {
+        public function delete( $key, $group = 'default', $deprecated = false ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Preserve the cache API signature.
             $result = false;
 
             $san_key = $this->sanitize_key_part( $key );
@@ -1644,6 +1648,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
         /**
          * Executes Lua flush script.
          *
+         * @param callable $script Callback executing the Lua flush script.
          * @return array|false  Returns array on success, false on failure
          */
         protected function execute_lua_script( $script ) {
@@ -1657,7 +1662,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
                 return $this->execute_lua_script_on_cluster( $script );
             }
 
-            $flushTimeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
+            $flush_timeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
 
             if ( $this->is_predis() ) {
                 $connection = $this->redis->getConnection();
@@ -1667,10 +1672,10 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
                 }
 
                 $timeout = $connection->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
-                stream_set_timeout( $connection->getResource(), $flushTimeout );
+                stream_set_timeout( $connection->getResource(), $flush_timeout );
             } else {
                 $timeout = $this->redis->getOption( Redis::OPT_READ_TIMEOUT );
-                $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $flushTimeout );
+                $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $flush_timeout );
             }
 
             try {
@@ -1726,17 +1731,18 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
         /**
          * Executes Lua flush script on Redis cluster.
          *
+         * @param callable $script Callback executing the Lua flush script on each master.
          * @return array|false  Returns array on success, false on failure
          */
         protected function execute_lua_script_on_cluster( $script ) {
             $results = [];
             $redis = $this->redis;
-            $flushTimeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
+            $flush_timeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
 
             if ( $this->is_predis() ) {
                 foreach ( $this->redis->getIterator() as $master ) {
                     $timeout = $master->getConnection()->getParameters()->read_write_timeout ?? ini_get( 'default_socket_timeout' );
-                    stream_set_timeout( $master->getConnection()->getResource(), $flushTimeout );
+                    stream_set_timeout( $master->getConnection()->getResource(), $flush_timeout );
 
                     $this->redis = $master;
                     $results[] = $this->parse_redis_response( $script() );
@@ -1747,7 +1753,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
                 try {
                     foreach ( $this->redis->_masters() as $master ) {
                         $this->redis = new Redis();
-                        $this->redis->connect( $master[0], $master[1], 0, null, 0, $flushTimeout );
+                        $this->redis->connect( $master[0], $master[1], 0, null, 0, $flush_timeout );
 
                         $results[] = $this->parse_redis_response( $script() );
                     }
@@ -1868,6 +1874,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
                 }
             }
 
+            // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- Preserve protection for equivalent numeric and string group names.
             if ( in_array( $san_group, $this->unflushable_groups ) ) {
                 return false;
             }
@@ -1924,10 +1931,10 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
         /**
          * Quotes a string for usage in the `glob` function
          *
-         * @param string $string The string to quote.
+         * @param string $value The string to quote.
          * @return string
          */
-        protected function glob_quote( $string ) {
+        protected function glob_quote( $value ) {
             $characters = [ '*', '+', '?', '!', '{', '}', '[', ']', '(', ')', '|', '@' ];
 
             return str_replace(
@@ -1938,7 +1945,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
                     },
                     $characters
                 ),
-                $string
+                $value
             );
         }
 
@@ -2399,7 +2406,8 @@ LUA;
 
             foreach ( $data as $key => $value ) {
                 $san_key = $this->sanitize_key_part( $key );
-                $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
+                $derived_key = $this->fast_build_key( $san_key, $san_group );
+                $derived_keys[ $key ] = $derived_key;
 
                 /**
                  * Filters the cache expiration time
@@ -2409,7 +2417,8 @@ LUA;
                  * @param string $group      The cache group.
                  * @param mixed  $orig_exp   The original expiration value before validation.
                  */
-                $expiration = $expirations[ $key ] = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
+                $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
+                $expirations[ $key ] = $expiration;
 
                 if ( $expiration ) {
                     $tx->setex( $derived_key, $expiration, $this->maybe_serialize( $value ) );
@@ -2503,8 +2512,9 @@ LUA;
                     $value = (int) $this->parse_redis_response( $this->maybe_unserialize( $this->redis->get( $derived_key ) ) );
                     $value += $offset;
                     $serialized = $this->maybe_serialize( $value );
+                    $pttl = $this->redis->pttl( $derived_key );
 
-                    if ( ( $pttl = $this->redis->pttl( $derived_key ) ) > 0 ) {
+                    if ( $pttl > 0 ) {
                         if ( $this->is_predis() ) {
                             $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, 'px', $pttl ) );
                         } else {
@@ -2580,8 +2590,9 @@ LUA;
                     $value = (int) $this->parse_redis_response( $this->maybe_unserialize( $this->redis->get( $derived_key ) ) );
                     $value -= $offset;
                     $serialized = $this->maybe_serialize( $value );
+                    $pttl = $this->redis->pttl( $derived_key );
 
-                    if ( ( $pttl = $this->redis->pttl( $derived_key ) ) > 0 ) {
+                    if ( $pttl > 0 ) {
                         if ( $this->is_predis() ) {
                             $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, 'px', $pttl ) );
                         } else {
@@ -2651,7 +2662,8 @@ LUA;
                 <br />
                 <strong>Cache Size:</strong>
                 <?php
-                echo number_format_i18n( strlen( serialize( $this->cache ) ) / 1024, 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Output a formatted number measuring PHP-serialized cache size.
+                echo number_format_i18n( strlen( serialize( $this->cache ) ) / 1024, 2 );
                 ?>
                 KB
             </p>
@@ -2781,7 +2793,7 @@ LUA;
          */
         private function is_group_of_type( $group, $type ) {
             return isset( $this->group_type[ $group ] )
-                && $this->group_type[ $group ] == $type;
+                && $this->group_type[ $group ] === $type;
         }
 
         /**
@@ -3088,6 +3100,7 @@ LUA;
         /**
          * Show Redis connection error screen, or load custom `/redis-error.php`.
          *
+         * @param Exception $exception The Redis connection failure.
          * @return void
          */
         protected function show_error_and_die( Exception $exception ) {
