@@ -298,10 +298,10 @@ class Plugin {
      * Returns the link to Object Cache Pro.
      *
      * @param string $medium
-     * @param bool $as_html
+     * @param bool   $as_html
      * @return string
      */
-    public function link_to_ocp($medium, $as_html = true){
+    public function link_to_ocp( $medium, $as_html = true ) {
         $ref = 'oss';
 
         if ( self::acceleratewp_install( true ) ) {
@@ -310,7 +310,7 @@ class Plugin {
 
         $url = "https://objectcache.pro/?ref={$ref}&utm_source=wp-plugin&utm_medium={$medium}";
 
-        return $as_html ? str_replace('&', '&amp;', $url) : $url;
+        return $as_html ? str_replace( '&', '&amp;', $url ) : $url;
     }
 
     /**
@@ -754,30 +754,36 @@ class Plugin {
 
         $redis_status = $this->get_redis_status();
 
-        $wp_admin_bar->add_node([
-            'id' => 'redis-cache',
-            'title' => $nodeTitle,
-            'meta' => [
-                'html' => $html,
-                'class' => $redis_status === false ? 'redis-cache-error' : '',
-            ],
-        ]);
+        $wp_admin_bar->add_node(
+            [
+                'id' => 'redis-cache',
+                'title' => $nodeTitle,
+                'meta' => [
+                    'html' => $html,
+                    'class' => $redis_status === false ? 'redis-cache-error' : '',
+                ],
+            ]
+        );
 
         if ( $redis_status ) {
-            $wp_admin_bar->add_node([
-                'parent' => 'redis-cache',
-                'id' => 'redis-cache-flush',
-                'title' => __( 'Flush Cache', 'redis-cache' ),
-                'href' => $this->action_link( 'flush-cache' ),
-            ]);
+            $wp_admin_bar->add_node(
+                [
+                    'parent' => 'redis-cache',
+                    'id' => 'redis-cache-flush',
+                    'title' => __( 'Flush Cache', 'redis-cache' ),
+                    'href' => $this->action_link( 'flush-cache' ),
+                ]
+            );
         }
 
-        $wp_admin_bar->add_node([
-            'parent' => 'redis-cache',
-            'id' => 'redis-cache-metrics',
-            'title' => __( 'Settings', 'redis-cache' ),
-            'href' => network_admin_url( $this->page ),
-        ]);
+        $wp_admin_bar->add_node(
+            [
+                'parent' => 'redis-cache',
+                'id' => 'redis-cache-metrics',
+                'title' => __( 'Settings', 'redis-cache' ),
+                'href' => network_admin_url( $this->page ),
+            ]
+        );
 
         $wp_admin_bar->add_group(
             [
@@ -819,15 +825,17 @@ class Plugin {
             );
         }
 
-        $wp_admin_bar->add_node([
-            'parent' => 'redis-cache-info',
-            'id' => 'redis-cache-info-details',
-            'title' => $value,
-            'href' => $redis_status && Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
-            'meta' => [
-                'title' => $title,
-            ],
-        ]);
+        $wp_admin_bar->add_node(
+            [
+                'parent' => 'redis-cache-info',
+                'id' => 'redis-cache-info-details',
+                'title' => $value,
+                'href' => $redis_status && Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
+                'meta' => [
+                    'title' => $title,
+                ],
+            ]
+        );
     }
 
     /**
@@ -837,7 +845,7 @@ class Plugin {
      */
     protected function admin_bar_style() {
         // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
-        return <<<HTML
+        return <<<'HTML'
             <style id="redis-cache-admin-bar-style">
                 #wpadminbar ul li.redis-cache-error {
                     background: #b30000;
@@ -958,7 +966,7 @@ HTML;
                         );
 
                         if ( $result ) {
-                            (new Predis)->flush();
+                            ( new Predis() )->flush();
                         }
 
                         /**
@@ -988,7 +996,7 @@ HTML;
                         $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
 
                         if ( $result ) {
-                            (new Predis)->flush();
+                            ( new Predis() )->flush();
                         }
 
                         /**
@@ -1088,7 +1096,7 @@ HTML;
     public function ajax_flush_cache() {
         if ( ! wp_verify_nonce( $_POST['nonce'] ?? '' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
             wp_die( esc_html__( 'Invalid Nonce.', 'redis-cache' ) );
-        } else if ( wp_cache_flush() ) {
+        } elseif ( wp_cache_flush() ) {
             wp_die( esc_html__( 'Object cache flushed.', 'redis-cache' ) );
         } else {
             wp_die( esc_html__( 'Object cache could not be flushed.', 'redis-cache' ) );
@@ -1233,11 +1241,13 @@ HTML;
             return;
         }
 
-        $wpdb->query( $wpdb->prepare(
-            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-            '_transient_%',
-            '_site_transient_%'
-        ) );
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+                '_transient_%',
+                '_site_transient_%'
+            )
+        );
     }
 
     /**
@@ -1248,21 +1258,32 @@ HTML;
     protected function delete_multisite_transients() {
         global $wpdb;
 
-        $wpdb->query( $wpdb->prepare(
-            "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s", '_site_transient_%'
-        ) );
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s",
+                '_site_transient_%'
+            )
+        );
 
-        $sites = get_sites([ 'fields' => 'ids', 'number' => 0 ]);
+        $sites = get_sites(
+            [
+                'fields' => 'ids',
+                'number' => 0,
+            ]
+        );
 
         foreach ( $sites as $id ) {
             try {
                 $prefix = $wpdb->get_blog_prefix( $id );
 
-                $wpdb->query( $wpdb->prepare(
-                    "DELETE FROM {$prefix}options WHERE option_name LIKE %s", '_transient_%'
-                ) );
+                $wpdb->query(
+                    $wpdb->prepare(
+                        "DELETE FROM {$prefix}options WHERE option_name LIKE %s",
+                        '_transient_%'
+                    )
+                );
             } catch ( Exception $error ) {
-                error_log($error->getMessage());
+                error_log( $error->getMessage() );
             }
         }
     }
@@ -1300,7 +1321,7 @@ HTML;
             return;
         }
 
-        if ($this->incompatible_content_type()) {
+        if ( $this->incompatible_content_type() ) {
             return;
         }
 
@@ -1339,13 +1360,13 @@ HTML;
      * @return bool
      */
     protected function incompatible_content_type() {
-        $jsonContentType = static function ($headers) {
-            foreach ($headers as $header => $value) {
-                if (stripos((string) $header, 'content-type') === false) {
+        $jsonContentType = static function ( $headers ) {
+            foreach ( $headers as $header => $value ) {
+                if ( stripos( (string) $header, 'content-type' ) === false ) {
                     continue;
                 }
 
-                if (stripos((string) $value, '/json') === false) {
+                if ( stripos( (string) $value, '/json' ) === false ) {
                     continue;
                 }
 
@@ -1355,22 +1376,22 @@ HTML;
             return false;
         };
 
-        if (function_exists('headers_list')) {
+        if ( function_exists( 'headers_list' ) ) {
             $headers = [];
 
-            foreach (headers_list() as $header) {
-                [$name, $value] = explode(':', $header);
-                $headers[$name] = $value;
+            foreach ( headers_list() as $header ) {
+                [$name, $value] = explode( ':', $header );
+                $headers[ $name ] = $value;
             }
 
-            if ($jsonContentType($headers)) {
+            if ( $jsonContentType( $headers ) ) {
                 return true;
             }
         }
 
-        if (function_exists('apache_response_headers')) {
-            if ($headers = apache_response_headers()) {
-                return $jsonContentType($headers);
+        if ( function_exists( 'apache_response_headers' ) ) {
+            if ( $headers = apache_response_headers() ) {
+                return $jsonContentType( $headers );
             }
         }
 
@@ -1585,7 +1606,7 @@ HTML;
                 wp_unschedule_event( $timestamp, 'rediscache_discard_metrics' );
             }
 
-            (new Predis)->flush();
+            ( new Predis() )->flush();
 
             if ( $this->validate_object_cache_dropin() && $this->initialize_filesystem( '', true ) ) {
                 $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );

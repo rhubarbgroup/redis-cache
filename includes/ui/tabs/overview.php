@@ -66,7 +66,7 @@ $diagnostics = $roc->get_diagnostics();
         <td>
             <?php if ( $filesystem_writable instanceof \WP_Error ) : ?>
                 <?php if ( ! $filesystem_allowed ) : ?>
-                    <span class="<?php echo $status ? '' : 'error' ?>">
+                    <span class="<?php echo $status ? '' : 'error'; ?>">
                         <span class="dashicons dashicons-dismiss"></span>
                         <?php esc_html_e( 'Disabled', 'redis-cache' ); ?>
                     </span>
@@ -235,7 +235,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <code>
                     <?php
-                        echo sprintf(
+                        printf(
                             // translators: %s = Redis connection/read timeout in seconds.
                             esc_html__( '%ss', 'redis-cache' ),
                             esc_html( $diagnostics['timeout'] )
@@ -252,7 +252,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <code>
                     <?php
-                        echo sprintf(
+                        printf(
                             // translators: %s = Redis connection/read timeout in seconds.
                             esc_html__( '%ss', 'redis-cache' ),
                             esc_html( $diagnostics['read_timeout'] )
@@ -269,7 +269,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <code>
                     <?php
-                        echo sprintf(
+                        printf(
                             // translators: %s = Redis retry interval in milliseconds.
                             esc_html__( '%sms', 'redis-cache' ),
                             esc_html( $diagnostics['retry_interval'] )
@@ -310,7 +310,7 @@ $diagnostics = $roc->get_diagnostics();
             <a href="<?php echo esc_attr( $roc->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">
                 <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
             </a>
-        <?php else: ?>
+        <?php else : ?>
             <a href="#!" class="button button-primary button-large" disabled>
                 <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
             </a>
