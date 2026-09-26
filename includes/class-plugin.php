@@ -1399,9 +1399,7 @@ HTML;
         }
 
         if ( function_exists( 'apache_response_headers' ) ) {
-            $headers = apache_response_headers();
-
-            if ( $headers ) {
+            if ( $headers = apache_response_headers() ) {
                 return $json_content_type( $headers );
             }
         }
@@ -1463,11 +1461,7 @@ HTML;
      * @return true|WP_Error
      */
     public function test_filesystem_writing() {
-        /**
-         * Initialized WordPress filesystem instance.
-         *
-         * @var \WP_Filesystem_Base $wp_filesystem
-         */
+        /** @var \WP_Filesystem_Base $wp_filesystem */
         global $wp_filesystem;
 
         if ( ! $this->is_file_mod_allowed() ) {
