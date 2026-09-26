@@ -1399,6 +1399,7 @@ HTML;
         }
 
         if ( function_exists( 'apache_response_headers' ) ) {
+            // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure, Generic.CodeAnalysis.AssignmentInCondition.Found
             if ( $headers = apache_response_headers() ) {
                 return $json_content_type( $headers );
             }
@@ -1461,6 +1462,7 @@ HTML;
      * @return true|WP_Error
      */
     public function test_filesystem_writing() {
+        // phpcs:ignore Generic.Commenting.DocComment.MissingShort
         /** @var \WP_Filesystem_Base $wp_filesystem */
         global $wp_filesystem;
 
