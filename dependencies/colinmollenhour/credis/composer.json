@@ -16,6 +16,11 @@
 	"require": {
 		"php": ">=7.4.0"
 	},
+	"config": {
+		"audit": {
+			"block-insecure": false
+		}
+	},
 	"suggest": {
 		"ext-redis": "Improved performance for communicating with redis"
 	},

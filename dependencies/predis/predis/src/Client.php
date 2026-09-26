@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,30 +16,33 @@ use ArrayIterator;
 use InvalidArgumentException;
 use IteratorAggregate;
 use Predis\Command\CommandInterface;
+use Predis\Command\Container\ContainerFactory;
+use Predis\Command\Container\ContainerInterface;
 use Predis\Command\RawCommand;
-use Predis\Command\Redis\Container\ContainerFactory;
-use Predis\Command\Redis\Container\ContainerInterface;
 use Predis\Command\ScriptCommand;
 use Predis\Configuration\Options;
 use Predis\Configuration\OptionsInterface;
+use Predis\Connection\AggregateConnectionInterface;
 use Predis\Connection\ConnectionInterface;
 use Predis\Connection\Parameters;
 use Predis\Connection\ParametersInterface;
 use Predis\Connection\RelayConnection;
+use Predis\Consumer\PubSub\Consumer as PubSubConsumer;
+use Predis\Consumer\PubSub\RelayConsumer as RelayPubSubConsumer;
+use Predis\Consumer\Push\Consumer as PushConsumer;
 use Predis\Monitor\Consumer as MonitorConsumer;
 use Predis\Pipeline\Atomic;
 use Predis\Pipeline\FireAndForget;
 use Predis\Pipeline\Pipeline;
 use Predis\Pipeline\RelayAtomic;
 use Predis\Pipeline\RelayPipeline;
-use Predis\PubSub\Consumer as PubSubConsumer;
-use Predis\PubSub\RelayConsumer as RelayPubSubConsumer;
 use Predis\Response\ErrorInterface as ErrorResponseInterface;
 use Predis\Response\ResponseInterface;
 use Predis\Response\ServerException;
 use Predis\Transaction\MultiExec as MultiExecTransaction;
 use ReturnTypeWillChange;
 use RuntimeException;
+use Throwable;
 use Traversable;
 
 /**
@@ -53,7 +56,7 @@ use Traversable;
  */
 class Client implements ClientInterface, IteratorAggregate
 {
-    public const VERSION = '2.4.1';
+    public const VERSION = '3.6.1';
 
     /** @var OptionsInterface */
     private $options;
@@ -89,9 +92,8 @@ class Client implements ClientInterface, IteratorAggregate
             return new Options($options);
         } elseif ($options instanceof OptionsInterface) {
             return $options;
-        } else {
-            throw new InvalidArgumentException('Invalid type for client options');
         }
+        throw new InvalidArgumentException('Invalid type for client options');
     }
 
     /**
@@ -137,11 +139,10 @@ class Client implements ClientInterface, IteratorAggregate
                 return $initializer($parameters, true);
             } elseif ($options->defined('aggregate') && $initializer = $options->aggregate) {
                 return $initializer($parameters, false);
-            } else {
-                throw new InvalidArgumentException(
-                    'Array of connection parameters requires `cluster`, `replication` or `aggregate` client option'
-                );
             }
+            throw new InvalidArgumentException(
+                'Array of connection parameters requires `cluster`, `replication` or `aggregate` client option'
+            );
         }
 
         if (is_callable($parameters)) {
@@ -271,8 +272,8 @@ class Client implements ClientInterface, IteratorAggregate
     /**
      * Applies the configured serializer and compression to given value.
      *
-     * @param  mixed  $value
-     * @return string
+     * @param  mixed $value
+     * @return mixed
      */
     public function pack($value)
     {
@@ -284,8 +285,8 @@ class Client implements ClientInterface, IteratorAggregate
     /**
      * Deserializes and decompresses to given value.
      *
-     * @param  mixed  $value
-     * @return string
+     * @param  mixed $value
+     * @return mixed
      */
     public function unpack($value)
     {
@@ -338,6 +339,40 @@ class Client implements ClientInterface, IteratorAggregate
     }
 
     /**
+     * Reads entries from one or multiple streams.
+     *
+     * @deprecated Use xread_v4() instead. Public API will be changed in the next major version.
+     *
+     * @param  int|null   $count   Maximum number of entries per stream
+     * @param  int|null   $block   Milliseconds to block waiting for new entries
+     * @param  array|null $streams Stream keys to read from
+     * @param  string     ...$id   Last-seen ID per stream
+     * @return array|null
+     */
+    public function xread($count = null, $block = null, ?array $streams = null, ...$id)
+    {
+        return $this->__call('xread', func_get_args());
+    }
+
+    /**
+     * Reads entries from one or multiple streams as part of a consumer group.
+     *
+     * @deprecated Use xreadgroup_claim() instead. Public API will be changed in the next major version.
+     *
+     * @param  string   $group      Consumer-group name
+     * @param  string   $consumer   Consumer name
+     * @param  int|null $count      Maximum number of entries per stream
+     * @param  int|null $blockMs    Milliseconds to block waiting for new entries
+     * @param  bool     $noAck      Do not add entries to the pending entries list
+     * @param  string   ...$keyOrId Stream keys followed by one ID per stream
+     * @return array
+     */
+    public function xreadgroup($group, $consumer, $count = null, $blockMs = null, $noAck = false, ...$keyOrId)
+    {
+        return $this->__call('xreadgroup', func_get_args());
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function createCommand($commandID, $arguments = [])
@@ -375,10 +410,24 @@ class Client implements ClientInterface, IteratorAggregate
 
     /**
      * {@inheritdoc}
+     * @throws Throwable
      */
     public function executeCommand(CommandInterface $command)
     {
-        $response = $this->connection->executeCommand($command);
+        $parameters = $this->connection->getParameters();
+
+        if ($this->connection instanceof AggregateConnectionInterface || $this->connection instanceof RelayConnection) {
+            $response = $this->connection->executeCommand($command);
+        } else {
+            $response = $parameters->retry->callWithRetry(
+                function () use ($command) {
+                    return $this->connection->executeCommand($command);
+                },
+                function () {
+                    $this->connection->disconnect();
+                }
+            );
+        }
 
         if ($response instanceof ResponseInterface) {
             if ($response instanceof ErrorResponseInterface) {
@@ -388,7 +437,11 @@ class Client implements ClientInterface, IteratorAggregate
             return $response;
         }
 
-        return $command->parseResponse($response);
+        if ($parameters->protocol === 2) {
+            return $command->parseResponse($response);
+        }
+
+        return $command->parseResp3Response($response);
     }
 
     /**
@@ -547,6 +600,17 @@ class Client implements ClientInterface, IteratorAggregate
     public function pubSubLoop(...$arguments)
     {
         return $this->sharedContextFactory('createPubSub', func_get_args());
+    }
+
+    /**
+     * Creates new push notifications consumer.
+     *
+     * @param  callable|null $preLoopCallback Callback that should be called on client before enter a loop.
+     * @return PushConsumer
+     */
+    public function push(?callable $preLoopCallback = null): PushConsumer
+    {
+        return new PushConsumer($this, $preLoopCallback);
     }
 
     /**

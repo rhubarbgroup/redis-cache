@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
 
 namespace Predis\Command\Redis;
 
-use Predis\Command\Command as RedisCommand;
+use Predis\Command\PrefixableCommand as RedisCommand;
 use Predis\Command\Traits\Count;
 use Predis\Command\Traits\Keys;
 use Predis\Command\Traits\LeftRight;
@@ -57,5 +57,31 @@ class LMPOP extends RedisCommand
         }
 
         return [$data[0] => $data[1]];
+    }
+
+    public function parseResp3Response($data)
+    {
+        return $this->parseResponse($data);
+    }
+
+    public function prefixKeys($prefix)
+    {
+        $arguments = $this->getArguments();
+
+        $keysOffset = static::$keysArgumentPositionOffset;
+        $keysCount = $arguments[$keysOffset];
+        $keys = array_slice($arguments, $keysOffset + 1, $keysCount);
+        $prefixedKeys = array_map(static function ($key) use ($prefix) {
+            return $prefix . $key;
+        }, $keys);
+
+        $argumentsBefore = array_slice($arguments, 0, $keysOffset + 1);
+        $argumentsAfter = array_slice($arguments, $keysOffset + $keysCount + 1);
+
+        $this->setRawArguments(array_merge(
+            $argumentsBefore,
+            $prefixedKeys,
+            $argumentsAfter
+        ));
     }
 }

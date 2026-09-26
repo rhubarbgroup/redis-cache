@@ -22,12 +22,13 @@
         }
     ],
     "require": {
-        "php": "^7.2 || ^8.0"
+        "php": "^7.2 || ^8.0",
+        "psr/http-message": "^1.0|^2.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.3",
         "phpstan/phpstan": "^1.9",
-        "phpunit/phpunit": "^8.0 || ^9.4",
+        "phpunit/phpunit": "^8.0 || ~9.4.4",
         "phpunit/phpcov": "^6.0 || ^8.0"
     },
     "suggest": {
@@ -45,7 +46,13 @@
     },
     "config": {
         "sort-packages": true,
-        "preferred-install": "dist"
+        "preferred-install": "dist",
+        "audit": {
+            "ignore": [
+                "GHSA-vvj3-c3rp-c85p",
+                "PKSA-z3gr-8qht-p93v"
+            ]
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true

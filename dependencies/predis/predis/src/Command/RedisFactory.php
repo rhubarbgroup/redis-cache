@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,6 +14,7 @@ namespace Predis\Command;
 
 use Predis\ClientConfiguration;
 use Predis\Command\Redis\FUNCTIONS;
+use Predis\Command\Redis\TimeSeries\TSREAD;
 
 /**
  * Command factory for mainline Redis servers.
@@ -36,6 +37,8 @@ class RedisFactory extends Factory
             'OBJECT' => 'Predis\Command\Redis\OBJECT_',
             // Class name corresponds to PHP reserved word "function", added mapping to bypass restrictions
             'FUNCTION' => FUNCTIONS::class,
+            // Wire ID mapping so cluster-routable module commands resolve by their command ID
+            'TS.READ' => TSREAD::class,
         ];
     }
 

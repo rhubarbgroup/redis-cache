@@ -86,8 +86,8 @@ class Credis_Cluster extends Credis_Client
             $this->redis = new RedisCluster(
                 $this->clusterName,
                 $this->clusterSeeds,
-                isset($this->timeout) ? $this->timeout : 0,
-                isset($this->readTimeout) ? $this->readTimeout : 0,
+                $this->timeout ?? 0,
+                $this->readTimeout ?? 0,
                 $this->persistentBool, // Note:  This can't be $this->persistent, because it is string
                 ['user' => $this->authUsername, 'pass' => $this->authPassword],
                 // Note: RedisCluster won't use TLS for non-seed connections if this is null
@@ -152,7 +152,7 @@ class Credis_Cluster extends Credis_Client
         }
         if ($response) {
             if ($response === true) {
-                $response = isset($message) ? $message : "PONG";
+                $response = $message ?? "PONG";
             } elseif ($response[0] === '+') {
                 $response = substr($response, 1);
             }
@@ -228,7 +228,7 @@ class Credis_Cluster extends Credis_Client
         }
         if ($response) {
             if ($response === true) {
-                $response = isset($message) ? $message : "PONG";
+                $response = $message ?? "PONG";
             } elseif ($response[0] === '+') {
                 $response = substr($response, 1);
             }

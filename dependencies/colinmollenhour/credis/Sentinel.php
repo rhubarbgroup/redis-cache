@@ -222,13 +222,25 @@ class Credis_Sentinel
     public function createSlaveClients($name)
     {
         $slaves = $this->slaves($name);
-        $workingSlaves = array();
-        foreach ($slaves as $slave) {
-            if (!isset($slave[9])) {
+        $workingSlaves = [];
+        foreach ($slaves as $slaveRaw) {
+            $replica = [];
+            for ($i = 0; $i < count($slaveRaw) - 1; $i += 2) {
+                $replica[$slaveRaw[$i]] = $slaveRaw[$i + 1];
+            }
+
+            $flags = $replica['flags'] ?? null;
+            if ($flags === null) {
                 throw new CredisException('Can\' retrieve slave status');
             }
-            if (!strstr($slave[9], 's_down') && !strstr($slave[9], 'disconnected')) {
-                $workingSlaves[] = new Credis_Client($slave[3], $slave[5], $this->_timeout, $this->_persistent, $this->_db, $this->_password, $this->_username);
+
+            if (($replica['master-link-status'] ?? '') === 'err') {
+                continue;
+            }
+
+            $flags = explode(',', $flags);
+            if (!array_intersect($flags, ['s_down', 'o_down', 'disconnected'])) {
+                $workingSlaves[] = new Credis_Client($replica['ip'], $replica['port'], $this->_timeout, $this->_persistent, $this->_db, $this->_password, $this->_username);
             }
         }
         return $workingSlaves;

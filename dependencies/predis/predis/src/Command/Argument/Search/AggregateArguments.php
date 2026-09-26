@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -92,6 +92,30 @@ class AggregateArguments extends CommonArguments
 
         array_push($this->arguments, 'REDUCE', $functionValue);
         $this->arguments = array_merge($this->arguments, [$argumentsCounter], $arguments);
+
+        return $this;
+    }
+
+    /**
+     * Adds a COLLECT reducer to the current GROUPBY.
+     *
+     * Emits "REDUCE COLLECT <narg> <tokens...> [AS <alias>]" where <narg> is the
+     * number of tokens produced by the given CollectArguments (the FIELDS,
+     * DISTINCT, SORTBY and LIMIT clauses) and excludes the trailing AS <alias>.
+     *
+     * @param  CollectArguments $arguments COLLECT clause builder
+     * @param  string|null      $alias     Optional reducer output column name
+     * @return $this
+     */
+    public function reduceCollect(CollectArguments $arguments, ?string $alias = null): self
+    {
+        $tokens = $arguments->toArray();
+
+        array_push($this->arguments, 'REDUCE', 'COLLECT', count($tokens), ...$tokens);
+
+        if ($alias !== null) {
+            array_push($this->arguments, 'AS', $alias);
+        }
 
         return $this;
     }

@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,20 +14,26 @@ namespace Predis\Connection\Replication;
 
 use InvalidArgumentException;
 use Predis\ClientException;
+use Predis\Command\Command;
 use Predis\Command\CommandInterface;
 use Predis\Command\RawCommand;
+use Predis\Connection\AbstractAggregateConnection;
 use Predis\Connection\ConnectionException;
 use Predis\Connection\FactoryInterface;
 use Predis\Connection\NodeConnectionInterface;
+use Predis\Connection\ParametersInterface;
+use Predis\Connection\RelayFactory;
 use Predis\Replication\MissingMasterException;
 use Predis\Replication\ReplicationStrategy;
 use Predis\Response\ErrorInterface as ResponseErrorInterface;
+use Predis\TimeoutException;
+use Throwable;
 
 /**
  * Aggregate connection handling replication of Redis nodes configured in a
  * single master / multiple slaves setup.
  */
-class MasterSlaveReplication implements ReplicationInterface
+class MasterSlaveReplication extends AbstractAggregateConnection implements ReplicationInterface
 {
     /**
      * @var ReplicationStrategy
@@ -399,9 +405,8 @@ class MasterSlaveReplication implements ReplicationInterface
                 } elseif ($connection = $this->pickSlave()) {
                     $this->discoverFromSlave($connection, $this->connectionFactory);
                     break;
-                } else {
-                    throw new ClientException('No connection available for discovery');
                 }
+                throw new ClientException('No connection available for discovery');
             } catch (ConnectionException $exception) {
                 $this->remove($connection);
             }
@@ -473,9 +478,26 @@ class MasterSlaveReplication implements ReplicationInterface
      * @param string           $method  Actual method.
      *
      * @return mixed
+     * @throws Throwable
      */
     private function retryCommandOnFailure(CommandInterface $command, $method)
     {
+        $parameters = $this->getParameters();
+
+        if (!$parameters->isDisabledRetry() && !$this->connectionFactory instanceof RelayFactory) {
+            $retry = $parameters->retry;
+            $retry->updateCatchableExceptions([MissingMasterException::class]);
+
+            return $retry->callWithRetry(
+                function () use ($command, $method) {
+                    return $this->executeCommandInternal($command, $method);
+                },
+                function (Throwable $exception) {
+                    $this->onFailCallback($exception);
+                }
+            );
+        }
+
         while (true) {
             try {
                 $connection = $this->getConnectionByCommand($command);
@@ -487,33 +509,30 @@ class MasterSlaveReplication implements ReplicationInterface
 
                 break;
             } catch (ConnectionException $exception) {
-                $connection = $exception->getConnection();
-                $connection->disconnect();
-
-                if ($connection === $this->master && !$this->autoDiscovery) {
-                    // Throw immediately when master connection is failing, even
-                    // when the command represents a read-only operation, unless
-                    // automatic discovery has been enabled.
-                    throw $exception;
-                } else {
-                    // Otherwise remove the failing slave and attempt to execute
-                    // the command again on one of the remaining slaves...
-                    $this->remove($connection);
-                }
-
-                // ... that is, unless we have no more connections to use.
-                if (!$this->slaves && !$this->master) {
-                    throw $exception;
-                } elseif ($this->autoDiscovery) {
-                    $this->discover();
-                }
+                $this->onConnectionExceptionCallback($exception);
             } catch (MissingMasterException $exception) {
-                if ($this->autoDiscovery) {
-                    $this->discover();
-                } else {
-                    throw $exception;
-                }
+                $this->onMissingMasterException($exception);
             }
+        }
+
+        return $response;
+    }
+
+    /**
+     * Executes command against valid connection.
+     *
+     * @param  CommandInterface    $command
+     * @param  string              $method
+     * @return mixed
+     * @throws ConnectionException
+     */
+    protected function executeCommandInternal(CommandInterface $command, string $method)
+    {
+        $connection = $this->getConnectionByCommand($command);
+        $response = $connection->$method($command);
+
+        if ($response instanceof ResponseErrorInterface && $response->getErrorType() === 'LOADING') {
+            throw new ConnectionException($connection, "Redis is loading the dataset in memory [$connection]");
         }
 
         return $response;
@@ -549,5 +568,102 @@ class MasterSlaveReplication implements ReplicationInterface
     public function __sleep()
     {
         return ['master', 'slaves', 'pool', 'aliases', 'strategy'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParameters(): ?ParametersInterface
+    {
+        if (isset($this->master)) {
+            return $this->master->getParameters();
+        }
+
+        $slave = $this->pickSlave();
+
+        if (null !== $slave) {
+            return $slave->getParameters();
+        }
+
+        return null;
+    }
+
+    /**
+     * Handle connection exception.
+     *
+     * @param  ConnectionException                 $exception
+     * @return void
+     * @throws ClientException|ConnectionException
+     */
+    private function onConnectionExceptionCallback(ConnectionException $exception)
+    {
+        $connection = $exception->getConnection();
+        $connection->disconnect();
+
+        if ($connection === $this->master && !$this->autoDiscovery) {
+            // Throw immediately when master connection is failing, even
+            // when the command represents a read-only operation, unless
+            // automatic discovery has been enabled.
+            throw $exception;
+        }
+        // Otherwise remove the failing slave and attempt to execute
+        // the command again on one of the remaining slaves...
+        $this->remove($connection);
+
+        // ... that is, unless we have no more connections to use.
+        if (!$this->slaves && !$this->master) {
+            throw $exception;
+        } elseif ($this->autoDiscovery) {
+            $this->discover();
+        }
+    }
+
+    /**
+     * Exception handling callback.
+     *
+     * @param  Throwable $exception
+     * @return void
+     * @throws Throwable
+     */
+    private function onFailCallback(Throwable $exception)
+    {
+        if ($exception instanceof ConnectionException) {
+            $this->onConnectionExceptionCallback($exception);
+
+            return;
+        }
+
+        if ($exception instanceof MissingMasterException) {
+            $this->onMissingMasterException($exception);
+
+            return;
+        }
+
+        if ($exception instanceof TimeoutException) {
+            $connection = $exception->getConnection();
+
+            if ($connection) {
+                $connection->disconnect();
+
+                return;
+            }
+        }
+
+        throw $exception;
+    }
+
+    /**
+     * @param  MissingMasterException $exception
+     * @return void
+     * @throws ClientException
+     * @throws MissingMasterException
+     */
+    private function onMissingMasterException(MissingMasterException $exception)
+    {
+        if ($this->autoDiscovery) {
+            $this->discover();
+        } else {
+            throw $exception;
+        }
     }
 }

@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -35,13 +35,12 @@ class Replication extends Aggregate
 
         if (is_callable($value)) {
             return $this->getConnectionInitializer($options, $value);
-        } else {
-            throw new InvalidArgumentException(sprintf(
-                '%s expects either a string or a callable value, %s given',
-                static::class,
-                is_object($value) ? get_class($value) : gettype($value)
-            ));
         }
+        throw new InvalidArgumentException(sprintf(
+            '%s expects either a string or a callable value, %s given',
+            static::class,
+            is_object($value) ? get_class($value) : gettype($value)
+        ));
     }
 
     /**
@@ -68,7 +67,7 @@ class Replication extends Aggregate
         switch ($description) {
             case 'sentinel':
             case 'redis-sentinel':
-                return function ($parameters, $options) {
+                return static function ($parameters, $options) {
                     return new SentinelReplication($options->service, $parameters, $options->connections);
                 };
 
@@ -91,7 +90,7 @@ class Replication extends Aggregate
      */
     protected function getDefaultConnectionInitializer()
     {
-        return function ($parameters, $options) {
+        return static function ($parameters, $options) {
             $connection = new MasterSlaveReplication();
 
             if ($options->autodiscovery) {

@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
 
 namespace Predis\Command\Redis;
 
-use Predis\Command\Command as RedisCommand;
+use InvalidArgumentException;
+use Predis\Command\PrefixableCommand as RedisCommand;
 
 /**
  * @see http://redis.io/commands/zrange
@@ -62,6 +63,26 @@ class ZRANGE extends RedisCommand
         $opts = array_change_key_case($options, CASE_UPPER);
         $finalizedOpts = [];
 
+        if (!empty($opts['BYSCORE']) && !empty($opts['BYLEX'])) {
+            throw new InvalidArgumentException('BYSCORE and BYLEX are mutually exclusive');
+        }
+
+        if (!empty($opts['BYSCORE'])) {
+            $finalizedOpts[] = 'BYSCORE';
+        }
+
+        if (!empty($opts['BYLEX'])) {
+            $finalizedOpts[] = 'BYLEX';
+        }
+
+        if (!empty($opts['REV'])) {
+            $finalizedOpts[] = 'REV';
+        }
+
+        if (!empty($opts['LIMIT']) && is_array($opts['LIMIT'])) {
+            $finalizedOpts = array_merge($finalizedOpts, ['LIMIT'], $opts['LIMIT']);
+        }
+
         if (!empty($opts['WITHSCORES'])) {
             $finalizedOpts[] = 'WITHSCORES';
         }
@@ -82,7 +103,8 @@ class ZRANGE extends RedisCommand
             return false;
         }
 
-        return strtoupper($arguments[3]) === 'WITHSCORES';
+        // WITHSCORES can be at any position in the arguments array
+        return in_array('WITHSCORES', $arguments, true);
     }
 
     /**
@@ -105,5 +127,29 @@ class ZRANGE extends RedisCommand
         }
 
         return $data;
+    }
+
+    /**
+     * @param                          $data
+     * @return array|mixed|string|null
+     */
+    public function parseResp3Response($data)
+    {
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        $parsedData = [];
+
+        foreach ($data as $element) {
+            $parsedData[] = $this->parseResponse($element);
+        }
+
+        return $parsedData;
+    }
+
+    public function prefixKeys($prefix)
+    {
+        $this->applyPrefixForFirstArgument($prefix);
     }
 }

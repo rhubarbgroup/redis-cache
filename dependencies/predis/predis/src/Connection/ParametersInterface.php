@@ -4,13 +4,15 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 namespace Predis\Connection;
+
+use Predis\Retry\Retry;
 
 /**
  * Interface defining a container for connection parameters.
@@ -22,20 +24,24 @@ namespace Predis\Connection;
  * @property string $scheme             Connection scheme, such as 'tcp' or 'unix'.
  * @property string $host               IP address or hostname of Redis.
  * @property int    $port               TCP port on which Redis is listening to.
+ * @property int    $protocol           Version of RESP protocol.
  * @property string $path               Path of a UNIX domain socket file.
  * @property string $alias              Alias for the connection.
  * @property float  $timeout            Timeout for the connect() operation.
  * @property float  $read_write_timeout Timeout for read() and write() operations.
  * @property bool   $persistent         Leaves the connection open after a GC collection.
  * @property string $conn_uid           Unique identifier of connection, needs to create a multiple persistent connections to the same resource.
+ * @property string $username           Username to access Redis (see the AUTH command).
  * @property string $password           Password to access Redis (see the AUTH command).
  * @property string $database           Database index (see the SELECT command).
  * @property bool   $async_connect      Performs the connect() operation asynchronously.
  * @property bool   $tcp_nodelay        Toggles the Nagle's algorithm for coalescing.
- * @property bool   $client_info        Whether to set LIB-NAME and LIB-VER when connecting.
+ * @property bool   $client_info        Whether to set LIB-NAME and LIB-VER when connecting, enabled by default.
+ * @property Retry  $retry              Retry configuration
  * @property bool   $cache              (Relay only) Whether to use in-memory caching.
  * @property string $serializer         (Relay only) Serializer used for data serialization.
  * @property string $compression        (Relay only) Algorithm used for data compression.
+ * @method   bool   isDisabledRetry()   Specify if custom retry configuration was provided.
  */
 interface ParametersInterface
 {

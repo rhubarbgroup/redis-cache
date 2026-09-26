@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -87,7 +87,7 @@ class SlotMap implements ArrayAccess, IteratorAggregate, Countable
     {
         return array_reduce(
             $this->slotRanges,
-            function ($carry, $slotRange) {
+            static function ($carry, $slotRange) {
                 return $carry + $slotRange->toArray();
             },
             []
@@ -102,7 +102,7 @@ class SlotMap implements ArrayAccess, IteratorAggregate, Countable
     public function getNodes()
     {
         return array_unique(array_map(
-            function ($slotRange) {
+            static function ($slotRange) {
                 return $slotRange->getConnection();
             },
             $this->slotRanges
@@ -192,7 +192,7 @@ class SlotMap implements ArrayAccess, IteratorAggregate, Countable
 
         return array_reduce(
             $intersections,
-            function ($carry, $slotRange) {
+            static function ($carry, $slotRange) {
                 return $carry + $slotRange->toArray();
             },
             []
@@ -264,6 +264,7 @@ class SlotMap implements ArrayAccess, IteratorAggregate, Countable
         foreach ($this->slotRanges as $slotRange) {
             if (!$slotRange->hasSlot($slot)) {
                 $results[] = $slotRange;
+                continue;
             }
 
             if (static::isValidRange($slotRange->getStart(), $slot - 1)) {
@@ -287,7 +288,7 @@ class SlotMap implements ArrayAccess, IteratorAggregate, Countable
     public function count()
     {
         return array_sum(array_map(
-            function ($slotRange) {
+            static function ($slotRange) {
                 return $slotRange->count();
             },
             $this->slotRanges
@@ -370,7 +371,7 @@ class SlotMap implements ArrayAccess, IteratorAggregate, Countable
     {
         usort(
             $slotRanges,
-            function (SlotRange $a, SlotRange $b) {
+            static function (SlotRange $a, SlotRange $b) {
                 if ($a->getStart() == $b->getStart()) {
                     return 0;
                 }

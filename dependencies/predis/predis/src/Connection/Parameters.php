@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,6 +13,8 @@
 namespace Predis\Connection;
 
 use InvalidArgumentException;
+use Predis\Retry\Retry;
+use Predis\Retry\Strategy\NoBackoff;
 
 /**
  * Container for connection parameters used to initialize connections to Redis.
@@ -25,6 +27,7 @@ class Parameters implements ParametersInterface
         'scheme' => 'tcp',
         'host' => '127.0.0.1',
         'port' => 6379,
+        'protocol' => 2,
     ];
 
     /**
@@ -36,23 +39,35 @@ class Parameters implements ParametersInterface
     protected $parameters;
 
     /**
+     * @var bool
+     */
+    private $disabledRetry = true;
+
+    /**
      * @param array $parameters Named array of connection parameters.
      */
     public function __construct(array $parameters = [])
     {
+        if (!array_key_exists('retry', $parameters)) {
+            // Retries disabled by default
+            static::$defaults['retry'] = new Retry(new NoBackoff(), 0);
+        } else {
+            $this->disabledRetry = false;
+        }
+
         $this->parameters = $this->filter($parameters + static::$defaults);
     }
 
     /**
      * Filters parameters removing entries with NULL or 0-length string values.
      *
-     * @params array $parameters Array of parameters to be filtered
+     * @param array $parameters Array of parameters to be filtered
      *
      * @return array
      */
     protected function filter(array $parameters)
     {
-        return array_filter($parameters, function ($value) {
+        return array_filter($parameters, static function ($value) {
             return $value !== null && $value !== '';
         });
     }
@@ -192,6 +207,16 @@ class Parameters implements ParametersInterface
         }
 
         return "$this->scheme://$this->host:$this->port";
+    }
+
+    /**
+     * Returns if retries is disabled.
+     *
+     * @return bool
+     */
+    public function isDisabledRetry(): bool
+    {
+        return $this->disabledRetry;
     }
 
     /**

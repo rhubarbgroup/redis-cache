@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -58,7 +58,7 @@ class HSETEX extends RedisCommand
         $flatArray = [];
 
         // Convert key => value, into key, value
-        array_walk($arguments[1], function ($value, $key) use (&$flatArray) {
+        array_walk($arguments[1], static function ($value, $key) use (&$flatArray) {
             array_push($flatArray, $key, $value);
         });
 

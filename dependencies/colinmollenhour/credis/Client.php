@@ -32,7 +32,7 @@ class CredisException extends Exception
 
     public function __construct($message, $code = 0, $exception = null)
     {
-        if ($exception && get_class($exception) == 'RedisException' && strpos($message, 'read error on connection') === 0) {
+        if (($exception instanceof RedisException) && strpos($message, 'read error on connection') === 0) {
             $code = CredisException::CODE_DISCONNECTED;
         }
         parent::__construct($message, $code, $exception);
@@ -493,8 +493,8 @@ class Credis_Client
                     throw new CredisException('Invalid host format; expected ' . $this->scheme . '://host[:port][/persistence_identifier]');
                 }
                 $this->host = $matches[1];
-                $this->port = (int)(isset($matches[3]) ? $matches[3] : $this->port);
-                $this->persistent = isset($matches[5]) ? $matches[5] : $this->persistent;
+                $this->port = (int)($matches[3] ?? $this->port);
+                $this->persistent = $matches[5] ?? $this->persistent;
             } else {
                 $this->host = $matches[2];
                 $this->port = null;
@@ -1368,7 +1368,7 @@ class Credis_Client
             catch (RedisException $e) {
                 $code = 0;
                 try {
-                    if (!($result = $this->redis->IsConnected())) {
+                    if (!($result = $this->redis->isConnected())) {
                         $this->close(true);
                         $code = CredisException::CODE_DISCONNECTED;
                     }
@@ -1413,14 +1413,14 @@ class Credis_Client
                     case 'ping':
                         if ($response) {
                             if ($response === true) {
-                                $response = isset($args[0]) ? $args[0] : "PONG";
+                                $response = $args[0] ?? "PONG";
                             } elseif ($response[0] === '+') {
                                 $response = substr($response, 1);
                             }
                         }
                         break;
                     case 'auth':
-                        if (is_bool($response) && $response === true) {
+                        if ($response === true) {
                             $this->redis->clearLastError();
                         }
                         // no break
