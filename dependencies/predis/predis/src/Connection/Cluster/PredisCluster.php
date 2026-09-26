@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2026 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,9 +18,7 @@ use IteratorAggregate;
 use Predis\Cluster\PredisStrategy;
 use Predis\Cluster\StrategyInterface;
 use Predis\Command\CommandInterface;
-use Predis\Connection\AbstractAggregateConnection;
 use Predis\Connection\NodeConnectionInterface;
-use Predis\Connection\ParametersInterface;
 use Predis\NotSupportedException;
 use ReturnTypeWillChange;
 use Traversable;
@@ -29,7 +27,7 @@ use Traversable;
  * Abstraction for a cluster of aggregate connections to various Redis servers
  * implementing client-side sharding based on pluggable distribution strategies.
  */
-class PredisCluster extends AbstractAggregateConnection implements ClusterInterface, IteratorAggregate, Countable
+class PredisCluster implements ClusterInterface, IteratorAggregate, Countable
 {
     /**
      * @var NodeConnectionInterface[]
@@ -52,17 +50,10 @@ class PredisCluster extends AbstractAggregateConnection implements ClusterInterf
     private $distributor;
 
     /**
-     * @var ParametersInterface
+     * @param StrategyInterface|null $strategy Optional cluster strategy.
      */
-    private $connectionParameters;
-
-    /**
-     * @param ParametersInterface    $parameters
-     * @param StrategyInterface|null $strategy   Optional cluster strategy.
-     */
-    public function __construct(ParametersInterface $parameters, ?StrategyInterface $strategy = null)
+    public function __construct(?StrategyInterface $strategy = null)
     {
-        $this->connectionParameters = $parameters;
         $this->strategy = $strategy ?: new PredisStrategy();
         $this->distributor = $this->strategy->getDistributor();
     }
@@ -89,20 +80,6 @@ class PredisCluster extends AbstractAggregateConnection implements ClusterInterf
         foreach ($this->pool as $connection) {
             $connection->connect();
         }
-    }
-
-    /**
-     * Returns a random connection from the pool.
-     *
-     * @return NodeConnectionInterface|null
-     */
-    protected function getRandomConnection()
-    {
-        if (!$this->pool) {
-            return null;
-        }
-
-        return $this->pool[array_rand($this->pool)];
     }
 
     /**
@@ -213,9 +190,12 @@ class PredisCluster extends AbstractAggregateConnection implements ClusterInterf
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the underlying command hash strategy used to hash commands by
+     * using keys found in their arguments.
+     *
+     * @return StrategyInterface
      */
-    public function getClusterStrategy(): StrategyInterface
+    public function getClusterStrategy()
     {
         return $this->strategy;
     }
@@ -260,27 +240,5 @@ class PredisCluster extends AbstractAggregateConnection implements ClusterInterf
     public function executeCommand(CommandInterface $command)
     {
         return $this->getConnectionByCommand($command)->executeCommand($command);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getParameters(): ParametersInterface
-    {
-        return $this->connectionParameters;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function executeCommandOnEachNode(CommandInterface $command): array
-    {
-        $responses = [];
-
-        foreach ($this->pool as $connection) {
-            $responses[] = $connection->executeCommand($command);
-        }
-
-        return $responses;
     }
 }

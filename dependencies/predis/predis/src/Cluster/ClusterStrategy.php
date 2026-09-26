@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2026 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -42,7 +42,6 @@ abstract class ClusterStrategy implements StrategyInterface
             /* commands operating on the key space */
             'EXISTS' => $getKeyFromAllArguments,
             'DEL' => $getKeyFromAllArguments,
-            'UNLINK' => $getKeyFromAllArguments,
             'TYPE' => $getKeyFromFirstArgument,
             'EXPIRE' => $getKeyFromFirstArgument,
             'EXPIREAT' => $getKeyFromFirstArgument,
@@ -54,7 +53,6 @@ abstract class ClusterStrategy implements StrategyInterface
             'SORT' => [$this, 'getKeyFromSortCommand'],
             'DUMP' => $getKeyFromFirstArgument,
             'RESTORE' => $getKeyFromFirstArgument,
-            'OBJECT' => [$this, 'getKeyFromObjectCommand'],
             'FLUSHDB' => [$this, 'getFakeKey'],
 
             /* commands operating on string values */
@@ -70,7 +68,6 @@ abstract class ClusterStrategy implements StrategyInterface
             'INCR' => $getKeyFromFirstArgument,
             'INCRBY' => $getKeyFromFirstArgument,
             'INCRBYFLOAT' => $getKeyFromFirstArgument,
-            'INCREX' => $getKeyFromFirstArgument,
             'SETBIT' => $getKeyFromFirstArgument,
             'SETEX' => $getKeyFromFirstArgument,
             'MSET' => [$this, 'getKeyFromInterleavedArguments'],
@@ -87,11 +84,9 @@ abstract class ClusterStrategy implements StrategyInterface
             'LINSERT' => $getKeyFromFirstArgument,
             'LINDEX' => $getKeyFromFirstArgument,
             'LLEN' => $getKeyFromFirstArgument,
-            'LMOVEM' => [$this, 'getKeyFromFirstTwoKeys'],
             'LPOP' => $getKeyFromFirstArgument,
             'RPOP' => $getKeyFromFirstArgument,
             'RPOPLPUSH' => $getKeyFromAllArguments,
-            'BLMOVEM' => [$this, 'getKeyFromFirstTwoKeys'],
             'BLPOP' => [$this, 'getKeyFromBlockingListCommands'],
             'BRPOP' => [$this, 'getKeyFromBlockingListCommands'],
             'BRPOPLPUSH' => [$this, 'getKeyFromBlockingListCommands'],
@@ -103,26 +98,6 @@ abstract class ClusterStrategy implements StrategyInterface
             'LREM' => $getKeyFromFirstArgument,
             'LSET' => $getKeyFromFirstArgument,
             'LTRIM' => $getKeyFromFirstArgument,
-
-            /* commands operating on arrays */
-            'ARCOUNT' => $getKeyFromFirstArgument,
-            'ARDEL' => $getKeyFromFirstArgument,
-            'ARDELRANGE' => $getKeyFromFirstArgument,
-            'ARGET' => $getKeyFromFirstArgument,
-            'ARGETRANGE' => $getKeyFromFirstArgument,
-            'ARGREP' => $getKeyFromFirstArgument,
-            'ARINFO' => $getKeyFromFirstArgument,
-            'ARINSERT' => $getKeyFromFirstArgument,
-            'ARLASTITEMS' => $getKeyFromFirstArgument,
-            'ARLEN' => $getKeyFromFirstArgument,
-            'ARMGET' => $getKeyFromFirstArgument,
-            'ARMSET' => $getKeyFromFirstArgument,
-            'ARNEXT' => $getKeyFromFirstArgument,
-            'AROP' => $getKeyFromFirstArgument,
-            'ARRING' => $getKeyFromFirstArgument,
-            'ARSCAN' => $getKeyFromFirstArgument,
-            'ARSEEK' => $getKeyFromFirstArgument,
-            'ARSET' => $getKeyFromFirstArgument,
 
             /* commands operating on sets */
             'SADD' => $getKeyFromFirstArgument,
@@ -156,7 +131,6 @@ abstract class ClusterStrategy implements StrategyInterface
             'ZREVRANGEBYSCORE' => $getKeyFromFirstArgument,
             'ZREVRANK' => $getKeyFromFirstArgument,
             'ZSCORE' => $getKeyFromFirstArgument,
-            'ZMSCORE' => $getKeyFromFirstArgument,
             'ZUNIONSTORE' => [$this, 'getKeyFromZsetAggregationCommands'],
             'ZSCAN' => $getKeyFromFirstArgument,
             'ZLEXCOUNT' => $getKeyFromFirstArgument,
@@ -180,56 +154,6 @@ abstract class ClusterStrategy implements StrategyInterface
             'HVALS' => $getKeyFromFirstArgument,
             'HSCAN' => $getKeyFromFirstArgument,
             'HSTRLEN' => $getKeyFromFirstArgument,
-            'HIMPORT' => [$this, 'getKeyFromHimportCommands'],
-            'HEXPIRE' => $getKeyFromFirstArgument,
-            'HEXPIREAT' => $getKeyFromFirstArgument,
-            'HPERSIST' => $getKeyFromFirstArgument,
-            'HPEXPIRE' => $getKeyFromFirstArgument,
-            'HPEXPIREAT' => $getKeyFromFirstArgument,
-            'HTTL' => $getKeyFromFirstArgument,
-            'HPTTL' => $getKeyFromFirstArgument,
-            'HEXPIRETIME' => $getKeyFromFirstArgument,
-            'HPEXPIRETIME' => $getKeyFromFirstArgument,
-            'HGETEX' => $getKeyFromFirstArgument,
-            'HGETDEL' => $getKeyFromFirstArgument,
-
-            /* commands operating on streams */
-            'XACK' => $getKeyFromFirstArgument,
-            'XACKDEL' => $getKeyFromFirstArgument,
-            'XADD' => $getKeyFromFirstArgument,
-            'XAUTOCLAIM' => $getKeyFromFirstArgument,
-            'XCFGSET' => $getKeyFromFirstArgument,
-            'XCLAIM' => $getKeyFromFirstArgument,
-            'XDEL' => $getKeyFromFirstArgument,
-            'XDELEX' => $getKeyFromFirstArgument,
-            'XGROUP' => [$this, 'getKeyFromStreamGroupCommands'],
-            'XINFO' => [$this, 'getKeyFromStreamGroupCommands'],
-            'XLEN' => $getKeyFromFirstArgument,
-            'XNACK' => $getKeyFromFirstArgument,
-            'XPENDING' => $getKeyFromFirstArgument,
-            'XRANGE' => $getKeyFromFirstArgument,
-            'XREAD' => [$this, 'getKeyFromStreamReadCommands'],
-            'XREADGROUP' => [$this, 'getKeyFromStreamReadCommands'],
-            'XREVRANGE' => $getKeyFromFirstArgument,
-            'XSETID' => $getKeyFromFirstArgument,
-            'XTRIM' => $getKeyFromFirstArgument,
-
-            /* commands operating on vector sets */
-            'VADD' => $getKeyFromFirstArgument,
-            'VCARD' => $getKeyFromFirstArgument,
-            'VDIM' => $getKeyFromFirstArgument,
-            'VEMB' => $getKeyFromFirstArgument,
-            'VGETATTR' => $getKeyFromFirstArgument,
-            'VINFO' => $getKeyFromFirstArgument,
-            'VLINKS' => $getKeyFromFirstArgument,
-            'VRANDMEMBER' => $getKeyFromFirstArgument,
-            'VRANGE' => $getKeyFromFirstArgument,
-            'VREM' => $getKeyFromFirstArgument,
-            'VSETATTR' => $getKeyFromFirstArgument,
-            'VSIM' => $getKeyFromFirstArgument,
-
-            /* commands operating on time series */
-            'TS.READ' => $getKeyFromFirstArgument,
 
             /* commands operating on HyperLogLog */
             'PFADD' => $getKeyFromFirstArgument,
@@ -253,16 +177,8 @@ abstract class ClusterStrategy implements StrategyInterface
             'GEORADIUS' => [$this, 'getKeyFromGeoradiusCommands'],
             'GEORADIUSBYMEMBER' => [$this, 'getKeyFromGeoradiusCommands'],
 
-            /* sharded pubsub */
-            'SSUBSCRIBE' => $getKeyFromAllArguments,
-            'SUNSUBSCRIBE' => [$this, 'getKeyFromSUnsubscribeCommand'],
-            'SPUBLISH' => $getKeyFromFirstArgument,
-
             /* cluster */
             'CLUSTER' => [$this, 'getFakeKey'],
-
-            /* control */
-            'ACL' => [$this, 'getFakeKey'],
         ];
     }
 
@@ -406,47 +322,6 @@ abstract class ClusterStrategy implements StrategyInterface
     }
 
     /**
-     * Extracts the key from the OBJECT command, where it follows the subcommand.
-     *
-     * @param CommandInterface $command Command instance.
-     *
-     * @return string|null
-     */
-    protected function getKeyFromObjectCommand(CommandInterface $command)
-    {
-        $arguments = $command->getArguments();
-
-        if (!isset($arguments[1])) {
-            return null;
-        }
-
-        return $arguments[1];
-    }
-
-    /**
-     * Extracts the key from commands where the first two arguments are keys,
-     * followed by non-key arguments (e.g. LMOVEM).
-     *
-     * @param CommandInterface $command Command instance.
-     *
-     * @return string|null
-     */
-    protected function getKeyFromFirstTwoKeys(CommandInterface $command)
-    {
-        $arguments = $command->getArguments();
-
-        if (!isset($arguments[1])) {
-            return $arguments[0] ?? null;
-        }
-
-        if (!$this->checkSameSlotForKeys(array_slice($arguments, 0, 2))) {
-            return null;
-        }
-
-        return $arguments[0];
-    }
-
-    /**
      * Extracts the key from BLPOP and BRPOP commands.
      *
      * @param CommandInterface $command Command instance.
@@ -480,31 +355,6 @@ abstract class ClusterStrategy implements StrategyInterface
         }
 
         return $arguments[1];
-    }
-
-    /**
-     * Extracts the key from HIMPORT commands.
-     *
-     * Only HIMPORT SET operates on a key (at position 1, after the subcommand)
-     * and is routed by its hash slot. HIMPORT PREPARE/DISCARD/DISCARDALL are
-     * connection-session commands that the server advertises as all-shards
-     * commands; they have no key, so this returns null and the cluster
-     * connection rejects them. The dedicated container command is the sanctioned
-     * path for fanning those out across the master shards.
-     *
-     * @param CommandInterface $command Command instance.
-     *
-     * @return string|null
-     */
-    protected function getKeyFromHimportCommands(CommandInterface $command)
-    {
-        $arguments = $command->getArguments();
-
-        if (isset($arguments[0], $arguments[1]) && strtoupper($arguments[0]) === 'SET') {
-            return $arguments[1];
-        }
-
-        return null;
     }
 
     /**
@@ -558,85 +408,6 @@ abstract class ClusterStrategy implements StrategyInterface
     }
 
     /**
-     * Extracts key from SUNSUBSCRIBE command if it's given.
-     *
-     * @param  CommandInterface $command
-     * @return string
-     */
-    protected function getKeyFromSUnsubscribeCommand(CommandInterface $command): ?string
-    {
-        $arguments = $command->getArguments();
-
-        // SUNSUBSCRIBE command could be called without arguments, so it doesn't matter on each node it will be called.
-        if (empty($arguments)) {
-            return 'fake';
-        }
-
-        return $this->getKeyFromAllArguments($command);
-    }
-
-    /**
-     * Extracts the key from XGROUP and XINFO commands, where it follows the subcommand.
-     *
-     * @param CommandInterface $command Command instance.
-     *
-     * @return string|null
-     */
-    protected function getKeyFromStreamGroupCommands(CommandInterface $command)
-    {
-        $arguments = $command->getArguments();
-
-        // Subcommands such as XINFO HELP and XGROUP HELP take no key at all.
-        if (!isset($arguments[1])) {
-            return null;
-        }
-
-        return $arguments[1];
-    }
-
-    /**
-     * Extracts the key from XREAD and XREADGROUP commands, where the STREAMS token is followed by
-     * the same number of keys and IDs.
-     *
-     * @param CommandInterface $command Command instance.
-     *
-     * @return string|null
-     */
-    protected function getKeyFromStreamReadCommands(CommandInterface $command)
-    {
-        $arguments = $command->getArguments();
-
-        $offset = $command->getId() === 'XREADGROUP' ? 3 : 0;
-        $position = null;
-
-        for ($index = $offset, $argc = count($arguments); $index < $argc; ++$index) {
-            if (is_string($arguments[$index]) && strtoupper($arguments[$index]) === 'STREAMS') {
-                $position = $index;
-                break;
-            }
-        }
-
-        if ($position === null) {
-            return null;
-        }
-
-        $keysAndIds = array_slice($arguments, $position + 1);
-        $count = count($keysAndIds);
-
-        if ($count === 0 || $count % 2 !== 0) {
-            return null;
-        }
-
-        $keys = array_slice($keysAndIds, 0, intdiv($count, 2));
-
-        if (!$this->checkSameSlotForKeys($keys)) {
-            return null;
-        }
-
-        return $keys[0];
-    }
-
-    /**
      * Extracts the key from EVAL and EVALSHA commands.
      *
      * @param CommandInterface $command Command instance.
@@ -676,9 +447,13 @@ abstract class ClusterStrategy implements StrategyInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Checks if the specified array of keys will generate the same hash.
+     *
+     * @param array $keys Array of keys.
+     *
+     * @return bool
      */
-    public function checkSameSlotForKeys(array $keys): bool
+    protected function checkSameSlotForKeys(array $keys)
     {
         if (!$count = count($keys)) {
             return false;
@@ -692,6 +467,8 @@ abstract class ClusterStrategy implements StrategyInterface
             if ($currentSlot !== $nextSlot) {
                 return false;
             }
+
+            $currentSlot = $nextSlot;
         }
 
         return true;

@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2026 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,17 +25,13 @@ class Factory implements FactoryInterface
 {
     private $defaults = [];
 
-    /**
-     * @var string|null
-     */
-    private $upstreamDriver;
-
     protected $schemes = [
         'tcp' => 'Predis\Connection\StreamConnection',
         'unix' => 'Predis\Connection\StreamConnection',
         'tls' => 'Predis\Connection\StreamConnection',
         'redis' => 'Predis\Connection\StreamConnection',
         'rediss' => 'Predis\Connection\StreamConnection',
+        'http' => 'Predis\Connection\WebdisConnection',
     ];
 
     /**
@@ -139,26 +135,6 @@ class Factory implements FactoryInterface
     }
 
     /**
-     * Sets upstream driver information for CLIENT SETINFO.
-     *
-     * @param string $driver Upstream driver string (e.g., 'laravel_v11.0.0' or 'laravel_v11.0.0;my-app_v1.0.0').
-     */
-    public function setUpstreamDriver(string $driver): void
-    {
-        $this->upstreamDriver = $driver;
-    }
-
-    /**
-     * Returns the configured upstream driver.
-     *
-     * @return string|null
-     */
-    public function getUpstreamDriver(): ?string
-    {
-        return $this->upstreamDriver;
-    }
-
-    /**
      * Creates a connection parameters instance from the supplied argument.
      *
      * @param mixed $parameters Original connection parameters.
@@ -189,28 +165,19 @@ class Factory implements FactoryInterface
     {
         $parameters = $connection->getParameters();
 
-        if (!empty($parameters->password)) {
-            $cmdAuthArgs = [$parameters->protocol, 'AUTH'];
-
-            if (empty($parameters->username)) {
-                $parameters->username = 'default';
-            }
-
-            array_push($cmdAuthArgs, $parameters->username, $parameters->password);
-            array_push($cmdAuthArgs, 'SETNAME', 'predis');
+        if (isset($parameters->password) && strlen($parameters->password)) {
+            $cmdAuthArgs = isset($parameters->username) && strlen($parameters->username)
+                ? [$parameters->username, $parameters->password]
+                : [$parameters->password];
 
             $connection->addConnectCommand(
-                new RawCommand('HELLO', $cmdAuthArgs)
-            );
-        } else {
-            $connection->addConnectCommand(
-                new RawCommand('HELLO', [$parameters->protocol ?? 2, 'SETNAME', 'predis'])
+                new RawCommand('AUTH', $cmdAuthArgs)
             );
         }
 
-        if ($parameters->client_info ?? true) {
+        if (($parameters->client_info ?? false) && !$connection instanceof RelayConnection) {
             $connection->addConnectCommand(
-                new RawCommand('CLIENT', ['SETINFO', 'LIB-NAME', $this->buildLibraryName()])
+                new RawCommand('CLIENT', ['SETINFO', 'LIB-NAME', 'predis'])
             );
 
             $connection->addConnectCommand(
@@ -223,15 +190,5 @@ class Factory implements FactoryInterface
                 new RawCommand('SELECT', [$parameters->database])
             );
         }
-    }
-
-    /**
-     * Builds the library name string for CLIENT SETINFO.
-     *
-     * @return string
-     */
-    protected function buildLibraryName(): string
-    {
-        return $this->upstreamDriver ? 'predis(' . $this->upstreamDriver . ')' : 'predis';
     }
 }

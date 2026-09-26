@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2026 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -42,10 +42,11 @@ class ConnectionErrorProof extends Pipeline
             return $this->executeSingleNode($connection, $commands);
         } elseif ($connection instanceof ClusterInterface) {
             return $this->executeCluster($connection, $commands);
-        }
-        $class = get_class($connection);
+        } else {
+            $class = get_class($connection);
 
-        throw new NotSupportedException("The connection class '$class' is not supported.");
+            throw new NotSupportedException("The connection class '$class' is not supported.");
+        }
     }
 
     /**
@@ -55,16 +56,13 @@ class ConnectionErrorProof extends Pipeline
     {
         $responses = [];
         $sizeOfPipe = count($commands);
-        $buffer = '';
 
         foreach ($commands as $command) {
-            $buffer .= $command->serializeCommand();
-        }
-
-        try {
-            $connection->write($buffer);
-        } catch (CommunicationException $exception) {
-            return array_fill(0, $sizeOfPipe, $exception);
+            try {
+                $connection->writeRequest($command);
+            } catch (CommunicationException $exception) {
+                return array_fill(0, $sizeOfPipe, $exception);
+            }
         }
 
         for ($i = 0; $i < $sizeOfPipe; ++$i) {
@@ -93,8 +91,17 @@ class ConnectionErrorProof extends Pipeline
         $exceptions = [];
 
         foreach ($commands as $command) {
-            $nodeConnection = $connection->getConnectionByCommand($command);
-            $nodeConnection->write($command->serializeCommand());
+            $cmdConnection = $connection->getConnectionByCommand($command);
+
+            if (isset($exceptions[spl_object_hash($cmdConnection)])) {
+                continue;
+            }
+
+            try {
+                $cmdConnection->writeRequest($command);
+            } catch (CommunicationException $exception) {
+                $exceptions[spl_object_hash($cmdConnection)] = $exception;
+            }
         }
 
         for ($i = 0; $i < $sizeOfPipe; ++$i) {
