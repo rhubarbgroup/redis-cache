@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fetch the Redis server version on demand instead of running `INFO` on every request
+
 ## 3.0.0
 
 - Allow Predis v3.0 as a Composer dependency

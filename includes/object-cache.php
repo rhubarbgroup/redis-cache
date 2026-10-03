@@ -560,8 +560,6 @@ class WP_Object_Cache {
                 $this->diagnostics[ 'ping' ] = $this->redis->ping();
             }
 
-            $this->fetch_info();
-
             $this->redis_connected = true;
         } catch ( Exception $exception ) {
             $this->handle_exception( $exception );
@@ -1224,11 +1222,19 @@ class WP_Object_Cache {
     }
 
     /**
-     * Returns the Redis server version.
+     * Returns the Redis server version, which is fetched on first use.
      *
      * @return null|string
      */
     public function redis_version() {
+        if ( $this->redis_version === null && $this->redis_status() ) {
+            try {
+                $this->fetch_info();
+            } catch ( Exception $exception ) {
+                error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            }
+        }
+
         return $this->redis_version;
     }
 
@@ -1902,7 +1908,9 @@ class WP_Object_Cache {
     protected function lua_flush_closure( $salt, $escape = true ) {
         $salt = $escape ? $this->glob_quote( $salt ) : $salt;
 
-        return function () use ( $salt ) {
+        $redis_version = $this->redis_version();
+
+        return function () use ( $salt, $redis_version ) {
             // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
             $script = <<<LUA
                 local cur = 0
@@ -1921,7 +1929,7 @@ class WP_Object_Cache {
                 return i
 LUA;
 
-            if ( isset($this->redis_version) && version_compare( $this->redis_version, '5', '<' ) && version_compare( $this->redis_version, '3.2', '>=' ) ) {
+            if ( isset($redis_version) && version_compare( $redis_version, '5', '<' ) && version_compare( $redis_version, '3.2', '>=' ) ) {
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
 
@@ -1940,7 +1948,9 @@ LUA;
     protected function lua_flush_extended_closure( $salt ) {
         $salt = $this->glob_quote( $salt );
 
-        return function () use ( $salt ) {
+        $redis_version = $this->redis_version();
+
+        return function () use ( $salt, $redis_version ) {
             $salt_length = strlen( $salt );
 
             $unflushable = array_map(
@@ -1973,7 +1983,7 @@ LUA;
                 until 0 == cur
                 return i
 LUA;
-            if ( isset($this->redis_version) && version_compare( $this->redis_version, '5', '<' ) && version_compare( $this->redis_version, '3.2', '>=' ) ) {
+            if ( isset($redis_version) && version_compare( $redis_version, '5', '<' ) && version_compare( $redis_version, '3.2', '>=' ) ) {
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
 
