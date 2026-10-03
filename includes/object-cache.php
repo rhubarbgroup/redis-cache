@@ -1641,6 +1641,10 @@ class WP_Object_Cache {
     protected function execute_lua_script( $script ) {
         $results = [];
 
+        if ( $this->redis instanceof RedisArray ) {
+            return $this->execute_lua_script_on_shards( $script );
+        }
+
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             return $this->execute_lua_script_on_cluster( $script );
         }
@@ -1673,6 +1677,40 @@ class WP_Object_Cache {
         } else {
             $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $timeout );
         }
+
+        return $results;
+    }
+
+    /**
+     * Executes Lua flush script on all shards.
+     *
+     * @return array|false  Returns array on success, false on failure
+     */
+    protected function execute_lua_script_on_shards( $script ) {
+        $results = [];
+        $redis = $this->redis;
+        $flushTimeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
+
+        try {
+            foreach ( $redis->_hosts() as $host ) {
+                $this->redis = $redis->_instance( $host );
+
+                // Shards have no read timeout and report `0`, setting that would make every read time out.
+                $timeout = $this->redis->getOption( Redis::OPT_READ_TIMEOUT ) ?: ini_get( 'default_socket_timeout' );
+                $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $flushTimeout );
+
+                $results[] = $this->parse_redis_response( $script() );
+
+                $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $timeout );
+            }
+        } catch ( Exception $exception ) {
+            $this->handle_exception( $exception );
+            $this->redis = $redis;
+
+            return false;
+        }
+
+        $this->redis = $redis;
 
         return $results;
     }
