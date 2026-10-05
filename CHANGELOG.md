@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Fetch the Redis server version on demand instead of running `INFO` on every request
+- Fixed group and selective flushes erroring and only flushing a single shard when using `WP_REDIS_SHARDS`
+
 ## 3.0.0
 
 - Allow Predis v3.0 as a Composer dependency
