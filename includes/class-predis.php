@@ -78,7 +78,6 @@ class Predis {
             }
         }
 
-        // Skip the redundant `SELECT 0`, which may be denied by ACLs.
         if ( isset( $parameters['database'] ) && (string) $parameters['database'] === '0' ) {
             unset( $parameters['database'] );
         }
