@@ -78,6 +78,11 @@ class Predis {
             }
         }
 
+        // Skip the redundant `SELECT 0`, which may be denied by ACLs.
+        if ( isset( $parameters['database'] ) && (string) $parameters['database'] === '0' ) {
+            unset( $parameters['database'] );
+        }
+
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
             $servers = WP_REDIS_SHARDS;
             $parameters['shards'] = $servers;
@@ -106,7 +111,7 @@ class Predis {
 
         foreach ( [ 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ] as $constant ) {
             if ( defined( $constant ) ) {
-                if ( $parameters['database'] ) {
+                if ( ! empty( $parameters['database'] ) ) {
                     $options['parameters']['database'] = $parameters['database'];
                 }
 
