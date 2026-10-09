@@ -7,8 +7,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/** @var \Rhubarb\RedisCache\Plugin $roc */
-$status = $roc->get_redis_status();
+/**
+ * Plugin instance rendering the overview.
+ *
+ * @var \Rhubarb\RedisCache\Plugin $roc
+ */
+$redis_status = $roc->get_redis_status();
 $redis_client = $roc->get_redis_client_name();
 $redis_prefix = $roc->get_redis_prefix();
 $redis_maxttl = $roc->get_redis_maxttl();
@@ -35,7 +39,7 @@ $diagnostics = $roc->get_diagnostics();
     <tr>
         <th><?php esc_html_e( 'Status:', 'redis-cache' ); ?></th>
         <td>
-            <?php if ( $status ) : ?>
+            <?php if ( $redis_status ) : ?>
                 <span class="success">
                     <span class="dashicons dashicons-yes-alt"></span>
                     <?php echo esc_html( $roc->get_status() ); ?>
@@ -66,7 +70,7 @@ $diagnostics = $roc->get_diagnostics();
         <td>
             <?php if ( $filesystem_writable instanceof \WP_Error ) : ?>
                 <?php if ( ! $filesystem_allowed ) : ?>
-                    <span class="<?php echo $status ? '' : 'error' ?>">
+                    <span class="<?php echo $redis_status ? '' : 'error'; ?>">
                         <span class="dashicons dashicons-dismiss"></span>
                         <?php esc_html_e( 'Disabled', 'redis-cache' ); ?>
                     </span>
@@ -128,7 +132,7 @@ $diagnostics = $roc->get_diagnostics();
 
 </table>
 
-<?php if ( $status ) : ?>
+<?php if ( $redis_status ) : ?>
 
 <h2 class="title">
     <?php esc_html_e( 'Connection', 'redis-cache' ); ?>
@@ -235,7 +239,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <code>
                     <?php
-                        echo sprintf(
+                        printf(
                             // translators: %s = Redis connection/read timeout in seconds.
                             esc_html__( '%ss', 'redis-cache' ),
                             esc_html( $diagnostics['timeout'] )
@@ -252,7 +256,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <code>
                     <?php
-                        echo sprintf(
+                        printf(
                             // translators: %s = Redis connection/read timeout in seconds.
                             esc_html__( '%ss', 'redis-cache' ),
                             esc_html( $diagnostics['read_timeout'] )
@@ -269,7 +273,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <code>
                     <?php
-                        echo sprintf(
+                        printf(
                             // translators: %s = Redis retry interval in milliseconds.
                             esc_html__( '%sms', 'redis-cache' ),
                             esc_html( $diagnostics['retry_interval'] )
@@ -310,7 +314,7 @@ $diagnostics = $roc->get_diagnostics();
             <a href="<?php echo esc_attr( $roc->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">
                 <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
             </a>
-        <?php else: ?>
+        <?php else : ?>
             <a href="#!" class="button button-primary button-large" disabled>
                 <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
             </a>

@@ -41,5 +41,4 @@ class UI {
     public static function get_tabs() {
         return self::$tabs;
     }
-
 }

@@ -255,5 +255,4 @@ class Tab {
          */
         return implode( ' ', apply_filters( 'roc_tab_classes', $classes, $this ) );
     }
-
 }
