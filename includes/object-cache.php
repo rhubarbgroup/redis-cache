@@ -1697,12 +1697,13 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
         /**
          * Executes Lua flush script on all shards.
          *
+         * @param callable $script Callback executing the Lua flush script on each shard.
          * @return array|false  Returns array on success, false on failure
          */
         protected function execute_lua_script_on_shards( $script ) {
             $results = [];
             $redis = $this->redis;
-            $flushTimeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
+            $flush_timeout = defined( 'WP_REDIS_FLUSH_TIMEOUT' ) ? WP_REDIS_FLUSH_TIMEOUT : 5;
 
             try {
                 foreach ( $redis->_hosts() as $host ) {
@@ -1710,7 +1711,7 @@ if ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS_DISABLED ) :
 
                     // Shards have no read timeout and report `0`, setting that would make every read time out.
                     $timeout = $this->redis->getOption( Redis::OPT_READ_TIMEOUT ) ?: ini_get( 'default_socket_timeout' );
-                    $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $flushTimeout );
+                    $this->redis->setOption( Redis::OPT_READ_TIMEOUT, $flush_timeout );
 
                     $results[] = $this->parse_redis_response( $script() );
 
