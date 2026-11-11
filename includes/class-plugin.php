@@ -102,8 +102,6 @@ class Plugin {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_redis_metrics' ] );
 
-        add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_admin_bar_styles' ] );
-        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_bar_styles' ] );
         add_action( 'admin_bar_menu', [ $this, 'render_admin_bar' ], 998 );
 
         add_action( 'load-settings_page_redis-cache', [ $this, 'do_admin_actions' ] );
@@ -450,24 +448,6 @@ class Plugin {
     }
 
     /**
-     * Enqueues admin bar style resources
-     *
-     * @return void
-     */
-    public function enqueue_admin_bar_styles() {
-        if ( ! is_admin_bar_showing() || ! $this->should_render_admin_bar() ) {
-            return;
-        }
-
-        wp_enqueue_style(
-            'redis-cache-admin-bar',
-            plugins_url( 'assets/css/admin-bar.css', WP_REDIS_FILE ),
-            [ 'admin-bar' ],
-            WP_REDIS_VERSION
-        );
-    }
-
-    /**
      * Registers a new cache collector for the Query Monitor plugin
      *
      * @param array $collectors Array of currently registered collectors.
@@ -758,11 +738,19 @@ class Plugin {
      * @return void
      */
     public function render_admin_bar( $wp_admin_bar ) {
-        if ( ! $this->should_render_admin_bar() ) {
+        if ( defined( 'WP_REDIS_DISABLE_ADMINBAR' ) && WP_REDIS_DISABLE_ADMINBAR ) {
+            return;
+        }
+
+        if ( ! $this->current_user_can_manage_redis() ) {
             return;
         }
 
         $nodeTitle = __( 'Object Cache', 'redis-cache' );
+
+        $style = $this->admin_bar_style();
+        $script = $this->admin_bar_script();
+        $html = "\n{$style}\n{$script}\n";
 
         $redis_status = $this->get_redis_status();
 
@@ -770,7 +758,7 @@ class Plugin {
             'id' => 'redis-cache',
             'title' => $nodeTitle,
             'meta' => [
-                'html' => $this->admin_bar_script(),
+                'html' => $html,
                 'class' => $redis_status === false ? 'redis-cache-error' : '',
             ],
         ]);
@@ -843,6 +831,18 @@ class Plugin {
     }
 
     /**
+     * Returns the admin-bar <style> tag.
+     *
+     * @return string
+     */
+    protected function admin_bar_style() {
+        $css = file_get_contents( WP_REDIS_PLUGIN_PATH . '/assets/css/admin-bar.css' );
+        $css = preg_replace( '/\s+/', ' ', $css );
+
+        return "<style id=\"redis-cache-admin-bar-style\">{$css}</style>";
+    }
+
+    /**
      * Returns the admin-bar <script> tag.
      *
      * @return string
@@ -867,19 +867,6 @@ class Plugin {
         }
 
         return "<script id=\"redis-cache-admin-bar\">{$script}</script>";
-    }
-
-    /**
-     * Whether the admin bar menu item should be displayed.
-     *
-     * @return bool
-     */
-    protected function should_render_admin_bar() {
-        if ( defined( 'WP_REDIS_DISABLE_ADMINBAR' ) && WP_REDIS_DISABLE_ADMINBAR ) {
-            return false;
-        }
-
-        return $this->current_user_can_manage_redis();
     }
 
     /**
