@@ -1418,7 +1418,7 @@ HTML;
      * @return bool
      */
     function is_file_mod_allowed() {
-        $allowed = ( defined( 'WP_REDIS_DISABLE_DROPIN_FILE_MODS_CHECK' ) && WP_REDIS_DISABLE_DROPIN_FILE_MODS_CHECK )
+        $allowed = ( defined( 'WP_REDIS_DISABLE_DROPIN_MODS_CHECK' ) && WP_REDIS_DISABLE_DROPIN_MODS_CHECK )
             || ! defined( 'DISALLOW_FILE_MODS' )
             || ! DISALLOW_FILE_MODS;
 
