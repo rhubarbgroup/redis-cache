@@ -1418,11 +1418,11 @@ HTML;
      * @return bool
      */
     function is_file_mod_allowed() {
-        return apply_filters(
-            'file_mod_allowed',
-            ! defined( 'DISALLOW_FILE_MODS' ) || ! DISALLOW_FILE_MODS,
-            'object_cache_dropin'
-        );
+        $allowed = ( defined( 'WP_REDIS_DISABLE_DROPIN_FILE_MODS_CHECK' ) && WP_REDIS_DISABLE_DROPIN_FILE_MODS_CHECK )
+            || ! defined( 'DISALLOW_FILE_MODS' )
+            || ! DISALLOW_FILE_MODS;
+
+        return apply_filters( 'file_mod_allowed', $allowed, 'object_cache_dropin' );
     }
 
     /**

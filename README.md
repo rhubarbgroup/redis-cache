@@ -63,6 +63,7 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
 | `WP_REDIS_DISABLE_DROPIN_CHECK`      | `false`     | Disables the extended drop-in write test |
 | `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update |
+| `WP_REDIS_DISABLE_DROPIN_FILE_MODS_CHECK` | `false` | Disables the `DISALLOW_FILE_MODS` check for the drop-in, so it can be managed from the dashboard |
 | `WP_REDIS_DISABLE_GROUP_FLUSH`       | `false`     | Disables group flushing with Lua script and uses `flushdb` call instead |
 | `WP_REDIS_DISABLE_BANNERS`           | `false`     | Disables promotional banners and notices |
 | `WP_REDIS_DISABLE_COMMENT`           | `false`     | Disables HTML source comment |
