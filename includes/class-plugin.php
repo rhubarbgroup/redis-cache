@@ -102,6 +102,7 @@ class Plugin {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_redis_metrics' ] );
 
+        add_action( 'admin_bar_init', [ $this, 'enqueue_admin_bar_assets' ] );
         add_action( 'admin_bar_menu', [ $this, 'render_admin_bar' ], 998 );
 
         add_action( 'load-settings_page_redis-cache', [ $this, 'do_admin_actions' ] );
@@ -448,6 +449,44 @@ class Plugin {
     }
 
     /**
+     * Enqueues admin bar resources
+     *
+     * @return void
+     */
+    public function enqueue_admin_bar_assets() {
+        if ( ! $this->should_render_admin_bar() ) {
+            return;
+        }
+
+        wp_enqueue_style(
+            'redis-cache-admin-bar',
+            plugins_url( 'assets/css/admin-bar.css', WP_REDIS_FILE ),
+            [ 'admin-bar' ],
+            WP_REDIS_VERSION
+        );
+
+        wp_enqueue_script(
+            'redis-cache-admin-bar',
+            plugins_url( 'assets/js/admin-bar.js', WP_REDIS_FILE ),
+            [],
+            WP_REDIS_VERSION,
+            true
+        );
+
+        wp_localize_script(
+            'redis-cache-admin-bar',
+            'rediscache_admin_bar',
+            [
+                'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                'nonce' => wp_create_nonce(),
+                'l10n' => [
+                    'flushing' => __( 'Flushing cache...', 'redis-cache' ),
+                ],
+            ]
+        );
+    }
+
+    /**
      * Registers a new cache collector for the Query Monitor plugin
      *
      * @param array $collectors Array of currently registered collectors.
@@ -738,19 +777,11 @@ class Plugin {
      * @return void
      */
     public function render_admin_bar( $wp_admin_bar ) {
-        if ( defined( 'WP_REDIS_DISABLE_ADMINBAR' ) && WP_REDIS_DISABLE_ADMINBAR ) {
-            return;
-        }
-
-        if ( ! $this->current_user_can_manage_redis() ) {
+        if ( ! $this->should_render_admin_bar() ) {
             return;
         }
 
         $nodeTitle = __( 'Object Cache', 'redis-cache' );
-
-        $style = preg_replace( '/\s+/', ' ', $this->admin_bar_style() );
-        $script = preg_replace( '/\s+/', ' ', $this->admin_bar_script() );
-        $html = "\n{$style}\n{$script}\n";
 
         $redis_status = $this->get_redis_status();
 
@@ -758,7 +789,6 @@ class Plugin {
             'id' => 'redis-cache',
             'title' => $nodeTitle,
             'meta' => [
-                'html' => $html,
                 'class' => $redis_status === false ? 'redis-cache-error' : '',
             ],
         ]);
@@ -831,81 +861,16 @@ class Plugin {
     }
 
     /**
-     * Returns the admin-bar <style> tag.
+     * Whether the admin bar menu item should be displayed.
      *
-     * @return string
+     * @return bool
      */
-    protected function admin_bar_style() {
-        // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
-        return <<<HTML
-            <style id="redis-cache-admin-bar-style">
-                #wpadminbar ul li.redis-cache-error {
-                    background: #b30000;
-                }
+    protected function should_render_admin_bar() {
+        if ( defined( 'WP_REDIS_DISABLE_ADMINBAR' ) && WP_REDIS_DISABLE_ADMINBAR ) {
+            return false;
+        }
 
-                #wpadminbar:not(.mobile) .ab-top-menu > li.redis-cache-error:hover > .ab-item {
-                    background: #b30000;
-                    color: #fff;
-                }
-            </style>
-HTML;
-    }
-
-    /**
-     * Returns the admin-bar <script> tag.
-     *
-     * @return string
-     */
-    protected function admin_bar_script() {
-        $nonce = wp_create_nonce();
-        $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
-        $flushMessage = __( 'Flushing cache...', 'redis-cache' );
-
-        return <<<HTML
-            <script id="redis-cache-admin-bar">
-                (function (element) {
-                    if (! element) {
-                        return;
-                    }
-
-                    element.addEventListener('click', async function (event) {
-                        event.preventDefault();
-
-                        var node = document.querySelector('#wp-admin-bar-redis-cache');
-                        var textNode = node.querySelector('.ab-item:first-child');
-
-                        if (! textNode.dataset.text) {
-                            textNode.dataset.text = textNode.innerText;
-                        }
-
-                        node.classList.remove('hover');
-                        textNode.innerText = '{$flushMessage}';
-
-                        try {
-                            var data = new FormData();
-                            data.append('action', 'roc_flush_cache');
-                            data.append('nonce', '{$nonce}');
-
-                            var response = await fetch('{$ajaxurl}', {
-                                method: 'POST',
-                                body: data,
-                            });
-
-                            textNode.innerText = await response.text();
-
-                            setTimeout(function () {
-                                textNode.innerText = textNode.dataset.text;
-                            }, 3000);
-                        } catch (error) {
-                            textNode.innerText = textNode.dataset.text;
-                            alert('Object cache could not be flushed: ' + error);
-                        }
-                    });
-                })(
-                    document.querySelector('#wp-admin-bar-redis-cache-flush > a')
-                );
-            </script>
-HTML;
+        return $this->current_user_can_manage_redis();
     }
 
     /**

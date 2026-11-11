@@ -5,6 +5,7 @@
 - Fetch the Redis server version on demand instead of running `INFO` on every request
 - Skip `SELECT 0` calls when probing
 - Fixed group and selective flushes erroring and only flushing a single shard when using `WP_REDIS_SHARDS`
+- Fixed admin bar script and styles being blocked by nonce-based Content Security Policies
 
 ## 3.0.0
 
