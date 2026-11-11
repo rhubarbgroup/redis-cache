@@ -102,7 +102,7 @@ class Plugin {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_redis_metrics' ] );
 
-        add_action( 'admin_bar_init', [ $this, 'enqueue_admin_bar_assets' ] );
+        add_action( 'admin_bar_init', [ $this, 'enqueue_admin_bar_styles' ] );
         add_action( 'admin_bar_menu', [ $this, 'render_admin_bar' ], 998 );
 
         add_action( 'load-settings_page_redis-cache', [ $this, 'do_admin_actions' ] );
@@ -449,11 +449,11 @@ class Plugin {
     }
 
     /**
-     * Enqueues admin bar resources
+     * Enqueues admin bar style resources
      *
      * @return void
      */
-    public function enqueue_admin_bar_assets() {
+    public function enqueue_admin_bar_styles() {
         if ( ! $this->should_render_admin_bar() ) {
             return;
         }
@@ -463,26 +463,6 @@ class Plugin {
             plugins_url( 'assets/css/admin-bar.css', WP_REDIS_FILE ),
             [ 'admin-bar' ],
             WP_REDIS_VERSION
-        );
-
-        wp_enqueue_script(
-            'redis-cache-admin-bar',
-            plugins_url( 'assets/js/admin-bar.js', WP_REDIS_FILE ),
-            [],
-            WP_REDIS_VERSION,
-            true
-        );
-
-        wp_localize_script(
-            'redis-cache-admin-bar',
-            'rediscache_admin_bar',
-            [
-                'ajaxurl' => admin_url( 'admin-ajax.php' ),
-                'nonce' => wp_create_nonce(),
-                'l10n' => [
-                    'flushing' => __( 'Flushing cache...', 'redis-cache' ),
-                ],
-            ]
         );
     }
 
@@ -789,6 +769,7 @@ class Plugin {
             'id' => 'redis-cache',
             'title' => $nodeTitle,
             'meta' => [
+                'html' => $this->admin_bar_script(),
                 'class' => $redis_status === false ? 'redis-cache-error' : '',
             ],
         ]);
@@ -858,6 +839,33 @@ class Plugin {
                 'title' => $title,
             ],
         ]);
+    }
+
+    /**
+     * Returns the admin-bar <script> tag.
+     *
+     * @return string
+     */
+    protected function admin_bar_script() {
+        $settings = wp_json_encode(
+            [
+                'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                'nonce' => wp_create_nonce(),
+                'l10n' => [
+                    'flushing' => __( 'Flushing cache...', 'redis-cache' ),
+                ],
+            ]
+        );
+
+        $script = "var rediscache_admin_bar = {$settings};\n"
+            . file_get_contents( WP_REDIS_PLUGIN_PATH . '/assets/js/admin-bar.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+        // Prints through the `wp_inline_script_attributes` filter, so a CSP nonce can be added.
+        if ( function_exists( 'wp_get_inline_script_tag' ) ) {
+            return wp_get_inline_script_tag( $script, [ 'id' => 'redis-cache-admin-bar' ] );
+        }
+
+        return "<script id=\"redis-cache-admin-bar\">{$script}</script>";
     }
 
     /**

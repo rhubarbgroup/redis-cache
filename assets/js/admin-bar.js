@@ -1,18 +1,9 @@
-( function ( root ) {
-    var settings = root.rediscache_admin_bar;
-
-    if ( ! settings ) {
+( function ( settings, element ) {
+    if ( ! element ) {
         return;
     }
 
-    // The admin bar may render after this script runs, so delegate the click.
-    document.addEventListener( 'click', async function ( event ) {
-        var element = event.target.closest( '#wp-admin-bar-redis-cache-flush > a' );
-
-        if ( ! element ) {
-            return;
-        }
-
+    element.addEventListener( 'click', async function ( event ) {
         event.preventDefault();
 
         var node = document.querySelector( '#wp-admin-bar-redis-cache' );
@@ -45,4 +36,7 @@
             alert( 'Object cache could not be flushed: ' + error );
         }
     } );
-} )( window );
+} )(
+    window.rediscache_admin_bar,
+    document.querySelector( '#wp-admin-bar-redis-cache-flush > a' )
+);
