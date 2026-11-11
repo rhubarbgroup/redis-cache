@@ -857,8 +857,8 @@ class Plugin {
             ]
         );
 
-        $script = "var rediscache_admin_bar = {$settings};\n"
-            . file_get_contents( WP_REDIS_PLUGIN_PATH . '/assets/js/admin-bar.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+        $js = file_get_contents( WP_REDIS_PLUGIN_PATH . '/assets/js/admin-bar.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+        $script = preg_replace( '/\s+/', ' ', "var rediscache_admin_bar = {$settings}; {$js}" );
 
         // Prints through the `wp_inline_script_attributes` filter, so a CSP nonce can be added.
         if ( function_exists( 'wp_get_inline_script_tag' ) ) {
