@@ -102,7 +102,8 @@ class Plugin {
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_redis_metrics' ] );
 
-        add_action( 'admin_bar_init', [ $this, 'enqueue_admin_bar_styles' ] );
+        add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_admin_bar_styles' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_bar_styles' ] );
         add_action( 'admin_bar_menu', [ $this, 'render_admin_bar' ], 998 );
 
         add_action( 'load-settings_page_redis-cache', [ $this, 'do_admin_actions' ] );
@@ -454,7 +455,7 @@ class Plugin {
      * @return void
      */
     public function enqueue_admin_bar_styles() {
-        if ( ! $this->should_render_admin_bar() ) {
+        if ( ! is_admin_bar_showing() || ! $this->should_render_admin_bar() ) {
             return;
         }
 
@@ -854,7 +855,8 @@ class Plugin {
                 'l10n' => [
                     'flushing' => __( 'Flushing cache...', 'redis-cache' ),
                 ],
-            ]
+            ],
+            JSON_HEX_TAG
         );
 
         $js = file_get_contents( WP_REDIS_PLUGIN_PATH . '/assets/js/admin-bar.js' );
