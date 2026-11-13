@@ -748,8 +748,8 @@ class Plugin {
 
         $nodeTitle = __( 'Object Cache', 'redis-cache' );
 
-        $style = preg_replace( '/\s+/', ' ', $this->admin_bar_style() );
-        $script = preg_replace( '/\s+/', ' ', $this->admin_bar_script() );
+        $style = $this->admin_bar_style();
+        $script = $this->admin_bar_script();
         $html = "\n{$style}\n{$script}\n";
 
         $redis_status = $this->get_redis_status();
@@ -836,19 +836,10 @@ class Plugin {
      * @return string
      */
     protected function admin_bar_style() {
-        // phpcs:disable Squiz.PHP.Heredoc.NotAllowed
-        return <<<HTML
-            <style id="redis-cache-admin-bar-style">
-                #wpadminbar ul li.redis-cache-error {
-                    background: #b30000;
-                }
+        $css = file_get_contents( WP_REDIS_PLUGIN_PATH . '/assets/css/admin-bar.css' );
+        $css = preg_replace( '/\s+/', ' ', $css );
 
-                #wpadminbar:not(.mobile) .ab-top-menu > li.redis-cache-error:hover > .ab-item {
-                    background: #b30000;
-                    color: #fff;
-                }
-            </style>
-HTML;
+        return "<style id=\"redis-cache-admin-bar-style\">{$css}</style>";
     }
 
     /**
@@ -857,55 +848,25 @@ HTML;
      * @return string
      */
     protected function admin_bar_script() {
-        $nonce = wp_create_nonce();
-        $ajaxurl = esc_url( admin_url( 'admin-ajax.php' ) );
-        $flushMessage = __( 'Flushing cache...', 'redis-cache' );
+        $settings = wp_json_encode(
+            [
+                'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                'nonce' => wp_create_nonce(),
+                'l10n' => [
+                    'flushing' => __( 'Flushing cache...', 'redis-cache' ),
+                ],
+            ],
+            JSON_HEX_TAG
+        );
 
-        return <<<HTML
-            <script id="redis-cache-admin-bar">
-                (function (element) {
-                    if (! element) {
-                        return;
-                    }
+        $js = file_get_contents( WP_REDIS_PLUGIN_PATH . '/assets/js/admin-bar.js' );
+        $script = preg_replace( '/\s+/', ' ', "var rediscache_admin_bar = {$settings}; {$js}" );
 
-                    element.addEventListener('click', async function (event) {
-                        event.preventDefault();
+        if ( function_exists( 'wp_get_inline_script_tag' ) ) {
+            return wp_get_inline_script_tag( $script, [ 'id' => 'redis-cache-admin-bar' ] );
+        }
 
-                        var node = document.querySelector('#wp-admin-bar-redis-cache');
-                        var textNode = node.querySelector('.ab-item:first-child');
-
-                        if (! textNode.dataset.text) {
-                            textNode.dataset.text = textNode.innerText;
-                        }
-
-                        node.classList.remove('hover');
-                        textNode.innerText = '{$flushMessage}';
-
-                        try {
-                            var data = new FormData();
-                            data.append('action', 'roc_flush_cache');
-                            data.append('nonce', '{$nonce}');
-
-                            var response = await fetch('{$ajaxurl}', {
-                                method: 'POST',
-                                body: data,
-                            });
-
-                            textNode.innerText = await response.text();
-
-                            setTimeout(function () {
-                                textNode.innerText = textNode.dataset.text;
-                            }, 3000);
-                        } catch (error) {
-                            textNode.innerText = textNode.dataset.text;
-                            alert('Object cache could not be flushed: ' + error);
-                        }
-                    });
-                })(
-                    document.querySelector('#wp-admin-bar-redis-cache-flush > a')
-                );
-            </script>
-HTML;
+        return "<script id=\"redis-cache-admin-bar\">{$script}</script>";
     }
 
     /**
