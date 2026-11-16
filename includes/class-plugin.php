@@ -1049,7 +1049,7 @@ class Plugin {
     public function ajax_flush_cache() {
         if ( ! wp_verify_nonce( $_POST['nonce'] ?? '' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
             wp_die( esc_html__( 'Invalid Nonce.', 'redis-cache' ) );
-        } else if ( wp_cache_flush() ) {
+        } elseif ( wp_cache_flush() ) {
             wp_die( esc_html__( 'Object cache flushed.', 'redis-cache' ) );
         } else {
             wp_die( esc_html__( 'Object cache could not be flushed.', 'redis-cache' ) );
