@@ -297,8 +297,8 @@ class Plugin {
     /**
      * Returns the link to Object Cache Pro.
      *
-     * @param string $medium
-     * @param bool   $as_html
+     * @param string $medium  The `utm_medium` to attribute the link to.
+     * @param bool   $as_html Whether to encode ampersands for use in HTML.
      * @return string
      */
     public function link_to_ocp( $medium, $as_html = true ) {
@@ -733,7 +733,7 @@ class Plugin {
     /**
      * Display the admin bar menu item.
      *
-     * @param \WP_Admin_Bar $wp_admin_bar
+     * @param \WP_Admin_Bar $wp_admin_bar The admin bar instance.
      *
      * @return void
      */
@@ -1186,7 +1186,7 @@ class Plugin {
      * Delete all transients if the cache was enabled successfully.
      * Callback for `redis_object_cache_enable` action.
      *
-     * @param bool $should_delete
+     * @param bool $should_delete Whether the object cache was enabled successfully.
      * @return void
      */
     public function maybe_delete_transients( $should_delete ) {
@@ -1605,7 +1605,7 @@ class Plugin {
     /**
      * Obscure `password` URL parameter.
      *
-     * @param string $url
+     * @param string $url The URL to obscure.
      * @return string
      */
     public function obscure_url_secrets( $url ) {
@@ -1661,7 +1661,7 @@ class Plugin {
     /**
      * Returns `true` if the plugin was installed by AccelerateWP from CloudLinux.
      *
-     * @param bool $ignore_banner_constant
+     * @param bool $ignore_banner_constant Whether to ignore the `WP_REDIS_DISABLE_BANNERS` constant.
      * @return bool
      */
     public static function acceleratewp_install( $ignore_banner_constant = false ) {
