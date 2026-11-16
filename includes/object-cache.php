@@ -1887,7 +1887,7 @@ class WP_Object_Cache {
             }
         }
 
-        if ( in_array( $san_group, $this->unflushable_groups ) ) {
+        if ( in_array( $san_group, $this->unflushable_groups ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
             return false;
         }
 

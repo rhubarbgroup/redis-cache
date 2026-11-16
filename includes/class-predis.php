@@ -213,7 +213,7 @@ class Predis {
      *
      * @return bool
      */
-    public function flushOrFail() {
+    public function flushOrFail() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
         return $this->flush( true );
     }
 
