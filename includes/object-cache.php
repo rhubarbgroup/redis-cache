@@ -399,13 +399,6 @@ class WP_Object_Cache {
     public $cache = [];
 
     /**
-     * Holds the size in bytes of internal cache values, when known.
-     *
-     * @var array<string, int>
-     */
-    private $cache_bytes = [];
-
-    /**
      * Holds the diagnostics values.
      *
      * @var array
@@ -506,6 +499,13 @@ class WP_Object_Cache {
      * @var float
      */
     public $cache_time = 0;
+
+    /**
+     * The amount of bytes read from and written to Redis.
+     *
+     * @var int
+     */
+    public $cache_bytes = 0;
 
     /**
      * Instantiate the Redis class.
@@ -1313,7 +1313,6 @@ class WP_Object_Cache {
         $orig_exp = $expire;
         $expire = $this->validate_expiration( $expire );
         $derived_keys = [];
-        $bytes = [];
 
         foreach ( $data as $key => $value ) {
             /**
@@ -1330,7 +1329,7 @@ class WP_Object_Cache {
             $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
 
             $serialized = $this->maybe_serialize( $value );
-            $bytes[ $key ] = strlen( (string) $serialized );
+            $this->cache_bytes += strlen( (string) $serialized );
 
             $args = [ $derived_key, $serialized ];
 
@@ -1369,7 +1368,7 @@ class WP_Object_Cache {
 
             foreach ( $results as $key => $result ) {
                 if ( $result ) {
-                    $this->add_to_internal_cache( $derived_keys[ $key ], $data[ $key ], $bytes[ $key ] );
+                    $this->add_to_internal_cache( $derived_keys[ $key ], $data[ $key ] );
                 }
             }
 
@@ -1429,7 +1428,6 @@ class WP_Object_Cache {
         $san_group = $this->sanitize_key_part( $group );
 
         $derived_key = $this->fast_build_key( $san_key, $san_group );
-        $bytes = null;
 
         // Save if group not excluded and redis is up.
         if ( ! $this->is_ignored_group( $san_group ) && $this->redis_status() ) {
@@ -1452,7 +1450,7 @@ class WP_Object_Cache {
                 $flag = $add ? 'nx' : 'xx';
 
                 $serialized = $this->maybe_serialize( $value );
-                $bytes = strlen( (string) $serialized );
+                $this->cache_bytes += strlen( (string) $serialized );
 
                 $args = [ $derived_key, $serialized ];
 
@@ -1494,7 +1492,7 @@ class WP_Object_Cache {
             return false;
         }
 
-        $this->add_to_internal_cache( $derived_key, $value, $bytes );
+        $this->add_to_internal_cache( $derived_key, $value );
 
         return true;
     }
@@ -1515,7 +1513,7 @@ class WP_Object_Cache {
         $derived_key = $this->fast_build_key( $san_key, $san_group );
 
         if ( array_key_exists( $derived_key, $this->cache ) ) {
-            unset( $this->cache[ $derived_key ], $this->cache_bytes[ $derived_key ] );
+            unset( $this->cache[ $derived_key ] );
             $result = true;
         }
 
@@ -1596,7 +1594,7 @@ class WP_Object_Cache {
 
                 $tx->del( $derived_key );
 
-                unset( $this->cache[ $derived_key ], $this->cache_bytes[ $derived_key ] );
+                unset( $this->cache[ $derived_key ] );
             }
 
             $method = $this->is_predis() ? 'execute' : 'exec';
@@ -1644,7 +1642,6 @@ class WP_Object_Cache {
      */
     public function flush_runtime() {
         $this->cache = [];
-        $this->cache_bytes = [];
 
         return true;
     }
@@ -1781,7 +1778,6 @@ class WP_Object_Cache {
     public function flush() {
         $results = [];
         $this->cache = [];
-        $this->cache_bytes = [];
 
         if ( $this->redis_status() ) {
             $salt = defined( 'WP_REDIS_PREFIX' ) ? trim( WP_REDIS_PREFIX ) : null;
@@ -1875,7 +1871,7 @@ class WP_Object_Cache {
 
         foreach ( $this->cache as $key => $value ) {
             if ( strpos( $key, "{$san_group}:" ) === 0 || strpos( $key, ":{$san_group}:" ) !== false ) {
-                unset( $this->cache[ $key ], $this->cache_bytes[ $key ] );
+                unset( $this->cache[ $key ] );
             }
         }
 
@@ -2104,10 +2100,11 @@ LUA;
         } else {
             $found = true;
             $this->cache_hits++;
+            $this->cache_bytes += strlen( $result );
             $value = $this->maybe_unserialize( $result );
         }
 
-        $this->add_to_internal_cache( $derived_key, $value, strlen( $result ) );
+        $this->add_to_internal_cache( $derived_key, $value );
 
         if ( function_exists( 'do_action' ) ) {
             /**
@@ -2244,8 +2241,9 @@ LUA;
                 $this->cache_misses++;
             } else {
                 $cache[ $key ] = $this->maybe_unserialize( $value );
-                $this->add_to_internal_cache( $derived_keys[ $key ], $cache[ $key ], strlen( $value ) );
+                $this->add_to_internal_cache( $derived_keys[ $key ], $cache[ $key ] );
                 $this->cache_hits++;
+                $this->cache_bytes += strlen( $value );
             }
         }
 
@@ -2296,7 +2294,6 @@ LUA;
      */
     public function set( $key, $value, $group = 'default', $expiration = 0 ) {
         $result = true;
-        $bytes = null;
         $start_time = microtime( true );
 
         $san_key = $this->sanitize_key_part( $key );
@@ -2322,7 +2319,7 @@ LUA;
 
             try {
                 $serialized = $this->maybe_serialize( $value );
-                $bytes = strlen( (string) $serialized );
+                $this->cache_bytes += strlen( (string) $serialized );
 
                 if ( $expiration ) {
                     $result = $this->parse_redis_response( $this->redis->setex( $derived_key, $expiration, $serialized ) );
@@ -2342,7 +2339,7 @@ LUA;
 
         // If the set was successful, or we didn't go to redis.
         if ( $result ) {
-            $this->add_to_internal_cache( $derived_key, $value, $bytes );
+            $this->add_to_internal_cache( $derived_key, $value );
         }
 
         if ( function_exists( 'do_action' ) ) {
@@ -2405,7 +2402,6 @@ LUA;
 
         $san_group = $this->sanitize_key_part( $group );
         $derived_keys = [];
-        $bytes = [];
 
         $orig_exp = $expiration;
         $expiration = $this->validate_expiration( $expiration );
@@ -2429,7 +2425,7 @@ LUA;
             $expiration = $expirations[ $key ] = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
 
             $serialized = $this->maybe_serialize( $value );
-            $bytes[ $key ] = strlen( (string) $serialized );
+            $this->cache_bytes += strlen( (string) $serialized );
 
             if ( $expiration ) {
                 $tx->setex( $derived_key, $expiration, $serialized );
@@ -2453,7 +2449,7 @@ LUA;
 
             foreach ( $results as $key => $result ) {
                 if ( $result ) {
-                    $this->add_to_internal_cache( $derived_keys[ $key ], $data[ $key ], $bytes[ $key ] );
+                    $this->add_to_internal_cache( $derived_keys[ $key ], $data[ $key ] );
                 }
             }
         } catch ( Exception $exception ) {
@@ -2666,7 +2662,7 @@ LUA;
             <?php echo (int) $this->cache_misses; ?>
             <br />
             <strong>Cache Size:</strong>
-            <?php echo number_format_i18n( $this->info()->bytes / 1024, 2 ); ?> KB
+            <?php echo number_format_i18n( $this->cache_bytes / 1024, 2 ); ?> KB
         </p>
     <?php
         // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -2679,19 +2675,12 @@ LUA;
      */
     public function info() {
         $total = $this->cache_hits + $this->cache_misses;
-        $bytes = 0;
-
-        // Only serialize values whose size wasn't already known when read from or written to Redis.
-        foreach ( $this->cache as $derived_key => $value ) {
-            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-            $bytes += $this->cache_bytes[ $derived_key ] ?? strlen( serialize( $value ) );
-        }
 
         return (object) [
             'hits' => $this->cache_hits,
             'misses' => $this->cache_misses,
             'ratio' => $total > 0 ? round( $this->cache_hits / ( $total / 100 ), 1 ) : 100,
-            'bytes' => $bytes,
+            'bytes' => $this->cache_bytes,
             'time' => $this->cache_time,
             'calls' => $this->cache_calls,
             'groups' => (object) [
@@ -2822,22 +2811,15 @@ LUA;
     /**
      * Simple wrapper for saving object to the internal cache.
      *
-     * @param   string   $derived_key  Key to save value under.
-     * @param   mixed    $value        Object value.
-     * @param   int|null $bytes        Optional. Size of the value as stored in Redis, if known.
+     * @param   string $derived_key    Key to save value under.
+     * @param   mixed  $value          Object value.
      */
-    public function add_to_internal_cache( $derived_key, $value, $bytes = null ) {
+    public function add_to_internal_cache( $derived_key, $value ) {
         if ( is_object( $value ) ) {
             $value = clone $value;
         }
 
         $this->cache[ $derived_key ] = $value;
-
-        if ( $bytes === null ) {
-            unset( $this->cache_bytes[ $derived_key ] );
-        } else {
-            $this->cache_bytes[ $derived_key ] = $bytes;
-        }
     }
 
     /**
