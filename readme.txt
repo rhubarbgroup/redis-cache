@@ -5,7 +5,7 @@ Tags: redis, object cache, caching, performance, relay
 Requires at least: 4.6
 Tested up to: 7.1
 Requires PHP: 7.2
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -60,6 +60,16 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 4. Dashboard widget, displaying recent response time metrics.
 
 == Changelog ==
+
+= 3.0.1 =
+
+- Run `INFO` only when needed
+- Skip `SELECT 0` calls when probing
+- Support CSP nonce for admin bar script/styles
+- Reduce memory footprint when metrics are enabled
+- Added `WP_REDIS_DISABLE_DROPIN_MODS_CHECK` constant
+- Fixed rare group/selective flushing error when using `WP_REDIS_SHARDS`
+
 
 = 3.0.0 =
 

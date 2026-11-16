@@ -81,7 +81,7 @@ That happens when the same `WP_REDIS_DATABASE` index is used for multiple WordPr
 Once your site is being redirected, you **MUST** flush the entire Redis Server using the `FLUSHALL` command to recover from this error:
 
 ```bash
-redis-cli -h 127.0.01 -p 6379 FLUSHALL
+redis-cli -h 127.0.0.1 -p 6379 FLUSHALL
 ```
 
 ## Are transients stored in Redis?
@@ -155,7 +155,7 @@ If your site is unreachable, you can flush the cache without access to the WordP
 Try running `wp cache flush`, or using `redis-cli` directly:
 
 ```bash
-redis-cli -h 127.0.01 -p 6379 FLUSHALL
+redis-cli -h 127.0.0.1 -p 6379 FLUSHALL
 ```
 
 Alternatively, you can use a desktop client like [Medis](https://getmedis.com) or [RedisInsight](https://redis.com/redis-enterprise/redis-insight/) to connect to your Redis Server and flush it by executing `FLUSHALL`.

@@ -273,5 +273,4 @@ class Metrics {
             return 0;
         }
     }
-
 }

@@ -77,7 +77,8 @@ defined( 'ABSPATH' ) || exit;
                         <h2 class="title" style="line-height: 1.4">
                             <?php
                                 esc_html_e( 'Need more performance and reliability?', 'redis-cache' );
-                            ?><br>
+                            ?>
+                            <br>
                             <?php
                                 // translators: %s = Object Cache Pro.
                                 printf( esc_html__( 'Check out %s', 'redis-cache' ), '<span style="color: #dc2626;">Object Cache Pro</span>' );

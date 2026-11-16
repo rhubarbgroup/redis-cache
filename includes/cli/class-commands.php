@@ -65,7 +65,7 @@ class Commands extends WP_CLI_Command {
 
             if ( is_string( $flush ) ) {
                 // translators: %s = The Redis connection error message.
-                WP_CLI::error( sprintf( __( "Object cache could not be enabled. Redis server is unreachable: %s", 'redis-cache' ), $flush ) );
+                WP_CLI::error( sprintf( __( 'Object cache could not be enabled. Redis server is unreachable: %s', 'redis-cache' ), $flush ) );
             }
 
             WP_Filesystem();
@@ -91,7 +91,6 @@ class Commands extends WP_CLI_Command {
                 WP_CLI::error( __( 'Object cache could not be enabled.', 'redis-cache' ) );
             }
         }
-
     }
 
     /**
@@ -114,36 +113,32 @@ class Commands extends WP_CLI_Command {
 
             WP_CLI::error( __( 'No object cache drop-in found.', 'redis-cache' ) );
 
-        } else {
-
-            if ( ! $plugin->validate_object_cache_dropin() ) {
+        } elseif ( ! $plugin->validate_object_cache_dropin() ) {
 
                 WP_CLI::error( __( 'A foreign object cache drop-in was found. To use Redis for object caching, run: `wp redis update-dropin`.', 'redis-cache' ) );
 
+        } else {
+
+            WP_Filesystem();
+
+            $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
+
+            /**
+             * Fires on cache disable event
+             *
+             * @param bool $result Whether the deletion of the `object-cache.php` drop-in was successful.
+             * @since 1.3.5
+             */
+            do_action( 'redis_object_cache_disable', $result );
+
+            if ( $result ) {
+                $this->flush_redis();
+
+                WP_CLI::success( __( 'Object cache disabled.', 'redis-cache' ) );
             } else {
-
-                WP_Filesystem();
-
-                $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
-
-                /**
-                 * Fires on cache disable event
-                 *
-                 * @param bool $result Whether the deletion of the `object-cache.php` drop-in was successful.
-                 * @since 1.3.5
-                 */
-                do_action( 'redis_object_cache_disable', $result );
-
-                if ( $result ) {
-                    $this->flush_redis();
-
-                    WP_CLI::success( __( 'Object cache disabled.', 'redis-cache' ) );
-                } else {
-                    WP_CLI::error( __( 'Object cache could not be disabled.', 'redis-cache' ) );
-                }
+                WP_CLI::error( __( 'Object cache could not be disabled.', 'redis-cache' ) );
             }
         }
-
     }
 
     /**
@@ -183,14 +178,13 @@ class Commands extends WP_CLI_Command {
 
             if ( is_string( $flush ) ) {
                 // translators: %s = The Redis connection error message.
-                WP_CLI::error( sprintf( __( "Object cache drop-in could not be updated. Redis server is unreachable: %s", 'redis-cache' ), $flush ) );
+                WP_CLI::error( sprintf( __( 'Object cache drop-in could not be updated. Redis server is unreachable: %s', 'redis-cache' ), $flush ) );
             }
 
             WP_CLI::success( __( 'Updated object cache drop-in and enabled Redis object cache.', 'redis-cache' ) );
         } else {
             WP_CLI::error( __( 'Object cache drop-in could not be updated.', 'redis-cache' ) );
         }
-
     }
 
     /**
@@ -200,7 +194,7 @@ class Commands extends WP_CLI_Command {
      */
     protected function flush_redis() {
         try {
-            return (new Predis)->flushOrFail();
+            return ( new Predis() )->flushOrFail();
         } catch ( Exception $exception ) {
             error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 

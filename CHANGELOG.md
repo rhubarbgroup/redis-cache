@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.1
+
+- Run `INFO` only when needed
+- Skip `SELECT 0` calls when probing
+- Support CSP nonce for admin bar script/styles
+- Reduce memory footprint when metrics are enabled
+- Added `WP_REDIS_DISABLE_DROPIN_MODS_CHECK` constant
+- Fixed rare group/selective flushing error when using `WP_REDIS_SHARDS`
+
 ## 3.0.0
 
 - Allow Predis v3.0 as a Composer dependency

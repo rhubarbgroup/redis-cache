@@ -1,6 +1,6 @@
 <?php
 /**
- * Predis client class.
+ * Predis helper class.
  *
  * @package Rhubarb\RedisCache
  */
@@ -11,6 +11,9 @@ use Exception;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Predis client helper class.
+ */
 class Predis {
     /**
      * The Redis client.
@@ -78,6 +81,10 @@ class Predis {
             }
         }
 
+        if ( isset( $parameters['database'] ) && (string) $parameters['database'] === '0' ) {
+            unset( $parameters['database'] );
+        }
+
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
             $servers = WP_REDIS_SHARDS;
             $parameters['shards'] = $servers;
@@ -106,7 +113,7 @@ class Predis {
 
         foreach ( [ 'WP_REDIS_SERVERS', 'WP_REDIS_SHARDS', 'WP_REDIS_CLUSTER' ] as $constant ) {
             if ( defined( $constant ) ) {
-                if ( $parameters['database'] ) {
+                if ( ! empty( $parameters['database'] ) ) {
                     $options['parameters']['database'] = $parameters['database'];
                 }
 
@@ -148,6 +155,7 @@ class Predis {
      * Flushes the entire Redis database using the `WP_REDIS_FLUSH_TIMEOUT`.
      *
      * @param bool $throw_exception Whether to throw exception on error.
+     * @throws \Exception If flushing fails and `$throw_exception` is true.
      * @return bool
      */
     public function flush( $throw_exception = false ) {
@@ -205,7 +213,7 @@ class Predis {
      *
      * @return bool
      */
-    public function flushOrFail() {
+    public function flushOrFail() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
         return $this->flush( true );
     }
 

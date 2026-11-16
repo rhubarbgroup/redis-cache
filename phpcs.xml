@@ -8,6 +8,7 @@
     <description>Coding standards</description>
 
     <file>.</file>
+    <exclude-pattern>/.github/</exclude-pattern>
     <exclude-pattern>/dependencies/</exclude-pattern>
     <exclude-pattern>/tests/</exclude-pattern>
     <exclude-pattern>/vendor/</exclude-pattern>
@@ -23,9 +24,9 @@
 
     <rule ref="WordPress">
         <exclude name="Generic.WhiteSpace.DisallowSpaceIndent" />
-        <exclude name="Generic.Arrays.DisallowShortArraySyntax" />
+        <exclude name="Universal.Arrays.DisallowShortArraySyntax" />
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
-        <exclude name="WordPress.PHP.DisallowShortTernary" />
+        <exclude name="Universal.Operators.DisallowShortTernary" />
         <exclude name="WordPress.PHP.YodaConditions.NotYoda" />
         <exclude name="WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys" />
         <exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned" />
@@ -33,17 +34,50 @@
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound" />
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound" />
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound" />
+        <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase" />
+        <exclude name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase" />
+        <exclude name="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostIncrementFound" />
+        <exclude name="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostDecrementFound" />
+        <exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents" />
+        <exclude name="WordPress.DB.DirectDatabaseQuery.DirectQuery" />
+        <exclude name="WordPress.DB.DirectDatabaseQuery.NoCaching" />
+        <exclude name="WordPress.PHP.DevelopmentFunctions.error_log_error_log" />
+        <exclude name="WordPress.PHP.DevelopmentFunctions.error_log_trigger_error" />
     </rule>
 
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
-            <property name="prefixes" type="array" value="redis_object_cache" />
+            <property name="prefixes" type="array">
+                <element value="redis_object_cache" />
+            </property>
         </properties>
+    </rule>
+
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound">
+        <exclude-pattern>/includes/object-cache.php</exclude-pattern>
+    </rule>
+
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound">
+        <exclude-pattern>/includes/object-cache.php</exclude-pattern>
+    </rule>
+
+    <rule ref="WordPress.Files.FileName.InvalidClassFileName">
+        <exclude-pattern>/includes/object-cache.php</exclude-pattern>
+    </rule>
+
+    <rule ref="Universal.Files.SeparateFunctionsFromOO.Mixed">
+        <exclude-pattern>/includes/object-cache.php</exclude-pattern>
+    </rule>
+
+    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+        <exclude-pattern>/includes/object-cache.php</exclude-pattern>
     </rule>
 
     <rule ref="WordPress.WP.I18n">
         <properties>
-            <property name="text_domain" type="array" value="redis-cache" />
+            <property name="text_domain" type="array">
+                <element value="redis-cache" />
+            </property>
         </properties>
     </rule>
 
