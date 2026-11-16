@@ -235,7 +235,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <code>
                     <?php
-                        echo sprintf(
+                        printf(
                             // translators: %s = Redis connection/read timeout in seconds.
                             esc_html__( '%ss', 'redis-cache' ),
                             esc_html( $diagnostics['timeout'] )
@@ -252,7 +252,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <code>
                     <?php
-                        echo sprintf(
+                        printf(
                             // translators: %s = Redis connection/read timeout in seconds.
                             esc_html__( '%ss', 'redis-cache' ),
                             esc_html( $diagnostics['read_timeout'] )
@@ -269,7 +269,7 @@ $diagnostics = $roc->get_diagnostics();
             <td>
                 <code>
                     <?php
-                        echo sprintf(
+                        printf(
                             // translators: %s = Redis retry interval in milliseconds.
                             esc_html__( '%sms', 'redis-cache' ),
                             esc_html( $diagnostics['retry_interval'] )
