@@ -298,7 +298,7 @@ class Plugin {
      * Returns the link to Object Cache Pro.
      *
      * @param string $medium
-     * @param bool $as_html
+     * @param bool   $as_html
      * @return string
      */
     public function link_to_ocp( $medium, $as_html = true ) {
@@ -754,30 +754,36 @@ class Plugin {
 
         $redis_status = $this->get_redis_status();
 
-        $wp_admin_bar->add_node([
-            'id' => 'redis-cache',
-            'title' => $nodeTitle,
-            'meta' => [
-                'html' => $html,
-                'class' => $redis_status === false ? 'redis-cache-error' : '',
-            ],
-        ]);
+        $wp_admin_bar->add_node(
+            [
+                'id' => 'redis-cache',
+                'title' => $nodeTitle,
+                'meta' => [
+                    'html' => $html,
+                    'class' => $redis_status === false ? 'redis-cache-error' : '',
+                ],
+            ]
+        );
 
         if ( $redis_status ) {
-            $wp_admin_bar->add_node([
-                'parent' => 'redis-cache',
-                'id' => 'redis-cache-flush',
-                'title' => __( 'Flush Cache', 'redis-cache' ),
-                'href' => $this->action_link( 'flush-cache' ),
-            ]);
+            $wp_admin_bar->add_node(
+                [
+                    'parent' => 'redis-cache',
+                    'id' => 'redis-cache-flush',
+                    'title' => __( 'Flush Cache', 'redis-cache' ),
+                    'href' => $this->action_link( 'flush-cache' ),
+                ]
+            );
         }
 
-        $wp_admin_bar->add_node([
-            'parent' => 'redis-cache',
-            'id' => 'redis-cache-metrics',
-            'title' => __( 'Settings', 'redis-cache' ),
-            'href' => network_admin_url( $this->page ),
-        ]);
+        $wp_admin_bar->add_node(
+            [
+                'parent' => 'redis-cache',
+                'id' => 'redis-cache-metrics',
+                'title' => __( 'Settings', 'redis-cache' ),
+                'href' => network_admin_url( $this->page ),
+            ]
+        );
 
         $wp_admin_bar->add_group(
             [
@@ -819,15 +825,17 @@ class Plugin {
             );
         }
 
-        $wp_admin_bar->add_node([
-            'parent' => 'redis-cache-info',
-            'id' => 'redis-cache-info-details',
-            'title' => $value,
-            'href' => $redis_status && Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
-            'meta' => [
-                'title' => $title,
-            ],
-        ]);
+        $wp_admin_bar->add_node(
+            [
+                'parent' => 'redis-cache-info',
+                'id' => 'redis-cache-info-details',
+                'title' => $value,
+                'href' => $redis_status && Metrics::is_enabled() ? network_admin_url( $this->page . '#metrics' ) : '',
+                'meta' => [
+                    'title' => $title,
+                ],
+            ]
+        );
     }
 
     /**
@@ -919,7 +927,7 @@ class Plugin {
                         );
 
                         if ( $result ) {
-                            ( new Predis )->flush();
+                            ( new Predis() )->flush();
                         }
 
                         /**
@@ -949,7 +957,7 @@ class Plugin {
                         $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
 
                         if ( $result ) {
-                            ( new Predis )->flush();
+                            ( new Predis() )->flush();
                         }
 
                         /**
@@ -1194,11 +1202,13 @@ class Plugin {
             return;
         }
 
-        $wpdb->query( $wpdb->prepare(
-            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-            '_transient_%',
-            '_site_transient_%'
-        ) );
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+                '_transient_%',
+                '_site_transient_%'
+            )
+        );
     }
 
     /**
@@ -1209,19 +1219,30 @@ class Plugin {
     protected function delete_multisite_transients() {
         global $wpdb;
 
-        $wpdb->query( $wpdb->prepare(
-            "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s", '_site_transient_%'
-        ) );
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s",
+                '_site_transient_%'
+            )
+        );
 
-        $sites = get_sites( [ 'fields' => 'ids', 'number' => 0 ] );
+        $sites = get_sites(
+            [
+                'fields' => 'ids',
+                'number' => 0,
+            ]
+        );
 
         foreach ( $sites as $id ) {
             try {
                 $prefix = $wpdb->get_blog_prefix( $id );
 
-                $wpdb->query( $wpdb->prepare(
-                    "DELETE FROM {$prefix}options WHERE option_name LIKE %s", '_transient_%'
-                ) );
+                $wpdb->query(
+                    $wpdb->prepare(
+                        "DELETE FROM {$prefix}options WHERE option_name LIKE %s",
+                        '_transient_%'
+                    )
+                );
             } catch ( Exception $error ) {
                 error_log( $error->getMessage() );
             }
@@ -1546,7 +1567,7 @@ class Plugin {
                 wp_unschedule_event( $timestamp, 'rediscache_discard_metrics' );
             }
 
-            ( new Predis )->flush();
+            ( new Predis() )->flush();
 
             if ( $this->validate_object_cache_dropin() && $this->initialize_filesystem( '', true ) ) {
                 $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
