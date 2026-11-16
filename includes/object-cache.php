@@ -3120,7 +3120,7 @@ LUA;
         $message = '<h1>' . __( 'Error establishing a Redis connection', 'redis-cache' ) . "</h1>\n";
 
         if ( $verbose ) {
-            $message .= "<p><code>" . $exception->getMessage() . "</code></p>\n";
+            $message .= '<p><code>' . $exception->getMessage() . "</code></p>\n";
 
             $message .= '<p>' . sprintf(
                 // translators: %s = Formatted wp-config.php file name.
