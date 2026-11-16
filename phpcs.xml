@@ -41,6 +41,8 @@
         <exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents" />
         <exclude name="WordPress.DB.DirectDatabaseQuery.DirectQuery" />
         <exclude name="WordPress.DB.DirectDatabaseQuery.NoCaching" />
+        <exclude name="WordPress.PHP.DevelopmentFunctions.error_log_error_log" />
+        <exclude name="WordPress.PHP.DevelopmentFunctions.error_log_trigger_error" />
     </rule>
 
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
@@ -64,6 +66,10 @@
     </rule>
 
     <rule ref="Universal.Files.SeparateFunctionsFromOO.Mixed">
+        <exclude-pattern>/includes/object-cache.php</exclude-pattern>
+    </rule>
+
+    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
         <exclude-pattern>/includes/object-cache.php</exclude-pattern>
     </rule>
 

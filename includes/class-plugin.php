@@ -1239,7 +1239,7 @@ class Plugin {
 
                 $wpdb->query(
                     $wpdb->prepare(
-                        "DELETE FROM {$prefix}options WHERE option_name LIKE %s",
+                        "DELETE FROM {$prefix}options WHERE option_name LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                         '_transient_%'
                     )
                 );
