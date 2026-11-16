@@ -1851,11 +1851,11 @@ class WP_Object_Cache {
     }
 
     /**
-	 * Removes all cache items in a group.
-	 *
-	 * @param string $group Name of group to remove from cache.
-	 * @return bool Returns TRUE on success or FALSE on failure.
-	 */
+     * Removes all cache items in a group.
+     *
+     * @param string $group Name of group to remove from cache.
+     * @return bool Returns TRUE on success or FALSE on failure.
+     */
     public function flush_group( $group ) {
         if ( defined( 'WP_REDIS_DISABLE_GROUP_FLUSH' ) && WP_REDIS_DISABLE_GROUP_FLUSH ) {
             return $this->flush();
