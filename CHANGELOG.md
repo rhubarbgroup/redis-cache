@@ -7,6 +7,7 @@
 - Added `WP_REDIS_DISABLE_DROPIN_MODS_CHECK` constant to manage the drop-in when `DISALLOW_FILE_MODS` is set
 - Fixed group and selective flushes erroring and only flushing a single shard when using `WP_REDIS_SHARDS`
 - Fixed the inline admin bar script not accepting a CSP nonce
+- Track runtime cache sizes when reading and writing instead of serializing every value at shutdown
 
 ## 3.0.0
 
