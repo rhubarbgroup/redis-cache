@@ -1,5 +1,7 @@
 # Changelog
 
+## Unreleased
+
 ## 3.0.1
 
 - Run `INFO` only when needed
