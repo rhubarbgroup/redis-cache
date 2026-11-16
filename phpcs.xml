@@ -35,6 +35,8 @@
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound" />
         <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase" />
         <exclude name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase" />
+        <exclude name="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostIncrementFound" />
+        <exclude name="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostDecrementFound" />
     </rule>
 
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
