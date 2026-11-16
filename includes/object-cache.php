@@ -155,8 +155,7 @@ function wp_cache_flush() {
  * @param string $group Name of group to remove from cache.
  * @return true Returns TRUE on success or FALSE on failure.
  */
-function wp_cache_flush_group( $group )
-{
+function wp_cache_flush_group( $group ) {
     global $wp_object_cache;
 
     return $wp_object_cache->flush_group( $group );
@@ -1343,12 +1342,13 @@ class WP_Object_Cache {
                     $args[] = 'ex';
                     $args[] = $expire;
                 }
+            } elseif ( $expire ) {
+                $args[] = [
+                    'nx',
+                    'ex' => $expire,
+                ];
             } else {
-                if ( $expire ) {
-                    $args[] = [ 'nx', 'ex' => $expire ];
-                } else {
-                    $args[] = [ 'nx' ];
-                }
+                $args[] = [ 'nx' ];
             }
 
             $tx->set( ...$args );
@@ -1359,9 +1359,12 @@ class WP_Object_Cache {
 
             $method = $this->is_predis() ? 'execute' : 'exec';
 
-            $results = array_map( function ( $response ) {
-                return (bool) $this->parse_redis_response( $response );
-            }, $tx->{$method}() ?: [] );
+            $results = array_map(
+                function ( $response ) {
+                    return (bool) $this->parse_redis_response( $response );
+                },
+                $tx->{$method}() ?: []
+            );
 
             if ( count( $results ) !== count( $keys ) ) {
                 return array_fill_keys( $keys, false );
@@ -1602,9 +1605,12 @@ class WP_Object_Cache {
 
             $method = $this->is_predis() ? 'execute' : 'exec';
 
-            $results = array_map( function ( $response ) {
-                return (bool) $this->parse_redis_response( $response );
-            }, $tx->{$method}() ?: [] );
+            $results = array_map(
+                function ( $response ) {
+                    return (bool) $this->parse_redis_response( $response );
+                },
+                $tx->{$method}() ?: []
+            );
 
             if ( count( $results ) !== count( $keys ) ) {
                 return array_fill_keys( $keys, false );
@@ -1795,31 +1801,29 @@ class WP_Object_Cache {
                 if ( empty( $results ) ) {
                     return false;
                 }
-            } else {
-                if ( defined( 'WP_REDIS_CLUSTER' ) ) {
-                    try {
-                        if ( $this->is_predis() ) {
-                            foreach ( $this->redis->getIterator() as $master ) {
-                                $results[] = $this->parse_redis_response( $master->flushdb() );
-                            }
-                        } else {
-                            foreach ( $this->redis->_masters() as $master ) {
-                                $results[] = $this->parse_redis_response( $this->redis->flushdb( $master ) );
-                            }
+            } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
+                try {
+                    if ( $this->is_predis() ) {
+                        foreach ( $this->redis->getIterator() as $master ) {
+                            $results[] = $this->parse_redis_response( $master->flushdb() );
                         }
-                    } catch ( Exception $exception ) {
-                        $this->handle_exception( $exception );
-
-                        return false;
+                    } else {
+                        foreach ( $this->redis->_masters() as $master ) {
+                            $results[] = $this->parse_redis_response( $this->redis->flushdb( $master ) );
+                        }
                     }
-                } else {
-                    try {
-                        $results[] = $this->parse_redis_response( $this->redis->flushdb() );
-                    } catch ( Exception $exception ) {
-                        $this->handle_exception( $exception );
+                } catch ( Exception $exception ) {
+                    $this->handle_exception( $exception );
 
-                        return false;
-                    }
+                    return false;
+                }
+            } else {
+                try {
+                    $results[] = $this->parse_redis_response( $this->redis->flushdb() );
+                } catch ( Exception $exception ) {
+                    $this->handle_exception( $exception );
+
+                    return false;
                 }
             }
 
@@ -1955,9 +1959,9 @@ class WP_Object_Cache {
     /**
      * Returns a closure ready to be called to flush selectively ignoring unflushable groups.
      *
-     * @param   string $salt  The salt to be used to differentiate.
-     * @param   bool $escape ...
-     * @return  callable      Generated callable executing the lua script.
+     * @param   string $salt   The salt to be used to differentiate.
+     * @param   bool   $escape ...
+     * @return  callable       Generated callable executing the lua script.
      */
     protected function lua_flush_closure( $salt, $escape = true ) {
         $salt = $escape ? $this->glob_quote( $salt ) : $salt;
@@ -2440,9 +2444,12 @@ LUA;
         try {
             $method = $this->is_predis() ? 'execute' : 'exec';
 
-            $results = array_map( function ( $response ) {
-                return (bool) $this->parse_redis_response( $response );
-            }, $tx->{$method}() ?: [] );
+            $results = array_map(
+                function ( $response ) {
+                    return (bool) $this->parse_redis_response( $response );
+                },
+                $tx->{$method}() ?: []
+            );
 
             if ( count( $results ) !== count( $keys ) ) {
                 return array_fill_keys( $keys, false );
@@ -3103,9 +3110,12 @@ LUA;
         $mofile = WP_LANG_DIR . "/plugins/{$domain}-{$locale}.mo";
 
         if ( load_textdomain( $domain, $mofile, $locale ) === false ) {
-            add_filter( 'pre_determine_locale', function () {
-                return defined( 'WPLANG' ) ? WPLANG : 'en_US';
-            } );
+            add_filter(
+                'pre_determine_locale',
+                function () {
+                    return defined( 'WPLANG' ) ? WPLANG : 'en_US';
+                }
+            );
 
             add_filter( 'pre_get_language_files_from_path', '__return_empty_array' );
         }
