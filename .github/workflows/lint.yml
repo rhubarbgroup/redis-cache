@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ["7.4", "8.2"]
+        php: ["7.4", "8.5"]
         relay: ["0.7.0"]
 
     steps:
@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ["7.4", "8.2"]
+        php: ["7.4", "8.5"]
         relay: ["0.7.0"]
 
     steps:
