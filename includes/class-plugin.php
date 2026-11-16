@@ -301,7 +301,7 @@ class Plugin {
      * @param bool $as_html
      * @return string
      */
-    public function link_to_ocp($medium, $as_html = true){
+    public function link_to_ocp( $medium, $as_html = true ){
         $ref = 'oss';
 
         if ( self::acceleratewp_install( true ) ) {
@@ -310,7 +310,7 @@ class Plugin {
 
         $url = "https://objectcache.pro/?ref={$ref}&utm_source=wp-plugin&utm_medium={$medium}";
 
-        return $as_html ? str_replace('&', '&amp;', $url) : $url;
+        return $as_html ? str_replace( '&', '&amp;', $url ) : $url;
     }
 
     /**
@@ -1213,7 +1213,7 @@ class Plugin {
             "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s", '_site_transient_%'
         ) );
 
-        $sites = get_sites([ 'fields' => 'ids', 'number' => 0 ]);
+        $sites = get_sites( [ 'fields' => 'ids', 'number' => 0 ] );
 
         foreach ( $sites as $id ) {
             try {
@@ -1223,7 +1223,7 @@ class Plugin {
                     "DELETE FROM {$prefix}options WHERE option_name LIKE %s", '_transient_%'
                 ) );
             } catch ( Exception $error ) {
-                error_log($error->getMessage());
+                error_log( $error->getMessage() );
             }
         }
     }
@@ -1300,13 +1300,13 @@ class Plugin {
      * @return bool
      */
     protected function incompatible_content_type() {
-        $jsonContentType = static function ($headers) {
+        $jsonContentType = static function ( $headers ) {
             foreach ($headers as $header => $value) {
-                if (stripos((string) $header, 'content-type') === false) {
+                if (stripos( (string) $header, 'content-type' ) === false) {
                     continue;
                 }
 
-                if (stripos((string) $value, '/json') === false) {
+                if (stripos( (string) $value, '/json' ) === false) {
                     continue;
                 }
 
@@ -1316,22 +1316,22 @@ class Plugin {
             return false;
         };
 
-        if (function_exists('headers_list')) {
+        if (function_exists( 'headers_list' )) {
             $headers = [];
 
             foreach (headers_list() as $header) {
-                [$name, $value] = explode(':', $header);
+                [$name, $value] = explode( ':', $header );
                 $headers[$name] = $value;
             }
 
-            if ($jsonContentType($headers)) {
+            if ($jsonContentType( $headers )) {
                 return true;
             }
         }
 
-        if (function_exists('apache_response_headers')) {
+        if (function_exists( 'apache_response_headers' )) {
             if ($headers = apache_response_headers()) {
-                return $jsonContentType($headers);
+                return $jsonContentType( $headers );
             }
         }
 

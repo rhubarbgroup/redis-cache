@@ -859,9 +859,9 @@ class WP_Object_Cache {
         $this->diagnostics[ 'client' ] = sprintf( 'Relay (v%s)', $version );
 
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
-            throw new Exception('Relay does not support sharding.');
+            throw new Exception( 'Relay does not support sharding.' );
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
-            throw new Exception('Relay does not cluster connections.');
+            throw new Exception( 'Relay does not cluster connections.' );
         } else {
             $this->redis = new Relay\Relay;
 
@@ -978,7 +978,7 @@ class WP_Object_Cache {
         }
 
         if ( strcasecmp( 'unix', $parameters['scheme'] ) === 0 ) {
-            unset($parameters['host'], $parameters['port']);
+            unset( $parameters['host'], $parameters['port'] );
         }
 
         if ( isset( $parameters['read_timeout'] ) && $parameters['read_timeout'] ) {
@@ -1125,7 +1125,7 @@ class WP_Object_Cache {
 
                 $clients[ $index ] = array_merge( $parameters, $add_params );
 
-                unset($add_params);
+                unset( $add_params );
             }
 
             $this->redis = new Credis_Cluster( $clients );
@@ -1199,7 +1199,7 @@ class WP_Object_Cache {
             $info = $this->redis->info();
 
             if ( isset( $connection, $node ) ) {
-                $connection->switchTo($node);
+                $connection->switchTo( $node );
             }
         }
 
@@ -1746,7 +1746,7 @@ class WP_Object_Cache {
                 $this->redis = $master;
                 $results[] = $this->parse_redis_response( $script() );
 
-                stream_set_timeout($master->getConnection()->getResource(), $timeout);
+                stream_set_timeout( $master->getConnection()->getResource(), $timeout );
             }
         } else {
             try {
@@ -1980,7 +1980,7 @@ class WP_Object_Cache {
                 return i
 LUA;
 
-            if ( isset($redis_version) && version_compare( $redis_version, '5', '<' ) && version_compare( $redis_version, '3.2', '>=' ) ) {
+            if ( isset( $redis_version ) && version_compare( $redis_version, '5', '<' ) && version_compare( $redis_version, '3.2', '>=' ) ) {
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
 
@@ -2034,7 +2034,7 @@ LUA;
                 until 0 == cur
                 return i
 LUA;
-            if ( isset($redis_version) && version_compare( $redis_version, '5', '<' ) && version_compare( $redis_version, '3.2', '>=' ) ) {
+            if ( isset( $redis_version ) && version_compare( $redis_version, '5', '<' ) && version_compare( $redis_version, '3.2', '>=' ) ) {
                 $script = 'redis.replicate_commands()' . "\n" . $script;
             }
 
@@ -2711,7 +2711,7 @@ LUA;
         $san_key = $this->sanitize_key_part( $key );
         $san_group = $this->sanitize_key_part( $group );
 
-        return $this->fast_build_key($san_key, $san_group);
+        return $this->fast_build_key( $san_key, $san_group );
     }
 
     /**
