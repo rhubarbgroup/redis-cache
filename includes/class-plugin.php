@@ -1255,7 +1255,11 @@ class Plugin {
      * @return void
      */
     public function maybe_print_comment() {
-        /** @var \WP_Object_Cache $wp_object_cache */
+        /**
+         * The object cache instance.
+         *
+         * @var \WP_Object_Cache $wp_object_cache
+         */
         global $wp_object_cache;
 
         if (
@@ -1413,7 +1417,11 @@ class Plugin {
      * @return true|WP_Error
      */
     public function test_filesystem_writing() {
-        /** @var \WP_Filesystem_Base $wp_filesystem */
+        /**
+         * The WordPress filesystem instance.
+         *
+         * @var \WP_Filesystem_Base $wp_filesystem
+         */
         global $wp_filesystem;
 
         if ( ! $this->is_file_mod_allowed() ) {

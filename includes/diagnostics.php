@@ -108,7 +108,11 @@ foreach ( $constants as $constant ) {
 }
 
 if ( defined( 'WP_REDIS_PASSWORD' ) ) {
-    /** @var string|array|null $password */
+    /**
+     * The configured Redis password.
+     *
+     * @var string|array|null $password
+     */
     $password = WP_REDIS_PASSWORD;
 
     if ( is_array( $password ) ) {
