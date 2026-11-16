@@ -698,7 +698,7 @@ class Plugin {
             return;
         }
 
-        // Do not display the dropin message if you want
+        // Do not display the dropin message if you want.
         if ( defined( 'WP_REDIS_DISABLE_DROPIN_BANNERS' ) && WP_REDIS_DISABLE_DROPIN_BANNERS ) {
             return;
         }
@@ -1355,7 +1355,9 @@ class Plugin {
         }
 
         if ( function_exists( 'apache_response_headers' ) ) {
-            if ( $headers = apache_response_headers() ) {
+            $headers = apache_response_headers();
+
+            if ( $headers ) {
                 return $jsonContentType( $headers );
             }
         }
@@ -1403,7 +1405,7 @@ class Plugin {
      *
      * @return bool
      */
-    function is_file_mod_allowed() {
+    public function is_file_mod_allowed() {
         $allowed = ( defined( 'WP_REDIS_DISABLE_DROPIN_MODS_CHECK' ) && WP_REDIS_DISABLE_DROPIN_MODS_CHECK )
             || ! defined( 'DISALLOW_FILE_MODS' )
             || ! DISALLOW_FILE_MODS;

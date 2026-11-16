@@ -1328,7 +1328,8 @@ class WP_Object_Cache {
             $expire = apply_filters( 'redis_cache_expiration', $expire, $key, $group, $orig_exp );
 
             $san_key = $this->sanitize_key_part( $key );
-            $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
+            $derived_key = $this->fast_build_key( $san_key, $san_group );
+            $derived_keys[ $key ] = $derived_key;
 
             $serialized = $this->maybe_serialize( $value );
             $this->cache_bytes += strlen( (string) $serialized );
@@ -1508,6 +1509,7 @@ class WP_Object_Cache {
      *
      * @param   string $key        The key under which to store the value.
      * @param   string $group      The group value appended to the $key.
+     * @param   bool   $deprecated Unused.
      * @return  bool               Returns TRUE on success or FALSE on failure.
      */
     public function delete( $key, $group = 'default', $deprecated = false ) {
@@ -1658,6 +1660,7 @@ class WP_Object_Cache {
     /**
      * Executes Lua flush script.
      *
+     * @param  callable $script Callable executing the Lua script.
      * @return array|false  Returns array on success, false on failure
      */
     protected function execute_lua_script( $script ) {
@@ -1706,6 +1709,7 @@ class WP_Object_Cache {
     /**
      * Executes Lua flush script on all shards.
      *
+     * @param  callable $script Callable executing the Lua script.
      * @return array|false  Returns array on success, false on failure
      */
     protected function execute_lua_script_on_shards( $script ) {
@@ -1740,6 +1744,7 @@ class WP_Object_Cache {
     /**
      * Executes Lua flush script on Redis cluster.
      *
+     * @param  callable $script Callable executing the Lua script.
      * @return array|false  Returns array on success, false on failure
      */
     protected function execute_lua_script_on_cluster( $script ) {
@@ -1938,10 +1943,10 @@ class WP_Object_Cache {
     /**
      * Quotes a string for usage in the `glob` function
      *
-     * @param string $string The string to quote.
+     * @param string $value The string to quote.
      * @return string
      */
-    protected function glob_quote( $string ) {
+    protected function glob_quote( $value ) {
         $characters = [ '*', '+', '?', '!', '{', '}', '[', ']', '(', ')', '|', '@' ];
 
         return str_replace(
@@ -1952,7 +1957,7 @@ class WP_Object_Cache {
                 },
                 $characters
             ),
-            $string
+            $value
         );
     }
 
@@ -2419,7 +2424,8 @@ LUA;
 
         foreach ( $data as $key => $value ) {
             $san_key = $this->sanitize_key_part( $key );
-            $derived_key = $derived_keys[ $key ] = $this->fast_build_key( $san_key, $san_group );
+            $derived_key = $this->fast_build_key( $san_key, $san_group );
+            $derived_keys[ $key ] = $derived_key;
 
             /**
              * Filters the cache expiration time
@@ -2429,7 +2435,8 @@ LUA;
              * @param string $group      The cache group.
              * @param mixed  $orig_exp   The original expiration value before validation.
              */
-            $expiration = $expirations[ $key ] = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
+            $expiration = apply_filters( 'redis_cache_expiration', $expiration, $key, $group, $orig_exp );
+            $expirations[ $key ] = $expiration;
 
             $serialized = $this->maybe_serialize( $value );
             $this->cache_bytes += strlen( (string) $serialized );
@@ -2527,7 +2534,9 @@ LUA;
                 $value += $offset;
                 $serialized = $this->maybe_serialize( $value );
 
-                if ( ( $pttl = $this->redis->pttl( $derived_key ) ) > 0 ) {
+                $pttl = $this->redis->pttl( $derived_key );
+
+                if ( $pttl > 0 ) {
                     if ( $this->is_predis() ) {
                         $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, 'px', $pttl ) );
                     } else {
@@ -2604,7 +2613,9 @@ LUA;
                 $value -= $offset;
                 $serialized = $this->maybe_serialize( $value );
 
-                if ( ( $pttl = $this->redis->pttl( $derived_key ) ) > 0 ) {
+                $pttl = $this->redis->pttl( $derived_key );
+
+                if ( $pttl > 0 ) {
                     if ( $this->is_predis() ) {
                         $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, 'px', $pttl ) );
                     } else {
@@ -2793,7 +2804,7 @@ LUA;
      */
     private function is_group_of_type( $group, $type ) {
         return isset( $this->group_type[ $group ] )
-            && $this->group_type[ $group ] == $type;
+            && $this->group_type[ $group ] === $type;
     }
 
     /**
@@ -3100,6 +3111,7 @@ LUA;
     /**
      * Show Redis connection error screen, or load custom `/redis-error.php`.
      *
+     * @param \Exception $exception Exception thrown.
      * @return void
      */
     protected function show_error_and_die( Exception $exception ) {

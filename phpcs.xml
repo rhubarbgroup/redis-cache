@@ -52,6 +52,18 @@
         <exclude-pattern>/includes/object-cache.php</exclude-pattern>
     </rule>
 
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound">
+        <exclude-pattern>/includes/object-cache.php</exclude-pattern>
+    </rule>
+
+    <rule ref="WordPress.Files.FileName.InvalidClassFileName">
+        <exclude-pattern>/includes/object-cache.php</exclude-pattern>
+    </rule>
+
+    <rule ref="Universal.Files.SeparateFunctionsFromOO.Mixed">
+        <exclude-pattern>/includes/object-cache.php</exclude-pattern>
+    </rule>
+
     <rule ref="WordPress.WP.I18n">
         <properties>
             <property name="text_domain" type="array">
