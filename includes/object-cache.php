@@ -3149,7 +3149,7 @@ LUA;
 
         // phpcs:disable WordPress.Security.EscapeOutput
         wp_die( $message );
-        // phpcs:enable
+        // phpcs:enable WordPress.Security.EscapeOutput
     }
 
     /**
