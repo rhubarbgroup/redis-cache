@@ -8,6 +8,8 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Variables passed to this template by the Query Monitor output class.
+ *
  * @var \Rhubarb\RedisCache\QM_Output $this
  * @var array<mixed> $data
  */

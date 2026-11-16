@@ -83,7 +83,7 @@ class QM_Collector extends QM_BaseCollector {
             'unflushable' => $info->groups->unflushable,
         ];
 
-        // These are used by Query Monitor
+        // These are used by Query Monitor.
         $this->data['cache_hit_percentage'] = $info->ratio;
 
         if ( $this->data instanceof QM_Data_Cache ) {

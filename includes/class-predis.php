@@ -1,6 +1,6 @@
 <?php
 /**
- * Predis client class.
+ * Predis helper class.
  *
  * @package Rhubarb\RedisCache
  */
@@ -11,6 +11,9 @@ use Exception;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Predis client helper class.
+ */
 class Predis {
     /**
      * The Redis client.
@@ -152,6 +155,7 @@ class Predis {
      * Flushes the entire Redis database using the `WP_REDIS_FLUSH_TIMEOUT`.
      *
      * @param bool $throw_exception Whether to throw exception on error.
+     * @throws \Exception If flushing fails and `$throw_exception` is true.
      * @return bool
      */
     public function flush( $throw_exception = false ) {
