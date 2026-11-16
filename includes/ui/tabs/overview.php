@@ -66,7 +66,7 @@ $diagnostics = $roc->get_diagnostics();
         <td>
             <?php if ( $filesystem_writable instanceof \WP_Error ) : ?>
                 <?php if ( ! $filesystem_allowed ) : ?>
-                    <span class="<?php echo $status ? '' : 'error' ?>">
+                    <span class="<?php echo $status ? '' : 'error'; ?>">
                         <span class="dashicons dashicons-dismiss"></span>
                         <?php esc_html_e( 'Disabled', 'redis-cache' ); ?>
                     </span>
