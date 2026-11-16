@@ -1,13 +1,13 @@
 # Changelog
 
-## Unreleased
+## 3.0.1
 
-- Fetch the Redis server version on demand instead of running `INFO` on every request
+- Run `INFO` only when needed
 - Skip `SELECT 0` calls when probing
-- Added `WP_REDIS_DISABLE_DROPIN_MODS_CHECK` constant to manage the drop-in when `DISALLOW_FILE_MODS` is set
-- Fixed group and selective flushes erroring and only flushing a single shard when using `WP_REDIS_SHARDS`
-- Fixed the inline admin bar script not accepting a CSP nonce
-- Count bytes read from and written to Redis instead of serializing the runtime cache on every request
+- Support CSP nonce for admin bar script/styles
+- Reduce memory footprint when metrics are enabled
+- Added `WP_REDIS_DISABLE_DROPIN_MODS_CHECK` constant
+- Fixed rare group/selective flushing error when using `WP_REDIS_SHARDS`
 
 ## 3.0.0
 
