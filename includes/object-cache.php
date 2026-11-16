@@ -735,6 +735,7 @@ class WP_Object_Cache {
      * Connect to Redis using the PhpRedis (PECL) extension.
      *
      * @param  array $parameters Connection parameters built by the `build_parameters` method.
+     * @throws \Exception If authenticating with a username using PhpRedis older than v5.3.0.
      * @return void
      */
     protected function connect_using_phpredis( $parameters ) {
@@ -851,6 +852,8 @@ class WP_Object_Cache {
      * Connect to Redis using the Relay extension.
      *
      * @param  array $parameters Connection parameters built by the `build_parameters` method.
+     * @throws \Exception If Redis sharding is configured as Relay does not support sharding.
+     * @throws \Exception If a Redis cluster is configured as Relay does not support cluster connections.
      * @return void
      */
     protected function connect_using_relay( $parameters ) {
