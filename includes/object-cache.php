@@ -866,7 +866,7 @@ class WP_Object_Cache {
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
             throw new Exception( 'Relay does not cluster connections.' );
         } else {
-            $this->redis = new Relay\Relay;
+            $this->redis = new Relay\Relay();
 
             $args = [
                 'host' => $parameters['host'],
