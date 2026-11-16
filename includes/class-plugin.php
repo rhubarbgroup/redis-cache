@@ -301,7 +301,7 @@ class Plugin {
      * @param bool $as_html
      * @return string
      */
-    public function link_to_ocp( $medium, $as_html = true ){
+    public function link_to_ocp( $medium, $as_html = true ) {
         $ref = 'oss';
 
         if ( self::acceleratewp_install( true ) ) {
@@ -919,7 +919,7 @@ class Plugin {
                         );
 
                         if ( $result ) {
-                            (new Predis)->flush();
+                            ( new Predis )->flush();
                         }
 
                         /**
@@ -949,7 +949,7 @@ class Plugin {
                         $result = $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );
 
                         if ( $result ) {
-                            (new Predis)->flush();
+                            ( new Predis )->flush();
                         }
 
                         /**
@@ -1261,7 +1261,7 @@ class Plugin {
             return;
         }
 
-        if ($this->incompatible_content_type()) {
+        if ( $this->incompatible_content_type() ) {
             return;
         }
 
@@ -1301,12 +1301,12 @@ class Plugin {
      */
     protected function incompatible_content_type() {
         $jsonContentType = static function ( $headers ) {
-            foreach ($headers as $header => $value) {
-                if (stripos( (string) $header, 'content-type' ) === false) {
+            foreach ( $headers as $header => $value ) {
+                if ( stripos( (string) $header, 'content-type' ) === false ) {
                     continue;
                 }
 
-                if (stripos( (string) $value, '/json' ) === false) {
+                if ( stripos( (string) $value, '/json' ) === false ) {
                     continue;
                 }
 
@@ -1316,21 +1316,21 @@ class Plugin {
             return false;
         };
 
-        if (function_exists( 'headers_list' )) {
+        if ( function_exists( 'headers_list' ) ) {
             $headers = [];
 
-            foreach (headers_list() as $header) {
+            foreach ( headers_list() as $header ) {
                 [$name, $value] = explode( ':', $header );
-                $headers[$name] = $value;
+                $headers[ $name ] = $value;
             }
 
-            if ($jsonContentType( $headers )) {
+            if ( $jsonContentType( $headers ) ) {
                 return true;
             }
         }
 
-        if (function_exists( 'apache_response_headers' )) {
-            if ($headers = apache_response_headers()) {
+        if ( function_exists( 'apache_response_headers' ) ) {
+            if ( $headers = apache_response_headers() ) {
                 return $jsonContentType( $headers );
             }
         }
@@ -1546,7 +1546,7 @@ class Plugin {
                 wp_unschedule_event( $timestamp, 'rediscache_discard_metrics' );
             }
 
-            (new Predis)->flush();
+            ( new Predis )->flush();
 
             if ( $this->validate_object_cache_dropin() && $this->initialize_filesystem( '', true ) ) {
                 $wp_filesystem->delete( WP_CONTENT_DIR . '/object-cache.php' );

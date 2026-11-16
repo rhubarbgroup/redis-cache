@@ -200,7 +200,7 @@ class Commands extends WP_CLI_Command {
      */
     protected function flush_redis() {
         try {
-            return (new Predis)->flushOrFail();
+            return ( new Predis )->flushOrFail();
         } catch ( Exception $exception ) {
             error_log( $exception ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 

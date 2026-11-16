@@ -245,7 +245,7 @@ function wp_cache_init() {
     }
 
     // Set unique prefix for sites hosted on Cloudways
-    if ( ! defined( 'WP_REDIS_PREFIX' ) && isset( $_SERVER['cw_allowed_ip'] ) )  {
+    if ( ! defined( 'WP_REDIS_PREFIX' ) && isset( $_SERVER['cw_allowed_ip'] ) ) {
         define( 'WP_REDIS_PREFIX', getenv( 'HTTP_X_APP_USER' ) );
     }
 
@@ -1667,7 +1667,7 @@ class WP_Object_Cache {
         if ( $this->is_predis() ) {
             $connection = $this->redis->getConnection();
 
-            if ($connection instanceof Predis\Connection\Replication\ReplicationInterface) {
+            if ( $connection instanceof Predis\Connection\Replication\ReplicationInterface ) {
                 $connection = $connection->getMaster();
             }
 
@@ -2170,7 +2170,7 @@ LUA;
                 $value = $this->get_from_internal_cache( $derived_keys[ $key ] );
                 $cache[ $key ] = $value;
 
-                if ($value === false) {
+                if ( $value === false ) {
                     $this->cache_misses++;
                 } else {
                     $this->cache_hits++;
@@ -2517,7 +2517,7 @@ LUA;
                 $value += $offset;
                 $serialized = $this->maybe_serialize( $value );
 
-                if ( ($pttl = $this->redis->pttl( $derived_key )) > 0 ) {
+                if ( ( $pttl = $this->redis->pttl( $derived_key ) ) > 0 ) {
                     if ( $this->is_predis() ) {
                         $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, 'px', $pttl ) );
                     } else {
@@ -2594,7 +2594,7 @@ LUA;
                 $value -= $offset;
                 $serialized = $this->maybe_serialize( $value );
 
-                if ( ($pttl = $this->redis->pttl( $derived_key )) > 0 ) {
+                if ( ( $pttl = $this->redis->pttl( $derived_key ) ) > 0 ) {
                     if ( $this->is_predis() ) {
                         $result = $this->parse_redis_response( $this->redis->set( $derived_key, $serialized, 'px', $pttl ) );
                     } else {

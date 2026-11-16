@@ -310,7 +310,7 @@ $diagnostics = $roc->get_diagnostics();
             <a href="<?php echo esc_attr( $roc->action_link( 'enable-cache' ) ); ?>" class="button button-primary button-large">
                 <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
             </a>
-        <?php else: ?>
+        <?php else : ?>
             <a href="#!" class="button button-primary button-large" disabled>
                 <?php esc_html_e( 'Enable Object Cache', 'redis-cache' ); ?>
             </a>
