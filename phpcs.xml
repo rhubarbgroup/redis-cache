@@ -48,6 +48,10 @@
         </properties>
     </rule>
 
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound">
+        <exclude-pattern>/includes/object-cache.php</exclude-pattern>
+    </rule>
+
     <rule ref="WordPress.WP.I18n">
         <properties>
             <property name="text_domain" type="array">
