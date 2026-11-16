@@ -33,6 +33,8 @@
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound" />
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound" />
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound" />
+        <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase" />
+        <exclude name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase" />
     </rule>
 
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
