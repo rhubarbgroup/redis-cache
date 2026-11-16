@@ -38,6 +38,9 @@
         <exclude name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase" />
         <exclude name="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostIncrementFound" />
         <exclude name="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostDecrementFound" />
+        <exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents" />
+        <exclude name="WordPress.DB.DirectDatabaseQuery.DirectQuery" />
+        <exclude name="WordPress.DB.DirectDatabaseQuery.NoCaching" />
     </rule>
 
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">

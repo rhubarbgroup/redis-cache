@@ -243,7 +243,7 @@ function wp_cache_init() {
         define( 'WP_REDIS_PREFIX', WP_CACHE_KEY_SALT );
     }
 
-    // Set unique prefix for sites hosted on Cloudways
+    // Set unique prefix for sites hosted on Cloudways.
     if ( ! defined( 'WP_REDIS_PREFIX' ) && isset( $_SERVER['cw_allowed_ip'] ) ) {
         define( 'WP_REDIS_PREFIX', getenv( 'HTTP_X_APP_USER' ) );
     }
