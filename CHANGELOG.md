@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed authentication when using `WP_REDIS_SHARDS` with `WP_REDIS_PASSWORD`
+
 ## 3.0.1
 
 - Run `INFO` only when needed

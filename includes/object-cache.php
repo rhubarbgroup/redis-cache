@@ -749,7 +749,13 @@ class WP_Object_Cache {
         }
 
         if ( defined( 'WP_REDIS_SHARDS' ) ) {
-            $this->redis = new RedisArray( array_values( WP_REDIS_SHARDS ) );
+            $options = [];
+
+            if ( ! is_null( $credentials ) ) {
+                $options['auth'] = $credentials;
+            }
+
+            $this->redis = new RedisArray( array_values( WP_REDIS_SHARDS ), $options );
 
             $this->diagnostics[ 'shards' ] = WP_REDIS_SHARDS;
         } elseif ( defined( 'WP_REDIS_CLUSTER' ) ) {
