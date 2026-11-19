@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Fixed authentication when using `WP_REDIS_SHARDS` with `WP_REDIS_PASSWORD`
+- Fixed PHP 8.6 deprecation notice in Predis
+- Fixed authentication when using `WP_REDIS_SHARDS`
 
 ## 3.0.1
 
