@@ -93,14 +93,14 @@ class ConnectionErrorProof extends Pipeline
         foreach ($commands as $command) {
             $cmdConnection = $connection->getConnectionByCommand($command);
 
-            if (isset($exceptions[spl_object_hash($cmdConnection)])) {
+            if (isset($exceptions[spl_object_id($cmdConnection)])) {
                 continue;
             }
 
             try {
                 $cmdConnection->writeRequest($command);
             } catch (CommunicationException $exception) {
-                $exceptions[spl_object_hash($cmdConnection)] = $exception;
+                $exceptions[spl_object_id($cmdConnection)] = $exception;
             }
         }
 
@@ -108,7 +108,7 @@ class ConnectionErrorProof extends Pipeline
             $command = $commands->dequeue();
 
             $cmdConnection = $connection->getConnectionByCommand($command);
-            $connectionHash = spl_object_hash($cmdConnection);
+            $connectionHash = spl_object_id($cmdConnection);
 
             if (isset($exceptions[$connectionHash])) {
                 $responses[$i] = $exceptions[$connectionHash];
