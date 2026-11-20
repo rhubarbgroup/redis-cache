@@ -8,6 +8,7 @@ When in doubt try flushing the cache, you'd be surprised how often this resolves
 - [How can I exclude a page from the cache?](#how-can-i-exclude-a-page-from-the-cache)
 - [Status: <code>Not connected</code>](#status-not-connected)
 - [<code>connection timed out</code> and <code>read error on connection</code>](#connection-timed-out-and-read-error-on-connection)
+- [How do I handle Redis Server outages?](#how-do-i-handle-redis-server-outages)
 - [My site is getting redirected another domain](#my-site-is-getting-redirected-another-domain)
 - [Are transients stored in Redis?](#are-transients-stored-in-redis)
 - [I'm getting <code>404</code> errors](#im-getting-404-errors)
@@ -73,6 +74,21 @@ If you moved all constants above those lines and the plugin still shows `Not Con
 
 ## <code>connection timed out</code> and <code>read error on connection</code>
 If the error occurs rarely, ignore it, Redis Server is having a hiccup. If it persists, read the answer to "Status: <code>Not connected</code>".
+
+## How do I handle Redis Server outages?
+
+Treat Redis Server as a required service, like MySQL.
+
+On a single server, run Redis Server as a pure cache by disabling persistence in the `redis.conf`:
+
+```
+save ""
+appendonly no
+```
+
+With persistence enabled, Redis Server reloads an old snapshot after a crash and serves stale data. Without it, Redis Server restarts empty almost instantly and always matches the database.
+
+If you're running more than one server, use [Redis Sentinel](https://github.com/rhubarbgroup/redis-cache#scaling) for high availability (requires Predis or Credis).
 
 ## My site is getting redirected another domain
 
