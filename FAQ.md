@@ -1,22 +1,22 @@
 # FAQ & Troubleshooting
 
-When in doubt try flushing the cache, you'd be surprised how often this resolves issues. Welcome to WordPress ✌️
+When in doubt, try flushing the cache. You'd be surprised how often this resolves issues. Welcome to WordPress ✌️
 
 - [HELP! My site is down!1!!11!!11](#help-my-site-is-down11111)
 - [Plugin is incompatible with OtherPlugin](#plugin-is-incompatible-with-otherplugin)
 - [How can I ignore a cache group?](#how-can-i-ignore-a-cache-group)
 - [How can I exclude a page from the cache?](#how-can-i-exclude-a-page-from-the-cache)
-- [Status: <code>Not connected</code>](#status-not-connected)
-- [<code>connection timed out</code> and <code>read error on connection</code>](#connection-timed-out-and-read-error-on-connection)
+- [Status: `Not connected`](#status-not-connected)
+- [`connection timed out` and `read error on connection`](#connection-timed-out-and-read-error-on-connection)
 - [How do I handle Redis Server outages?](#how-do-i-handle-redis-server-outages)
-- [My site is getting redirected another domain](#my-site-is-getting-redirected-another-domain)
+- [My site is getting redirected to another domain](#my-site-is-getting-redirected-to-another-domain)
 - [Are transients stored in Redis?](#are-transients-stored-in-redis)
-- [I'm getting <code>404</code> errors](#im-getting-404-errors)
+- [I'm getting `404` errors](#im-getting-404-errors)
 - [WordPress is slower with Redis Object Cache enabled](#wordpress-is-slower-with-redis-object-cache-enabled)
-- [<code>NOAUTH Authentication required</code>](#noauth-authentication-required)
-- [<code>Allowed memory size of 1337 bytes exhausted</code>](#allowed-memory-size-of-1337-bytes-exhausted)
-- [<code>OOM command not allowed</code>](#oom-command-not-allowed)
-- [<code>Flushing the cache causes timeout</code>](#flushing-the-cache-causes-timeout)
+- [`NOAUTH Authentication required`](#noauth-authentication-required)
+- [`Allowed memory size of 1337 bytes exhausted`](#allowed-memory-size-of-1337-bytes-exhausted)
+- [`OOM command not allowed`](#oom-command-not-allowed)
+- [Flushing the cache causes timeout](#flushing-the-cache-causes-timeout)
 - [Unable to flush the cache](#unable-to-flush-the-cache)
 - [Cache is flushed constantly](#cache-is-flushed-constantly)
 - [Flushing the cache regularly](#flushing-the-cache-regularly)
@@ -24,17 +24,17 @@ When in doubt try flushing the cache, you'd be surprised how often this resolves
 
 ## HELP! My site is down!1!!11!!11
 
-The easiest way to to disable Redis on your site is deleting the `wp-content/object-cache.php` drop-in file. Alternatively, you can set the `WP_REDIS_DISABLED` constant to `true` to bypass loading it.
+The easiest way to disable Redis on your site is to delete the `wp-content/object-cache.php` drop-in file. Alternatively, set the `WP_REDIS_DISABLED` constant to `true` in your `wp-config.php` to bypass it.
 
 ## Plugin is incompatible with OtherPlugin
 
-Unfortunately many plugin authors don't bother testing their plugins with a persistent object cache. If you’re experiencing a compatibility issue with another plugin in combination with Redis Object Cache, please contact the support team of the **other plugin** regarding the issue.
+Unfortunately, many plugin authors don't test their plugins with a persistent object cache. If you're experiencing a compatibility issue with another plugin in combination with Redis Object Cache, please contact the support team of the **other plugin**.
 
-This plugin is **not the issue**, it's just providing WordPress with `wp_cache_*()` functions for persistent caching.
+This plugin is **not the issue**, it only provides WordPress with the `wp_cache_*()` functions for persistent caching.
 
 ## How can I ignore a cache group?
 
-Some plugins don’t play nicely with a persistent object cache in WordPress and either cause stale cache data, or straight up break functionality. In such scenarios you might be able to exclude the faulty plugin's cache groups:
+Some plugins don't play nicely with a persistent object cache and either cause stale cache data or break functionality. In such cases, you might be able to exclude the plugin's cache groups, so they're only cached in memory for the current request:
 
 ```php
 define( 'WP_REDIS_IGNORED_GROUPS', [
@@ -44,14 +44,14 @@ define( 'WP_REDIS_IGNORED_GROUPS', [
 
 ## How can I exclude a page from the cache?
 
-Object caching caches only **objects**, not **pages**. You cannot exclude a page from using the object cache, because object caching is not URL-centric. You also cannot exclude the WordPress admin dashboard from using object caching, because then you risk the cache going stale and even loosing data.
+Object caching caches **objects**, not **pages**. Because object caching isn't tied to URLs, you can't exclude a page from it. You also can't exclude the WordPress admin dashboard, because then you risk the cache going stale and even losing data.
 
-If you’re experiencing a compatibility issue with another plugin in combination with Redis Object Cache, please contact the support team of the plugin regarding the issue and ask them to ensure it's compatible with persistent object cache backends, like Redis.
+If another plugin is causing issues, see [Plugin is incompatible with OtherPlugin](#plugin-is-incompatible-with-otherplugin).
 
-## Status: <code>Not connected</code>
+## Status: `Not connected`
 
-This means that either [Redis Server](https://redis.io) is not installed and running, or the plugin is not configured correctly. 
-    
+This means that either [Redis Server](https://redis.io) isn't installed and running, or the plugin isn't configured correctly.
+
 First, make sure you followed the [installation instructions](https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md) and that Redis Server is up and running:
 
 ```bash
@@ -61,19 +61,20 @@ redis-cli PING
 redis-cli -h 127.0.0.1 -p 6379 PING
 ```
 
-If Redis Server is not installed and running, follow the installation instructions, or ask your hosting company for assistance.
+If Redis Server isn't installed and running, follow the installation instructions or ask your hosting provider for assistance.
 
-Next, make sure confirm the `wp-config.php` file contains the correct `WP_REDIS_*` constants and configuration constants are defined high up in the `wp-config.php` **above the lines**:
+Next, make sure your `wp-config.php` contains the correct `WP_REDIS_*` constants, and that they're defined **above** these lines:
 
 ```php
 /* That's all, stop editing! Happy publishing. */
 require_once(ABSPATH . 'wp-settings.php');
 ```
 
-If you moved all constants above those lines and the plugin still shows `Not Connected`, double check your [connection options](https://github.com/rhubarbgroup/redis-cache#connections), or ask your hosting provider for assistance.
+If the plugin still shows `Not connected`, double-check your [connection options](https://github.com/rhubarbgroup/redis-cache#connections) or ask your hosting provider for assistance.
 
-## <code>connection timed out</code> and <code>read error on connection</code>
-If the error occurs rarely, ignore it, Redis Server is having a hiccup. If it persists, read the answer to "Status: <code>Not connected</code>".
+## `connection timed out` and `read error on connection`
+
+If the error occurs rarely, you can ignore it, Redis Server is just having a hiccup. If it persists, see [Status: `Not connected`](#status-not-connected).
 
 ## How do I handle Redis Server outages?
 
@@ -90,11 +91,13 @@ With persistence enabled, Redis Server reloads an old snapshot after a crash and
 
 If you're running more than one server, use [Redis Sentinel](https://github.com/rhubarbgroup/redis-cache#scaling) for high availability (requires Predis or Credis).
 
-## My site is getting redirected another domain
+<a name="my-site-is-getting-redirected-another-domain"></a>
 
-That happens when the same `WP_REDIS_DATABASE` index is used for multiple WordPress installations. You **MUST** set a separate `WP_REDIS_DATABASE` and `WP_REDIS_PREFIX` for each domain to avoid data collision.
+## My site is getting redirected to another domain
 
-Once your site is being redirected, you **MUST** flush the entire Redis Server using the `FLUSHALL` command to recover from this error:
+This happens when multiple WordPress installations use the same `WP_REDIS_DATABASE` index. You **MUST** set a unique `WP_REDIS_DATABASE` and `WP_REDIS_PREFIX` for each site to avoid data collisions.
+
+Once you've fixed the configuration, you **MUST** flush the entire Redis Server using the `FLUSHALL` command to recover:
 
 ```bash
 redis-cli -h 127.0.0.1 -p 6379 FLUSHALL
@@ -102,23 +105,25 @@ redis-cli -h 127.0.0.1 -p 6379 FLUSHALL
 
 ## Are transients stored in Redis?
 
-Yes. The WordPress [Transients API](https://developer.wordpress.org/apis/transients/) will use Redis to store transients and not the `options` table.
+Yes. The WordPress [Transients API](https://developer.wordpress.org/apis/transients/) stores transients in Redis instead of the `options` table.
 
-After enabling Redis Object Cache, consider deleting all database transients:
+After enabling Redis Object Cache, consider deleting the old transients from the database:
 
 ```bash
-wp transient delete-all
+wp transient delete --all
 ```
+
+Or using SQL (adjust the `wp_` table prefix if needed):
 
 ```sql
 DELETE FROM `wp_options`
-WHERE `option_name` LIKE '_transient_%'
-OR `option_name` LIKE '_site_transient_%';
+WHERE `option_name` LIKE '\_transient\_%'
+OR `option_name` LIKE '\_site\_transient\_%';
 ```
 
-## I'm getting <code>404</code> errors
+## I'm getting `404` errors
 
-This may be an issue with WordPress 6.1's [query caching](https://make.wordpress.org/core/2022/10/07/improvements-to-wp_query-performance-in-6-1/) feature, which you can disable by creating your own [Must Use Plugin](https://wordpress.org/documentation/article/must-use-plugins/) containing this snippet:
+This may be caused by the [query caching](https://make.wordpress.org/core/2022/10/07/improvements-to-wp_query-performance-in-6-1/) introduced in WordPress 6.1. You can disable it with a [must-use plugin](https://wordpress.org/documentation/article/must-use-plugins/) containing this snippet:
 
 ```php
 add_action( 'parse_query', function ( $wp_query ) {
@@ -128,73 +133,76 @@ add_action( 'parse_query', function ( $wp_query ) {
 
 ## WordPress is slower with Redis Object Cache enabled
 
-This should never always means **something is broken**.
+This should never happen and usually means **something is broken**.
 
-1. Does the plugin show "Connected"?
-2. Is Redis Server responding too slowly? Run `redis-cli --latency-history` to find out.
-3. Is Redis Server maxing out it's RAM or CPU?
+1. Does the plugin show `Connected`?
+2. Is Redis Server responding slowly? Run `redis-cli --latency-history` to find out.
+3. Is Redis Server maxing out its RAM or CPU?
 
-## <code>NOAUTH Authentication required</code>
+## `NOAUTH Authentication required`
 
-You either need to add the `WP_REDIS_PASSWORD` constant to your `wp-config.php` file, or move the constant above higher up in your `wp-config.php` file, above these lines:
+Redis Server requires a password. Add the `WP_REDIS_PASSWORD` constant to your `wp-config.php` file, or if it's already there, move it above these lines:
 
 ```php
 /* That's all, stop editing! Happy publishing. */
 require_once(ABSPATH . 'wp-settings.php');
 ```
 
-## <code>Allowed memory size of 1337 bytes exhausted</code>
+## `Allowed memory size of 1337 bytes exhausted`
 
-This can happen when using a persistent object cache. Increase PHP's memory limit.
+This can happen when using a persistent object cache. Increase PHP's memory limit:
 
 - <https://wordpress.org/documentation/article/common-wordpress-errors/#allowed-memory-size-exhausted>
 - <https://woocommerce.com/document/increasing-the-wordpress-memory-limit/>
 
-## <code>OOM command not allowed</code>
+## `OOM command not allowed`
 
-This can happen when Redis Server runs out of memory and no `maxmemory-policy` was set in the `redis.conf`.
+This happens when Redis Server reaches its `maxmemory` limit and the `maxmemory-policy` is `noeviction` (the default). Set an eviction policy in the `redis.conf`, so Redis Server evicts old keys instead:
 
-- <https://aws.amazon.com/premiumsupport/knowledge-center/oom-command-not-allowed-redis/>
+```
+maxmemory-policy allkeys-lru
+```
 
-Alternatively, you can set the `WP_REDIS_MAXTTL` constant to something relatively low (like `3600` seconds) and flush the cache.
+Alternatively, set the `WP_REDIS_MAXTTL` constant to something relatively low (like `3600` seconds) and flush the cache.
 
-## <code>Flushing the cache causes timeout</code>
+## Flushing the cache causes timeout
 
-This can happen when the dataset in Redis Server is quite large. Consider increasing `WP_REDIS_READ_TIMEOUT` and `WP_REDIS_FLUSH_TIMEOUT` to 5-10 seconds.
+This can happen when the Redis Server dataset is large. Consider increasing `WP_REDIS_READ_TIMEOUT` and `WP_REDIS_FLUSH_TIMEOUT` to 5-10 seconds.
 
-Alternatively, starting with Redis 6.2, setting the `lazyfree-lazy-user-flush` in the `redis.conf` configuration directive to `yes` changes the default flush mode to be asynchronous.
+Alternatively, starting with Redis 6.2, setting `lazyfree-lazy-user-flush` to `yes` in the `redis.conf` makes flushes asynchronous.
 
 ## Unable to flush the cache
 
-If your site is unreachable, you can flush the cache without access to the WordPress dashboard. 
+If your site is unreachable, you can flush the cache without access to the WordPress dashboard.
 
-Try running `wp cache flush`, or using `redis-cli` directly:
+Try running `wp cache flush`, or use `redis-cli` directly:
 
 ```bash
 redis-cli -h 127.0.0.1 -p 6379 FLUSHALL
 ```
 
+Note that `FLUSHALL` deletes the data of all databases on that Redis Server.
+
 Alternatively, you can use a desktop client like [Medis](https://getmedis.com) or [RedisInsight](https://redis.com/redis-enterprise/redis-insight/) to connect to your Redis Server and flush it by executing `FLUSHALL`.
 
 ## Cache is flushed constantly
 
-If you don't see metrics building up, or your site is not getting faster, you might have an active plugin that flushes the object cache frequently. To diagnose this issue you can use the following snippet to find the source of the cache flush:
+If you don't see metrics building up, or your site isn't getting faster, you might have an active plugin that flushes the object cache frequently. To find the source of the cache flushes, log a backtrace to the PHP error log whenever the cache is flushed:
 
 ```php
-add_action( 'redis_object_cache_flush', function( $results ) {
+add_action( 'redis_object_cache_flush', function ( $results ) {
     ob_start();
-    echo date( 'c' ) . PHP_EOL;
     var_dump( $results );
-    debug_print_backtrace();
-    error_log( ob_get_clean(), 3, ABSPATH . '/redis-cache-flush.log' );
-}, 10, 5 );
+    debug_print_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+    error_log( ob_get_clean() );
+} );
 ```
 
-Once you found the plugin responsible by checking `redis-cache-flush.log`, you can contact the plugin author(s) and reporting the issue.
+Once you've found the responsible plugin, report the issue to its author.
 
 ## Flushing the cache regularly
 
-It's considered a bad practise to flush the frequently, but sometimes 3rd party plugins and themes just don't play nice with persistent object caches. When the plugin/theme authors refuse to fix their code you can use [WP Cron](https://developer.wordpress.org/plugins/cron/) to flush the Redis object cache frequently.
+Flushing the cache frequently is considered bad practice, but sometimes third-party plugins and themes just don't play nicely with persistent object caches. If their authors refuse to fix their code, you can use [WP-Cron](https://developer.wordpress.org/plugins/cron/) in a must-use plugin to flush the object cache regularly:
 
 ```php
 if ( ! wp_next_scheduled( 'flush_redis_cache' ) ) {
@@ -206,6 +214,6 @@ add_action( 'flush_redis_cache', 'wp_cache_flush' );
 
 ## How can I uninstall the cache?
 
-Before [uninstalling the plugin](https://wordpress.org/documentation/article/manage-plugins/#uninstalling-plugins-1), be sure to disable the cache via `WordPress -> Settings -> Redis`.
+Before [uninstalling the plugin](https://wordpress.org/documentation/article/manage-plugins/#uninstalling-plugins-1), disable the cache under **Settings → Redis**, or run `wp redis disable`.
 
-If you already removed the plugin before doing so, you can delete the `object-cache.php` file in your `/wp-content/` directly.
+If you've already removed the plugin, delete the `wp-content/object-cache.php` file manually.
