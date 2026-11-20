@@ -85,9 +85,12 @@ On a single server, run Redis Server as a pure cache by disabling persistence in
 ```
 save ""
 appendonly no
+maxmemory-policy allkeys-lru
 ```
 
 With persistence enabled, Redis Server reloads an old snapshot after a crash and serves stale data. Without it, Redis Server restarts empty almost instantly and always matches the database.
+
+Also set a `maxmemory` limit that fits your server, so Redis Server can't use up all of its memory. The eviction policy only applies once that limit is set.
 
 If you're running more than one server, use [Redis Sentinel](https://github.com/rhubarbgroup/redis-cache#scaling) for high availability (requires Predis or Credis).
 
