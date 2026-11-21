@@ -6,3 +6,37 @@
     background: #b30000;
     color: #fff;
 }
+
+@media screen and (max-width: 782px) {
+    #wpadminbar li#wp-admin-bar-redis-cache.redis-cache-mobile {
+        display: block;
+    }
+
+    #wpadminbar #wp-admin-bar-redis-cache.redis-cache-mobile > .ab-sub-wrapper {
+        inset-inline-end: 0;
+    }
+
+    #wpadminbar #wp-admin-bar-redis-cache.redis-cache-mobile > .ab-item {
+        position: relative;
+        width: 52px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-indent: 100%;
+    }
+
+    #wpadminbar #wp-admin-bar-redis-cache.redis-cache-mobile > .ab-item:before {
+        content: "\f17e";
+        display: block;
+        top: 7px;
+        width: 52px;
+        font: normal 32px/1 dashicons;
+        text-align: center;
+        text-indent: 0;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    #wpadminbar li#wp-admin-bar-redis-cache.redis-cache-mobile {
+        position: static;
+    }
+}

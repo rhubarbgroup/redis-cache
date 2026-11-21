@@ -7,13 +7,18 @@
         event.preventDefault();
 
         var node = document.querySelector( '#wp-admin-bar-redis-cache' );
-        var textNode = node.querySelector( '.ab-item:first-child' );
+
+        var mobile = window.matchMedia( '(max-width: 782px)' ).matches;
+        var textNode = mobile ? element : node.querySelector( '.ab-item:first-child' );
 
         if ( ! textNode.dataset.text ) {
             textNode.dataset.text = textNode.innerText;
         }
 
-        node.classList.remove( 'hover' );
+        if ( ! mobile ) {
+            node.classList.remove( 'hover' );
+        }
+
         textNode.innerText = settings.l10n.flushing;
 
         try {

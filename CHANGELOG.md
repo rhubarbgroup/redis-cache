@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Show Admin Bar node on mobile (disable using `WP_REDIS_DISABLE_MOBILE_ADMINBAR`)
 - Fixed PHP 8.6 deprecation notice in Predis
 - Fixed authentication when using `WP_REDIS_SHARDS`
 

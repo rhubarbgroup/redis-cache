@@ -60,6 +60,7 @@ The Redis Object Cache plugin comes with vast set of configuration options. If y
 | `WP_REDIS_IGBINARY`                  | `false`     | Whether to use the igbinary PHP extension for serialization |
 | `WP_REDIS_DISABLED`                  | `false`     | Emergency switch to bypass the object cache without deleting the drop-in |
 | `WP_REDIS_DISABLE_ADMINBAR`          | `false`     | Disables admin bar display |
+| `WP_REDIS_DISABLE_MOBILE_ADMINBAR`   | `false`     | Disables admin bar display on narrow (mobile) screens |
 | `WP_REDIS_DISABLE_METRICS`           | `false`     | Disables metrics collection and display |
 | `WP_REDIS_DISABLE_DROPIN_CHECK`      | `false`     | Disables the extended drop-in write test |
 | `WP_REDIS_DISABLE_DROPIN_AUTOUPDATE` | `false`     | Disables the drop-in auto-update |

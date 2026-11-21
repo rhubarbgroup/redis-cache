@@ -754,13 +754,19 @@ class Plugin {
 
         $redis_status = $this->get_redis_status();
 
+        $classes = $redis_status === false ? [ 'redis-cache-error' ] : [];
+
+        if ( ! defined( 'WP_REDIS_DISABLE_MOBILE_ADMINBAR' ) || ! WP_REDIS_DISABLE_MOBILE_ADMINBAR ) {
+            $classes[] = 'redis-cache-mobile';
+        }
+
         $wp_admin_bar->add_node(
             [
                 'id' => 'redis-cache',
                 'title' => $nodeTitle,
                 'meta' => [
                     'html' => $html,
-                    'class' => $redis_status === false ? 'redis-cache-error' : '',
+                    'class' => implode( ' ', $classes ),
                 ],
             ]
         );
