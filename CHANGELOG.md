@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.2
+
+- Show Admin Bar node on mobile (disable using `WP_REDIS_DISABLE_MOBILE_ADMINBAR`)
+- Fixed PHP 8.6 deprecation notice in Predis
+- Fixed authentication when using `WP_REDIS_SHARDS`
+
 ## 3.0.1
 
 - Run `INFO` only when needed
@@ -15,6 +21,7 @@
 - Upgraded bundled Predis library to v2.4.1
 - Upgraded ApexCharts to v4.7.0
 - Indicate when the cache is disabled via the `WP_REDIS_DISABLED` constant
+- Support persistent connections via the `WP_REDIS_PERSISTENT` constant
 - Added `WP_REDIS_CHART_COLOR` constant
 - Added `WP_REDIS_LOAD_APEXCHARTS` constant
 - Fixed `wp_cache_replace()` writing keys that don't exist and misreporting its result
