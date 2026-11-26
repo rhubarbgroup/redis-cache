@@ -5,7 +5,7 @@ Tags: redis, object cache, caching, performance, relay
 Requires at least: 4.6
 Tested up to: 7.1
 Requires PHP: 7.2
-Stable tag: 3.0.2-dev
+Stable tag: 3.0.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -60,6 +60,12 @@ Redis Object Cache has various WP CLI commands, for more information run `wp hel
 4. Dashboard widget, displaying recent response time metrics.
 
 == Changelog ==
+
+= 3.0.2 =
+
+- Show Admin Bar node on mobile (disable using `WP_REDIS_DISABLE_MOBILE_ADMINBAR`)
+- Fixed PHP 8.6 deprecation notice in Predis
+- Fixed authentication when using `WP_REDIS_SHARDS`
 
 = 3.0.1 =
 
